@@ -1,0 +1,189 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Connections
+{% endblock %}
+{% block content %}
+<div id="area_connections" class="connections_body">
+    <div class="row">
+        <div class="col s12">
+            <ul id="tabbar" class="tabs tabs-fixed-width" v-cloak>
+                <li class="tab col s2"><a href="#finder" class="{{tabstates.finder}}" >{{ trans.con_tab_search }}</a></li>
+                <li class="tab col s2"><a href="#list" class="{{tabstates.list}}" >{{ trans.list }}</a></li>
+                <li class="tab col s3"><a href="#frequest" class="{{tabstates.frequest}}" >{{ trans.con_tab_followrequest }} ({? followRequest_count ?})</a></li>
+                <li class="tab col s2"><a href="#following" class="{{tabstates.following}}">{{ trans.con_tab_following }} ({? following_count ?})</a></li>
+                <li class="tab col s2"><a href="#follower" class="{{tabstates.follower}}" >{{ trans.con_tab_follower }}  ({? follower_count ?})</a></li>
+            </ul>
+        </div>
+        <div id="finder" class="col s12 tab-content {{tabstates.finder}}">
+            <ul class="collapsible">
+                <li class="active">
+                    <div class="collapsible-header">おすすめユーザー</div>
+                    <div id="suggestion" class="collapsible-body">
+                        <div class="user-grid sizing">
+                            <div class="user-grid-item" v-for="selected in accounts">
+                                <user-popupcard
+                                    v-bind:cardtype="cardtype"
+                                    v-bind:translation="translations"
+                                    v-bind:account="selected"
+                                    v-bind:relationship="selected.relationship"
+                                    v-bind:globalinfo="globalInfo"
+                                ></user-popupcard>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                </li>
+                <li>
+                    <div class="collapsible-header">検索結果</div>
+                    <div id="search" class="collapsible-body">
+                        <div class="user-grid sizing">
+                            <div class="user-grid-item" v-for="selected in accounts">
+                                <user-popupcard
+                                    v-bind:cardtype="cardtype"
+                                    v-bind:translation="translations"
+                                    v-bind:account="selected"
+                                    v-bind:relationship="selected.relationship"
+                                    v-bind:globalinfo="globalInfo"
+                                ></user-popupcard>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+        <div id="list" class="col s12 tab-content {{tabstates.list}}" >
+            <v-layout column>
+                <v-flex xs12>
+                    <v-card>
+                        <div class="row">
+                            <!--<v-select
+                                :items="lists"
+                                v-model="current_list"
+                                v-bind:label="translations.list"
+                            ></v-select>-->
+                            <div class="input-field col s9">
+                                <select id="list_list" v-model="current_list">
+                                    <option v-for="(itm,index) in lists" :key="index" v-bind:value="itm.value">{?itm.text?}</option>
+                                </select>
+                                <label>{?translations.list?}</label>
+                            </div>
+                            <div class="col s3">
+                                <v-tooltip bottom>
+                                    <v-btn flat icon color="red" slot="activator" v-on:click="onupdate_list">
+                                        <v-icon>edit</v-icon>
+                                    </v-btn>
+                                    <span>{? translations.acc_toolbar_edit ?}</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon color="red" slot="activator"  v-on:click="oncreate_list">
+                                        <v-icon>add</v-icon>
+                                    </v-btn>
+                                    <span>{? translations.list_create ?}</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon color="secondary" slot="activator"  v-on:click="ondelete_list">
+                                        <v-icon>delete</v-icon>
+                                    </v-btn>
+                                    <span>{? translations.list_delete ?}</span>
+                                </v-tooltip>
+                                
+                            </div>
+                        </div>
+                    </v-card>
+                </v-flex>
+                <v-flex xs12 v-on:scroll="onscroll_tab">
+                    <div class="user-grid sizing">
+                        <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
+                            <user-popupcard
+                                v-bind:cardtype="cardtype"
+                                v-bind:translation="translations"
+                                v-bind:account="selected"
+                                v-bind:relationship="selected.relationship"
+                                v-bind:globalinfo="globalInfo"
+                                v-on:check_selectable="oncheck_selectable"
+                            ></user-popupcard>
+                        </div>
+                    </div>
+                </v-flex>
+            </v-layout>
+        </div>
+        <div id="frequest" class="col s12 tab-content {{tabstates.frequest}}" v-on:scroll="onscroll_tab">
+            <div class="user-grid sizing">
+                <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
+                    <user-popupcard
+                        v-bind:cardtype="cardtype"
+                        v-bind:translation="translations"
+                        v-bind:account="selected"
+                        v-bind:relationship="selected.relationship"
+                        v-bind:globalinfo="globalInfo"
+                        v-on:check_selectable="oncheck_selectable"
+                        v-on:request_answer="onrequest_answer"
+                    ></user-popupcard>
+                </div>
+            </div>
+        </div>
+        <div id="following" class="col s12 tab-content {{tabstates.following}}" v-on:scroll="onscroll_tab">
+            <div class="user-grid sizing">
+                <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
+                    <user-popupcard
+                        v-bind:cardtype="cardtype"
+                        v-bind:translation="translations"
+                        v-bind:account="selected"
+                        v-bind:relationship="selected.relationship"
+                        v-bind:globalinfo="globalInfo"
+                        v-on:check_selectable="oncheck_selectable"
+                    ></user-popupcard>
+                </div>
+            </div>
+            <v-bottom-sheet v-model="sheet" hide-overlay inset>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-flex xs11 sm11 md3>
+                                <v-select
+                                    :items="addlist"
+                                    v-model="current_addlist"
+                                    v-bind:label="translations.target_list"
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs1>
+                                <v-btn flat icon color="red" v-on:click="onregister_list">
+                                    <v-icon>send</v-icon>
+                                </v-btn>
+                            </v-flex>
+                            
+                        </v-layout>
+                    </v-card-text>    
+                </v-card>
+                
+            </v-bottom-sheet>
+        </div>
+        <div id="follower" class="col s12 tab-content {{tabstates.follower}}" v-on:scroll="onscroll_tab">
+            <div class="user-grid sizing">
+                <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
+                    <user-popupcard
+                        v-bind:cardtype="cardtype"
+                        v-bind:translation="translations"
+                        v-bind:account="selected"
+                        v-bind:relationship="selected.relationship"
+                        v-bind:globalinfo="globalInfo"
+                        v-on:check_selectable="oncheck_selectable"
+                    ></user-popupcard>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<input type="hidden" id="hid_instance" value="{{init_instance}}" />
+<input type="hidden" id="hid_page" value="{{page}}" />
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/appconnections.js"></script>
+{% endblock %}

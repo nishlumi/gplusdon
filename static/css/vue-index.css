@@ -1,0 +1,16 @@
+.vue-fit-content {
+    padding : 0;
+    height  :calc(100% - 56px - 48px);
+}
+.vue-fit-container {
+    padding-top : 0;
+    padding-left : 0;
+    padding-right : 0;
+    height : 100%;
+    overflow : auto;
+}
+
+.vue-view_area {
+    height : 100%;
+    padding : 1rem;
+}

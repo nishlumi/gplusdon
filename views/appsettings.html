@@ -1,0 +1,93 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Settings
+{% endblock %}
+{% block content %}
+<div id="area_settings" class="setting_body">
+    <div id="settingview" class="setting-view" v-cloak>
+        <v-expansion-panel>
+            <v-expansion-panel-content>
+                <div slot="header">{{trans.cfg_panel_application}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap align-center>
+                            <v-flex xs12 sm12 md6 lg6>
+                                <v-radio-group 
+                                    label="{{trans.app_lab_showmode}}"
+                                    v-model="type_app.showMode" 
+                                    column
+                                >
+                                    <v-radio label="Mastodon" value="mastodon"></v-radio>
+                                    <v-radio label="Twitter" value="twitter"></v-radio>
+                                    <v-radio label="Google+" value="gplus"></v-radio>
+                                </v-radio-group>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6 lg6>
+                                <!--<v-select
+                                    :items="vals_timeline_view"
+                                    v-model="type_app.timeline_view"
+                                    label="{{trans.app_lab_timelineview}}"
+                                ></v-select>-->
+                                <div class="input-field col s12">
+                                    <select v-model="type_app.timeline_view">
+                                        <template v-for="item in vals_timeline_view">
+                                            <option v-bind:value="item.value">{? item.text ?}</option>
+                                        </template>
+                                    </select>
+                                    <label>{{trans.app_lab_timelineview}}</label>
+                                </div>
+                                <span class="red-text">{{ trans.app_lab_timelineview_exception }}</span>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6 lg6>
+                                <span class="grey-text">タイムラインで常に保持するトゥート数</span>
+                                <v-btn-toggle v-model="type_app.timeline_viewcount">
+                                    <v-btn flat v-bind:value="cons_timeline_viewcont[0]">
+                                        20
+                                    </v-btn>
+                                    <v-btn flat v-bind:value="cons_timeline_viewcont[1]">
+                                        30
+                                    </v-btn>
+                                    <v-btn flat v-bind:value="cons_timeline_viewcont[2]">
+                                        40
+                                    </v-btn>
+                                </v-btn-toggle>
+                            </v-flex>
+                        </v-layout>
+                    </v-card-text>
+                </v-card>                
+            </v-expansion-panel-content>
+            <v-expansion-panel-content>
+                <div slot="header">{{trans.cfg_panel_action}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-flex xs12>
+                                <v-checkbox v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-checkbox v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}"></v-checkbox>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
+                            </v-flex>
+                            <v-flex xs12>
+                                
+                            </v-flex>
+    
+                        </v-layout>
+                    </v-card-text>
+                </v-card>                
+            </v-expansion-panel-content>
+        </v-expansion-panel>
+    </div>
+</div>
+
+<input type="hidden" id="hid_id" value="" />
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/appsettings.js"></script>
+{% endblock %}

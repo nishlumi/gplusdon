@@ -1,0 +1,15 @@
+{
+  "name": "G+Don",
+  "short_name": "G+Don",
+  "icons": [
+    {
+      "src": "/static/images/app_icon.png",
+      "sizes": "640x640",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f44336"
+}

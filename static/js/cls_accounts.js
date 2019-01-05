@@ -1,0 +1,563 @@
+/**===========================================================================
+ * Mastodon account class
+ =============================================================================*/
+class Account {
+    constructor() {
+        this.id = "";
+        this.idname = "";
+        this.display_name = "";
+        this.token = "";
+        this.instance = "";
+        this.acct = "";
+        this.api = null;
+        this.rawdata = null;
+        this.status = "";
+        this.stream = null;
+        this.streams = {
+            list : null,
+            tag : null,
+            taglocal : null,
+            local : null,
+            public : null
+        };
+        this.direct = null;
+        this.notifications = [];
+    }
+    getBaseURL() {
+        return "https://" + this.instance;
+    }
+    getRaw() {
+        return {
+            id : this.id,
+            idname : this.idname,
+            display_name : this.display_name,
+            token : this.token,
+            instance : this.instance,
+            acct : this.acct,
+            rawdata : this.rawdata,
+            notifications : this.notifications,
+        };
+    }
+    getRawdata() {
+        return [
+            this.id,
+            this.idname,
+            this.display_name,
+            JSON.stringify(this.token),
+            this.instance,
+            JSON.stringify(this.rawdata)
+        ].join("\t");
+    }
+    load(data) {
+        this.id = data.id;
+        this.idname = data.idname;
+        this.display_name = data.display_name;
+            
+        this.token = data.token;
+        this.instance = data.instance;
+        this.rawdata = data.rawdata;
+        this.acct = this.idname + "@" + this.instance;
+
+        var tmpname = data.display_name;
+        tmpname = MUtility.replaceEmoji(tmpname,data.instance,data.rawdata.emojis,14);
+        this.display_name = tmpname;
+
+        this.api = new MastodonAPI({
+            instance: this.getBaseURL(),
+            api_user_token: this.token.access_token
+        });
+        this.notifications = data.notifications;
+        this.stream = new Gpstream("user",this,null,null);
+        //this.stream.start();
+        this.streams.list = new Gpstream("list",this,null,null);
+        this.streams.tag = new Gpstream("hashtag",this,null,null);
+        this.streams.taglocal = new Gpstream("hashtag:local",this,null,null);
+        this.streams.public = new Gpstream("public",this,null,null);
+        this.streams.local = new Gpstream("public:local",this,null,null);
+        this.direct = new Gpstream("direct",this,null,null);
+        //this.direct.start();
+    }
+};
+/**===========================================================================
+ * Notification class for Mastodon account
+ =============================================================================*/
+class AccountNotification {
+    constructor(account) {
+        this.account = account;
+        this.notifications = [];
+        this.info = {
+            maxid : "",
+            sinceid : "",
+            is_nomax : false,
+            is_nosince : false, 
+        };
+
+    }
+}
+/**===========================================================================
+ * Mastodon account manager class
+ =============================================================================*/
+class AccountManager {
+    constructor() {
+        this.items = [];
+        this.backupItems = [];
+        this.setting = {
+            NAME: "_gp_ac_m",
+            INSTANCEEMOJI : "gp_ac_inst_emj"
+        };
+        /**
+         * {
+         *   emoji : {}
+         * }
+         */
+        this.instances = {};
+
+
+    }
+    /**
+     * 
+     * @param {Promise} instance_name name of the instance of Mastodon
+     */
+    addInstance(instance_name) {
+        /* At this function, created Account object is not meaning.
+         effective register point is afterAddInstance
+        */
+        var acc = new Account();
+        acc.instance = instance_name;
+        acc.api = new MastodonAPI({
+            instance: acc.getBaseURL()
+        });
+        var tmpaccount = {
+            "instance": instance_name,
+            "siteinfo": {}
+        };
+        var callbackurl = window.location.origin + MYAPP.appinfo.firstPath + MYAPP.siteinfo.redirect_uri;
+
+        var def = new Promise((resolve, reject) => {
+            acc.api.registerApplication(
+                MYAPP.appinfo.name,
+                callbackurl,
+                MYAPP.siteinfo.scopes,
+                "",
+                function (data) {
+                    tmpaccount.siteinfo["key"] = data.client_id;
+                    tmpaccount.siteinfo["secret"] = data.client_secret;
+                    tmpaccount.siteinfo["redirect_uri"] = data.redirect_uri;
+                    localStorage.setItem("tmpaccount", JSON.stringify(tmpaccount));
+                    var url = acc.api.generateAuthLink(
+                        tmpaccount.siteinfo.key,
+                        tmpaccount.siteinfo.redirect_uri,
+                        "code",
+                        MYAPP.siteinfo.scopes
+                    );
+                    window.location.href = url;
+                    //resolve(url);
+                    /*
+                        Next step is redirected step in window.onload
+                    */
+                }
+            );
+        });
+        return def;
+    }
+    afterAddInstance(code) {
+        var def = new Promise((resolve,reject)=>{
+            var istest = localStorage.getItem("tmpaccount");
+            if (istest && code) {
+                var tmpdata = JSON.parse(istest);
+                var acc = new Account();
+                acc.instance = tmpdata.instance;
+                acc.api = new MastodonAPI({
+                    instance: acc.getBaseURL()
+                });
+                acc.api.getAccessTokenFromAuthCode(
+                    tmpdata.siteinfo.key,
+                    tmpdata.siteinfo.secret,
+                    tmpdata.siteinfo.redirect_uri,
+                    code,
+                    function (data) {
+                        acc.api.setConfig("api_user_token", data.access_token);
+                        acc.rawdata = data;
+                        acc.token = {
+                            "token_type": data.token_type,
+                            "expires_in": "",
+                            "refresh_token": "",
+                            "scope": data.scope,
+                            "access_token": data.access_token,
+                            "access_secret": ""
+                        };
+                        localStorage.removeItem("tmpaccount");
+
+                        acc.api.get("accounts/verify_credentials", function (data) {
+                            MYAPP.sns.getInstanceInfo(acc.instance)
+                            .then(result=>{
+                                acc.id = data.id;
+                                acc.idname = data.username;
+                                acc.display_name = data.display_name;
+                                acc.rawdata = data;
+                                acc.token["stream_url"] = result.urls.streaming_api;
+                                acc.api.setConfig("stream_url",result.urls.streaming_api);
+                                acc.stream = new Gpstream("user",acc,null,null);
+                                MYAPP.acman.items.push(acc);
+
+                                MYAPP.acman.instances[result.uri] = {
+                                    info : result,
+                                    instance : result.uri
+                                };
+                                resolve({
+                                    users : MYAPP.acman.items,
+                                    instancedata:MYAPP.acman.instances[result.uri],
+                                    instance : result.uri
+                                });
+                            })
+                            .finally(()=>{
+                                MYAPP.acman.save();    
+                            });
+                        }, function (xhr) {
+                            alert("authorization error.");
+                            console.log(xhr);
+                        });
+                    }
+                );
+            }
+        });
+        return def;
+    }
+    getIndex(key) {
+        var keylen = 0;
+        var ret = -1;
+        for (var obj in key) {
+            keylen++;
+        }
+        for (var i = 0; i < this.items.length; i++) {
+            var hit = 0;
+            /*if (key["servicename"] && (key["servicename"] === this.items[i].servicename)) {
+                hit++;
+            }*/
+            if (key["id"] && (key["id"] === this.items[i].id)) {
+                hit++;
+            }
+            if (key["idname"] && (key["idname"] === this.items[i].idname)) {
+                hit++;
+            }
+            if (key["display_name"] && (key["display_name"] === this.items[i].display_name)) {
+                hit++;
+            }
+            if (key["instance"] && (key["instance"] === this.items[i].instance)) {
+                hit++;
+            }
+            if (hit == keylen) {
+                ret = i;
+                break;
+            }
+        }
+        return ret;
+    }
+    get(key) {
+        var i = this.getIndex(key);
+        if (i > -1) {
+            return this.items[i];
+        } else {
+            return null;
+        }
+
+    }
+    set(key,item) {
+        var olditem = this.getIndex(key);
+        this.items[olditem] = item;
+        this.backupItems[olditem] = Object.assign({},item);
+    }
+    remove(key) {
+        var i = own.getIndex(key);
+        console.log(i);
+        if (i > -1) {
+            own.items.splice(i, 1);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /**
+     * save Account data (Account to JSON)
+     * 
+     * */
+    save() {
+        if (curLocale.environment.platform == "windowsapp") {
+            var folder = Windows.Storage.ApplicationData.current.localFolder;
+            folder.getFileAsync(this.setting.NAME)
+                .then(function (file) {
+                    Windows.Storage.FileIO.writeTextAsync(file, JSON.stringify(this.items[i]));
+                }, function (data) {
+                    folder.createFileAsync(this.setting.NAME)
+                        .then(function (file) {
+                            Windows.Storage.FileIO.writeTextAsync(file, JSON.stringify(this.items[i]));
+                        });
+                });
+        } else {
+            var tmparr = [];
+            for (var i = 0; i < this.items.length; i++) {
+                tmparr.push(this.items[i].getRaw());
+            }
+            AppStorage.set(this.setting.NAME, tmparr);
+        }
+    }
+    checkVerify() {
+        var pros = [];
+        for (var i = 0; i < this.items.length; i++) {
+            var acc = this.items[i];
+            MYAPP.sns.setAccount(acc);
+            var def = new Promise((resolve,reject)=>{
+                MYAPP.sns.updateCredential(acc)
+                .then(result=>{
+                    //console.log("verify data=>",result);
+                    result.account.id = result.data.id;
+                    result.account.idname = result.data.username;
+                    result.account.display_name = result.data.display_name;
+                    result.account.rawdata = result.data;
+                    var aci = this.getIndex({
+                        "idname":acc.idname, 
+                        "instance":acc.instance
+                    });
+                    this.set({"idname":acc.idname, "instance":acc.instance},acc);
+                    this.save();
+                    resolve({index: aci, data:acc});
+                })
+                .catch((error,status,xhr)=>{
+                    console.log("NG:",error,status,xhr);
+
+                    //alertify.error("load error:" + acc.idname);
+                    var tmpi = this.getIndex({
+                        instance : acc.instance,
+                        idname : acc.idname
+                    });
+                    this.items[tmpi].status = "err";
+                    this.backupItems[tmpi].status = "err";
+                    //---if error, remove current session user data (NO permanent!!)
+                    //this.items.splice(i,1);
+                    resolve({index : tmpi, data: this.items[tmpi]});
+                });
+            });
+            pros.push(def);
+
+            /*acc.api.get("accounts/verify_credentials")
+            .then((data) => {
+                console.log("verify data=>",data);
+                acc.id = data.id;
+                acc.idname = data.username;
+                acc.display_name = data.display_name;
+                acc.rawdata = data;
+                var aci = this.getIndex({"idname":acc.idname, "instance":acc.instance});
+                this.set({"idname":acc.idname, "instance":acc.instance},acc);
+                this.save();
+            }, function (xhr) {
+                alertify.error("load error:" + this.items[i].idname);
+                this.items[i].status = "err";
+                this.backupItems[i].status = "err";
+                //---if error, remove current session user data (NO permanent!!)
+                this.items.splice(i,1);
+                console.log(xhr);
+            });*/
+        }
+        return Promise.all(pros)
+        .then(values=>{
+            /*for (var i = values.length-1; i >= 0; i--) {
+                if (values[i].data.status == "err") {
+                    this.items.splice(values.index,1);
+                }
+            }*/
+            return this.items;
+        });
+    }
+    /**
+     * load Account data  (JSON to Account)
+     * */
+    load() {
+        var def = new Promise((resolve, reject) => {
+            this.items.splice(0, this.items.length);
+            if (curLocale.environment.platform == "windowsapp") {
+                var folder = Windows.Storage.ApplicationData.current.localFolder;
+                folder.getFileAsync(this.setting.NAME)
+                    .then((file) => {
+                        var reader = new FileReader();
+                        reader.onload =  (e) => {
+                            var text = reader.result;
+                            this.items = JSON.parse(text);
+                            resolve(this.items);
+                        };
+                        reader.onerror =  (e) => {
+                            appAlert("not valid file!!");
+                            reject("error");
+                        };
+                        reader.readAsText(file);
+                    }, function (data) {
+                        console.log("AccountManager.load: not found ini file.");
+                    });
+            } else {
+                var fdata = AppStorage.get(this.setting.NAME, null);
+                if (fdata) {
+                    var promises = [];
+                    var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
+                    if (emojitest) {
+                        var values = (emojitest);
+                        for (var i = 0; i < fdata.length; i++) {
+                            var ac = new Account();
+                            ac.load(fdata[i]);
+                            console.log("ac.api=",ac.api,values[ac.instance]);
+                            ac.api.setConfig("stream_url",values[ac.instance].info.urls.streaming_api);
+                            if (location.pathname != "/toot/new") {
+                                ac.stream.start();
+                                ac.direct.start();
+                            }
+                            this.items.push(ac);
+                            this.backupItems.push(ac);
+                            console.log(ac.instance);
+                        }
+                        /*for (var iv = 0; iv < values.length; iv++) {
+                            this.instances[values[iv].instance] = {
+                                emoji : values[iv]
+                            };
+                        }*/
+                        this.instances = values;
+                        resolve(this.items);
+                    }else{
+                        for (var i = 0; i < fdata.length; i++) {
+                            var ac = new Account();
+                            ac.load(fdata[i]);
+                            this.items.push(ac);
+                            this.backupItems.push(ac);
+                            console.log(ac.instance);
+                            
+                            //var pro = MYAPP.sns.getInstanceEmoji(ac.instance);
+                            //promises.push(pro);
+                            
+                        
+                            promises.push(
+                                MYAPP.sns.getInstanceInfo(ac.instance)
+                                .then(result=> {
+                                    this.instances[result.uri] = {
+                                        info : result,
+                                        instance : result.uri
+                                    };
+                                    for (var ainx = 0; ainx < this.items.length; ainx++) {
+                                        if (this.items[ainx].instance == result.uri) {
+                                            this.items[ainx].token["stream_url"] = result.urls.streaming_api;
+                                            this.items[ainx].api.setConfig("stream_url",result.urls.streaming_api);
+                                        }
+                                    }
+                                    return {data:this.instances[result.uri],
+                                        instance : result.uri
+                                    };
+                                })
+                                .then(result2=> {
+                                    return MYAPP.sns.getInstanceEmoji(result2.instance)
+                                    .then(emojiresult => {
+                                        return result2.data["emoji"] = emojiresult;
+                                        
+                                    });
+                                })
+                            );
+
+                        }
+                        //resolve(this.items);
+                        Promise.all(promises)
+                        .then(values => {
+                            console.log("values=",values);
+                            /*for (var iv = 0; iv < values.length; iv++) {
+                                this.instances[values[iv].instance] = {
+                                    emoji : values[iv]
+                                };
+                            }*/
+                            AppStorage.set(this.setting.INSTANCEEMOJI,this.instances);
+                            
+                        })
+                        .finally(()=>{
+                            this.items.forEach(e=>{
+                                e.stream.start();
+                                e.direct.start();
+                            });
+                            resolve(this.items);
+                        });
+                        
+                    }
+                } else {
+                    reject(false);
+                }
+            }
+        });
+        return def;
+    }
+}
+class Gsuserstore {
+    constructor(){
+        /*
+          {
+              account : Object,
+              relationship : Object
+          }
+        */
+        this.items = [];
+    }
+    getIndex(key) {
+        var keylen = 0;
+        var ret = -1;
+        for (var obj in key) {
+            keylen++;
+        }
+        for (var i = 0; i < this.items.length; i++) {
+            var hit = 0;
+            /*if (key["servicename"] && (key["servicename"] === this.items[i].servicename)) {
+                hit++;
+            }*/
+            if (key["id"] && (key["id"] === this.items[i].account.id)) {
+                hit++;
+            }
+            if (key["username"] && (key["username"] === this.items[i].account.username)) {
+                hit++;
+            }
+            if (key["display_name"] && (key["display_name"] === this.items[i].account.display_name)) {
+                hit++;
+            }
+            if (key["instance"] && (key["instance"] === this.items[i].account.instance)) {
+                hit++;
+            }
+            if (hit == keylen) {
+                ret = i;
+                break;
+            }
+        }
+        return ret;
+    }
+    add(user) {
+        var i = this.getIndex({
+            username : user.username,
+            instance : user.instance
+        });
+        if (i < 0) {
+            this.items.push(Object.assign({},user));
+        }
+    }
+    get(key) {
+        var i = this.getIndex(key);
+        if (i > -1) {
+            return this.items[i];
+        } else {
+            return null;
+        }
+
+    }
+    set(key,item) {
+        var olditem = this.getIndex(key);
+        this.items[olditem] = item;
+    }
+    remove(key) {
+        var i = own.getIndex(key);
+        console.log(i);
+        if (i > -1) {
+            own.items.splice(i, 1);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}

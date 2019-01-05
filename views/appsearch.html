@@ -1,0 +1,84 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Search
+{% endblock %}
+{% block content %}
+<div id="area_search" class="search_body">
+    <div class="row">
+        <div class="col s12">
+            <ul  class="tabs tabs-fixed-width">
+                <li class="tab col s3"><a class="black-text active" href="#s_user"><i class="material-icons">person</i><span class="hidden-sm-and-down">{{trans.user}}</span></a></li>
+                <li class="tab col s3"><a href="#s_hashtags" class="black-text"><i class="material-icons">list</i><span class="hidden-sm-and-down">{{trans.hashtags}}</span></a></li>
+                <li class="tab col s3"><a href="#s_toot" class="black-text"><i class="material-icons">view_day</i><span class="hidden-sm-and-down">{{trans.toots}}</span></a></li>
+            </ul>
+        </div>
+        <div id="s_user" class="col s12 tab-content " v-on:scroll="onscroll_tab">
+            <div class="user-grid sizing">
+                <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
+                    <user-popupcard
+                        v-bind:cardtype="cardtype"
+                        v-bind:translation="translations"
+                        v-bind:account="selected"
+                        v-bind:relationship="selected.relationship"
+                        v-bind:globalinfo="globalInfo"
+                        v-on:check_selectable="oncheck_selectable"
+                    ></user-popupcard>
+                </div>
+            </div>
+        </div>
+        <div id="s_hashtags" class="col s12 tab-content">
+            <v-list>
+                <v-list-tile v-for="(tag,index) in tags" v-bind:key="index" v-cloak>
+                    <v-list-tile-content v-on:click="onclick_tagitem(tag.name)">
+                        <v-list-tile-title><a>#{? tag.name ?}</a></v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+        </div>
+        <div id="s_toot" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
+                <div class="card toot_card_base topItem" >
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <select id="sel_tlshare_local" v-model="selshare_current">
+                                    <template v-for="item in sel_tlshare">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="input-field col s6">
+                                <select id="sel_tltype_local" v-model="seltype_current">
+                                    <template v-for="item in sel_tltype">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.id"
+                    v-bind:globalinfo="globalInfo"
+                    v-for="(status,index) in statuses"
+                    v-on:replied_post="onreplied_children(status,index)"
+                ></timeline-toot>
+            </div>
+        </div>
+    </div>
+
+</div>
+<input type="hidden" id="hid_findtext" value="{{findtext}}" />
+<input type="hidden" id="hid_uid" value="{{uid}}" />
+
+
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/appsearch.js"></script>
+{% endblock %}

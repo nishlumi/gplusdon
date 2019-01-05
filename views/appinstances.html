@@ -1,0 +1,136 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Instances
+{% endblock %}
+{% block content %}
+<div id="area_instance" class="container instances_body">
+    <div id="search" class="search-panel">
+        <div class="row search-box white z-depth-1">
+            <!--<form name="search" v-on:submit.prevent="onsubmit_search">
+                <div class="col  s11 m6 offset-m3 input-field red-text">
+                    <input placeholder="{{trans.txt_add_instance}}" id="txt_instance" name="instance_name" type="text" class="validate">
+                    <label for="txt_instance" >{{ trans.txt_add_instance }}</label>
+                </div>
+                <div class="col s1">
+                    <button id="btn_search" class="btn-floating btn waves-effect waves-light red"><i class="material-icons">search</i></button>
+                </div>
+            </form>
+            -->
+            <div class="s12">
+                <details>
+                    <summary class="list_summary"><strong>{{ trans.msg_now_random }}</strong></summary>
+                    <div class="col s12 chip_box" v-cloak v-if="randomInstance.length > 0">
+                        <span class="chip type-random indigo white-text z-depth-1" v-bind:key="item.id" v-on:click="onclick_chip" v-for="item in randomInstance" v-bind:title="item.name" >{? item.name ?}</span>
+                    </div>
+                </details>                
+            </div>
+        </div>
+        <div class="row search-result white z-depth-1" v-cloak>
+            <details>
+                <summary class="list_summary"><strong>{{ trans.msg_find_result }}</strong></summary>
+                <div class="col s12 chip_box" v-if="resulturis.length > 0">
+                    <span class="chip type-search indigo white-text z-depth-1" v-bind:key="item.id" v-on:click="onclick_chip" v-for="item in resulturis" v-bind:title="item.name" >{? item.name ?}</span>
+                </div>
+            </details>
+        </div>
+        <div class="row search-detail "  v-if="is_selected" v-cloak>
+            <div class="col s12 m8 l8">
+                <div class="row">
+                    <div class="col s12 m12 l12">
+                        <div class="card white z-depth-2">
+                            <div class="card-image">
+                                <a v-bind:href="'https://'+selected.uri" target="_blank" rel="noopener"><img v-bind:src="selected.thmbnail"></a>
+                            </div>
+                            <div class="card-content instance-content blue-grey-text text-darken-4">
+                                <a v-bind:href="'https://'+selected.uri" target="_blank" rel="noopener"><span class="card-title">{? selected_base.name ?}</span></a>
+                                <span class="card-subtitle">{{ trans.version }}: {? selected.version ?}</span>
+                                <span class="card-subdatetime">{{ trans.lastupdate }}: {? new Date(selected_base.updated_at).toLocaleString() ?}</span><br>
+                                <span class="card-instance-rank" v-bind:title="selected_base.obs_score">{{ trans.Observatoryrank }}:  {? selected_base.obs_rank ?}</span>
+                                <table  v-if="selected['stats']">
+                                    <thead>
+                                        <tr>
+                                            <th>{{trans.stat_user}}</th><th>{{trans.stat_allstatuses}}</th><th>{{trans.stat_domain}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="poup-stat-number blue-text">{? selected.stats.user_count ?}</span></td>
+                                            <td><span class="poup-stat-number blue-text">{? selected.stats.status_count ?}</span></td>
+                                            <td><span class="poup-stat-number blue-text">{? selected.stats.domain_count ?}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m12 l12 instance-desc">
+                        <div class="card white z-depth-2">
+                            <p v-html="selected.description"></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col s12 m4 l4" v-if="exists_contact_account">
+                <div class="card white z-depth-2">
+                    <div class="card-image">
+                            <span class="card-account-administrator">{{trans.instance_manager}}</span>
+                        <div class="background">
+                            <img v-bind:src="selected.contact_account.header">
+                        </div>
+                    </div>
+                    <div class="card-account-info">
+                        <a v-bind:href="`${globalInfo.firstPath}/users/${selected.contact_account.instance}/${selected.contact_account.username}`">
+                            <img v-bind:src="selected.contact_account.avatar" class="btn-floating halfway-fab2 userrectangle" width="32" height="32">
+                            <span v-html="selected.contact_account.display_name"></span><br>
+                            <i> @{?  selected.contact_account.acct ?}@{? selected.uri ?}</i>
+                        </a>
+                    </div>
+                    <div class="card-content card-account-content blue-grey-text text-darken-4" v-html="selected.contact_account.note">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{trans.stat_statuses}}</th><th>{{trans.stat_following}}</th><th>{{trans.stat_follower}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{? selected.contact_account.statuses_count ?}</td>
+                                <td>{? selected.contact_account.following_count ?}</td>
+                                <td>{? selected.contact_account.followers_count ?}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="card-action common_ui_off">
+                            <a href="#" class="waves-effect waves-red"><i class="material-icons red-text">person_add</i></a>
+                        <a v-bind:href="selected.contact_account.url" target="_blank" rel="noopener nofollow" class="waves-effect waves-red"><i class="material-icons red-text">email</i></a>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col s12 m12 l12">
+                <div class="card white z-depth-2">
+                    <div id="act_chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<input type="hidden" id="hid_instance" value="{{init_instance}}" />
+
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/lib/highcharts/highcharts.js"></script>
+<script src="/static/lib/highcharts/series-label.js"></script>
+<script src="/static/lib/highcharts/exporting.js"></script>
+<script src="/static/lib/highcharts/export-data.js"></script>
+
+<script src="/static/js/appinstances.js"></script>
+{% endblock %}

@@ -1,0 +1,543 @@
+/*============================================================
+
+    CSS class define for the Toot card and Toot timeline grid view
+
+==============================================================*/
+/*====================================================
+  timeline base UI
+=====================================================*/
+.timeline_body {
+    width : 100%;
+    height : 100%;
+}
+.timeline_body .row {
+    height: 100%;
+}
+.timeline_body .tab-content {
+    height:  calc(100% - 48px);
+    overflow-x  : hidden;
+    overflow-y : auto;
+}
+.timelinebody {
+    width : 100%;
+    height : 100%;
+    /*max-height: 80%;
+    overflow : auto;*/
+    z-index: 10;
+}
+
+
+/*=== grid panel === */
+div.toot_timeline_grid {
+    display : grid;
+    gap:  2rem;
+    grid-template-rows: minmax(3rem,auto);
+    grid-auto-flow: dense;
+    grid-auto-rows : minmax(3rem,auto);
+    width : 100%;
+    height : fit-content;
+}
+div.toot_timeline_grid.width_count  {
+    grid-template-columns: 100%;
+}
+/* Setting: application show Mode*/
+div.toot_timeline_grid.width_1 {
+    grid-template-columns: 100%;
+}
+div.toot_timeline_grid.width_2 {
+    grid-template-columns: 45% 45%;
+    padding-left : 5%;
+}
+div.toot_timeline_grid.width_3 {
+    grid-template-columns: 31% 31% 31%;
+    padding-left : 3%;
+}
+
+/*=== Sizing define of each screen ===*/
+@media only screen and (min-width: 601px) {
+
+    div.toot_timeline_grid.width_count {
+        grid-template-columns: 45% 45%;
+        padding-left : 5%;
+    }
+
+    div.toot_timeline_grid.width_2 {
+        grid-template-columns: 45% 45%;
+        padding-left : 5%;
+    }
+    div.toot_timeline_grid.width_3 {
+        grid-template-columns: 45% 45%;
+        padding-left : 3%;
+    }
+    
+}
+@media only screen and (min-width: 993px) {
+
+    div.toot_timeline_grid.width_count {
+        grid-template-columns: 47% 47%;
+        padding-left : 3%;
+    }
+    div.toot_timeline_grid.width_2 {
+        grid-template-columns: 47% 47%;
+        padding-left : 5%;
+    }
+    div.toot_timeline_grid.width_3 {
+        grid-template-columns: 31% 31% 31%;
+        padding-left : 3%;
+    }
+
+}
+@media only screen and (min-width: 1350px) {
+
+    div.toot_timeline_grid.width_count {
+        grid-template-columns: 31% 31% 31%;
+        padding-left : 3%;
+    }
+    div.toot_timeline_grid.width_2 {
+        grid-template-columns: 47% 47%;
+        padding-left : 5%;
+    }
+    div.toot_timeline_grid.width_3 {
+        grid-template-columns: 31% 31% 31%;
+        padding-left : 3%;
+    }
+
+}
+@media only screen and (min-width: 1700px) {
+
+    div.toot_timeline_grid.width_count {
+        grid-template-columns: 23% 23% 23% 23%;
+        padding-left : 4%;
+    }
+    div.toot_timeline_grid.width_2 {
+        grid-template-columns: 47% 47%;
+        padding-left : 5%;
+    }
+    div.toot_timeline_grid.width_3 {
+        grid-template-columns: 31% 31% 31%;
+        padding-left : 3%;
+    }
+
+}
+
+
+
+
+
+/*=== Grid item for Toot card ===*/
+div.toot_card_base {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin-top: 3%;
+    border-radius: 3px;
+}
+.onetoote_area div.toot_card_base {
+    padding-top : 0.7rem;
+}
+div.toot_card_base.sizing {
+    grid-column: span 1;
+}
+div.toot_card_base.topItem {
+    grid-column : 1;
+    grid-row : 1 / span 3;
+    height: 10rem;
+}
+div.toot_card_base.g1 {
+    grid-row-end: span 1;
+}
+div.toot_card_base.g2 {
+    grid-row-end: span 2;
+}
+div.toot_card_base.g4 {
+    grid-row-end: span 4;
+}
+div.toot_card_base.g6 {
+    grid-row-end: span 6;
+}
+div.toot_card_base.g8 {
+    grid-row-end: span 8;
+}
+div.toot_card_base.g10 {
+    grid-row-end: span 10;
+}
+div.toot_card_base.g12 {
+    grid-row-end: span 12;
+}
+div.toot_card_base.g14 {
+    grid-row-end: span 14;
+}
+div.toot_card_base.g16 {
+    grid-row-end: span 16;
+}
+div.toot_card_base.g18 {
+    grid-row-end: span 18;
+}
+div.toot_card_base.g20 {
+    grid-row-end: span 20;
+}
+div.toot_card_base.g22 {
+    grid-row-end: span 22;
+}
+div.toot_card_base.g24 {
+    grid-row-end: span 24;
+}
+div.toot_card_base.g26 {
+    grid-row-end: span 26;
+}
+div.toot_card_base.g28 {
+    grid-row-end: span 28;
+}
+div.toot_card_base.g30 {
+    grid-row-end: span 30;
+}
+
+/*===============================
+    sub grid for toot content
+    |     |     |     |     |      |       (*)
+    [(*)parent toot name           ]     [toot menu                     ]
+    [original toot name]  [date ...]     [                              ]
+    [share range                   ]     [                              ]
+    [content body                  ]     [                              ]
+    [                              ]     [                              ]
+    [                              ]     [                              ]
+    [content media                 ]     [                              ]
+    [                              ]     [ mention list                 ]
+    [                              ]     [                              ]
+    [reply              fav  boost ]     [ tag list                     ]
+    [first comment                 ]     [                              ]
+    -(*)----------------------------
+    [ reply input box              ]
+    [ comment list                 ]
+    [                              ]
+    [                              ]
+    [                              ]
+
+    (*) is hidden firstly.
+
+=================================*/
+.toot_card_base .toot_content_grid {
+    height: calc(100% - 6rem);
+    max-height: 600px;
+
+    display : grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-rows: 32px;
+    position : relative;
+    margin : 1rem;
+}
+
+/*=== parent toot ===*/
+.toot_card_base .toot_boost_original {
+    height : 32px;
+    width : 100%;
+    
+    /* ---grid in content, cell(2,1, 2,3) ---*/
+    grid-column: 1 / span 5;
+    grid-row: 1 / 1;
+
+}
+.toot_card_base .toot_boost_original i {
+    line-height:32px;
+}
+.toot_card_base .toot_boost_original span {
+    line-height: 32px;
+    display: inline-block;
+    vertical-align: top;
+    cursor : pointer;
+}
+
+/*=== original toot's user ===*/
+.toot_card_base .toot_sender {
+    font-size: 1.5rem;
+    font-weight: 300;
+    display : inline-block;
+    width : 100%;
+    /* ---grid in content, cell(1,1, 1,3) ---*/
+    grid-column: 1 / span 3;
+    grid-row-start: 1;
+    grid-row-end: span 2;
+}
+.toot_card_base .toot_sender_id {
+    font-size : 1rem;
+    width : 100%;
+    position: absolute;
+    left : 32px;
+    top : 24px;
+}
+.toot_sender_id .instance_name {
+    text-decoration: underline solid blue;
+}
+/*=== toot date time ===*/
+.toot_card_base .toot_datetime {
+    position: absolute;
+    right : 0;
+    /* ---grid in content, cell(1,3) ---*/
+    grid-column : 4 / span 2;
+    grid-row-start: 1;
+    grid-row-end: span 1;
+}
+.toot_card_base .toot_datetime .tt_datetime {
+    position: absolute;
+    top: 0.5rem;
+    right: 3rem;
+    width : 6rem;
+}
+.toot_card_base .toot_datetime .tt_menubtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+/*=== toot share scope ===*/
+.toot_card_base .toot_share_range {
+    height : 32px;
+    width : 100%;
+    z-index: 2;
+    
+    /* ---grid in content, cell(2,1, 2,3) ---*/
+    grid-column: 1 / span 5;
+    grid-row-start: 3;
+    grid-row-end: span 1;
+}
+.toot_card_base .toot_share_range i {
+    float: left;
+    line-height : 32px;
+}
+.toot_card_base .toot_share_range span {
+    display : inline-block;
+    margin-top : 0.5rem;
+}
+/*=== toot content body ===*/
+.toot_card_base .toot_content_body {
+    /* ---grid in content, cell(3,1, 3,3) ---*/
+    grid-column: 1 / span 5;
+    overflow: auto;
+    z-index: 1;
+    grid-row-start: 4;
+}
+.toot_card_base .toot_content_body.sizing-min {
+    grid-row-end : span 2;
+    /*height : 10rem;
+    max-height : 15rem;*/
+}
+.toot_card_base .toot_content_body.sizing-mid {
+    grid-row-end : span 4;
+    /*height : 12rem;
+    max-height : 15rem;*/
+}
+.toot_card_base .toot_content_body.sizing-max {
+    grid-row-end : span 5;
+    /*height : 15rem;
+    max-height : 17rem;*/
+}
+.toot_card_base .toot_content_body.sizing-fullmax {
+    grid-row-end : span 6;
+    /*height : 15rem;
+    max-height : 17rem;*/
+}
+.toot_card_base  .toote_spoiler_or_main {
+    font-size : 14px;
+    white-space: pre-wrap;
+}
+.toot_card_base  .toote_main {
+    font-size : 14px;
+    white-space: pre-wrap;
+}
+
+.toot_card_base  .toote_spoiler_or_main p {
+    padding : 0 0 0.5rem 0;
+}
+.toot_card_base  .toote_main p {
+    padding : 0 0 0.5rem 0;
+}
+.toot_card_base  .area_spoiler details summary {
+    font-weight: bold;
+    border-top: 2px dotted #AFAFAF;
+    cursor: pointer;
+    outline: none;
+}
+
+/*=== toot with link  ===*/
+.card-link {
+    border-top:2px inset grey;
+}
+.card-link .link-title {
+    padding : 0.2rem 1rem;
+    background-color: rgba(0,0,0,0.5);
+    color : #FFFFFF;
+    font-size : 14px;
+    position : absolute;
+    top : 0;
+    right : 0;
+    height : fit-content;
+    width : fit-content;
+    border-radius: 0 0 0 5px;
+}
+.card-link .link-title.only {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+}
+.card-link .link-title i {
+    vertical-align: middle;
+    color : #FFFFFF;
+}
+.card-link .card-content.link-content {
+    padding : 1rem;
+}
+.card-link .card-content b {
+    font-size : 18px;
+}
+.card-link .card-content p {
+    padding : 1rem;
+}
+.card-link .link-site {    
+    color : #FFFFFF;
+}
+
+/*=== toot media  ===*/
+.toot_card_base .toote_media_simple {
+    width : 100%;
+}
+/* .carousel .carousel-item  */
+.tootgallery-carousel .sensitive-image-text {
+    position: relative;
+    bottom : 6.5rem;
+    color : black;
+    z-index : 10;
+}
+.carousel .carousel-item img.landscape, .modal-content img.landscape,
+.carousel .carousel-item video.landscape, .modal-content video.landscape,
+.tootgallery-carousel img.landscape, .tootgallery-carousel video.landscape {
+    width : 100%;
+    height : auto;
+    margin : auto;
+    z-index : 9;
+    position : relative;
+}
+.carousel .carousel-item img.portrait, .modal-content img.portrait,
+.carousel .carousel-item video.portrait, .modal-content video.portrait,
+.tootgallery-carousel img.portrait, .tootgallery-carousel video.portrait {
+    /*width : auto;*/
+    height : 100%;
+    margin : auto;
+    z-index : 9;
+    position : relative;
+}
+.image-popup-btn {
+    position : absolute;
+    top : 1rem;
+    right : 1rem;
+    color : #BABABA;
+    text-shadow: 2px 2px 2px #696969;
+    z-index : 10;
+}
+.tootgallery-carousel .slick-list .draggable {
+    height : auto !important;
+}
+
+/*=== toot action ===*/
+.toot_card_base .toot_action {
+    height : 6rem;
+    position : relative;
+    padding-top : 1rem;
+}
+.reaction-count {
+    padding : 0 1rem 0 1rem;
+    font-weight: 600;
+}
+.reaction-count.zero {
+    font-weight: normal;
+}
+
+/*=== toot reply and comment ===*/
+.toot_card_base .toot_comment {
+    /*max-height: 20rem;*/
+    overflow : hidden;
+}
+.toot_card_base .toot_comment.close {
+    height : 0rem;
+}
+.toot_card_base .toot_comment.open {
+    transition: 0.2s;
+    min-height : 8rem;
+    max-height : 33.5rem;
+}
+.toot_card_base .toot_comment.mini {
+    height : 8rem;
+}
+.toot_card_base .toot_comment.full {
+    height : auto;
+}
+.toot_card_base .toot_comment .comment-list.sizing {
+    max-height: 16rem;
+    overflow : auto;
+    margin-bottom: 0;
+}
+.toot_card_base .toot_comment .comment-list-area {
+    min-height : 0;
+    overflow : auto;
+}
+.toot_card_base .toot_comment .comment-list-area.default {
+    max-height : calc(30rem - 8rem);
+}
+.collection .collection-item.avatar i.replycircle {
+    width : 32px !important;
+    height : 32px !important;
+    font-size : 14px !important;
+    line-height: 32px !important;
+}
+.collection .collection-item.avatar img.replycircle {
+    width : 32px !important;
+    height : 32px !important;
+}
+.reply_input_count {
+    position : absolute;
+    bottom : 4rem;
+    right : 4rem;
+}
+
+
+/*=== toot other menu panel ===*/
+.card-userreveal {
+    position : absolute;
+    padding : 24px;
+    background-color: #FFFFFF;
+    width : 100%;
+    overflow: auto;
+    top : 100%;
+    left : 0;
+    height : 100%;
+    z-index: 1001;
+}
+.card-userreveal.is-veal {
+    display : block;
+    transition : 0.2s;
+    transform : translateY(-100%);
+}
+.card-userreveal.un-veal {
+    display : none;
+    transition : 0.2s;
+    transform : translateY(0%);
+}
+.btn_vealclose {
+    cursor : pointer;
+}
+
+
+
+/*====================================================
+  hashtag timeline UI
+=====================================================*/
+.hashtag_body {
+    width : 100%;
+    height : 100%;
+}
+.hashtag_body .row {
+    height: 100%;
+}
+.hashtag_body .tab-content {
+    height:  calc(100% - 48px);
+    overflow-x  : hidden;
+    overflow-y : auto;
+}

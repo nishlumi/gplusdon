@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>G+don中継画面</title>
+</head>
+
+<body>
+
+<h3 id="msg"></h3>
+<script>
+(function(){
+	if (location.search != "") {
+		var s = location.search.replace("?","").split("&");
+		var openscreen = "";
+		var code = "";
+		var svobj = {};
+		console.log(s);
+		for (var si = 0; si < s.length; si++) {
+			var item = s[si].split("=");
+			svobj[item[0]] = item[1];
+			/*if (item[0] == "code") {
+				code = item[1];
+			}*/
+		}
+		localStorage.setItem("callback_code",JSON.stringify(svobj));
+		var newurl = window.location.origin + window.location.pathname.replace("/redirect","/accounts");
+		window.location.replace(newurl);
+		//document.getElementById("msg").innerHTML = JSON.stringify(svobj);
+		
+	}else{
+		document.getElementById("msg").innerHTML = "本URLを直接開くことはできません。";
+	}
+})();
+</script>
+</body>
+</html>

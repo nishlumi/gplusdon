@@ -1,0 +1,1359 @@
+html {
+	width : 100%;
+	height : 100%;
+	font-size : 12px;
+	padding : 0;
+    margin : 0;
+    overflow: hidden;
+}
+body {
+	width : 100%;
+	height : 100%;
+	overflow : hidden;
+    background: #ECEFF1;
+    color: rgba(0,0,0,0.87);
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+
+}
+.inherited_body_range {
+    height : 100%;
+}
+.view_area {
+    height : 100%;
+    overflow : auto;
+}
+@media (max-width: 600px) {
+    body, #message {
+        margin-top: 0;
+        background: white;
+        box-shadow: none;
+    }
+
+    /*body {
+        border-top: 16px solid #FFFFFF;
+    }*/
+}
+
+.initial-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 3px;
+}
+input[type=text]:not(.browser-default):focus:not([readonly]) {
+    border-bottom: 1px solid #F44336 !important;
+    -webkit-box-shadow: 0 1px 0 0 #F44336;
+    box-shadow: 0 1px 0 0 #F44336;
+    background-color: #f5f5f5;
+}
+input[type=text]:not(.browser-default):focus:not([readonly]) + label {
+    color: #F44336;
+}
+.v-text-field__slot input[type=text] {
+    border : none !important;
+}
+.v-badge.v-badge--bottom.v-badge--overlap .v-badge__badge {
+    right : 5px;
+    bottom : 3px !important;
+}
+.btn:focus, .btn-large:focus, .btn-small:focus,
+.btn-floating:focus {
+    background-color: #F44336;
+}
+.btn:hover, .btn-large:hover, .btn-small:hover {
+    background-color: #F44336;
+}
+a {
+    -webkit-tap-highlight-color: transparent;
+    text-decoration : none;
+    cursor : pointer;
+}
+td.righted {
+    text-align: right;
+}
+img.toot_prof {
+    width : 32px;
+    height : 32px;
+    float : left;
+}
+.userrectangle {
+    border-radius: 15% !important;
+}
+span.badge {
+    width : 100%;
+}
+.VueCarousel-dot button {
+    width : 1rem;
+    height : 1rem;
+    box-shadow : 2px 2px 2px 2px rgba(0,0,0,0.5);
+}
+.collection .collection-item.avatar .userrectangle {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    overflow: hidden;
+    left: 15px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.sidenav .user-view .userrectangle {
+    height: 64px;
+    width: 64px;
+    float : left;
+    margin-right : 2rem;
+    margin-top : 16px;
+}
+.notifmenu .userrectangle {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+}
+.userrectangle.basic40 {
+    width: 40px;
+    height: 40px;
+}
+/* css class for vue.js */
+[v-cloak] {
+    display: none;
+}
+
+/*====================================================
+  common style
+=====================================================*/
+.common_ui_off {
+    display: none !important;
+}
+.common_ui_hidden {
+    visibility: hidden;
+}
+.user-slideOutLeft {
+    transition : 1.5s;
+    transform: translateX(-100%);
+    display : none;
+}
+.user-slideOutBottom {
+    transition : 1.0s;
+    transform: translateY(-100%);
+    display : none;
+}
+.user-slideInBottom {
+    transition : 1.0s;
+    transform: translateY(0);
+    display : inline-block;
+}
+
+.waves-effect.waves-grey1 .waves-ripple {
+    background-color: rgba(158, 158, 158, 0.45);
+}
+label.button_spoiler {
+    display : inline-block;
+    /*background-color: #3b3b3b;
+    color : rgb(139, 139, 139);
+    width : 5rem;
+    text-align: center;
+    border-radius: 3px;
+    cursor : pointer;*/
+}
+label.button_spoiler:before {
+    content : "...";
+    background-color: #3b3b3b;
+    color : rgb(200,200,200);
+    width : 2rem;
+    text-align: center;
+    border-radius: 3px;
+    cursor : pointer;
+    display : inline-block
+}
+label.button_spoiler input {
+    display : none;
+}
+label.button_spoiler p.toote_main {
+    display : none;
+}
+label.button_spoiler input:checked ~ p.toote_main {
+    color : #000000;
+    text-align : left;
+    cursor : default;
+    transition : 1.0s;
+    transform: translateY(0);
+    display : inline-block;
+    font-size : 12px;
+}
+.btn-portrait {
+    height : 7rem;
+}
+
+/* --- CSS class for Mastodon native style --- */
+.ellipsis:after {
+    content : "..."
+}
+.invisible {
+    display : none;
+}
+.btn-floating.halfway-fab2 {
+    position : absolute;
+    left : 24px;
+    top : -16px;
+}
+.black-half {
+    background-color : rgba(0,0,0,0.5);
+}
+.collection .collection-item.avatar .secondary-content-ex {
+    position : absolute;
+    top : 0;
+    right : 0;
+}
+
+/*====================================================
+  initial UI
+======================================================*/
+#initialpanel {
+    height : 100%;
+    overflow-x : hidden;
+    overflow-y : auto;
+}
+#initialmainpanel {
+    height : 100%;
+}
+.title-panel {
+    position: absolute;
+    top: 0px;
+    width: 100vw;
+    background-color: rgba(0,0,0,0.2);
+}
+.initial-img-background {
+    width : 100%;
+    height : 100%;
+    object-fit : cover;
+    object-position: 40% 10%;
+}
+.initial-presentation-item {
+    height : 6rem;
+}
+/*====================================================
+  top UI
+=====================================================*/
+#toppanel {
+	position : absolute;
+	top : 0px;
+	left : 0px;
+	width:100%;
+	height:calc(100%);
+	z-index : 10;
+}
+#mainpanel {
+    height : calc(100% - 64px);
+}
+.brand-title {
+    font-size : 2.1rem;
+    font-family: 'Montserrat', sans-serif;
+}
+.initial-brand-title {
+    font-size : 4.2rem;
+    font-family: 'Montserrat', sans-serif;
+}
+.general-title {
+    
+    font-size : 1.4rem;
+}
+.brand-image {
+    float: left;
+}
+input.navsearch {
+    height: 50px !important;
+    line-height: 50px !important;
+    border-radius: 0.5rem;
+    margin-top : 5px;
+}
+div.collection a span {
+    font-size : 20px;
+    color : rgba(0,0,0,0.87);
+}
+div.collection a i.material-icons {
+    color: rgba(0,0,0,0.87);
+}
+.maincol_button {
+    overflow: hidden;
+    height: 5rem;
+    padding : 1.5rem 0 !important;
+    border: 0 !important;
+}
+.maincol_menu {
+    overflow : hidden;
+    height : 4rem;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+.cursel-accountbox {
+    height : 64px;
+}
+.whole-notification {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+}
+#cursel_avatar {
+    margin-left: 0.5rem;
+}
+#cursel_display_name {
+    margin-left : 2rem;
+    margin-top : 1rem;
+}
+.modal-avatar-title {
+    font-size : 20px;
+    margin-top : 1.2rem;
+}
+.maincol_menu.active * {
+    color : red !important;
+}
+
+.menu_sub {
+    text-indent : 1.5rem;
+}
+#ov_notif {
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 100vw;
+    height : 100vh;
+    z-index : 988;
+    overflow: auto;
+}
+#ov_notif_overlay {
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 99%;
+    height : 100%;
+    background-color: rgba(0, 0, 0, 0.0);
+    z-index : 987;
+
+}
+.notifmenu {
+    position : absolute;
+    /*top : 0px;
+    left : 0px;
+    height : 300px;*/
+    width : 420px;
+    min-height : 52px;
+    max-height : 480px;
+    overflow : hidden;
+    z-index : 989;
+}
+.notifmenu .notiflist_card {
+    overflow-x : hidden;
+    overflow-y : auto;
+    height:calc(480px - 52px);
+}
+.notif_avatar_mark {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width : 20px !important;
+    height : 20px !important;
+}
+
+/*--------- not use ------------------------*/
+div.post_card_grid {
+    display : grid;
+    gap:  15px;
+    grid-template-rows: minmax(3rem,auto);
+    grid-auto-flow: dense;
+    grid-auto-rows : minmax(3rem,auto);
+    width : 100%;
+}
+div.post_card_grid_cellsetting {
+    grid-template-columns: 100%;
+}
+div.post_card_base {
+    /*margin-right : 3%;*/
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    /*grid-column: 1;
+    grid-row : 1;*/
+    margin-top: 3%;
+    border-radius: 3px;
+}
+div.card.card_subgrid {
+    display : grid;
+    grid-template-columns: 60% 40%;
+
+}
+div.post_card_top {
+    grid-column : 1;
+    grid-row : 1 / span 3;
+    height: 10rem;
+}
+div.post_card_flow {
+    grid-column: span 1;
+}
+div.post_card_flow.g2 {
+    grid-row-end: span 2;
+}
+div.post_card_flow.g4 {
+    grid-row-end: span 4;
+}
+div.post_card_flow.g6 {
+    grid-row-end: span 6;
+}
+div.post_card_flow.g8 {
+    grid-row-end: span 8;
+}
+div.post_card_flow.g10 {
+    grid-row-end: span 10;
+}
+div.post_card_flow.g12 {
+    grid-row-end: span 12;
+}
+div.post_card_flow.g14 {
+    grid-row-end: span 14;
+}
+div.post_card_flow.g16 {
+    grid-row-end: span 16;
+}
+div.post_card_flow.g18 {
+    grid-row-end: span 18;
+}
+div.post_card_flow.g20 {
+    grid-row-end: span 20;
+}
+div.post_card_flow.g22 {
+    grid-row-end: span 22;
+}
+div.post_card_flow.g24 {
+    grid-row-end: span 24;
+}
+div.post_card_flow.g26 {
+    grid-row-end: span 26;
+}
+div.post_card_flow.g28 {
+    grid-row-end: span 28;
+}
+div.post_card_flow.g30 {
+    grid-row-end: span 30;
+}
+@media only screen and (min-width: 601px) {
+
+    div.post_card_grid_cellsetting {
+        grid-template-columns: 45% 45%;
+    }
+}
+@media only screen and (min-width: 993px) {
+
+    div.post_card_grid_cellsetting {
+        grid-template-columns: 45% 45%;
+    }
+}
+@media only screen and (min-width: 1350px) {
+
+    div.post_card_grid_cellsetting {
+        grid-template-columns: 31% 31% 31%;
+    }
+}
+
+
+div.post_card_above2 {
+    grid-column : auto;
+    grid-row : 4 / 6;
+}
+
+.card .card-content-ex {
+    height: calc(100% - 6rem);
+    max-height: 600px;
+
+    display : grid;
+    grid-template-columns: 3fr;
+    grid-auto-rows: 3rem;
+}
+.card .card-content p {
+    padding : 1rem;
+    /*height : calc(100% - 3rem);
+    overflow : auto;*/
+}
+
+.card .card-title2 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    display : inline-block;
+    width : 100%;
+    /* ---grid in content, cell(1,1, 1,2) ---*/
+    grid-column: 1 / span 2;
+    grid-row: 1;
+}
+.card .card-subtitle {
+    font-size : 1rem;
+    width : 100%;
+}
+
+.card-content .card-datetime {
+    float : right;
+    /* ---grid in content, cell(1,3) ---*/
+    grid-column : 3;
+    grid-row : 1;
+}
+
+.card-content .chip_box {
+    height : 32px;
+    width : 100%;
+    
+    /* ---grid in content, cell(2,1, 2,3) ---*/
+    grid-column: 1 / span 3;
+    grid-row: 2;
+
+}
+.card-content .chip_box i {
+    float: left;
+}
+.card-content .chip_box span {
+    display : inline-block;
+    margin-top : 0.5rem;
+}
+
+.card .card-content-body {
+    /* ---grid in content, cell(3,1, 3,3) ---*/
+    grid-column: 1 / span 3;
+    grid-row-start: 3;
+    grid-row-end : span 4;
+    height : 15rem;
+    max-height : 17rem;
+    overflow: auto;
+}
+.card-content-body.sizing-min {
+    grid-row-end : span 1;
+    height : 10rem;
+    max-height : 15rem;
+}
+.card-content-body.sizing-mid {
+    grid-row-end : span 2;
+    height : 12rem;
+    max-height : 15rem;
+}
+.card-content-body.sizing-max {
+    grid-row-end : span 4;
+    height : 15rem;
+    max-height : 17rem;
+}
+
+
+/* .carousel .carousel-item  */
+/*
+.carousel .carousel-item .sensitive-image-text {
+    position: relative;
+    bottom : 6.4rem;
+    color : black;
+    z-index : 10;
+}
+.carousel .carousel-item img.landscape, .modal-content img.landscape,
+.carousel .carousel-item video.landscape, .modal-content video.landscape {
+    width : 100%;
+    height : auto;
+    margin : auto;
+    z-index : 9;
+    position : relative;
+}
+.carousel .carousel-item img.portrait, .modal-content img.portrait,
+.carousel .carousel-item video.portrait, .modal-content video.portrait {
+    width : auto;
+    height : 100%;
+    margin : auto;
+    z-index : 9;
+    position : relative;
+}
+.carousel-item .image-popup-btn {
+    position : absolute;
+    top : 1rem;
+    right : 1rem;
+    color : #BABABA;
+    text-shadow: 2px 2px 2px #696969;
+    z-index : 10;
+}
+*/
+#ov_image {
+    width : fit-content;    
+    height : fit-content;
+    max-width : 92%;
+    max-height : 92%;
+    background-color: transparent;
+    overflow: hidden;
+}
+#ov_image .modal-content {
+    width : fit-content;
+    height : fit-content;
+    padding : 0;
+    margin : auto;
+}
+#ov_image .modal-content img {
+    width : 100%;
+    max-height: 100%;
+}
+/*
+.card .card-action.card-action-ex {
+    height : 6rem;
+    position : relative;
+}
+*/
+.card.fitcontent {
+    height : fit-content;
+}
+/*
+.card .card-comment {
+    overflow : hidden;
+}
+.card .card-comment.open {
+    max-height : 27rem;
+}
+.card .card-comment.mini {
+    height : 6rem;
+    overflow: hidden;
+}
+.card .card-comment.full {
+    height : auto;
+}
+.card-comment .comment-list.sizing {
+    max-height: 20rem;
+    overflow : auto;
+}
+*/
+.template_reply_box {
+    position: relative;
+}
+.template_reply_box .reply_icon {
+    float : left;
+}
+.inputcontent_div {
+	background-color: #FFFFFF;
+	font-size : 1.2rem;
+    color : #000000;
+	overflow : auto;
+	width : 90%;
+    height : calc(1.5rem * 3);
+    border : 0.1rem solid #C7C7C7;
+    margin-bottom : 0.5rem;
+}
+
+.onetoote_cardtitle {
+    height : 40px !important;
+    padding : 4px;
+    flex: 0 0 auto !important;
+}
+.onetoote_cardtext {
+    padding: 0;
+}
+.onetoote_screen {
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 100vw;
+    height : 100vh;
+    z-index : 999;
+    overflow: auto;
+}
+.onetoote_overlay {
+    position : fixed;
+    top : 0;
+    left : 0;
+    width : 99%;
+    height : 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index : 998;
+}
+.onetoote_area {
+    position : relative;
+    top : 0;
+    left : 0;
+    z-index:  1000;
+    /*margin : 0 15%;
+    overflow: auto;*/
+    background-color: transparent;
+    margin-left : auto;
+    margin-right : auto;
+}
+.onetoote_area.sizing {
+    width : 100%;
+    height: 90%;
+    /*padding-left : 0;
+    padding-right : 0;
+    padding-bottom : 10%;*/
+    overflow : auto;
+}
+.carousel.fullsize {
+    min-height: 400px;
+}
+@media only screen and (min-width: 601px) {
+    .onetoote_area.sizing {
+        width : 80%;
+        height: 90%;
+        /*padding-left : 0;
+        padding-right : 0;
+        padding-bottom : 10%;*/
+        overflow : unset;
+    }
+    .carousel.fullsize {
+        min-height: 500px;
+    }
+}
+@media only screen and (min-width: 993px) {
+    .onetoote_area.sizing {
+        width : 70%;
+        height: 100%;
+        /*padding-left : 15%;
+        padding-right : 15%;
+        padding-bottom : 10%;*/
+        overflow : unset;
+    }
+    .carousel.fullsize {
+        min-height: 600px;
+    }
+}
+@media only screen and (min-width: 1350px) {
+    .onetoote_area.sizing {
+        width : 70%;
+        height: 100%;
+        /*padding-left : 15%;
+        padding-right : 15%;
+        padding-bottom : 10%;*/
+        overflow : unset;
+    }
+    .carousel.fullsize {
+        min-height: 600px;
+    }
+}
+/*====================================================
+  sidebar UI
+=====================================================*/
+#li_userview {
+    width : 100%;
+    height : 30%;
+}
+#li_userview .user-view {
+    width : 100%;
+    height : 100%;
+}
+.sidenav .brand-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size : 4.2rem;
+}
+
+
+/*====================================================
+  accounts UI
+=====================================================*/
+div.accounts_body {
+    height : 100%;
+    width : 100%;
+    
+}
+div.area_acc {
+    height: calc(100% - 69px);
+    overflow: auto;
+}
+/* seach form for accounts and instances */
+div.search-box {
+    margin-top : 1rem !important;
+    padding : 1rem;
+    width : 100%;
+}
+
+
+/*====================================================
+  account detail UI
+=====================================================*/
+div.account_body {
+    height : 100%;
+    width : 100%;
+    overflow : hidden auto;
+}
+div.account_body .user-view {
+    position: relative;
+    padding: 0;
+    margin-bottom: 0;
+    width : 100%;
+    height : 500px;
+}
+  
+div.account_body .user-view > a {
+    height: auto;
+    padding: 0;
+}
+div.account_body .user-tabs {
+    height : auto; /*68%;*/
+}
+.user-tabs .tabbar {
+    position: -webkit-sticky;
+    position : sticky;
+    top : 0px;
+    z-index: 20;
+}
+.user-tabs .tabcontent {
+    width : 100%;
+    height : 100%;
+}
+  
+div.account_body .user-view > a:hover {
+    background-color: transparent;
+}
+  
+div.account_body .user-view .background {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+
+    width : 100%;
+    height: fit-content;
+}
+div.account_body .user-view .background img {
+    width : 100%;
+    height : 100%;
+    object-fit : cover;
+    object-position: 50% 25%;
+}
+div.account_body .user-view .user-textinfo {
+    position : absolute;
+    top : 0;
+    left : 0;
+    width : 100%;
+    background-color:  rgba(0,0,0,0.2);
+    border-radius: 0 0 0.5rem 0.5rem;
+    /*box-shadow : 1px 1px 1px rgba(0,0,0,0.5);*/
+    padding : 1rem;
+    
+}
+div.account_body .user-view .circle,div.account_body .user-view .name,div.account_body .user-view .email {
+    display: block;
+}
+div.account_body .user-view .circle {
+    height: 64px;
+    width: 64px;
+    float : left;
+    margin-right : 2rem;
+    margin-top : 16px;
+}
+div.account_body .user-view .userrectangle {
+    height: 64px;
+    width: 64px;
+    float : left;
+    margin-right : 2rem;
+    margin-top : 16px;
+}
+  
+div.account_body .user-view .name,
+div.account_body .user-view .email {
+    font-size: 24px;
+    line-height: 32px;
+    text-shadow: 1px 1px 1px #000000;
+}
+  
+div.account_body .user-view .name {
+    margin-top: 16px;
+    font-weight: 500;
+}
+  
+div.account_body .user-view .email {
+    padding-bottom: 16px;
+    font-weight: 400;
+}
+.user-action-btns {
+    width: fit-content;
+    height: 40px;
+    background-color: rgba(0,0,0, 0.2);
+    text-shadow : 1px 1px 1px #000000;
+    padding: 1rem 1rem 3rem 1rem;
+    border-radius: 0.25rem;
+}
+.user-action-btns ul {
+    text-shadow : none;
+}
+.user-action-btns.col1 {
+    position: absolute;
+    bottom: 0;
+    left: 2%;
+    width: 14.5rem;
+}
+.user-action-btns.col2 {
+    position: absolute;
+    bottom: 6rem;
+    left: 2%;
+    color : white;
+
+}
+.user-action-btns.col3 {
+    position: absolute;
+    bottom: 0;
+    right :  2%;
+}
+
+div.account_body .tabs .tab a {
+    color : #F44336 !important;
+}
+div.account_body .tabs li.indicator {
+    background-color : #F44336 !important;
+}
+
+.userdialog {
+    position : absolute;
+    top : 0px;
+    left : 0px;
+    /*height : 300px;*/
+    overflow : hidden;
+    z-index : 1050;
+}
+.userdialog.sizing {
+    width : 100%;
+}
+@media only screen and (min-width: 601px) {
+    .userdialog.sizing {
+        width : 100%;
+    }    
+}
+@media only screen and (min-width: 993px) {
+    .userdialog.sizing {
+        width : 320px;
+    }
+    
+}
+@media only screen and (min-width: 1350px) {
+    .userdialog.sizing {
+        width : 320px;
+    }
+}
+.userdialog .card {
+    height: 100%;
+    margin-bottom : 0;
+}
+.userdialog .card .card-image {
+    height : 10rem;
+}
+.userdialog .card .card-image .background {
+    overflow : hidden;
+    height : 100%;
+    width : 100%;
+}
+.userdialog .card .card-image .background img {
+    width : 100%;
+    height : 100%;
+    object-fit : cover;
+    object-position : 34% 34%;
+}
+.userdialog .card .card-content p {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.userdialog .card .card-account-stats {
+    margin-bottom : 0;
+}
+.poup-stat-number {
+    font-weight: bold;
+    font-size : 1.5rem;
+}
+
+/*====================================================
+  connection list UI
+=====================================================*/
+.connections_body {
+    width : 100%;
+    height : 100%;
+}
+.connections_body .row {
+    height: 100%;
+}
+.connections_body .tab-content {
+    height:  calc(100% - 48px);
+    overflow : auto;
+}
+.user-grid {
+    display: grid;
+    gap: 10px;
+    height: 100%;
+}
+.user-grid.sizing {
+    grid-template-columns: 100%;
+}
+@media only screen and (min-width: 601px) {
+
+    .user-grid.sizing {
+        grid-template-columns: 45% 45%;
+    }
+}
+@media only screen and (min-width: 993px) {
+
+    .user-grid.sizing {
+        grid-template-columns: 31% 31% 31%;
+    }
+}
+@media only screen and (min-width: 1350px) {
+    .user-grid.sizing {
+        grid-template-columns: 25% 25% 25% 25%;
+    }
+}
+.user-grid-item {
+    height : 36rem;
+}
+.user-grid-item .card {
+    height: 100%;
+}
+.user-grid-item .card .card-image {
+    height : 10rem;
+}
+.user-grid-item .card .card-image .background {
+    overflow : hidden;
+    height : 100%;
+    width : 100%;
+}
+.user-grid-item .card .card-image .background img {
+    width : 100%;
+    height : 100%;
+    object-fit : cover;
+    object-position : 34% 34%;
+}
+.user-grid-item .card .card-content {
+    height : 10rem;
+}
+.user-grid-item .card .card-content p {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 100%;
+}
+.user-grid-item .card .card-account-stats {
+    margin-left : 0;
+    margin-bottom : 0;
+    height : 6rem;
+    width : 100%;
+    position : absolute;
+    bottom : 5rem;
+}
+.user-grid-item .card .card-action {
+    position : absolute;
+    bottom : 0;
+    height: 5rem;
+}
+
+/*====================================================
+  instance list UI
+=====================================================*/
+div.instances_body {
+    height : 100%;
+    width : 100%;
+    overflow : hidden auto;
+}
+div.instances_body .chip_box {
+    width : 100%;
+    height : 10rem;
+    overflow : auto;
+    /*border : 3px inset white;*/
+    padding : 0.5rem;
+}
+div.instances_body .chip {
+    cursor : pointer;
+}
+.share-color-public {
+    background-color: #FFFFFF;
+}
+.share-color-unlisted {
+    background-color: rgb(30, 120, 255);
+    color : #FFFFFF;
+}
+.share-color-private {
+    background-color: rgb(197, 171, 26);
+    color : #FFFFFF;
+}
+.share-color-boosted {
+    background-color: rgb(197, 26, 26);
+    color : #FFFFFF;
+}
+
+.search-panel {
+    width : 100%;
+    padding-left : 1rem;
+}
+ .search-result {
+    width : 100%;
+    padding : 1rem;
+}
+ .search-detail {
+    width : 100%;
+    /*display : grid;
+    gap : 1rem;
+    grid-auto-rows : 100px;*/
+}
+.search-detail.sizing {
+    grid-template-columns: 100%;
+}
+.search-detail .instance-main {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+
+}
+.search-detail .contact-account {
+    grid-column: span 1;
+    grid-row:  3 / span 5;
+}
+.search-detail .instance-desc {
+    grid-column: 1;
+    grid-row: auto;
+}
+@media only screen and (min-width: 601px) {
+
+    .search-detail.sizing {
+        grid-template-columns: 45% 45%;
+    }
+
+    .search-detail .contact-account {
+        grid-column: span 1;
+        grid-row:  span 2;
+    }
+    .search-detail .instance-desc {
+        grid-column: span 1;
+        grid-row: 3;
+    }
+}
+@media only screen and (min-width: 993px) {
+
+    .search-detail.sizing {
+        grid-template-columns: 31% 31% 31%;
+    }
+
+    .search-detail .contact-account {
+        grid-column: span 1;
+        grid-row:  span 2;
+    }
+    .search-detail .instance-desc {
+        grid-column: span 2;
+        grid-row: 3;
+    }
+}
+@media only screen and (min-width: 1350px) {
+    .search-detail.sizing {
+        grid-template-columns: 31% 31% 31%;
+    }
+
+    .search-detail .contact-account {
+        grid-column: span 1;
+        grid-row:  span 2;
+    }
+    .search-detail .instance-desc {
+        grid-column: span 2;
+        grid-row: 3;
+    }
+}
+
+.search-detail .instance-desc > div {
+    padding : 1rem;
+}
+
+div.instances_body .chip:focus,div.instances_body .chip:active {
+    outline : none;
+    color :  #FFFFFF;
+    background-color : #F44336;
+}
+.card .card-account-administrator {
+    position: absolute;
+    z-index: 1;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+    color: white;
+    text-shadow: 2px 2px 2px #232323;
+}
+.card .card-account-info {
+    position : relative;
+}
+.card .card-account-info span,  .card .card-account-info i {
+    position : relative;
+    left : calc(24px + 40px) ;
+    display : inline-block;
+    width : calc(100% - 24px - 40px);
+    word-break: keep-all;
+}
+.card-account-info span {
+    font-size : 20px;
+}
+.card-account-info b {
+    font-size : 16px;
+}
+.card .card-account-content {
+    position:relative;
+}
+.card .card-content.instance-content {
+    padding : 1rem;
+    position : relative;
+}
+.card .card-content.instance-content .card-subdatetime {
+    position : absolute;
+    right : 1rem;
+}
+.card .card-content.instance-content .card-instance-rank {
+    font-size : 20px;
+    color: #ffa100;
+}
+.card .card-content.card-account-content  {
+    padding : 1rem;
+}
+div.instances_body .card .card-content.card-account-content p {
+    padding : 0.25rem;
+    overflow : hidden;
+}
+
+
+/*====================================================
+  input toot UI
+=====================================================*/
+.dmy_inputtoot {
+    position: relative;
+    overflow : hidden;
+}
+.scroll-y {
+    overflow : hidden auto;
+}
+.dmy_inputtoot div.v-dialog--fullscreen {
+    background-color : white;
+}
+.dmy_inputtoot .v-toolbar .v-btn .v-btn__content .v-icon {
+    height : 24px;
+    line-height : 24px;
+}
+.dmy_inputtoot .v-select__selectionsx {
+    min-height : 48px !important;
+    padding-top : 6px !important;
+}
+.dmy_inputtoot .v-select__selections input[type='text'],
+.toot_comment .v-select__selections input[type='text'],
+.setting_body .v-select__selections input[type='text']
+ {
+    border : none;
+}
+.onetoot_inputcontent, .dmy_inputtoot .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent {
+	background-color: #EFEFEF;
+	font-size : 1.2rem;
+    color : #000000;
+	overflow : auto;
+	width : 100%;
+    height : calc(1.5rem * 5);
+    border-bottom : 0.1rem solid #C7C7C7;
+    margin-bottom : 0.5rem;
+    outline : none;
+}
+.onetoot_inputcontent p, .dmy_inputtoot .onetoot_inputcontent p, .template_reply_box .onetoot_inputcontent p {
+    margin-bottom : 1px !important;    
+}
+.toottext_length {
+    display:inline-block;
+    position: absolute;
+    bottom:2.2rem;
+    right:1rem;
+    font-weight: bold;
+}
+.dmy_inputtoot .v-text-field__slot textarea {
+    height : auto;
+}
+.dmy_inputtoot .media_commentbox {
+    width : 10rem;
+    border-bottom : 1px solid grey;
+}
+div.dragover_indicate {
+	border : 2px dashed #858585;
+	background-color : rgb(107, 142, 207);
+}
+
+.dmy_inputtoot .contentbottomstyle, .dmy_inputtoot .headerbottomstyle {
+    position: relative;
+    top : -2rem;
+}
+.headerbottomstyle .v-autocomplete .v-input__slot {
+    box-shadow : 0 0 0 0 rgba(0,0,0,0) !important;
+}
+#mention_box {
+    border-bottom: 2px solid rgba(0,0,0, 0.42);
+}
+.dmy_inputtoot .tagbottomstyle1 {
+    position: relative;
+    top : -3rem;
+}
+.dmy_inputtoot .tagbottomstyle2 {
+    position: relative;
+    top : -0.5rem;
+}
+.dmy_inputtoot .mediabottomstyle {
+    position: relative;
+    top : -4rem;
+}
+
+.list_summary {
+    font-size: 1.8rem;
+    cursor : pointer;
+}
+#chararea {
+	width:100%;
+	height:24rem;
+	overflow:scroll;
+	border:2px inset black;
+	margin-top:0.2em;
+}
+.charbutton-normal {
+	font-size : 2.1rem;
+	width : 4.3rem;
+	border : 0 solid black;
+	border-radius : 0;
+	background-color : #454545;
+	color : #FFFFFF;
+}
+.charbutton-small {
+	font-size : 2.1rem;
+	width : 3.4rem;
+	border : 0 solid black;
+	border-radius : 0;
+	background-color : #454545;
+	color : #FFFFFF;
+}
+
+/*====================================================
+  notification UI
+=====================================================*/
+.notifcation_body {
+    width : 100%;
+    height : 100%;
+}
+.notification-view {
+    height : 100%;
+}
+.notification-tabitems {
+    height : calc(100% - 48px);
+}
+.notification-tabitems > div {
+    height : 100%;
+}
+.notification-tabbody {
+    height : 100%;
+    overflow : auto;
+}
+.notification-tabbody > div {
+    height: 100%;
+}
+
+/*====================================================
+  search UI
+=====================================================*/
+.search_body {
+    width : 100%;
+    height : 100%;
+}
+.search_body .row {
+    height: 100%;
+}
+.search_body .tab-content {
+    height:  calc(100% - 48px);
+    overflow : auto;
+}

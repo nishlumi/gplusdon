@@ -1,0 +1,25 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Direct message
+{% endblock %}
+{% block content %}
+<div id="area_dmsg" class="dmsg_body">
+    <v-tabs fixed-tabs>
+        <v-tab
+          v-for="n in 3"
+          :key="n"
+        >
+          Item {{ n }}
+        </v-tab>
+      </v-tabs>
+
+</div>
+<input type="hidden" id="hid_list" value="{{init_list}}" />
+<input type="hidden" id="hid_page" value="{{page}}" />
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/applists.js"></script>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends "appbase.html" %}
+
+{% block content %}
+<div class="view_area">
+    <div class="post_card_grid post_card_grid_cellsetting">
+        <div class="card  post_card_base post_card_top" >
+            <div class="card-content">
+            <div class="row">
+                <div class="col s12">
+                    <a class="waves-effect waves-green btn-flat btn-portrait center black-text"><i class="material-icons">edit</i><br><span>Text</span></a>
+                    <a class="waves-effect waves-red btn-flat btn-portrait center black-text"><i class="material-icons">image</i><br><span>Photo</span></a>
+                    <a class="waves-effect waves-grey btn-flat btn-portrait center black-text"><i class="material-icons">link</i><br><span>Link</span></a>
+                    <a class="waves-effect waves-teal btn-flat btn-portrait center black-text"><i class="material-icons">place</i><br><span>Place</span></a>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        {% for p in postarr %}
+            {% if p == 3 or p == 4 or p == 5 %}
+            <div class="card fitcontent  toot_card_base sizing g12">
+            {% else %}
+            <div class="card fitcontent  toot_card_base sizing g4">
+            {% endif %}
+                {% if  p == 2 %}
+                <div class="toot_boost_original share-color-boosted">
+                        <i class="material-icons">arrow_drop_down</i>
+                        <img src="/static/images/prof.png" class="toot_prof">
+                        <span>@hogematu@mstdn.jp</span>
+                        への返信
+                </div>
+                {% endif %}
+            
+                <div class="toot_content_grid">
+                    <div class="toot_sender">
+                        <img src="/static/images/prof.png" class="toot_prof">
+                        <!--<i class="material-icons grey lighten-4 circle black-text">person</i>-->
+                        <b title="@hogehoge@mstdn.jp">ユーザー名{{ p }}</b>
+                        <i class="toot_sender_id">lumidina@mstdn.jp</i>
+                    </div>
+                    <div class="toot_datetime">
+                        <a href="#!" class="tt_datetime">{{ p }} 時間前</a>
+                            <a class="waves-effect waves-grey1 btn-flat activator "><i class="material-icons">more_vert</i></a>
+                    </div>
+                    <div class="toot_share_range">
+                            <span> (boost) </span>
+                            <i class="material-icons">arrow_drop_down</i>
+                            <span>一般公開</span>
+                    </div>
+                    <div class="toot_content_body sizing-max">
+                        <p class="toote_spoiler_or_main">
+                                {% if  p == 5 %}
+                                これを見てくれ！画像だ！写真だ！
+                                {% elif p == 3 %}
+                                旅館を出て歩きながら那珂は妙高に質問をしてこれからのイベントの心構えを深める。十数分歩いて那珂たちがたどり着いたのは、渚の駅だった。 　関係者は渚の駅たてやまの地上階裏手、桟橋に繋がる大通路の脇に設置された特設テントに集まることになっていた。那珂たちは玄関で係員に艤装装着者制度の証明証を提示し、一般客とは別通路で建物を通り過ぎてテントに案内された。 　そこにはイベント主催関係者と、明らかに艦娘の格好をした人物3人がいた。
+「おはようございます。千葉第二鎮守府の者です。」 「あ～あ～どうもどうも！待っていました。ささ、こちらへどうぞ。」 　妙高の挨拶に調子づいた軽い返事で接してきたのは、主催者団体の一人の男性だった。軽快なステップで歩み寄ってきたその男性は、那珂と妙高をテントの一角に設けられた長机数個のミーティングスペースに案内する。 　那珂たちは促されるままそのスペースの手前に行くと、3人は立ち、そのうち一人がお辞儀をして挨拶をしてきた。 「おはようございます。妙高さん。」 「おはようございます。鹿島さん。神奈川第一から参加される人ってそのお二人なのですか？」
+                                {% else %}
+                            　旅館を出て歩きながら那珂は妙高に質問をしてこれからのイベントの心構えを深める。十数分歩いて那珂たちがたどり着いたのは、渚の駅だった。
+                            　関係者は渚の駅たてやまの地上階裏手、桟橋に繋がる大通路の脇に設置された特設テントに集まることになっていた。那珂たちは玄関で係員に艤装装着者制度の証明証を提示し、一般客とは別通路で建物を通り過ぎてテントに案内された。
+                            　そこにはイベント主催関係者と、明らかに艦娘の格好をした人物3人がいた。
+                            {% endif %}
+                        </p>
+                        
+                        <div class="area_spoiler">
+                            <!--<label class="button_spoiler">
+                                <input type="checkbox">-->
+                            <details style="height:fit-content;">
+                                <summary>[開く]</summary>
+                                <p class="toote_main ">
+                                    
+                                    「おはようございます。千葉第二鎮守府の者です。」
+                                    「あ～あ～どうもどうも！待っていました。ささ、こちらへどうぞ。」
+                                    　妙高の挨拶に調子づいた軽い返事で接してきたのは、主催者団体の一人の男性だった。軽快なステップで歩み寄ってきたその男性は、那珂と妙高をテントの一角に設けられた長机数個のミーティングスペースに案内する。
+                                    　那珂たちは促されるままそのスペースの手前に行くと、3人は立ち、そのうち一人がお辞儀をして挨拶をしてきた。
+                                    「おはようございます。妙高さん。」
+                                    「おはようございます。鹿島さん。神奈川第一から参加される人ってそのお二人なのですか？」
+                                    
+                                </p>
+                            </details>
+                            <!--</label>-->
+                        </div>
+                    </div>
+                </div>
+                {% if p == 4 %}
+                <div class="card-link">
+                    <div class="card">
+                        <a href="https://twitter.com/ichiup_net/status/1056471393053929472" target="_blank" rel="noopener">
+                            <div class="card-image">
+                                <!--<img src="https://pbs.twimg.com/media/DqlXIe7XcAEOCRm.jpg:large">-->
+                                <img src="https://pbs.twimg.com/media/DqgsNL5UwAA2P61.jpg:large" alt="hoge" title="hoge">
+                                <span class="link-title truncate">
+                                    <i class="material-icons">link</i>
+                                    <span class="link-site">Twitter</span>
+                                </span>
+                            </div>
+                            <div class="card-content link-content grey-text text-darken-1">
+                                    <b class="site-title">いちあっぷ on Twitter</b>
+                                    <p>
+                                        “「”今っぽい"絵柄ってなんだろう？」いま主流の絵柄の特徴まとめ💡
+
+                                        イラストにも流行がある！プロイラストレーターが意識する絵柄のトレンド | いちあっぷ 
+                                        https://t.co/Ic6k7W3dVI 
+                                        #絵が上手くなる記事はコレ”
+                                </p>
+                            </div>
+                        </a>
+
+                    </div>
+                </div>
+                {% endif %}
+                {% if p == 3 or p == 5 %}
+                <div class="card-image">
+                    <div id="img_cal" class="carousel carousel-slider center">
+                        <div class="carousel-item grey lighten-4 white-text" href="#">
+                            <a href="#" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                            <img src="/static/images/sample-1.jpg" class="landscape " alt="sample-1">
+                        </div>
+                        <div class="carousel-item grey lighten-4 white-text" href="#">
+                            <a href="#" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                            <img src="/static/images/sample-2.jpg" class="landscape " alt="sample-2">
+                        </div>
+                        <div class="carousel-item grey lighten-4 white-text" href="#!">
+                            <a href="#" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                            <img src="/static/images/win8cap0120c.PNG" class="landscape " alt="win8cap0120c">
+                        </div>
+                        <div class="carousel-item grey lighten-4 white-text">
+                            <a href="#" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                            <img src="/static/images/IMG_1394.PNG" class="portrait " alt="IMG_1394">
+                        </div>
+                        <div class="carousel-item grey lighten-4 white-text">
+                            <div class="card-image">
+                                <video controls muted
+                                    src="https://media.mstdn.jp/images/media_attachments/files/010/265/362/original/bae88904c7fb130e.mp4"
+                                    style="width:100%;height:100%"
+                                >
+                                    description here.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if p == 6 %}
+                <div class="card-image">
+                        <div id="img_cal" class="carousel carousel-slider center">
+                            <div class="carousel-item grey lighten-4 white-text" href="#">
+                            <video controls muted
+                                src="https://media.mstdn.jp/images/media_attachments/files/010/265/362/original/bae88904c7fb130e.mp4"
+                                class="landscape"
+                            >
+                                description here.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card-action toot_action bottom">
+                    <button class="ttbtn_reply btn-floating btn waves-effect waves-grey1 grey lighten-3"><i class="material-icons black-text">reply</i></button>
+                    <div class="right">
+                        <button class="ttbtn_fav btn-floating btn waves-effect waves-grey1 grey lighten-3"><i class="material-icons black-text">favorite</i></button>
+                        <span>9991</span>
+                        <button class="ttbtn_bst btn-floating btn waves-effect waves-grey1 grey lighten-3"><i class="material-icons black-text">share</i></button>
+                        <span>10</span>
+                    </div>
+                </div>
+                <div class="toot_comment mini">
+                    <div class="toot_comment root_reply">
+                        <div id="template_reply_box" class="template_reply_box common_ui_off">
+                            <i class="material-icons grey lighten-4 circle black-text reply_icon">person</i>
+                            <div name="inputcontent" class="dv_inputcontent inputcontent_div" contenteditable></div>
+                            <div class="dv_inputoperation common_ui_off">
+                                <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>
+                                <div class="right">
+                                    <a class="btn_reply_cancel waves-effect waves-red btn-flat">{{ trans.cons_cancel }}</a>
+                                    <a class="btn_reply_post waves-effect waves-red btn-flat">{{ trans.cons_reply}}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="collection comment-list sizing">
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle replycircle">folder</i>
+                            <span class="subtitle">Title</span>
+                            <p>First Line <br>
+                                Second Line
+                            </p>
+                            <div class="secondary-content-ex">
+                                <a href="#!" class="tt_datetime">{{ p }} 時間前</a>
+                                <a class="waves-effect waves-grey1 btn-flat activator "><i class="material-icons">more_vert</i></a>
+                                <br>
+                                
+                            </div>
+                            <div class="third-content">
+                                <a class="btn-flat btn_reply_each waves-effect"><i class="material-icons">reply</i></a>
+                                <a class="btn-flat btn_reply_each waves-effect"><i class="material-icons">star</i></a>
+                                <a class="btn-flat btn_reply_each waves-effect"><i class="material-icons">share</i></a>
+                            </div>
+                        </li>
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle replycircle">folder</i>
+                            <span class="subtitle">Title</span>
+                            <p>First Line <br>
+                                Second Line
+                            </p>
+                            <div class="secondary-content-ex">
+                                    <a href="#!" class="tt_datetime">{{ p }} 時間前</a>
+                                    <a class="waves-effect waves-grey1 btn-flat activator "><i class="material-icons">more_vert</i></a>
+                                    <br>
+                                    <a href="#!" class="btn_reply_each"><i class="material-icons">reply</i></a>
+                                </div>
+                            </li>
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle replycircle">folder</i>
+                            <span class="subtitle">Title</span>
+                            <p>First Line <br>
+                                <div id="img_cal" class="carousel carousel-slider center">
+                                    <div class="carousel-item grey lighten-4 white-text" href="#one!">
+                                        <img src="/static/images/sample-1.jpg" class="portrait" alt="sample-1">
+                                    </div>
+                                    <div class="carousel-item grey lighten-4 white-text" href="#two!">
+                                        <img src="/static/images/sample-2.jpg" class="portrait" alt="sample-2">
+                                    </div>
+                                    <div class="carousel-item grey lighten-4 white-text" href="#three!">
+                                        <img src="/static/images/win8cap0120c.PNG" class="portrait" alt="win8cap0120c">
+                                    </div>
+                                    <div class="carousel-item grey lighten-4 white-text">
+                                        <img src="/static/images/IMG_1394.PNG" class="portrait" alt="IMG_1394">
+                                    </div>
+                                </div>
+                            </p>
+                            <div class="secondary-content">
+                                    <a href="#!" class="tt_datetime">{{ p }} 時間前</a>
+                                    <a class="waves-effect waves-grey1 btn-flat activator "><i class="material-icons">more_vert</i></a>
+                                    <br>
+                                    <a href="#!" class="btn_reply_each"><i class="material-icons">reply</i></a>
+                            </div>
+                        </li>
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle replycircle">folder</i>
+                            <span class="subtitle">Title</span>
+                            <p>First Line <br>
+                                Second Line
+                            </p>
+                            <div class="secondary-content">
+                                    <a href="#!" class="tt_datetime">{{ p }} 時間前</a>
+                                    <a class="waves-effect waves-grey1 btn-flat activator "><i class="material-icons">more_vert</i></a>
+                                    <br>
+                                    <a href="#!" class="btn_reply_each"><i class="material-icons">reply</i></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-reveal">
+                    <span class="card-title grey-text text-darken-4">詳細<i class="material-icons right">close</i></span>
+                    <div>
+                        <div class="collection">
+                            <a href="#" target="_blank" rel="noopener" class="collection-item">このトゥートをオリジナル表示</a>
+                            <a href="#!" class="collection-item">このトゥートをピン留めする</a>
+                            <a href="#!" class="collection-item">このトゥートをミュートする</a>
+                            <a href="#!" class="collection-item">@HOGEをミュートする</a>
+                            <a href="#!" class="collection-item">@HOGEをブロックする</a>
+                            <a href="#!" class="collection-item">@HOGEを通報する</a>
+                        </div>
+                        <dl>
+                            <dt>メンション</dt>
+                            <dd><span class="chip">@hoge4</span><span class="chip">@hoge1</span><span class="chip">@hoge</span>
+                                <span class="chip">@hoge5</span><span class="chip">@hoge2</span><span class="chip">@hoge</span>
+                                <span class="chip">@hoge6</span><span class="chip">@hoge3</span><span class="chip">@hoge</span>
+                            </dd>
+                            <dt>タグ</dt>
+                            <dd>
+                                <span class="chip">#test</span>
+                                <span class="chip">#日本語タグ</span>
+                                <span class="chip">#programming</span>
+                            </dd>
+                        </dl>
+            
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock%}
+
+{% block userinclude %}
+<script src="/static/js/index.js"></script>
+{% endblock %}

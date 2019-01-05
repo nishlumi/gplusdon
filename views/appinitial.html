@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>G+Don</title>
+    <meta charset="utf-8"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="{{trans.appDescription}}">
+    <meta name="apple-mobile-web-app-title" content="G+Don">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="nositelinkssearchbox">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="msapplication-tilecolor" content="#FFFFFF">
+    <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta property="og:title" content="G+Don" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="複数アカウント対応、テキスト＆メディアが見やすく楽しいマストドンの新感覚ウェブクライアントです。" />
+    <meta property="og:url" content="https://gplusdon.net" />
+    <meta property="og:image" content="https://gplusdon.net/static/images/gp_og_image.png"/>
+    <meta property="og:site_name" content="G+Don" />
+
+
+    <link rel="shortcut icon" href="/static/images/app_icon.png" />
+    <link rel="stylesheet" href="/static/lib/materialize/css/materialize.min.css" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.css" rel="stylesheet">
+
+    <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" />
+    <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" />
+
+    <link href="/static/css/index.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div id="initialpanel">
+        <div id="initialmainpanel">
+            <v-card>
+                <div style="height:15rem;">
+                    <img src="/static/images/gp_initial_01.jpg"
+                        class="initial-img-background"
+                    >
+                </div>
+                <v-card-title primary-title class="title-panel">
+                <div>
+                    <h3 class="initial-brand-title mb-0"><img id="img_brand" src="/static/images/app_icon.png" width="52" height="52">{{ ainfos.name }}
+                    </h3>
+                    <div>それは、とあるSNSの約束の地...<br>
+
+                    </div>
+                </div>
+                </v-card-title>
+          
+            </v-card>
+            <div class="row">
+                <div class="col s12">
+                    <p class="flow-text">
+                        {{ainfos.name}} は
+                        <a href="https://joinmastodon.org/" target="_blank" rel="noopener"><strong class="indigo-text text-darken-4">Mastodon</strong></a>
+                        のためのウェブアプリです。<br>
+                        利用するにはどこかのMastodonインスタンスにユーザー登録している必要があります。
+                    </p>
+                </div>
+            </div>
+    
+            <div class="row white z-depth-2">
+                <div class="divider"></div>
+                <div class="col s12 m6 ">
+                    <div class="row">
+                        <div class="col s12">
+                            <h5 class="grey-text text-darken-4">G+Donをすでに利用している方</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 " style="padding-top:1rem;">
+                            <a href="/tl">
+                                <v-btn flat icon>
+                                    <v-icon>input</v-icon>
+                                </v-btn>
+                                <span style="font-size:2.1rem;">{{ trans.start_app }}</span>
+                            </a><br>
+                            <a href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" style="font-size:2.1rem;">
+                                <v-btn flat icon>
+                                    <v-icon>help</v-icon>
+                                </v-btn>
+                                <span>Help</span>
+                            </a>
+                            <p class="red-text">
+                                (*) ブックマーク（お気に入り）はタイムラインやダッシュボードで行っていただくと便利です。<br>
+                                <br>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="col s12 m6">
+                    <div class="row">
+                        <div class="col s12">
+                            <h5 class="grey-text text-darken-4">Mastodonアカウントをお持ちの方</h5>
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top:1rem;">
+                        <div class="input-field col s9">
+                            <input id="txt_initial_instance" type="text" class="validate">
+                            <label for="txt_initial_instance">接続したいインスタンス名を入力してください。</label>
+                        </div>
+                        <div class="col s1">
+                            <button id="btn_reg_account" class="btn-floating btn-flat btn waves-effect waves-light red"><i class="material-icons">send</i></button>
+                        </div>
+                        <div class="col s12">
+                            <p class="red-text">
+                                (*) 接続先のMastodonインスタンスにてログインをしてください。ログイン後、本アプリに戻ることができます。<br>
+                                (*) いくつかのMastodonインスタンスは外部アプリの許可をしていませんのでご注意ください。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="divider"></div>
+                <div class="col s12 m12">
+                    <div class="row">
+                        <div class="col s12">
+                            <h5 class="red-text">まだMastodonアカウントを持っていない方</h5>
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col s12 m4 offset-m4 white z-depth-2">
+                            <a href="https://joinmastodon.org/" target="_blank" rel="noopener">
+                            <img src="/static/images/Sticker1.png" width="100" height="130">
+                            </a>
+                            <p class="flow-text">
+                                
+                                ↑こちらのサイトで探しましょう！！
+                                <br>
+                                <a href="/instances">G+Don instance ページ</a>でも検索できます！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="row">
+                <h5>特徴</h5>
+                <div class="row">
+                    <div class="col s12">
+                        <v-layout row wrap>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_outline</v-icon>
+                                        <h5>複数アカウント＆複数インスタンス対応！</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image01.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                        Mastodonのユーザーアカウントを複数お持ちの方必見！当アプリでわかりやすく管理できます！
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_outline</v-icon>
+                                        <h5>テキスト＆メディア（画像・動画）が見やすい！</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image02.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                            Mastodonのデフォルト表示ではせせこましく感じた長文、メディアがゆったり見られます。
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_outline</v-icon>
+                                        <h5>タイムラインは一本道じゃない！</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image03.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                        Twitterのように上から下に一本道で流れるだけではなく、インスタグラムを始めとしたSNSのようにいくつもの投稿が画面狭しと飛び込んできます！
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_outline</v-icon>
+                                        <h5>PC、タブレット、スマートフォンに対応！</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image04.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                        ウェブブラウザで利用できるので、どんな環境でも利用していただけます。（オススメはタブレット以上の大画面です）
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_outline</v-icon>
+                                        <h5>あるSNSからの移行はきっとスムーズ！？</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image05.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                        使いやすかったとあるSNSをリスペクトしているので、そのSNSを利用していた方々にとってはすんなり移行していただけます。
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">block</v-icon>
+                                        <h5>新たなSNSというわけではない！</h5>
+                                    </v-card-title>
+                                    <v-card-media
+                                        contain
+                                        height="auto"
+                                        src="/static/images/start_image06.jpg"
+                                    >
+                                        
+                                    </v-card-media>
+                                    <v-card-text class="initial-presentation-item">
+                                        {{ainfos.name}} は新しいSNSではありません。あくまでもMastodonあっての{{ainfos.name}}です。しかし<b>Mastodonに新しい使い方を提起</b>します！
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-card>
+                                    <v-card-title primary-title>
+                                        <v-icon color="red">done_all</v-icon>
+                                        <h5>もちろん無料！</h5>
+                                    </v-card-title>
+                                    <v-card-text class="initial-presentation-item">
+                                        {{ainfos.name}} の利用条件はMastodonに準じているため、開発陣に不慮の事態がない限りはずっと無料です！
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                        </v-layout>
+                        <p class="flow-text">
+                            
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+        <v-footer height="" fixed>
+            <div>
+                <a href="https://docs.google.com/document/d/e/2PACX-1vTW2XUeFZS7vTLjnUGQZEsBi8yAGx3My171GdBjRSGwTF9zC1y2FDAc49yZLA4j9wd2GTEtpdFjqaXS/pub" target="_blank">Privacy Policy and Terms</a>
+            </div>
+            <v-spacer></v-spacer>
+            <div>
+                <span>2018-2019 Copyright <span id="about_author">{{ ainfos.author }}</span>. </span>
+            </div>
+        </v-footer>
+        
+    </div>
+
+    <input type="hidden" id="hid_staticpath" value="/static/">
+    <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
+    <input type="hidden" id="_csrf" value="{{csrfToken}}">
+
+    <script src="/static/lib/cookies.js"></script>
+    <script src="/static/lib/jquery.min.js"></script>
+    <script src="/static/lib/materialize/js/materialize.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+    {% include "jslib_vue.html" %}
+
+    <script src="/static/lib/alertify/alertify.min.js"></script>
+
+    <script src="/static/lib/mastodon.js"></script>
+
+
+    <!-- user include -->
+
+    <script src="/static/js/util.js"></script>
+    <script src="/static/js/cls_accounts.js"></script>
+    <script src="/static/js/cls_sns.js"></script>
+    <script src="/static/js/cls_session.js"></script>
+    <script src="/static/js/clientclass.js"></script>
+    <script src="/static/js/initial.js"></script>
+    <script src="/static/js/cls_main_add1.js"></script>
+    <script src="/static/js/cls_main_add2.js"></script>
+
+    </body>
+</html>

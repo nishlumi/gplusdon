@@ -1,0 +1,164 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Account
+{% endblock %}
+{% block content %}
+<div id="area_account" class="account_body">
+    <div id="userview" class="user-view" v-cloak>
+        <div class="background">
+        <img id="us_header" v-bind:src="header" alt="">
+        </div>
+        <div class="user-textinfo z-depth-2">
+            <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
+            <div style="display:inline-block">
+                <span id="us_display_name" class="white-text name">{? display_name ?}</span>
+                <span id="us_idname_instance" class="white-text email">@{? idname ?}@{? instance ?}</span>
+            </div>
+        </div>
+        <!--<div class="user-action-btns col1 z-depth-2 row">
+            <div class="col s12">
+                
+                <div class="switch">
+                    <label class="tooltipped" data-position="bottom" data-tooltip="{{trans.to_follow}}" >
+                        <i class="material-icons">person_outline</i>
+                        <input type="checkbox">
+                        <span class="lever"></span>
+                        <i class="material-icons white-text">person_add</i>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="user-action-btns col2 z-depth-2 row">
+            <div class="col s5">
+                <a href="#" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_mention}}" disabled><i class="material-icons">alternate_email</i></a>
+                <a href="#" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_directmsg}}"><i class="material-icons">email</i></a>
+            </div>
+            <div class="col s5">
+                <a href="#" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_endorsements}}"><i class="material-icons">sentiment_very_satisfied</i></a>
+                <a href="#" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>
+            </div>
+            <div class="col s2">
+                <a href="#" class="waves-effect waves-red white-text dropdown-trigger" data-target='dropdown1'><i class="material-icons">more_vert</i></a>
+            </div>
+        </div>-->
+    </div>
+    <ul id='dropdown1' class='dropdown-content'>
+        <li><a href="#" class="black-text" ><i class="material-icons">volume_off</i>{{trans.to_mute}}</a></li>
+        <li><a href="#" class="black-text" ><i class="material-icons">block</i>{{trans.to_block}}</a></li>
+        <li><a href="#" class="black-text"><i class="material-icons">report_problem</i>{{trans.to_report}}</a></li>
+    </ul>
+    <div class="row user-tabs">
+        <div class="col s12 tabbar">
+            <ul id="tabbar" class="tabs tabs-fixed-width">
+                <li class="tab col s2"><a href="#basicinfo">{{trans.acc_tab_info}}</a></li>
+                <li class="tab col s2"><a href="#tt_public">{{trans.acc_tab_toot}}</a></li>
+                <!--<li class="tab col s2"><a href="#tt_tlonly">{{trans.acc_tab3}}</a></li>
+                <li class="tab col s2"><a href="#tt_private">{{trans.acc_tab4}}</a></li>-->
+                <li class="tab col s2"><a href="#tt_fav">{? tab_favourite ?}</a></li>
+                <!--<li class="tab col s2"><a href="#tt_list">{{trans.acc_tab_list}}</a></li>-->
+            </ul>
+        </div>
+        <!-- tab content -->
+        <div id="basicinfo" class="col s12 tabcontent">
+            <p id="us_description" class="flow-text" v-html="note.replace('<p>','').replace('</p>','')" v-cloak></p>
+            <ul id="tbl_fields" class="collection" v-cloak>
+                <li class="collection-item avatar" v-for="fld in fields">
+                    <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
+                    <span class="title">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[1] : fld.name ?}</span>
+                    <p>{? fld.value ?}</p>
+                </li>
+            </ul>
+            <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
+            <div class="timelinebody post_card_grid post_card_grid_cellsetting">
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.body.id"
+                    v-for="status in statuses"
+                ></timeline-toot>
+            </div>
+        </div>
+        <div id="tt_public" class="col s12 tabcontent">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
+                <div class="card toot_card_base topItem" >
+                    <div class="card-content">
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <select id="sel_tlshare" v-model="selshare_current">
+                                <template v-for="item in sel_tlshare">
+                                    <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="input-field col s6">
+                            <select id="sel_tltype" v-model="seltype_current">
+                                <!--<option value="tt_all" selected>----</option>
+                                <option value="tt_public">{{trans.sel_tlpublic}}</option>
+                                <option value="tt_tlonly">{{trans.sel_tlonly}}</option>
+                                <option value="tt_private">{{trans.sel_private}}</option>
+                                <option value="tt_media">{{trans.sel_media}}</option>
+                                -->
+                                <template v-for="item in sel_tltype">
+                                    <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.id"
+                    v-bind:globalinfo="globalInfo"
+                    v-for="(status,index) in statuses"
+                    v-on:replied_post="onreplied_children(status,index)"
+                ></timeline-toot>
+            </div>
+            <!--
+                 
+                    v-bind:cardtype_size="status.cardtypeSize"
+                    v-bind:toot_reactions="status.reactions"
+                    v-bind:account="status.account"
+                    v-bind:toote="status.body" 
+                    v-bind:toote_mentions="status.mentions"
+                    v-bind:toote_tags="status.tags"
+                    v-bind:ancestors="status.ancestors",
+                    v-bind:descendants="status.descendants"
+            -->
+            <div id="tt_public_loading" class="progress timelineload common_ui_off">
+                    <div class="indeterminate"></div>
+            </div>
+        </div>
+        <!--<div id="tt_tlonly" class="col s12 tabcontent">
+
+        </div>
+        <div id="tt_private" class="col s12 tabcontent">
+
+        </div>-->
+        <div id="tt_fav" class="col s12 tabcontent">
+            <div class="timelinebody post_card_grid post_card_grid_cellsetting">
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.id"
+                    v-bind:globalinfo="globalInfo"
+                    v-for="(status,index) in statuses"
+                    v-on:replied_post="onreplied_children(status,index)"
+                ></timeline-toot>
+            </div>
+        </div>
+        <!--<div id="tt_list" class="col s12 tabcontent">
+
+        </div>-->
+    </div>
+</div>
+<input type="hidden" id="hid_instance" value="{{instance}}" />
+<input type="hidden" id="hid_uid" value="{{uid}}" />
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/appaccount.js"></script>
+{% endblock %}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html >
+    <HEAD>
+        <title>G+Don - new toot</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta content="ie=edge" http-equiv="X-UA-Compatible">
+
+        <link rel="shortcut icon" href="/static/images/app_icon.png" >
+
+        <link href="/static/lib/selectize/selectize.bootstrap3.css" rel="stylesheet" >
+        <link href="/static/lib/selectize/selectize.css" rel="stylesheet" >
+
+        <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user.css" >
+        <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+        <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+        <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+
+        <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" >
+        <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
+
+        <link href="/static/css/accounts.css" rel="stylesheet" >
+        <link href="/static/css/index.css" rel="stylesheet" >
+        <link href="/static/css/toot-timeline.css" rel="stylesheet" >
+
+    </HEAD>
+    <body style="overflow:auto;">
+        <div id="ov_inputtoot" class="dmy_inputtoot" v-cloak>
+            <v-app id="inspire">
+                <v-card width="100%" height="100%">
+            {% include  "onetoote.html"  %}
+                </v-card>
+            </v-app>
+        </div>
+
+        <div id="temporary_area"></div>
+
+        <input type="hidden" id="hid_staticpath" value="/static/">
+        <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
+
+        <script src="/static/lib/cookies.js"></script>
+        <script src="/static/lib/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+
+        <script src="/static/lib/materialize/js/materialize.js"></script>
+        <script src="/static/lib/alertify/alertify.min.js"></script>
+
+        <script src="/static/lib/mastodon-text.js"></script>
+        <script src="/static/lib/mastodon.js"></script>
+        <script src="/static/lib/paste.js"></script>
+
+        <script src="/static/lib/cke/ckeditor.js"></script>
+
+    <!-- user include -->
+    <script src="/static/res/res_template_tootbody.js"></script>
+    <script src="/static/res/res_template_userpop.js"></script>
+    <script src="/static/res/res_template_replyinput.js"></script>
+
+    <script src="/static/js/cls_ck_inputbox.js"></script>
+
+    <script src="/static/js/util.js"></script>
+    <script src="/static/js/mixins_vue.js"></script>
+    <script src="/static/js/cls_vue.js"></script>
+    <script src="/static/js/cls_accounts.js"></script>
+    <script src="/static/js/cls_sns.js"></script>
+    <script src="/static/js/cls_session.js"></script>
+    <script src="/static/js/cls_stream.js"></script>
+    <script src="/static/js/clientclass.js"></script>
+    <script src="/static/js/cls_main_add2.js"></script>
+    <script src="/static/js/cls_ck_inputbox.js"></script>
+
+    <script src="/static/js/win_toot.js"></script>
+    
+    </body>
+</html>

@@ -1,0 +1,395 @@
+
+<v-toolbar class="grey lighten-5 elevation-2"  
+    full-width
+>
+    <v-btn icon  @click="onclick_close" >
+        <v-icon>close</v-icon>
+    </v-btn>
+    <v-btn icon  hidden-sm-and-down v-on:click="onclick_openInNew" v-if="show_openInNew">
+        <v-icon>open_in_new</v-icon>
+    </v-btn>
+    <v-btn icon v-on:click="onclick_help">
+        <v-icon>help</v-icon>
+    </v-btn>
+    <v-progress-circular v-show="btnflags.loading" indeterminate color="red"></v-progress-circular>
+    <v-btn icon  hidden-sm-and-down v-on:click="onclick_openInNew" v-if="!show_openInNew">
+        <v-icon>open_in_browser</v-icon>
+    </v-btn>
+    <v-toolbar-title class="white-text truncate" v-html="dialog_title"></v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-btn icon v-on:click="onclick_moodbtn" v-bind:class="btnflags.mood">
+        <v-icon>mood</v-icon>
+    </v-btn>
+    <v-btn icon class="blue-text text-darken-2" v-on:click="onclick_send" v-bind:disabled="btnflags.send_disabled">
+        <v-icon>send</v-icon>
+    </v-btn>
+</v-toolbar>
+<div id="toot_dlg_container" class="scroll-y">
+    <v-card class="grey lighten-5">
+        <v-form v-model="toot_valid">
+            <v-container  fluid fill-height class="grey lighten-5" style="padding:12px">
+                <v-layout wrap align-center>
+                    <v-flex xs12 sm5 md5 class="contentbottomstyle">
+                        <v-autocomplete v-model="selaccounts" v-bind:items="accounts" 
+                            box chips small-chips deletable-chips
+                            color="red lighten-1" label="{{ trans.accounts }}"
+                            background-color="grey lighten-5"
+                            name="account-box"
+                            append-icon=""
+                            counter="2"
+                            v-bind:rules="account_rules"
+                            item-text="display_name" item-value="acct" 
+                            multiple required
+                        >
+                            <template slot="selection" slot-scope="data" >
+                                <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text truncate" close  v-on:input="remove(data.item)">
+                                    <v-avatar><img :src="data.item.rawdata.avatar"></v-avatar>
+                                    <span v-html='chip_user_name(data.item)'></span>
+                                </v-chip>
+                            </template>
+                            <template slot="item" slot-scope="data">
+                                <template v-if="typeof data.item !== 'object'">
+                                    <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                </template>
+                                <template v-else>
+                                    <v-list-tile-avatar>
+                                        <img :src="data.item.rawdata.avatar" slot="activator">    
+                                    </v-list-tile-avatar>
+                                    <v-list-tile-content>
+                                        <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
+                                        <v-list-tile-sub-title v-html="`@${data.item.idname}@${data.item.instance}`"></v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                </template>
+                            </template>
+                        </v-autocomplete>
+                    </v-flex>
+                    <v-flex xs1 class="contentbottomstyle">
+                        <!--<v-icon class="red-text">arrow_right</v-icon>-->
+                        <v-menu offset-y>
+                            <v-btn flat icon small color="red" dark slot="activator" v-bind:title="selsharescope.text">
+                                <v-icon>{?selsharescope.avatar?}</v-icon>
+                            </v-btn>
+                            <v-list>
+                                <v-list-tile 
+                                    v-for="(scope,scoindex) in sharescopes" 
+                                    :key="scoindex"
+                                    v-bind:class="scope.selected"
+                                    v-on:click="select_scope(scope)"
+                                >
+                                    <v-list-tile-avatar>
+                                        <v-icon v-bind:class="scope.selected">{? scope.avatar ?}</v-icon>
+                                    </v-list-tile-avatar>
+                                    <v-list-tile-title>{? scope.text ?}</v-list-tile-title>
+                                </v-list-tile>
+                            </v-list>
+                        </v-menu>
+            
+                    </v-flex>
+                    <!--<v-flex xs11 sm5 md5 class="contentbottomstyle">
+                        <v-select v-bind:items="sharescopes" 
+                            v-model="selsharescope"
+                            color="red lighten-1" class="body-1"
+                            label="{{ trans.sel_sharescope }}"
+                            background-color="grey lighten-5"
+                            append-icon=""
+                            item-avatar="avatar" item-text="text" item-value="value"
+                            
+                        >
+
+                        </v-select>
+                    </v-flex>-->
+                    <v-flex xs11 sm6 md6 v-if="isopen_mention"  class="headerbottomstyle">
+                        <v-autocomplete id="mention_box" v-model="selmentions" v-bind:items="mentions"
+                            color="red lighten-1" 
+                            background-color="grey lighten-5"
+                            name="mention-box"
+                            box chips small-chips
+                            append-icon=""
+                            hide-details 
+                            v-bind:loading="mention_loading"
+                            v-bind:search-input.sync="mention_search"
+                            item-avatar="avatar" item-text="acct" item-value="acct" 
+                            multiple solo
+                        >
+                        <template slot="no-data">
+                                <v-list-tile>
+                                    <v-list-tile-title>No hit...</v-list-tile-title>
+                                </v-list-tile>
+                            </template>
+                            <template slot="selection" slot-scope="data" >
+                                <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text" close v-on:input="remove_mention(data.item)">
+                                    <v-avatar><img :src="data.item.avatar"></v-avatar>
+                                    <span v-html='data.item.display_name + "@" + data.item.instance'></span>
+                                </v-chip>
+                            </template>
+                            <template slot="item" slot-scope="data">
+                                <v-list-tile-avatar>
+                                    <v-img :src="data.item.avatar">
+                                </v-list-tile-avatar>
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
+                                    <v-list-tile-sub-title >{? `${data.item.acct}` ?}</v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </template>
+                        </v-autocomplete>
+                    </v-flex>
+                    <v-flex xs12 class="contentbottomstyle">
+                        <div id="dv_inputcontent" 
+                            name="inputcontent" 
+                            class="onetoot_inputcontent" 
+                            contenteditable 
+                            v-bind:class="status_class"
+                            v-on:keydown="onkeydown_inputcontent"
+                            v-on:keyup="onkeyup_inputcontent"
+                            v-on:dragover="ondragover_inputcontent"
+                            v-on:dragleave="ondragleave_inputcontent"
+                            v-on:drop="ondrop_inputcontent"
+
+                        >{? status_text ?}</div>
+                        <!--<v-textarea
+                            name="inputcontent"
+                            box rows="7"
+                            full-width autofocus 
+                            height="100%"
+                            v-model="status_text"
+                            v-bind:rules="status_rules"
+                            v-bind:class="status_class"
+                            v-on:keydown="onkeydown_inputcontent"
+                            v-on:dragover="ondragover_inputcontent"
+                            v-on:dragleave="ondragleave_inputcontent"
+                            v-on:drop="ondrop_inputcontent"
+                            
+                            required
+                        ></v-textarea>-->
+                        
+                        <p id="toot_input_help" class="common_ui_off">
+                            <span class="body-1 red-text">{{ trans.accounts }}:</span><br>
+                            {{ trans.mn_accountbox_placeHolder }}<br>
+                            <span class="body-1 red-text">本文の特殊な使い方：</span><br>
+                            <b class="red-text">-cw-</b> 本文中に入れると、その前までの行がCWの文章になります。<br>
+                            <b class="red-text">-end-</b> 本文中に入れると、本アプリを使う相手からはその行以降が見えなくなります。（注！他のアプリからは見えます！）<br>
+                        </p>
+                    </v-flex>
+                    <v-flex xs10 class="tagbottomstyle1">
+                        
+                        <v-combobox v-model="seltags" v-bind:items="tags" box chips
+                            color="red lighten-1" label="{{ trans.tags }}"
+                            background-color="grey lighten-5"
+                            name="tag-box"
+                            small-chips
+                            append-icon=""
+                            multiple deletable-chips
+                            item-text="text" item-value="text"
+                        >
+                        </v-combobox>
+
+                    </v-flex>
+                    <v-flex xs2 class="tagbottomstyle2">
+                        <span class="subheading toottext_length" v-bind:class="strlength_class" >{? strlength ?}</span>
+                    </v-flex>
+                    <v-flex xs2 class="mediabottomstyle">
+                        <v-btn id="btn_addimage" icon color="primary" v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn>
+                        <input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+                    </v-flex>
+                    <v-flex xs10 class="mediabottomstyle">
+                        <v-switch
+                            label="{{ trans.image_confirm_msg02 }}"
+                            v-model="switch_NSFW"
+                            v-if="selmedias.length > 0"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs12 class="mediabottomstyle">
+                        <v-container grid-list-sm fluid>
+                            <v-layout row wrap>
+                                <v-flex xs3 v-for="(item,index) in selmedias" :key="index">
+                                    <v-card flat tile>
+                                        <v-img 
+                                            v-bind:src="item.src" 
+                                            v-bind:lazy-src="item.src" 
+                                            aspect-ratio="1"
+                                        >
+                                            <v-layout align-center justify-center>
+                                                <v-flex xs12 align-start justify-start>
+                                                    <v-btn flat icon dark class="black-half" v-on:click="onclick_mediaclose(index)"><v-icon>close</v-icon></v-btn>
+                                                </v-flex>
+                                            </v-layout>
+                                            <v-layout
+                                            slot="placeholder"
+                                            fill-height
+                                            align-center
+                                            justify-center
+                                            ma-0
+                                            >
+                                                <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>  
+                                            </v-layout>
+                                        </v-img>
+                                        <v-card-title style="padding:1px;">
+                                            <!--<div class="media_commentbox" contenteditable>{? item.comment ?}</div>
+                                            <v-text-field>{? item.comment ?}</v-text-field>-->
+                                            <form v-on:submit.prevent="onsubmit_comment(index)">
+                                                <div class="input-field col s12">
+                                                    <input type="text" class="validate" v-model="item.comment">
+                                                </div>
+                                            </form>
+                                        </v-card-title>
+                                    </v-card>       
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        
+                        
+                    </v-flex> 
+                </v-layout>
+            </v-container>
+            
+        </v-form>
+    </v-card>
+    <v-bottom-sheet v-model="emoji_bottomsheet"
+        hide-overlay persistent  
+    >
+        <v-layout row wrap  class="white">
+            <v-flex xs12 sm4 md3 lg3  style="height:24rem;overflow:auto;">
+                
+                <details>
+                    <summary class="list_summary">UTF-8 {{ trans.Pictogram }} </summary>
+                    <v-list two-line full-width>
+                        <template v-for="(item, index) in emojis_title.utf8">
+                            <v-list-tile v-if="item.type == 'pict'" :key="index"  v-on:click="onclick_keymaplistitem(index,'pict')">
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                    <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </details>
+                <details>
+                    <summary class="list_summary">UTF-8 {{ trans.Letter }}</summary>
+                    <v-list two-line full-width>
+                        <template v-for="(item, index) in emojis_title.utf8">
+                            <v-list-tile v-if="item.type == 'lett'" :key="index"  v-on:click="onclick_keymaplistitem(index,'lett')">
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                    <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </details>
+    
+                <details>
+                    <summary class="list_summary">{{ trans.tbl_acc_col3 }}</summary>
+                    <v-list two-line full-width>
+                        <v-list-tile  :key="index" v-for="(item, index) in emojis_title.instances" v-on:click="onclick_keymaplistitem(index,'inst')">
+                            <v-list-tile-content>
+                                <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </details>
+                <!--
+                <v-list two-line full-width>
+                    <v-subheader>UTF-8</v-subheader>
+                    <v-list-tile  v-for="(item, index) in emojis_title.utf8" v-on:click="">
+                        <v-list-tile-content>
+                            <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                            <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-divider  inset></v-divider>
+                    <v-subheader>{{ trans.tbl_acc_col3 }}</v-subheader>
+                    <v-list-tile  v-for="(item, index) in emojis_title.instances" v-on:click="">
+                        <v-list-tile-content>
+                            <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                            <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list>
+                
+                <div class="input-field col s12">
+                    <select id="keymaptitle">
+                        <optgroup label="UTF-8 {{ trans.Pictogram }}">
+                            <template v-for="(item,index) in emojis_title.utf8">
+                                <option v-if="item.type == 'pict'" :key="index" v-bind:value="keymaplistvalue(index,'p')">{? item.text ?}</option>
+                            </template>
+                        </optgroup>
+                        <optgroup label="UTF-8 {{ trans.Letter }}">
+                            
+                                <option v-for="(item,index) in emojis_title.utf8" :key="index" v-bind:value="keymaplistvalue(index,'l')">{? item.text ?}</option>
+                            
+                        </optgroup>
+                        <optgroup label="{{ trans.tbl_acc_col3 }}">
+                            <template v-for="(item, index) in emojis_title.instances">
+                                <option :key="index" v-bind:value="keymaplistvalue(index,'i')">{? item.text ?}</option>
+                            </template>
+                        </optgroup>
+                    </select>
+                </div>
+                -->
+            </v-flex>
+            <v-flex xs12 sm8 md9 lg9>
+                <v-card flat>
+                    <div id="chararea"></div>    
+                </v-card>
+            </v-flex>
+        </v-layout>
+        
+    </v-bottom-sheet>
+</div>
+
+<!--
+<button id="btn_send" class="btn-flat btn-large waves-effect waves-red"><i class="material-icons red-text">send</i></button>
+<button id="btn_clear" class="btn-floating btn waves-effect waves-light"><i class="material-icons">clear</i></button>
+
+<div class="modal-content">
+<div id="panel_main" class="page-content panel-on">
+        <div class="row">
+            <div class="col s12" style="height:3rem;">
+                <div id="mn_accountbox" multiple></div>
+            </div>
+            <div class="col s12">
+                <div id="dv_inputcontent" name="inputcontent" class="inputcontent_div" contenteditable></div>
+            </div>
+        </div>
+        <div class="row"  style="height:3rem;">
+            <div class="col s9">
+                <strong id="lab_tab1_hashtag" class="black-text"></strong>
+                <div id="txt_addtag" class="chips chips-autocomplete"></div>
+            </div>
+            <div class="col s3">
+                <button id="btn_send" class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">send</i></button>
+                <button id="btn_clear" class="btn-floating btn waves-effect waves-light"><i class="material-icons">clear</i></button>
+            </div>
+        </div>
+    </div>
+    <div id="keymaplist" class="page-content hide-keymaplist">
+        <div class="row">
+            <div class="col s3">
+                <ul class="collapsible">
+                    <li>
+                        <div class="collapsible-header"><i class="material-icons">face</i><span id="col_char_pict">Pictogram</span></div>
+                        <div class="collapsible-body">
+                            <div id="sel01_pictogram" class="collection" style="height:10rem;overflow:auto;"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapsible-header"><i class="material-icons">text_format</i><span id="col_char_let">Letter</span></div>
+                        <div class="collapsible-body">
+                            <div id="sel01_letter" class="collection" style="height:10rem;overflow:auto;"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col s9">
+                <div id="chararea"></div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+</div>-->

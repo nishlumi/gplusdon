@@ -1,0 +1,87 @@
+{% extends "appbase.html" %}
+
+
+{% block eachtitle %}
+ - Accounts
+{% endblock %}
+{% block content %}
+<div id="area_accounts" class="container accounts_body" v-cloak>
+    <div class="row white z-depth-2 search-box">
+        <div class="col s12">
+            <form name="addinstance" v-on:submit.prevent="onsubmit_addinstance">
+                <div class="col s9 m6 offset-m3">
+                    <div class="input-field red-text">
+                        <input placeholder="{{trans.txt_add_instance}}" id="txt_add_instance" type="text" class="validate">
+                        <label for="txt_add_instance" >{{trans.lab_txt_add_instance}}</label>
+                    </div>
+                </div>
+                <div class="col s3">
+                    <button id="btn_reg_account" class="btn-floating btn waves-effect waves-light red"><i class="material-icons">add</i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row area_acc white z-depth-2">
+        <div class="col s12">
+            <table id="tbl_acc" class="striped highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th><a id="btn_del_account" class="btn-flat mini waves-effect waves-red" v-on:click="ondelete_account"><i class="material-icons">delete</i></a></th>
+                        <th> </th>
+                        <th>{{trans.tbl_acc_col1}}</th>
+                        <th>{{trans.tbl_acc_col2}}</th>
+                        <th>{{trans.tbl_acc_col3}}</th>
+                        <!--<th>{{trans.tbl_acc_col4}}</th>-->
+                        <th>{{trans.tbl_acc_col5}}</th>
+                        <th>{{trans.tbl_acc_col6}}</th>
+                        <th>Web {{trans.notifications}}</th>
+                    </tr>
+                </thead>
+                <tbody v-cloak>
+                    <tr v-for="(item, index) in accounts">
+                        <td>
+                            <label>
+                                <input v-bind:id="'chk_ac'+index" type="checkbox" v-model="item.selected"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct">
+                                <img v-bind:src="item.account.rawdata.avatar" class="userrectangle" width="40" height="40" v-bind:alt="item.account.idname">
+                            </a>
+                        </td>
+                        <td>
+                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct">
+                                <span>{? item.account.display_name ?}</span>
+                            </a>
+                        </td>
+                        <td>{? "@" + item.account.idname ?}</td>
+                        <td>{? "@" + item.account.instance ?}</td>
+                        <!--<td class="righted">{? item.account.rawdata.statuses_count ?}</td>-->
+                        <td class="righted">{? item.account.rawdata.following_count ?}</td>
+                        <td class="righted">{? item.account.rawdata.followers_count ?}</td>
+                        <td>
+                            <v-switch
+                                label="ON"
+                                v-model="accounts_config[index].is_notification"
+                            ></v-switch>
+                            <!--<div class="switch">
+                                <label>
+                                    <input type="checkbox" v-model="item.is_notification" v-on:change="oncheck_following">
+                                    <span class="lever"></span>
+                                    <i class="material-icons tooltipped black-text" data-position="bottom" data-tooltip="Web {{trans.notifications}}">notifications</i>
+                                </label>
+                            </div>-->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/appaccounts.js"></script>
+{% endblock %}

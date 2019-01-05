@@ -1,0 +1,97 @@
+{% extends "appbase.html" %}
+
+{% block eachtitle %}
+ - Tag timeline
+{% endblock %}
+{% block content %}
+<div id="area_timeline" class="hashtag_body">
+    <div class="row">
+        <div id="tabbar" class="col s12">
+            <ul  class="tabs tabs-fixed-width">
+                <li class="tab col s6"><a class="black-text active" href="#tl_taglocal"><i class="material-icons">local_offer</i><span class="hidden-sm-and-down">#{? hashtag ?}</span></a></li>
+                <li class="tab col s6"><a class="black-text" href="#tl_tag"><i class="material-icons">public</i><span class="hidden-sm-and-down">#{? hashtag ?}</span></a></li>
+            </ul>
+        </div>
+        <div id="tl_taglocal" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
+                <div class="card toot_card_base topItem" >
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <select id="sel_tlshare" v-model="selshare_current">
+                                    <template v-for="item in sel_tlshare">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="input-field col s6">
+                                <select id="sel_tltype" v-model="seltype_current">
+                                    <template v-for="item in sel_tltype">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.id"
+                    v-bind:globalinfo="globalInfo"
+                    v-for="(status,index) in statuses"
+                    v-on:replied_post="onreplied_children(status,index)"
+                    v-on:delete_toot="ondelete_toot_children"
+                ></timeline-toot>
+            </div>
+        </div>
+        <div id="tl_tag" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
+                <div class="card toot_card_base topItem" >
+                    <div class="card-content">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <select id="sel_tlshare" v-model="selshare_current">
+                                    <template v-for="item in sel_tlshare">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="input-field col s6">
+                                <select id="sel_tltype" v-model="seltype_current">
+                                    <template v-for="item in sel_tltype">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <timeline-toot 
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:key="status.id"
+                    v-bind:globalinfo="globalInfo"
+                    v-for="(status,index) in statuses"
+                    v-on:replied_post="onreplied_children(status,index)"
+                    v-on:delete_toot="ondelete_toot_children"
+                ></timeline-toot>
+            </div>
+        </div>
+    </div>
+
+</div>
+<input type="hidden" id="hid_timelinetype" value="{{timelinetype}}" />
+<input type="hidden" id="hid_timelinetypeid" value="{{timelinetypeid}}" />
+<input type="hidden" id="hid_instance" value="{{instance}}" />
+<input type="hidden" id="hid_uid" value="{{uid}}" />
+
+
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/apphashtag.js"></script>
+{% endblock %}

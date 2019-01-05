@@ -1,0 +1,128 @@
+<div id="ov_image" class="modal">
+    <div class="modal-content"></div>
+</div>
+<div id="modal1" >
+    <!--<div class="modal-content">class="modal"
+        <h4>{{ trans.opt_turnEdit }}</h4>
+        <ul id="nav_sel_account" class="collection">
+            <li v-for="ac in accounts" class="collection-item avatar">
+                <a href="#" v-on:click="onclick_item">
+                    <img
+                        v-bind:src="ac.rawdata.avatar"
+                        class="circle"
+                        width="48"
+                        height="48"
+                        v-bind:title="ac.idname+','+ac.instance"
+                    />
+                    <span
+                        class="modal-avatar-title"
+                        v-bind:title="ac.idname+','+ac.instance"
+                        >{? ac.display_name + "@" + ac.instance ?}</span
+                    >
+                </a>
+            </li>
+        </ul>
+    </div>-->
+    <v-dialog v-model="isdialog_selaccount" v-bind:width="dialog_width">
+        <v-card>
+            <v-card-title class="headline">{{ trans.opt_turnEdit }}</v-card-title>
+            <v-card-text>
+                <div id="nav_sel_account">
+                    <v-list dense v-bind:class="uistyle.bgcolor">
+                        <v-list-tile avatar v-bind:key="i" v-for="(ac,i) in accounts" v-on:click.stop="onclick_item(ac.idname,ac.instance)">
+                            <v-list-tile-avatar >
+                                <v-img v-bind:src="ac.rawdata.avatar" class="userrectagnle" v-bind:title="ac.idname">
+                            </v-list-tile-avatar>
+                            <v-list-tile-content v-bind:title="ac.idname" v-html="fullname(ac)"></v-list-tile-content>
+                            <v-list-tile-action>
+                                <span class="new badge red" v-if="ac.notifications.length > 0">{? ac.notifications.length ?}</span>
+                            </v-list-tile-action>
+                        </v-list-tile>
+                    </v-list>
+                </div>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+</div>
+<div id="ov_notif" class="common_ui_off">
+    <div id="ov_notif_overlay" v-on:click="onclick_ov_notif_overlay">
+
+    </div>
+    <div id="ov_notif_menu" v-show="dialog" class="notifmenu white z-depth-2 ">
+        <v-card color="white">
+            <v-card-actions>
+                <v-layout row wrap v-if="boarding === 0">
+                    <v-flex xs6>
+                        <v-btn flat >{? _T("msg_show_notification") ?}</v-btn>                        
+                    </v-flex>
+                    <v-flex xs1 offset-xs5>
+                        <v-btn flat icon v-on:click="onclick_clearall">
+                            <v-icon>clear_all</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap v-if="boarding === 1">
+                    <v-flex xs5>
+                        <v-btn flat icon v-on:click="prev_page">
+                            <v-icon>arrow_back</v-icon>
+                        </v-btn>
+                    </v-flex>
+                    <v-flex xs1>
+                        <v-btn flat icon v-on:click="onclick_current_clear(saveitem.id)">
+                            <v-icon>clear</v-icon>
+                        </v-btn>
+                    </v-flex>
+                    <v-flex xs1 offset-xs5>
+                        <v-btn flat icon v-on:click="onclick_open_in_new_toot(status)">
+                            <v-icon>open_in_new</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-layout>
+            </v-card-actions>
+        </v-card>
+        <v-window v-model="boarding">
+            <v-window-item >
+                <v-card class="notiflist_card">
+                    <v-list two-line>
+                        <template v-for="(item,index) in currentAccount.notifications">
+                            <v-list-tile avatar v-bind:key="item.id" v-on:click="onclick_notif_line(index)">
+                                <v-list-tile-avatar>
+                                    <img v-bind:src="item.account[0].avatar" class="userrectangle">
+                                    <v-icon  small class="notif_avatar_mark tooltipped" v-bind:class="judge_colorFromType(item.type)" data-position="right" v-bind:data-tooltip="get_translated_typename(item.type)">{? get_type_icon(item.type) ?}</v-icon>
+                                </v-list-tile-avatar>
+                                
+                                <v-list-tile-content>
+                                    <v-list-tile-title>
+                                        <!--<span style="display:inline-block;" v-bind:class="judge_colorFromType(item.type)">
+                                            <v-icon class="white-text">{? get_type_icon(item.type) ?}</v-icon>
+                                            <span >{? get_translated_typename(item.type) ?}</span>
+                                        </span>-->
+                                        <b v-html="get_display_name_html(item.account)"></b>
+                                    </v-list-tile-title>
+                                    <v-list-tile-sub-title>{? "status" in item ? item.status.content.substr(0,100) : "" ?}</v-list-tile-sub-title>
+                                </v-list-tile-content>
+                                <v-list-tile-action>
+                                    <v-btn flat icon v-on:click.stop="onclick_notif_linebtn(index)">
+                                        <v-icon>clear</v-icon>
+                                    </v-btn>
+                                </v-list-tile-action>
+                            </v-list-tile>
+                            <v-divider></v-divider>
+                        </template>
+                    </v-list>
+                </v-card>
+            </v-window-item>
+            <v-window-item >
+                <div class="notiflist_card">
+                    <template v-if="status != null">
+                        <timeline-toot 
+                            v-bind:translation="translations"
+                            v-bind:toote="status"
+                            v-bind:globalinfo="globalInfo"
+                        ></timeline-toot>
+                    </template>
+                </div>
+            </v-window-item>
+        </v-window>
+    </div>
+</div>
