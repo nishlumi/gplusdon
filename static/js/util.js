@@ -1,4 +1,5 @@
 ﻿//define of Utilities
+
 //shortcut of i18n function
 var onKeyope=false;
 var curLocale = {
@@ -158,8 +159,15 @@ function setupLocale(params){
 		curLocale.name = p_lng;
 		curLocale.fullName = p_lng;
 	}
-	curLocale.messages = JSON.parse(ID("hid_currentlocale").value);
-	ID("hid_currentlocale").value = "";
+	var ishit = sessionStorage.getItem("currentlocale");
+	if (ishit) {
+		curLocale.messages = JSON.parse(ishit);
+	}else{
+		curLocale.messages = JSON.parse(ID("hid_currentlocale").value);
+		sessionStorage.setItem("currentlocale",ID("hid_currentlocale").value);
+		ID("hid_currentlocale").value = "";
+	}
+
 	var def2 = new Promise((resolve,reject)=>{
 		resolve(true);
 	});

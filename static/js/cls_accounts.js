@@ -198,7 +198,18 @@ class AccountManager {
                                 acc.token["stream_url"] = result.urls.streaming_api;
                                 acc.api.setConfig("stream_url",result.urls.streaming_api);
                                 acc.stream = new Gpstream("user",acc,null,null);
-                                MYAPP.acman.items.push(acc);
+                                var key = {
+                                    idname : acc.idname,
+                                    instance : acc.instance
+                                };
+                                var isexist = MYAPP.acman.getIndex(key);
+                                if (isexist > -1) {
+                                    //---first register
+                                    MYAPP.acman.items.push(acc);
+                                }else{
+                                    //---if exists, not register but update.
+                                    MYAPP.acman.set(key,acc);
+                                }
 
                                 MYAPP.acman.instances[result.uri] = {
                                     info : result,

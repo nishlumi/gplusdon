@@ -113,7 +113,7 @@ app.use(function (err, req, res, next) {
 const finalport = (process.env.PORT || 3000);
 app.set('port', finalport);
 console.log(`Node.js + express starting following port: ${finalport} => http://localhost:${finalport}`);
-console.log(packagejson);
+console.log(packagejson.version);
 
 var server = app.listen(app.get('port'), function () {
     debug('Express server listening on port ' + server.address().port);

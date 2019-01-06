@@ -1,3 +1,6 @@
+/*
+
+*/
 const CONS_TEMPLATE_TOOTBODY = `
 <div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-bind:style="toote.cardtypeSize" v-if="'body' in toote">
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
@@ -50,50 +53,26 @@ const CONS_TEMPLATE_TOOTBODY = `
             </div>
         </div>  
     </div>  
-<!-----toot with link-->
-    <div class="card-link" v-if="toote.mainlink.exists">
+    <!-----toot with link-->
+    <div class=" card-link" v-if="toote.mainlink.exists">
         <div class="card"> 
         <a v-bind:href="toote.mainlink.url" target="_blank" rel="noopener"> 
-            <div class="card-image"> 
+            <div class="image-area card-image"> 
             <img v-if="toote.mainlink.isimage" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description"> 
             <span class="link-title truncate"><i class="material-icons">link</i> 
                 <span class="link-site" v-html="toote.mainlink.site"></span> 
             </span> 
             </div> 
             <div class="card-content link-content grey-text text-darken-1">
-            <b class="site-title">{{ toote.mainlink.title }}</b> 
-            <p>{{ toote.mainlink.description }}</p> 
+            <b class="site-title truncate">{{ toote.mainlink.title }}</b> 
+            <p class="description-truncate">{{ toote.mainlink.description }}</p> 
             </div> 
         </a> 
         </div>
     </div> 
 <!-----toot media -->
-    <div class="card-image" v-if="toote.medias.length > 0">  
+    <div class=" card-image" v-if="toote.medias.length > 0">  
         <div class="xcarousel xcarousel-slider center"> 
-            <!--<template v-if="toote.body.sensitive">
-                <div class="carousel-item grey lighten-4 white-text">
-                    <img v-bind:src="globalinfo.staticpath+'/images/gp_sensitive_image.png'" class="landscape">
-                    <h4 class="sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[toote.medias.length ]) }}</h4>
-                </div>
-            </template>
-            <div class="carousel-item grey lighten-4 white-text" v-bind:key="item.id"  v-for="item in toote.medias">  
-                <template v-if="item.type=='video'">
-                    <a v-bind:href="item.url" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                    <video controls v-bind:src="item.url" class="landscape" v-if="item.meta.small.width > item.meta.small.height">Video: {{ item.description }}</video>
-                    <video controls v-bind:src="item.url" class="portrait" v-else>Video: {{ item.description }}</video>
-                </template>
-                <template v-else-if="item.type=='gifv'">
-                    <a v-bind:href="item.url" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                    <video loop autoplay v-bind:src="item.url" class="landscape" v-on:mouseover="onmouseenter_gifv" v-on:mouseout="onmouseleave_gifv" v-if="item.meta.small.width > item.meta.small.height">Video: {{ item.description }}</video>
-                    <video loop autoplay v-bind:src="item.url" class="portrait" v-on:mouseover="onmouseenter_gifv" v-on:mouseout="onmouseleave_gifv" v-else>Video: {{ item.description }}</video>
-                </template>
-                <template v-else>
-                    <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                    <img v-bind:src="item.url" class="landscape" v-if="item.meta.small.width > item.meta.small.height" v-bind:alt="item.description">  
-                    <img v-bind:src="item.url" class="portrait"  v-else v-bind:alt="item.description">  
-                </template>
-                
-            </div>-->
             <tootgallery-carousel
                 v-bind:medias="toote.medias"
                 v-bind:sensitive="toote.body.sensitive"
@@ -102,7 +81,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div> 
     </div>  
 <!-----reaction for the toot-->
-    <div class="card-action-ex toot_action bottom"> 
+    <div class="toot_content_action toot_action bottom"> 
         <v-tooltip bottom>
             <v-btn icon slot="activator" v-on:click="onclick_ttbtn_reply">
                 <v-icon>reply</v-icon>
@@ -174,7 +153,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                         </details>
                     </div>
                     <br>
-                    <div class="xcarousel xcarousel-slider center" v-if="reply.body.media_attachments.length > 0"> 
+                    <div class="xcarousel xcarousel-slider center" v-if="reply.medias.length > 0"> 
                         <!--<template v-if="reply.body.sensitive">
                             <div class="carousel-item grey lighten-4 white-text">
                                 <h4 class="sensitive-image-text">{{ _T(translation.sensitive_imagetext,[reply.body.media_attachments.length]) }}</h4>

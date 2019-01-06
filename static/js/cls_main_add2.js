@@ -315,6 +315,8 @@ function defineForTootPage(app) {
                         this.selmentions.splice(0,this.selmentions.length);
                         this.seltags.splice(0,this.seltags.length);
                         this.selmedias.splice(0,this.selmedias.length);
+                        this.medias.splice(0,this.medias.length);
+                        this.switch_NSFW = false;
 
                         //if (!this.fullscreen) {
                             this.dialog = false;

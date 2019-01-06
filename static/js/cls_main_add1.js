@@ -643,19 +643,19 @@ function defineForMainPage(app) {
                 var ju_fullscreen = false;
                 var ju_toolbar = false;
                 if (breakpoint.lgAndUp) {
-                    ju_width = "60%";
+                    ju_width = "70%";
                     ju_fullscreen = false;
                 }else if (breakpoint.md) {
                     if (breakpoint.mdAndDown) {
                         if (breakpoint.mdAndUp) {
-                            ju_width = "60%";
+                            ju_width = "70%";
                             ju_fullscreen = false;        
                         }else{
                             ju_width = "90%";
                             ju_fullscreen = false;
                         }
                     }else{
-                        ju_width = "60%";
+                        ju_width = "70%";
                         ju_fullscreen = false;        
                     }
                 }else if (breakpoint.smAndDown) {
@@ -672,7 +672,7 @@ function defineForMainPage(app) {
                         ju_fullscreen = true;
                     }
                 }else{
-                    ju_width = "60%";
+                    ju_width = "70%";
                     ju_fullscreen = false;
                 }
                 this.isfull_toolbar = ju_toolbar;

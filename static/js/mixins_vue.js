@@ -86,13 +86,33 @@ var vue_mixin_for_timeline = {
 				width_1 : false,
 				width_2 : false,
 				width_3 : false,
-			}
+			},
+			grid_conf : {
+				columnWidth : 200,
+				duration : 100,
+				gutter : 10,
+			},
+			wrapperSize: {
+				width: 0,
+			},
+			grid : {} //wrapperSize.width <= 768 ? '100%' : grid_conf.columnWidth
 		}
 	},
 	created() {
 		if (MYAPP) {
 			this.globalInfo.staticpath = MYAPP.appinfo.staticPath;
 		}
+	},
+	mounted() {
+		/*this.wrapperSize.width = 1000;
+		this.$nextTick(() => {
+		  const erd = elementResizeDetectorMaker({
+			strategy: 'scroll',
+		  });
+		  erd.listenTo(this.grid.$el, (element) => {
+			this.wrapperSize = { width: element.offsetWidth };
+		  });
+		});*/
 	},
 	methods: {
 		//---event handler----------------------------------------------
@@ -472,12 +492,12 @@ var vue_mixin_for_timeline = {
 									//---final card size change
 									if (this.statuses[tt.index].medias.length > 0) {
 										var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
-										if (sp < 9) {
+										/*if (sp < 9) {
 											sp = sp + 6;
 										} else {
 											sp = sp + 2;
-										}
-										this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
+										}*/
+										//this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
 									}
 								} else {
 									this.$set(this.statuses[tt.index].mainlink, "isimage", false);

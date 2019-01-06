@@ -35,7 +35,9 @@ div.toot_timeline_grid {
     grid-auto-flow: dense;
     grid-auto-rows : minmax(3rem,auto);
     width : 100%;
+    height : -moz-fit-content;
     height : fit-content;
+    
 }
 div.toot_timeline_grid.width_count  {
     grid-template-columns: 100%;
@@ -120,7 +122,36 @@ div.toot_timeline_grid.width_3 {
 
 }
 
-
+/*===== muuri ======*/
+.grid {
+    position: relative;
+    width : 100%;
+    height : 100%;
+}
+.item {
+    display: block;
+    position: absolute;
+    width: 200px;
+    height: 320px;
+    margin: 5px;
+    z-index: 1;
+    background: #000;
+    color: #fff;
+}
+.item.muuri-item-dragging {
+    z-index: 3;
+}
+.item.muuri-item-releasing {
+    z-index: 2;
+}
+.item.muuri-item-hidden {
+    z-index: 0;
+}
+.item-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
 
 
 
@@ -217,7 +248,7 @@ div.toot_card_base.g30 {
 
 =================================*/
 .toot_card_base .toot_content_grid {
-    height: calc(100% - 6rem);
+    /*height: calc(100% - 6rem);*/
     max-height: 600px;
 
     display : grid;
@@ -271,6 +302,7 @@ div.toot_card_base.g30 {
 /*=== toot date time ===*/
 .toot_card_base .toot_datetime {
     position: absolute;
+    top : 0;
     right : 0;
     /* ---grid in content, cell(1,3) ---*/
     grid-column : 4 / span 2;
@@ -358,6 +390,15 @@ div.toot_card_base.g30 {
 }
 
 /*=== toot with link  ===*/
+.toot_card_base .toot_content_link {
+    /* ---grid in content, cell(3,1, 3,3) ---*/
+    grid-column: 1 / span 5;
+    overflow: auto;
+    z-index: 1;
+    /*grid-row-start: 7;*/
+    grid-row-end : span 7;
+}
+
 .card-link {
     border-top:2px inset grey;
 }
@@ -369,7 +410,9 @@ div.toot_card_base.g30 {
     position : absolute;
     top : 0;
     right : 0;
+    height : -moz-fit-content;
     height : fit-content;
+    width : -moz-fit-content;
     width : fit-content;
     border-radius: 0 0 0 5px;
 }
@@ -385,6 +428,15 @@ div.toot_card_base.g30 {
 .card-link .card-content.link-content {
     padding : 1rem;
 }
+.card-link .image-area {
+    height : 15rem;   
+}
+.card-link img {
+    object-fit: cover;
+    object-position: 0 20%;
+    width: 100%;
+    height: 100%;
+}
 .card-link .card-content b {
     font-size : 18px;
 }
@@ -394,8 +446,24 @@ div.toot_card_base.g30 {
 .card-link .link-site {    
     color : #FFFFFF;
 }
+.card-link .description-truncate {
+    max-height : 6rem;
+    display: block;
+    white-space: pre-line;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /*=== toot media  ===*/
+.toot_card_base .toot_content_media {
+    /* ---grid in content, cell(3,1, 3,3) ---*/
+    grid-column: 1 / span 5;
+    overflow: auto;
+    z-index: 1;
+    /*grid-row-start: 7;*/
+    grid-row-end : span 7;
+}
+
 .toot_card_base .toote_media_simple {
     width : 100%;
 }
@@ -437,10 +505,19 @@ div.toot_card_base.g30 {
 }
 
 /*=== toot action ===*/
+.toot_card_base .toot_content_action {
+    /* ---grid in content, cell(3,1, 3,3) ---*/
+    grid-column: 1 / span 5;
+    overflow: auto;
+    z-index: 1;
+    /*grid-row-start: 7;*/
+    grid-row-end : span 2;
+}
+
 .toot_card_base .toot_action {
-    height : 6rem;
+    height : 5rem;
     position : relative;
-    padding-top : 1rem;
+    padding-top : 0;
 }
 .reaction-count {
     padding : 0 1rem 0 1rem;

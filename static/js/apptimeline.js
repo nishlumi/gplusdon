@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             el : "#tl_home",
             delimiters : ["{?","?}"],
             mixins : [vue_mixin_for_timeline],
+        
             data : {
                 /*is_asyncing : false,
                 selshare_current : "tt_all",
@@ -717,6 +718,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     console.log("hash=",location.hash);
-    location.hash = "";
+    //location.hash = "";
     
 })();

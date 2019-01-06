@@ -1570,8 +1570,8 @@ class Gpsns {
         };
 
         //---decide final card size.
-        var num_cardSize = 4;
-        if (this.body.content.length <= 49) {
+        var num_cardSize = 2;
+        /*if (this.body.content.length <= 49) {
             num_cardSize += 0;
         }else if (this.body.content.length >= 50) {
             num_cardSize += 1;
@@ -1583,13 +1583,13 @@ class Gpsns {
             num_cardSize += 4;
         }else{
             num_cardSize += 5;
-        }
+        }*/
         if (this.medias.length > 0) {
-            num_cardSize += 4;
+            num_cardSize += 3;
         }
         //---change card size if available a link
         if (this.urls.length > 0) {
-            num_cardSize += 2;
+            num_cardSize += 3;
         }
         /*if ((this.medias.length > 0) && (this.urls.length > 0)) {
             num_cardSize = 28;

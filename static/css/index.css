@@ -576,6 +576,8 @@ div.post_card_above2 {
 }
 */
 #ov_image {
+    width : -moz-fit-content;
+    height : -moz-fit-content;
     width : fit-content;    
     height : fit-content;
     max-width : 92%;
@@ -584,6 +586,8 @@ div.post_card_above2 {
     overflow: hidden;
 }
 #ov_image .modal-content {
+    width : -moz-fit-content;
+    height : -moz-fit-content;
     width : fit-content;
     height : fit-content;
     padding : 0;
@@ -600,6 +604,7 @@ div.post_card_above2 {
 }
 */
 .card.fitcontent {
+    height : -moz-fit-content;
     height : fit-content;
 }
 /*
@@ -645,6 +650,7 @@ div.post_card_above2 {
 }
 .onetoote_cardtext {
     padding: 0;
+    overflow-x: hidden;
 }
 .onetoote_screen {
     position : fixed;
@@ -810,6 +816,7 @@ div.account_body .user-view .background {
     z-index: -1;
 
     width : 100%;
+    height : -moz-fit-content;
     height: fit-content;
 }
 div.account_body .user-view .background img {
@@ -864,6 +871,7 @@ div.account_body .user-view .email {
     font-weight: 400;
 }
 .user-action-btns {
+    width : -moz-fit-content;
     width: fit-content;
     height: 40px;
     background-color: rgba(0,0,0, 0.2);

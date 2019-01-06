@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const web = require("request");
+const sysconst = require("./sysconst");
 const {
     JSDOM
 } = require("jsdom");
@@ -13,7 +14,7 @@ const CON_ACCEPT_HOSTS = [
     "gplusdon.azurewebsites.net",
     "gplusdon.net"
 ];
-const INSTANCE_TOKEN = "FQOBCaZyaA5PC0Tx0QyPjjboGL8qm5dpULnhzUCFDc8q8i1eD2I9Dq4S2NM6GpMVgMrfUF1o8fCBfkt5cUAGjCY2XPwQj2fbGGqFXM02IFIQuSbcbZdNcfE7jxXZ4Zkw";
+const INSTANCE_TOKEN = sysconst.server_token();
 //lumsis@mastodon.cloud
 const __user_dirname = __dirname.replace("apps","");
 
@@ -46,14 +47,16 @@ async function loadWebsiteOGP(request, url) {
 
 var ucommon = {
     sysinfo: {
-        VAPID: "BCGiOKTrNfAFmIPybyacC2UcM2y9zJlDCtacpZoX44U4QjkY1HtaLla0leTn5HWXUevOrSFwb3xunrHHffdPaek="
+        VAPID: sysconst.vap_id()
     },
     load_author: function () {
+        var info = sysconst.package_info();
         return {
-            name: "G+Don",
-            author: "ISHII Eiju",
+            name: info.name,
+            fullname : "G+Don",
+            author: info.author.name,
             advisor : [],
-            version: "1.0.0"
+            version: info.version
         };
     },
     load_translation: function (locales) {

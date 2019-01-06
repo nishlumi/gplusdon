@@ -4,6 +4,7 @@
  - Timeline
 {% endblock %}
 {% block content %}
+
 <div id="area_timeline" class="timeline_body">
     <div class="row">
         <div class="col s12">
@@ -15,9 +16,13 @@
             </ul>
         </div>
         <div id="tl_home" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
-            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
+            <!-- 
+                toot_timeline_grid  
+                card toot_card_base topItem
+            -->
+            <div class="timelinebody toot_timeline_grid  " v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
-                    <div class="card-content">
+                    <div class="item-content card-content">
                         <div class="row">
                             <div class="input-field col s6">
                                 <select id="sel_tlshare" v-model="selshare_current">
@@ -43,6 +48,7 @@
                         </div>
                     </div>
                 </div>
+
                 <timeline-toot 
                     v-bind:translation="translations"
                     v-bind:toote="status"
@@ -52,7 +58,10 @@
                     v-on:replied_post="onreplied_children(status,index)"
                     v-on:delete_toot="ondelete_toot_children"
                 ></timeline-toot>
+
             </div>
+
+            
         </div>
         <div id="tl_list" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
