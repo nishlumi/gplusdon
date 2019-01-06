@@ -162,6 +162,7 @@ function setupLocale(params){
 	var ishit = sessionStorage.getItem("currentlocale");
 	if (ishit) {
 		curLocale.messages = JSON.parse(ishit);
+		ID("hid_currentlocale").value = "";
 	}else{
 		curLocale.messages = JSON.parse(ID("hid_currentlocale").value);
 		sessionStorage.setItem("currentlocale",ID("hid_currentlocale").value);

@@ -37,37 +37,26 @@ const CONS_TEMPLATE_REPLYINPUT = `
 
                 
             >{{ status_text }}</div>
-            <!--<v-textarea
-                name="inputcontent"
-                box rows="7"
-                full-width autofocus 
-                v-model="status_text"
-                v-bind:rules="status_rules"
-                v-bind:class="status_class"
-                v-on:keydown="onkeydown_inputcontent"
-                v-on:dragover="ondragover_inputcontent"
-                v-on:dragleave="ondragleave_inputcontent"
-                v-on:drop="ondrop_inputcontent"
-                
-                required
-            ></v-textarea>
-            -->
             <span class="reply_input_count subheading toottext_length" v-bind:class="strlength_class" >{{ strlength }}</span>
         </v-flex>
         <v-flex xs11>
             <div class="dv_inputoperation ">
-                
-                <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
-
-                <div class="right">  
-                    <a class="btn_reply_cancel waves-effect waves-red btn-flat" 
-                        v-on:click="onclick_btn_reply_cancel"
-                    >{{ translation.cons_cancel }}</a>  
-                    <a class="btn_reply_post waves-effect waves-red btn-flat" 
-                        v-on:click="onclick_btn_reply_post" 
-                        v-bind:disabled="btnflags.send_disabled"
-                    >{{ translation.cons_reply }}</a>  
-                </div>  
+                <v-layout row wrap>
+                    <v-flex xs2>
+                        <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
+                    </v-flex>
+                    <v-flex x6 offset-xs5>
+                        <div class="">
+                            <a class="btn_reply_cancel waves-effect waves-red btn-flat" 
+                                v-on:click="onclick_btn_reply_cancel"
+                            >{{ translation.cons_cancel }}</a>  
+                            <a class="btn_reply_post waves-effect waves-red btn-flat" 
+                                v-on:click="onclick_btn_reply_post" 
+                                v-bind:disabled="btnflags.send_disabled"
+                            >{{ translation.cons_reply }}</a>  
+                        </div> 
+                    </v-flex>
+                </v-layout> 
             </div>
         </v-flex>
         <v-flex xs12>
@@ -120,12 +109,16 @@ const CONS_TEMPLATE_REPLYINPUT = `
         </v-flex>
     </v-layout>
     <div class="dv_inputoperation common_ui_off">
-        <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
+        <div class="row">
+            <div class="col s2">
+                <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
+            </div>
         
-        <div class="right">  
-            <a class="btn_reply_cancel waves-effect waves-red btn-flat" v-on:click="onclick_btn_reply_cancel">{{ translation.cons_cancel }}</a>  
-            <a class="btn_reply_post waves-effect waves-red btn-flat">{{ translation.cons_reply }}</a>  
-        </div>  
+            <div class="col s4 offset-s6">  
+                <a class="btn_reply_cancel waves-effect waves-red btn-flat" v-on:click="onclick_btn_reply_cancel">{{ translation.cons_cancel }}</a>  
+                <a class="btn_reply_post waves-effect waves-red btn-flat">{{ translation.cons_reply }}</a>  
+            </div>  
+        </div>
     </div>
     
 </div>

@@ -340,12 +340,27 @@ div.collection a i.material-icons {
     /*top : 0px;
     left : 0px;
     height : 300px;*/
-    width : 420px;
+    width : 100%;
     min-height : 52px;
     max-height : 480px;
     overflow : hidden;
     z-index : 989;
 }
+@media only screen and (min-width: 601px) {
+    .notifmenu {
+        position : absolute;
+        /*top : 0px;
+        left : 0px;
+        height : 300px;*/
+        width : 450px;
+        min-height : 52px;
+        max-height : 480px;
+        overflow : hidden;
+        z-index : 989;
+    }
+}
+
+
 .notifmenu .notiflist_card {
     overflow-x : hidden;
     overflow-y : auto;
@@ -631,6 +646,9 @@ div.post_card_above2 {
 }
 .template_reply_box .reply_icon {
     float : left;
+}
+.template_reply_box .layout.row {
+    margin-left : 0;
 }
 .inputcontent_div {
 	background-color: #FFFFFF;

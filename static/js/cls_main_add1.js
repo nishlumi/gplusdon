@@ -236,7 +236,11 @@ function defineForMainPage(app) {
             notifications : 0,
             //gpstatus : [],
             saveitem : null,
+            translation : {},
             status : null,
+            globalInfo : {
+				staticpath : ""
+			},
             users : [],
 
             cons_savename : "gp_sv_notif"

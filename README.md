@@ -5,11 +5,11 @@ G+Don は Mastodon のためのウェブアプリです。
 
 ## As user
 
-**[https://gplusdon.net](https://gplusdon.net)**
+**[こちら]()**
 
 もしドメインにアクセス出来ない場合、次をご利用ください。
 
-**[https://gplusdon.azurewebsites.net](https://gplusdon.azurewebsites.net)**
+**[あるいはここ]()**
 
 
 説明書はGoogle ドキュメントで用意してあります。
@@ -29,6 +29,15 @@ G+Don は Mastodon のためのウェブアプリです。
 
 
 **Using library**
+
+***Server side***
+
+ * Node.js
+ * express
+ * nunjucks
+
+ 
+***Client side***
 
  * Vue.js
  * Vuetify

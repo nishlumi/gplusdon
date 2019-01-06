@@ -62,17 +62,15 @@
                     </v-flex>
                 </v-layout>
                 <v-layout row wrap v-if="boarding === 1">
-                    <v-flex xs5>
+                    <v-flex xs3>
                         <v-btn flat icon v-on:click="prev_page">
                             <v-icon>arrow_back</v-icon>
                         </v-btn>
-                    </v-flex>
-                    <v-flex xs1>
                         <v-btn flat icon v-on:click="onclick_current_clear(saveitem.id)">
                             <v-icon>clear</v-icon>
                         </v-btn>
                     </v-flex>
-                    <v-flex xs1 offset-xs5>
+                    <v-flex xs1 offset-xs8>
                         <v-btn flat icon v-on:click="onclick_open_in_new_toot(status)">
                             <v-icon>open_in_new</v-icon>
                         </v-btn>

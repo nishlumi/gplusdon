@@ -72,6 +72,12 @@ class Gplusdon {
         if ("leftmenu" in this.commonvue) this.commonvue.leftmenu.applogined = true;
         if ("sidebar" in this.commonvue) this.commonvue.sidebar.applogined = true;
 
+        if ("nav_notification" in this.commonvue) {
+            this.commonvue.nav_notification.translations = Object.assign({},curLocale.messages);
+            this.commonvue.nav_notification.globalInfo.firstPath = this.appinfo.firstPath;
+        }
+
+
         var is_nav_sel_account = ("nav_sel_account" in this.commonvue);
         if (is_nav_sel_account) this.commonvue.nav_sel_account.accounts.splice(0,this.commonvue.nav_sel_account.accounts.length);
         var inputtoot = ("inputtoot" in this.commonvue);
