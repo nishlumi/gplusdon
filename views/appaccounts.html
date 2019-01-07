@@ -51,8 +51,8 @@
                             </a>
                         </td>
                         <td>
-                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct">
-                                <span>{? item.account.display_name ?}</span>
+                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct" v-html="fullname(item.account)">
+                                
                             </a>
                         </td>
                         <td>{? "@" + item.account.idname ?}</td>
@@ -65,7 +65,7 @@
                                 label="ON"
                                 v-model="accounts_config[index].is_notification"
                             ></v-switch>
-                            <!--<div class="switch">
+                            <!--<div class="switch"><span>{? item.account.display_name ?}</span>
                                 <label>
                                     <input type="checkbox" v-model="item.is_notification" v-on:change="oncheck_following">
                                     <span class="lever"></span>

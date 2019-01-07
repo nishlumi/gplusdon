@@ -49,7 +49,7 @@
                 </div>
                 <v-card-title primary-title class="title-panel">
                 <div>
-                    <h3 class="initial-brand-title mb-0"><img id="img_brand" src="/static/images/app_icon.png" width="52" height="52">{{ ainfos.name }}
+                    <h3 class="initial-brand-title mb-0"><img id="img_brand" src="/static/images/app_icon.png" width="52" height="52">{{ sysinfo.fullname }}
                     </h3>
                     <div>それは、とあるSNSの約束の地...<br>
 
@@ -61,7 +61,7 @@
             <div class="row">
                 <div class="col s12">
                     <p class="flow-text">
-                        {{ainfos.name}} は
+                        {{sysinfo.fullname}} は
                         <a href="https://joinmastodon.org/" target="_blank" rel="noopener"><strong class="indigo-text text-darken-4">Mastodon</strong></a>
                         のためのウェブアプリです。<br>
                         利用するにはどこかのMastodonインスタンスにユーザー登録している必要があります。
@@ -255,7 +255,7 @@
                                         
                                     </v-card-media>
                                     <v-card-text class="initial-presentation-item">
-                                        {{ainfos.name}} は新しいSNSではありません。あくまでもMastodonあっての{{ainfos.name}}です。しかし<b>Mastodonに新しい使い方を提起</b>します！
+                                        {{sysinfo.fullname}} は新しいSNSではありません。あくまでもMastodonあっての{{sysinfo.fullname}}です。しかし<b>Mastodonに新しい使い方を提起</b>します！
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -266,7 +266,7 @@
                                         <h5>もちろん無料！</h5>
                                     </v-card-title>
                                     <v-card-text class="initial-presentation-item">
-                                        {{ainfos.name}} の利用条件はMastodonに準じているため、開発陣に不慮の事態がない限りはずっと無料です！
+                                        {{sysinfo.fullname}} の利用条件はMastodonに準じているため、開発陣に不慮の事態がない限りはずっと無料です！
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -295,6 +295,8 @@
     <input type="hidden" id="hid_staticpath" value="/static/">
     <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
     <input type="hidden" id="_csrf" value="{{csrfToken}}">
+    {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
+    <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
 
     <script src="/static/lib/cookies.js"></script>
     <script src="/static/lib/jquery.min.js"></script>

@@ -21,7 +21,12 @@ function ondelete_account(e) {
             MYAPP.commonvue.nav_sel_account.accounts.splice(sel,1);
             MYAPP.commonvue.inputtoot.accounts.splice(sel,1);
             this.accounts.splice(sel,1);
-            MYAPP.acman.items.splice(sel,1);
+            //MYAPP.acman.items.splice(sel,1);
+            var seli = MYAPP.acman.items[sel];
+            MYAPP.acman.remove({
+                idname : seli.idname,
+                instance: seli.instance
+            });
         }
         if (MYAPP.acman.items.length > 0) {
             var ac = MYAPP.acman.items[0];
@@ -30,7 +35,9 @@ function ondelete_account(e) {
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(null);
         }
         MYAPP.acman.save();
-        appAlert("選択したアカウントを削除しました。");
+        appAlert(_T("remove_account_mes02",[seli.instance]),function(){
+            window.open(`https://${seli.instance}/oauth/authorized_applications`,target="");
+        });
     });
 }
 /*function generate_account_row(data) {
@@ -144,6 +151,9 @@ document.addEventListener('DOMContentLoaded', function() {
             accountAppLink : function(item) {
                 return `${MYAPP.appinfo.firstPath}/accounts/${item.instance}/${item.idname}`
             },
+            fullname : function (ac) {
+                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
+            },
             ondelete_account : ondelete_account
         }
     });
@@ -166,7 +176,13 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.acman.afterAddInstance(authCode)
             .then(result=>{
                 MYAPP.afterLoadAccounts(data);
-                
+                var ac = MYAPP.acman.get({
+                    "instance":MYAPP.session.status.selectedAccount.instance,
+                    "idname" : MYAPP.session.status.selectedAccount.idname
+                });
+                if (!ac) ac = result.users[0];
+                MYAPP.selectAccount(ac);
+    
                 for (var i = 0; i < result.users.length; i++) {
                     var tmpac = Object.assign({},result.users[i]);
                     //var tmp = JSON.stringify(MYAPP.acman.items[i]);

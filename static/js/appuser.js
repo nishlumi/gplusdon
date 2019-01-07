@@ -138,7 +138,7 @@ function load_following(userid, options) {
             MUtility.loadingOFF();
             return;
         }
-        vue_user.tabbar.following_count = result.data.length;
+        //vue_user.tabbar.following_count = result.data.length;
         
         return result;
     })
@@ -158,7 +158,9 @@ function load_following(userid, options) {
                     }
                 }
             }
-            this.generate_account_detail(result2,options);
+            if (this.info.sinceid != result2.paging.prev) {
+                this.generate_account_detail(result2,options);
+            }
         });
     })
     .catch((xhr,status)=>{
@@ -187,7 +189,7 @@ function load_follower(userid, options){
             MUtility.loadingOFF();
             return;
         }
-        vue_user.tabbar.follower_count = result.data.length;
+        //vue_user.tabbar.follower_count = result.data.length;
         return result;
         
     })
@@ -207,7 +209,9 @@ function load_follower(userid, options){
                     }
                 }
             }
-            this.generate_account_detail(result2,options);
+            if (this.info.sinceid != result2.paging.prev) {
+                this.generate_account_detail(result2,options);
+            }
         });
     })
     .catch((xhr,status)=>{

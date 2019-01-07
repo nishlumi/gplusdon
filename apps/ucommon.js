@@ -47,17 +47,12 @@ async function loadWebsiteOGP(request, url) {
 
 var ucommon = {
     sysinfo: {
+        name: sysconst.package_info.name,
+        fullname: "G+Don",
+        author: sysconst.package_info.author.name,
+        advisor: [],
+        version: sysconst.package_info.version,
         VAPID: sysconst.vap_id()
-    },
-    load_author: function () {
-        var info = sysconst.package_info();
-        return {
-            name: info.name,
-            fullname : "G+Don",
-            author: info.author.name,
-            advisor : [],
-            version: info.version
-        };
     },
     load_translation: function (locales) {
         var ret = "";

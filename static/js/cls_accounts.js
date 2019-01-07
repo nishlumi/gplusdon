@@ -203,7 +203,7 @@ class AccountManager {
                                     instance : acc.instance
                                 };
                                 var isexist = MYAPP.acman.getIndex(key);
-                                if (isexist > -1) {
+                                if (isexist == -1) {
                                     //---first register
                                     MYAPP.acman.items.push(acc);
                                 }else{
@@ -215,10 +215,18 @@ class AccountManager {
                                     info : result,
                                     instance : result.uri
                                 };
-                                resolve({
+
+                                return ({
                                     users : MYAPP.acman.items,
                                     instancedata:MYAPP.acman.instances[result.uri],
                                     instance : result.uri
+                                });
+                            })
+                            .then(result2=> {
+                                return MYAPP.sns.getInstanceEmoji(result2.instance)
+                                .then(emojiresult => {
+                                    result2.instancedata["emoji"] = emojiresult;
+                                    resolve(result2);
                                 });
                             })
                             .finally(()=>{
@@ -279,10 +287,21 @@ class AccountManager {
         this.backupItems[olditem] = Object.assign({},item);
     }
     remove(key) {
-        var i = own.getIndex(key);
+        var i = this.getIndex(key);
         console.log(i);
         if (i > -1) {
-            own.items.splice(i, 1);
+            var old = this.items[i].instance;
+            this.items.splice(i, 1);
+            var ishit = 0;
+            //---check if same instance exists
+            for (var j = 0; j < this.items.length; j++) {
+                if (this.items[j].instance == old) {
+                    ishit++;
+                }
+            }
+            if (ishit == 0) {
+                delete this.instances[old];
+            }
             return true;
         } else {
             return false;
@@ -310,6 +329,8 @@ class AccountManager {
                 tmparr.push(this.items[i].getRaw());
             }
             AppStorage.set(this.setting.NAME, tmparr);
+
+            AppStorage.set(this.setting.INSTANCEEMOJI,this.instances);
         }
     }
     checkVerify() {
@@ -561,10 +582,10 @@ class Gsuserstore {
         this.items[olditem] = item;
     }
     remove(key) {
-        var i = own.getIndex(key);
+        var i = this.getIndex(key);
         console.log(i);
         if (i > -1) {
-            own.items.splice(i, 1);
+            this.items.splice(i, 1);
             return true;
         } else {
             return false;

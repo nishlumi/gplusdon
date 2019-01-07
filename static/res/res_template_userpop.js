@@ -2,7 +2,7 @@ const CONS_TEMPLATE_USERPOPUP = `
 <div class="card white ">
     <div class="card-image">
         <div class="background">
-            <img v-bind:src="account.header">
+            <v-img v-bind:src="account.header"></v-img>
         </div>
         <v-checkbox v-if="cardtype == 'selectable'" style="position:absolute;top:0px;left:1rem;" v-model="stat.selected" v-on:change="oncheck_selectable"></v-checkbox>
         <div class="col s12" v-if="relationship.followed_by === true">
@@ -11,7 +11,7 @@ const CONS_TEMPLATE_USERPOPUP = `
     </div>
     <div class="card-account-info">
         <a v-bind:href="generate_userlink(account)">
-            <img v-bind:src="account.avatar" class="btn-floating halfway-fab2 userrectangle" width="32" height="32">
+            <v-img v-bind:src="account.avatar" class="btn-floating halfway-fab2 userrectangle" width="32" height="32"></v-img>
             <span class="truncate" v-bind:title="account.acct" v-html="generate_userDisplayName(account)"></span><br>
             <i class="truncate" v-bind:title="account.acct"> @{{ account.acct }}</i>
         </a>

@@ -6,7 +6,7 @@ const CONS_TEMPLATE_TOOTBODY = `
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
         <span v-html="toote.ancestors[toote.ancestors.length-1].visibility" style="float:left;"></span>
-        <img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
+        <v-img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:width="elementStyle.toot_avatar_imgsize" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
         <span v-html="toote.ancestors[toote.ancestors.length-1].translateText.visibility3" class="waves-effect waves-light" v-on:click="onclick_toot_ancestor"></span> 
         <input v-if="toote.ancestors.length > 0" type="hidden" name="sender_id" alt="parent" v-bind:value="toote.ancestors[toote.ancestors.length-1].account.id">
     </div>
@@ -17,7 +17,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <b v-bind:title="toote.reblogOriginal.account.acct" v-html="toote.reblogOriginal.account.display_name"></b><span>@{{ toote.reblogOriginal.account.acct }}</span>
         </div>-->
         <div class="toot_sender truncate">  
-            <img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">  
+            <v-img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <b v-bind:title="toote.account.acct" v-html="toote.account.display_name"></b>
             <b class="toot_sender_id">@{{ toote.account.username }}<b class="red-text">@{{ toote.account.instance }}</b></b>
             <input type="hidden" name="sender_id" alt="thistoot" v-bind:value="toote.account.id">
@@ -33,7 +33,7 @@ const CONS_TEMPLATE_TOOTBODY = `
 <!----toot share range-->
         <div class="toot_share_range truncate" v-bind:class="toote.shareColor">
             <i class="material-icons">arrow_drop_down</i>  
-            <img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
+            <v-img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <span v-html="toote.translateText.visibility" style="float:left;"></span>
             <span v-html="toote.translateText.visibility2"></span> 
             <input v-if="toote.reblogOriginal" type="hidden" name="sender_id" alt="boost" v-bind:value="toote.reblogOriginal.account.id">
@@ -58,7 +58,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="card"> 
         <a v-bind:href="toote.mainlink.url" target="_blank" rel="noopener"> 
             <div class="image-area card-image"> 
-            <img v-if="toote.mainlink.isimage" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description"> 
+            <v-img v-if="toote.mainlink.isimage" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <span class="link-title truncate"><i class="material-icons">link</i> 
                 <span class="link-site" v-html="toote.mainlink.site"></span> 
             </span> 
@@ -140,7 +140,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="comment-list-area" v-bind:class="comment_list_area_stat">
             <ul class="collection comment-list" v-bind:class="elementStyle.commentList"> 
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
-                    <img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar">  
+                    <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
                     <span class="subtitle truncate" v-html='reply.account.display_name + " @" + reply.account.acct'></span>  
                     <!--<p style="width:90%" v-html="reply.body.html">-->

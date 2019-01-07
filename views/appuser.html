@@ -7,14 +7,16 @@
 <div id="area_user" class=" account_body">
     <div id="userview" class="user-view" v-cloak>
         <div class="background">
-        <img id="us_header" v-bind:src="header" alt="">
+        <v-img id="us_header" v-bind:src="header" alt=""></v-img>
         </div>
         <div class="user-textinfo z-depth-2">
-            <img id="us_avatar" class="circle" v-bind:src="avatar" alt="">
-            <div style="display:inline-block">
-                <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
-                <span id="us_idname_instance" class="white-text email" v-cloak>{? full_acct ?}</span>
-            </div>
+            <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
+                <img id="us_avatar" class="circle" v-bind:src="avatar" alt="">
+                <div style="display:inline-block">
+                    <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
+                    <span id="us_idname_instance" class="white-text email" v-cloak>{? full_acct ?}</span>
+                </div>
+            </a>
         </div>
         <div class="user-action-btns col1 z-depth-2 row">
             <div class="col s12">

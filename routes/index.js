@@ -29,14 +29,13 @@ function clearStatus() {
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
     var trans = ucommon.load_translation(lan);
-    var author = ucommon.load_author();
+    
     menuStatus.start = "active";
     res.render('appinitial', {
         sysinfo : ucommon.sysinfo,
         transjs: trans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus,
-        ainfos : author,
         postarr: [1, 2, 3, 4, 5, 6]
     });
 });
@@ -119,32 +118,6 @@ router.get('/srv/iapi', function (req, res) {
     res.send(text);
     
 });
-router.get('/sw-reg.js', function (req, res) {
-    var lofile = path.join(__user_dirname, `../pwabuilder-sw-register.js`);
-    var ret = "";
-    if (fs.existsSync(lofile)) {
-        ret = fs.readFileSync(lofile, "utf-8");
-    }
-    res.format({
-        "application/javascript": function () {
-            res.send(ret);
-        }
-    });
-    
 
-});
-router.get('/sw.js', function (req, res) {
-    var lofile = path.join(__user_dirname, `../pwabuilder-sw.js`);
-    var ret = "";
-    if (fs.existsSync(lofile)) {
-        ret = fs.readFileSync(lofile, "utf-8");
-    }
-    res.format({
-        "application/javascript": function () {
-            res.send(ret);
-        }
-    });
-
-});
 
 module.exports = router;

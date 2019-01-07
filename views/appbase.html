@@ -120,7 +120,7 @@
                                     <li class="collection-item avatar">
                                         <!--<a href="#modal1" class="modal-trigger">-->
                                         <a  v-on:click="onclick_current_selaccount">
-                                            <img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct">
+                                            <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
                                             <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
                                         </a>
                                         <i class="material-icons whole-notification red-text" v-if="whole_notification" v-cloak>notifications</i>
@@ -167,7 +167,7 @@
                 <li>
                     <div id="side_userview" class="user-view">
                         <div class="background">
-                            <img v-bind:src="account.rawdata.header" v-bind:alt="account.idname" style="width:100%;">
+                            <v-img v-bind:src="account.rawdata.header" v-bind:alt="account.idname" style="width:100%;"></v-img>
                         </div>
                         <a v-on:click="onclick_current_selaccount"><img class="userrectangle" v-bind:src="account.rawdata.avatar"></a>
                         <a ><span class="white-text name" v-html="account.display_name"></span></a>
@@ -273,6 +273,8 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
         <input type="hidden" id="_csrf" value="{{csrfToken}}">
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
+        <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
 
         <script src="/static/lib/cookies.js"></script>
         <script src="/static/lib/jquery.min.js"></script>

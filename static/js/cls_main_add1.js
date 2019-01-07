@@ -17,7 +17,7 @@ function defineForMainPage(app) {
         },
         methods: {
             fullname : function (ac) {
-                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,ac.emojis,"14")}@${ac.instance}</span>`;
+                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
             onclick_current_selaccount : function(e) {
                 if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
@@ -83,7 +83,7 @@ function defineForMainPage(app) {
                 MYAPP.commonvue.sidebar.whole_notification = ishit;
             },
             fullname : function (ac) {
-                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,ac.emojis,"14")}@${ac.instance}</span>`;
+                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
             onclick_item : function(idname,instance) {
                 /*console.log(e.target);

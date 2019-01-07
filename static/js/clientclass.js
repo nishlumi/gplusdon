@@ -3,12 +3,13 @@
  =============================================================================*/
 class Gplusdon {
     constructor() {
+        var hidinfo = ID("hid_appinfo").value.split(",");
         const cstappinfo = {
-            name: "G+don",
+            name: hidinfo[1],
             firstPath : "",
             staticPath : ID("hid_staticpath").value,
-            author: "ISHII Eiju",
-            version: "1.0.0",
+            author: hidinfo[2],
+            version: hidinfo[3],
             config : {
                 limit_search_instance : 50
             }
@@ -71,8 +72,11 @@ class Gplusdon {
         //---set up login status to left menu and side bar
         if ("leftmenu" in this.commonvue) this.commonvue.leftmenu.applogined = true;
         if ("sidebar" in this.commonvue) this.commonvue.sidebar.applogined = true;
+        if ("nav_search" in this.commonvue) this.commonvue.nav_search.applogined = true;
+        if ("nav_btnbar" in this.commonvue) this.commonvue.nav_btnbar.applogined = true;
 
         if ("nav_notification" in this.commonvue) {
+            this.commonvue.nav_notification.applogined = true;
             this.commonvue.nav_notification.translations = Object.assign({},curLocale.messages);
             this.commonvue.nav_notification.globalInfo.firstPath = this.appinfo.firstPath;
         }

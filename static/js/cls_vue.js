@@ -81,6 +81,7 @@ Vue.component("timeline-toot", {
 				"comment-list" : {
 					sizing : true
 				},
+				"toot_avatar_imgsize" : "32px"
 
 			},
 			isshow_replyinput : false,

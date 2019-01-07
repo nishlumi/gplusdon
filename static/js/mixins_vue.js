@@ -702,8 +702,9 @@ var vue_mixin_for_timeline = {
 				}
 			};
 			if (val == "tt_media") {
-				opt.app["only_media"] = true;
+				opt.api["only_media"] = true;
 			}
+			return opt;
 		},
 		changeTimelineStyle : function (e) {
 			for (var st in this.timeline_gridstyle) {

@@ -15,7 +15,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
     <template v-if="sensitive">
         <slide style="position:relative;">
             <div class="grey lighten-4 white-text">
-                <img src="/static/images/gp_sensitive_image.png" class="landscape">
+                <v-img src="/static/images/gp_sensitive_image.png" class="landscape"></v-img>
                 <h4 class="sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h4>
             </div>
         </slide>
