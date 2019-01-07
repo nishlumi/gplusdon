@@ -58,7 +58,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="card"> 
         <a v-bind:href="toote.mainlink.url" target="_blank" rel="noopener"> 
             <div class="image-area card-image"> 
-            <v-img v-if="toote.mainlink.isimage" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+            <v-img v-if="toote.mainlink.isimage" class="v-img" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" ></v-img>
             <span class="link-title truncate"><i class="material-icons">link</i> 
                 <span class="link-site" v-html="toote.mainlink.site"></span> 
             </span> 

@@ -431,7 +431,7 @@ div.toot_card_base.g30 {
 .card-link .image-area {
     height : 15rem;   
 }
-.card-link img {
+.card-link img, .card-link .v-img {
     object-fit: cover;
     object-position: 0 20%;
     width: 100%;
