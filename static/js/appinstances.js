@@ -341,6 +341,8 @@ document.addEventListener('DOMContentLoaded', function() {
             //---page max scroll up
             console.log("scroll up max");
         }
+        MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
     });
 
     //---if no account register, redirect /start

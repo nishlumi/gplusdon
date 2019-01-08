@@ -91,7 +91,7 @@
                                             </div>
                                         </div>
                                     </li>
-                                    <li><a href="#" id="navbtn_search" class="hidden-md-and-up"><i class="material-icons black-text">search</i></a></li>
+                                    <li><a href="#" id="navbtn_search" class="hidden-md-and-up" v-on:click.stop="onclick_search"><i class="material-icons black-text">search</i></a></li>
                                     <li>
                                         <v-badge v-cloak overlap bottom color="red" v-model="show_notif_badge">
                                             <span slot="badge">{? notif_badge_count ?}</span> <!--slot can be any component-->
@@ -158,8 +158,31 @@
                         </div>
                     </div>
                 </div>
-            <div class="fixed-action-btn">
+            <div id="post_btn_area" class="fixed-action-btn">
                 <a id="btn_post_toote" class="btn-floating btn-large waves-effect waves-light red common_ui_off"><i class="material-icons">create</i></a>
+            </div>
+            <div id="bottomnav">
+                <v-bottom-nav
+                    :active.sync="activeBtn"
+                    :value="showNav"
+                    absolute
+                    color="white"
+                    style="z-index:200;"
+                >
+                    <v-btn flat color="red" v-on:click="onclick_btn(0)">
+                        <span>{{trans.timeline}}</span>
+                        <v-icon>view_day</v-icon>
+                    </v-btn>
+                    <v-btn flat color="red" v-on:click="onclick_btn(1)">
+                        <span>{{trans.connections}}</span>
+                        <v-icon>people</v-icon>
+                    </v-btn>
+                    <v-btn flat color="red" v-on:click="onclick_btn(2)">
+                        <span>{{trans.notifications}}</span>
+                        <v-icon>notifications</v-icon>
+                    </v-btn>
+                            
+                </v-bottom-nav>
             </div>
         </div>
         <ul id="slide-out" class="sidenav">

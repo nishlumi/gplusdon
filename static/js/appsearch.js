@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (fnlsa < 10) {
                         //---page max scroll down
                         console.log("scroll down max");
-                        this.load_following({
+                        this.load_accounts({
                             api : {
                                 max_id : this.info.maxid,
                                 //since_id : this.info.sinceid,
@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
                 },
                 oncheck_selectable : function(e) {
                     console.log(e);

@@ -122,37 +122,6 @@ div.toot_timeline_grid.width_3 {
 
 }
 
-/*===== muuri ======*/
-.grid {
-    position: relative;
-    width : 100%;
-    height : 100%;
-}
-.item {
-    display: block;
-    position: absolute;
-    width: 200px;
-    height: 320px;
-    margin: 5px;
-    z-index: 1;
-    background: #000;
-    color: #fff;
-}
-.item.muuri-item-dragging {
-    z-index: 3;
-}
-.item.muuri-item-releasing {
-    z-index: 2;
-}
-.item.muuri-item-hidden {
-    z-index: 0;
-}
-.item-content {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
 
 
 /*=== Grid item for Toot card ===*/

@@ -886,6 +886,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             }
         }
+        MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
     });
 
     //---if no account register, redirect /start

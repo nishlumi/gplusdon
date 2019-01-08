@@ -494,6 +494,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
                 },
                 oncheck_selectable : function(e) {
                     console.log(e);
@@ -621,6 +623,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
                 },
                 oncheck_selectable : function(e) {
                     console.log(e);
@@ -720,6 +724,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
                 },
                 oncheck_selectable : function(e) {
                     console.log(e);
@@ -815,6 +821,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
                 },
                 oncheck_selectable : function(e) {
                     console.log(e);

@@ -1,6 +1,32 @@
 <div id="ov_image" class="modal">
     <div class="modal-content"></div>
 </div>
+<div id="mbl_search" class="mobile-search">
+    <v-dialog
+        v-model="dialog"
+        full-width 
+        transition="dialog-transition"
+    >
+        <v-card>
+            <v-card-text>
+                <v-container grid-list-md>
+                    <v-layout wrap>
+                        <v-flex xs12>
+                            <form v-on:submit.prevent="onsubmit_search">  
+                                <v-text-field 
+                                    label="search" 
+                                    v-model="findtext"
+                                    prepend-icon="search"
+                                    clearable
+                                ></v-text-field>
+                            </form>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+</div>
 <div id="modal1" >
     <!--<div class="modal-content">class="modal"
         <h4>{{ trans.opt_turnEdit }}</h4>

@@ -2,8 +2,12 @@ var MYAPP;
 var vue_initial;
 
 function btn_reg_account_clicked(e) {
+    MYAPP.acman.addInstance(this.initial_instance);
+
+/*
     console.log(ID("txt_initial_instance").value);
     MYAPP.acman.addInstance(ID("txt_initial_instance").value);
+    */
 }
 document.addEventListener('DOMContentLoaded', function () {
     console.log("2");
@@ -19,20 +23,21 @@ document.addEventListener('DOMContentLoaded', function () {
         delimiters : ["{?","?}"],
         data :  {
             is_use : false,
+            initial_instance : ""
         },
         methods : {
-
+            btn_reg_account_clicked : btn_reg_account_clicked,
         }
     });
 
     console.log(location.search);
-    ID("btn_reg_account").addEventListener("click", btn_reg_account_clicked, false);
-    ID("txt_initial_instance").addEventListener("keydown", function (e) {
+    //ID("btn_reg_account").addEventListener("click", btn_reg_account_clicked, false);
+    /*ID("txt_initial_instance").addEventListener("keydown", function (e) {
         //console.log(e.keyCode);
         if ((e.keyCode == 13) ) {
             btn_reg_account_clicked();
         }
-    });
+    });*/
     var search = location.search.replace("?","");
     if (search != "") {
         var ret = MUtility.extractPathParams(search);

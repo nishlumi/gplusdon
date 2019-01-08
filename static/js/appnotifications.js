@@ -199,6 +199,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.loadNotifications(ac,futureOptions);    
 
                 }
+                MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
             }
         }
     });

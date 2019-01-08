@@ -207,7 +207,9 @@ var vue_mixin_for_timeline = {
 				this.is_scrolltop = true;
             }else{
 				this.is_scrolltop = false;
-            }
+			}
+			MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+
         },
 		onreplied_children : function (status,index) {
 			//---this status.body.id is toot context OWN id, not view id for this app!

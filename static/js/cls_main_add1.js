@@ -192,6 +192,9 @@ function defineForMainPage(app) {
                 ID("ov_notif_menu").classList.toggle("scale-up-tr");        
                 MYAPP.commonvue.nav_notification.dialog = !MYAPP.commonvue.nav_notification.dialog;
             },
+            onclick_search : function (e) {
+                MYAPP.commonvue.mbl_search.dialog = true;
+            },
             onclick_refresh : function (e) {
                 //---/tl
                 if (Q(".timeline_body")) {
@@ -511,6 +514,43 @@ function defineForMainPage(app) {
         }
         
     });
+    app.commonvue["mbl_search"] = new Vue({
+        el : "#mbl_search",
+        delimiters : ["{?", "?}"],
+        data : {
+            dialog : false,
+            findtext : ""
+        },
+
+        methods : {
+            onsubmit_search : function (e) {
+                //--common search function
+                this.dialog = false;
+
+                /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
+                if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
+                //parentCommonSearch();
+                if (ID("area_instance")) {
+                    vue_instances.search.onsubmit_search(this.findtext);
+                }
+                if (ID("area_connections")) {
+                    vue_connections.search.load_search(this.findtext,{
+                        api : {},
+                        app : {}
+                    });                
+                }
+                if (ID("area_timeline")) {
+                    location.href = `/s/${this.findtext}`;
+                }
+                if (ID("area_search")) {
+                    location.href = `/s/${this.findtext}`;
+                }
+            },
+            onclick_searchClear: function(e) {
+                this.findtext = null;
+            }
+        }
+    });
     app.commonvue["leftmenu"] = new Vue({
         el : "#leftmenu_main",
         delimiters : ["{?", "?}"],
@@ -552,6 +592,39 @@ function defineForMainPage(app) {
             }
         }
     });
+    app.commonvue["bottomnav"] = new Vue({
+        el : "#bottomnav",
+        delimiters : ["{?", "?}"],
+        data : {
+            activeBtn : 0,
+            showNav : false,
+            oldsa : 0,
+            idpath : [
+                "tl",
+                "connections",
+                "notifications"
+            ]
+        },
+
+        methods : {
+            onclick_btn : function (id) {
+                location.href = `/${this.idpath[id]}`;
+            },
+            checkScroll : function (cursa) {
+                if (!this.$vuetify.breakpoint.smAndDown) return;
+                if (cursa >= this.oldsa) {
+                    //---to top
+                    MYAPP.commonvue.bottomnav.showNav = true;
+                    ID("post_btn_area").style.bottom = "80px";
+                }else{
+                    //---to bottom
+                    MYAPP.commonvue.bottomnav.showNav = false;
+                    ID("post_btn_area").style.bottom = "23px";
+                }
+                this.oldsa = cursa;
+            }
+        }
+    }),
     app.commonvue["usercard"] = new Vue({
         el : "#ov_user",
         delimiters : ["{?", "?}"],
