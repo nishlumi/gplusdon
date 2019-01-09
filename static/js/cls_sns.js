@@ -1261,6 +1261,42 @@ class Gpsns {
  *   Push subscription API
  * =================================================================
  */
+    permissionPushSubscription() {
+        var def = new Promise((resolve, reject)=>{
+            Notification.requestPermission().then(permission => {
+                var ret = {
+                    stat : "",
+                    msg : ""
+                };
+                switch (permission) {
+                    case "granted":
+                        // 許可された場合
+                        console.log("notification permission OK");
+                        ret.stat = "yes";
+                        break;
+                    case "denied":
+                        // ブロックされた場合
+                        console.log("notification permission NG...");
+                        ret.stat = "no";
+                        break;
+                    case "default":
+                        // 無視された場合
+                        console.log("notification permission nothing. re-challenge");
+                        ret.stat = "nothing";
+                        break;
+                    default:
+                        break;
+                }
+                if (ret.stat == "") {
+                    reject(ret);
+                }else{
+                    resolve(ret);
+                }
+            });        
+    
+        });
+        return def;
+    }
     createPushSubscription(options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {

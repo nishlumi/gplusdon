@@ -17,7 +17,7 @@
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 
-        <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+        <link href="/static/css/vuetify.min.css" rel="stylesheet">
 
         <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" >
         <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
@@ -41,11 +41,12 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
 
+        <script src="/static/lib/polyfill.min.js"></script>
+
         <script src="/static/lib/cookies.js"></script>
         <script src="/static/lib/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+        <script src="/static/lib/lodash.min.js"></script>
+        {% include "jslib_vue.html" %}
 
         <script src="/static/lib/materialize/js/materialize.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>
