@@ -26,20 +26,23 @@ class Gpsession {
                     timeline_viewcount : 20,
                     applogin : {
                         type : "google", //google, twitter
-                    }
+                    },
+                    show_menutext : true,
+                    gallery_type : "slide", //slide, grid
                 },
                 action : {
                     confirmBefore : true,
                     image_everyNsfw : false,
                     popupNewtoot_always : false,
                     close_aftertoot : false,
-                    tags : [
-                        {id:1,text:"mastodon"},
-                        {id:2,text:"twitter"},
-                        {id:3,text:"googleplus"}
-                    ],
+                    tags : [],
+                },
+                notification : {
+                    enable_browser_notification : true,
+                    include_dmsg_tl : false,
                 }
-            }
+            },
+            gadgets : []
         };
         this.streams = {};
         this.persistant = false;
@@ -78,6 +81,13 @@ class Gpsession {
             delete this.streams[name];
         }
     }
+    uninstall(is_eternal) {
+        if (is_eternal) {
+            localStorage.removeItem("gp_eternal_ses");
+        }else{
+            sessionStorage.removeItem(`gp_${this._key}_ses`);
+        }
+    }
     save(is_eternal) {
         var textdata = JSON.stringify(this.data);
         if (is_eternal) {
@@ -90,7 +100,19 @@ class Gpsession {
         if (is_eternal) {
             var textdata = localStorage.getItem("gp_eternal_ses");
             if (textdata) {
-                this.data = JSON.parse(textdata);
+                var tmp = JSON.parse(textdata);
+                //---status
+                this.data.status = tmp.status;
+                //---config (probably add after)
+                for (var obj in this.data.config) {
+                    if (obj in tmp.config) {
+                        for (var setone in tmp.config[obj]) {
+                            var so = tmp.config[obj][setone];
+                            this.data.config[obj][setone] = so;
+                        }
+                    }
+                }
+                this.data = tmp;
             }
         }else{
             var textdata = sessionStorage.getItem(`gp_${this._key}_ses`);

@@ -79,6 +79,10 @@ td.righted {
     height : 32px;
     float : left;
 }
+.toot_prof_base {
+    width : 32px;
+    height : 32px;
+}
 .userrectangle {
     border-radius: 15% !important;
 }
@@ -117,6 +121,10 @@ span.badge {
 .userrectangle.basic40 {
     width: 40px;
     height: 40px;
+}
+.v-btn__content .v-icon.material-icons {
+    line-height : 100% !important;
+    height : 100%;
 }
 /* css class for vue.js */
 [v-cloak] {
@@ -1320,7 +1328,7 @@ div.dragover_indicate {
 }
 .dmy_inputtoot .mediabottomstyle {
     position: relative;
-    top : -4rem;
+    /*top : -4rem;*/
 }
 
 .list_summary {
@@ -1388,4 +1396,56 @@ div.dragover_indicate {
 .search_body .tab-content {
     height:  calc(100% - 48px);
     overflow : auto;
+}
+
+
+.v-text-field__slot textarea {
+    height : auto !important;
+}
+
+/*====================================================
+  setting UI
+=====================================================*/
+div.setting_body {
+    height : 100%;
+    overflow : hidden auto;
+}
+
+/*====================================================
+  direct message UI
+=====================================================*/
+.dmsg_body {
+    width : 100%;
+    height : 100%;
+}
+.dmsg_body .v-window {
+    height : 100%;
+}
+.dmsg_body .v-window .v-window__container {
+    height : 100%;
+}
+.dmsg_body .v-window__container .v-window-item {
+    height : 100%;
+}
+.dmsg_body .v-window-item .layout {
+    height : 100%;
+}
+.dmsg_body .v-card {
+    height : 100%;
+}
+.dmsg_body .v-timeline {
+    height : 100%;
+}
+.dmsg_body .timeline_cardlist {
+    height : calc(100% - 96px);
+    overflow-x : hidden;
+    overflow-y : auto;
+}
+.dmsg_body .timeline_cardlist_mobile {
+    height : calc(100% - 56px - 96px);
+    overflow-x : hidden;
+    overflow-y : auto;
+}
+.dmsg_body .timeline_cardaction {
+    height : 96px;
 }

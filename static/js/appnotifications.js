@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
              * @param {Account} account AccountNotification object
              */
             full_display_name : function(account) {
-                return MUtility.replaceEmoji(account.display_name,account.instance,account.emojis,14);
+                return MUtility.replaceEmoji(account.display_name,account.instance,[],14);
             },
             /**
              * 
@@ -297,6 +297,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.tabvalue = `tab_${acIndex}`; //this.href_full_acct(this.accounts[acIndex].account,true);
             this.current_itemID = acIndex;
         });
+
+        MYAPP.commonvue.bottomnav.activeBtn = 3;
 
     }, function (flag) {
         appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {

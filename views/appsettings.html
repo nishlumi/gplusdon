@@ -40,7 +40,7 @@
                                 <span class="red-text">{{ trans.app_lab_timelineview_exception }}</span>
                             </v-flex>
                             <v-flex xs12 sm12 md6 lg6>
-                                <span class="grey-text">タイムラインで常に保持するトゥート数</span>
+                                <span class="grey-text">{{trans.app_lab_timeline_viewcount}}</span>
                                 <v-btn-toggle v-model="type_app.timeline_viewcount">
                                     <v-btn flat v-bind:value="cons_timeline_viewcont[0]">
                                         20
@@ -53,6 +53,21 @@
                                     </v-btn>
                                 </v-btn-toggle>
                             </v-flex>
+                            <v-flex xs12 sm12 md6 lg6>
+                                <v-radio-group 
+                                    label="{{trans.app_lab_gallerymode}}"
+                                    v-model="type_app.gallery_type" 
+                                    column
+                                >
+                                    <v-radio label="{{trans.app_item_gallery_slide}}" value="slide"></v-radio>
+                                    <v-radio label="{{trans.app_item_gallery_grid}}" value="grid"></v-radio>
+                                </v-radio-group>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6 lg6>
+                                <v-btn large color="red" v-on:click="onclick_uninstall_btn">{{trans.lab_uninstall_btn}}</v-btn>
+                                <v-btn large color="yellow" v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
+                            </v-flex>
+    
                         </v-layout>
                     </v-card-text>
                 </v-card>                
@@ -62,18 +77,53 @@
                 <v-card>
                     <v-card-text>
                         <v-layout row wrap>
-                            <v-flex xs12>
+                            <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
                             </v-flex>
-                            <v-flex xs12>
+                            <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}"></v-checkbox>
                             </v-flex>
-                            <v-flex xs12>
+                            <v-flex xs12 sm12 md6>
                                 <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
                             </v-flex>
-                            <v-flex xs12>
-                                
+                            <v-flex xs12 sm12 md6>
+                                <v-container fluid grid-list-md>
+                                    <v-layout row wrap>
+                                        <v-flex xs10>
+                                            <v-textarea
+                                                outline box
+                                                rows="10"
+                                                height="20rem"
+                                                label="{{trans.tags}}"
+                                                v-model="temp_tags"
+                                            ></v-textarea>
+                                        </v-flex>
+                                        <v-flex xs2>
+                                            <v-btn fab dark small color="red" v-on:click="onclick_savetag">
+                                                <v-icon dark>save</v-icon>
+                                            </v-btn>
+                                        </v-flex>
+                                    </v-layout>
+                                    
+                                </v-container>
+                            </v-flex>
+    
+                        </v-layout>
+                    </v-card-text>
+                </v-card>                
+            </v-expansion-panel-content>
+            <v-expansion-panel-content>
+                <div slot="header">{{trans.cfg_panel_notification}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-flex xs12 sm12 md6>
+                                <v-checkbox v-model="type_notification.enable_browser_notification" label="{{trans.ntf_lab_enable_browser_notification}}"></v-checkbox>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6>
+                                <v-checkbox v-model="type_notification.include_dmsg_tl" label="{{trans.ntf_lab_include_dmsg_tl}}"></v-checkbox>
+                                <span>{{trans.ntf_help_include_dmsg_tl}}</span>
                             </v-flex>
     
                         </v-layout>

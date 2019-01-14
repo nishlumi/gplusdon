@@ -52,6 +52,7 @@
             <div class="navbar-fixed">
                 <nav id="navibar" class="white">
                     <div class="nav-wrapper">
+
                         <div class="row">
                             <div class="navcol-left col s2 m3 l2">
                                 <a id="sidenav_btn" href="#" class="sidenav-trigger show-on-medium-and-down"><i class="material-icons black-text">menu</i></a>
@@ -60,13 +61,6 @@
                             </div>
                             <div class="col s4 m6 l3">
                                 <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
-                                <!----<div id="area_sel_account" class="input-field col s12 hide-on-small-only" style="margin-top:1rem;" v-if="accounts.length > 0">
-                                    <select id="nav_sel_account" class="icons">
-                                        --<option value="" disabled selected>Choose an account</option>--
-                                        <option v-for="ac in accounts" v-bind:value="ac.idname+','+ac.instance" v-bind:data-icon="ac.rawdata.avatar" class="left">{? ac.display_name + "@" + ac.instance ?}</option>
-                                    </select>
-                                    <label></label>
-                                </div>-->
                             </div>
                             <div id="frm_search"  class="col l4 hide-on-med-and-down">
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
@@ -94,17 +88,16 @@
                                     <li><a href="#" id="navbtn_search" class="hidden-md-and-up" v-on:click.stop="onclick_search"><i class="material-icons black-text">search</i></a></li>
                                     <li>
                                         <v-badge v-cloak overlap bottom color="red" v-model="show_notif_badge">
-                                            <span slot="badge">{? notif_badge_count ?}</span> <!--slot can be any component-->
+                                            <span slot="badge">{? notif_badge_count ?}</span> 
                                             <a id="navbtn_notification" v-on:click.stop="onclick_notification"><i class="material-icons black-text" id="navbtn_icon_notification">notifications_none</i></a>
                                         </v-badge>
                                         
                                     </li>
                                     <li><a id="navbtn_refresh" class="hidden-sm-and-down" v-on:click.stop="onclick_refresh"><i class="material-icons black-text">refresh</i></a></li>
-                                    <!--<li><a href="#" class="hidden-sm-and-down"><i class="material-icons black-text">more_vert</i></a></li>-->
                                 </ul>
                             </div>
-    
                         </div>
+                        
                     </div>
                 </nav>
             </div>
@@ -113,55 +106,69 @@
             
 
             <div id="mainpanel">
-                    <div class="row inherited_body_range">
-                        <div id="maincol_leftmenu" class="col l3 hide-on-med-and-down">
-                            <div id="cur_sel_account" v-if="'rawdata' in account">
-                                <ul class="collection cursel-accountbox z-depth-1">
-                                    <li class="collection-item avatar">
-                                        <!--<a href="#modal1" class="modal-trigger">-->
-                                        <a  v-on:click="onclick_current_selaccount">
-                                            <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
-                                            <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
-                                        </a>
-                                        <i class="material-icons whole-notification red-text" v-if="whole_notification" v-cloak>notifications</i>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div id="leftmenu_main" class="collection" vcloak>
-                                <!--<a href="#" class="red collection-item  maincol_button  waves-effect waves-light btn"><i class="material-icons white-text">edit</i><span class="white-text">Toot</span></a>-->
-                                <template v-if="applogined">
-                                    <a id="lm_dashboard" href="/" class="collection-item maincol_menu tooltipped {{menustat.dashboard}}" data-tooltip="{{trans.dashboard}}"><i class="material-icons">dashboard</i><span>{{trans.dashboard}}</span></a>
-                                    <a id="lm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}} tooltipped" data-tooltip="{{trans.timeline}}"><i class="material-icons">view_day</i><span>{{trans.timeline}}</span></a>
-                                        <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
-                                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
-                                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
-                                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
-                                        -->
-                                    <a id="lm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}} tooltipped" data-tooltip="{{trans.accounts}}"><i class="material-icons">person</i><span>{{trans.accounts}}</span></a>
-                                    <a id="lm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}} tooltipped" data-tooltip="{{trans.connections}}"><i class="material-icons">people</i><span>{{trans.connections}}</span></a>
-                                    <a id="lm_directmsg" href="#" class="collection-item maincol_menu {{menustat.directmsg}} tooltipped"  data-tooltip="{{trans.direct_message}}"><i class="material-icons">email</i><span>{{trans.direct_message}}</span></a>
-                                    <!--<a id="lm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}} tooltipped"  data-tooltip="{{trans.favourites}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a>
-                                    <a id="lm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}} tooltipped"  data-tooltip="{{trans.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a>-->
-                                    <a id="lm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}} tooltipped" data-tooltip="{{trans.instances}}"><i class="material-icons">business</i><span>{{trans.instances}}</span></a>
-                                    <a id="lm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}} tooltipped" data-tooltip="{{trans.notifications}}"><i class="material-icons">notifications</i><span>{{trans.notifications}}</span></a>    
-                                    <a id="lm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}} tooltipped" data-tooltip="{{trans.settings}}"><i class="material-icons">settings</i><span>{{trans.settings}}</span></a>    
-                                    <a id="lm_startpage" href="/" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.startpage}}"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a>    
-                                </template>
-                                <template v-else>
-                                    <a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span>{{trans.start_app}}</span></a>
-                                </template>
-                                <a id="lm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
-                            </div>
+                <div class="row inherited_body_range">
+                    <div id="maincol_leftmenu" class="col hide-on-med-and-down" v-bind:class="css.colwidth" v-cloak>
+                        <div id="cur_sel_account" v-if="'rawdata' in account">
+                            <!--<ul class="collection cursel-accountbox z-depth-1">
+                                <li class="collection-item avatar">
+                                    <a  v-on:click="onclick_current_selaccount">
+                                        <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
+                                        <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
+                                    </a>
+                                    <i class="material-icons whole-notification red-text" v-if="whole_notification" v-cloak>notifications</i>
+                                </li>
+                            </ul>-->
+                            <v-card >
+                                <v-card-text class="pa-1" v-bind:class="css.bgred">
+                                    <v-list>
+                                        <v-list-tile avatar v-on:click="onclick_current_selaccount">
+                                            <v-list-tile-avatar>
+                                                <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
+                                            </v-list-tile-avatar>
+                                            <v-list-tile-content>
+                                                <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
+                                                <!--<v-icon color="red" v-if="whole_notification" v-cloak>notifications</v-icon>-->
+                                            </v-list-tile-content>
+                                        </v-list-tile>
+                                    </v-list>
+                                </v-card-text>
+                            </v-card>
                         </div>
-                        <div  id="maincol_rightmain" class="inherited_body_range col s12 m12 l9">
-{% block content %}{% endblock %}
+                        <div id="leftmenu_main" class="collection">
+                            <!--<a href="#" class="red collection-item  maincol_button  waves-effect waves-light btn"><i class="material-icons white-text">edit</i><span class="white-text">Toot</span></a>-->
+                            <template v-if="applogined">
+                                <a id="lm_dashboard" href="/" class="collection-item maincol_menu tooltipped {{menustat.dashboard}}" data-tooltip="{{trans.dashboard}}"><i class="material-icons">dashboard</i><span v-if="menu_text">{{trans.dashboard}}</span></a>
+                                <a id="lm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}} tooltipped" data-tooltip="{{trans.timeline}}"><i class="material-icons">view_day</i><span v-if="menu_text">{{trans.timeline}}</span></a>
+                                    <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
+                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
+                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
+                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
+                                    -->
+                                <a id="lm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}} tooltipped" data-tooltip="{{trans.accounts}}"><i class="material-icons">person</i><span v-if="menu_text">{{trans.accounts}}</span></a>
+                                <a id="lm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}} tooltipped" data-tooltip="{{trans.connections}}"><i class="material-icons">people</i><span v-if="menu_text">{{trans.connections}}</span></a>
+                                <a id="lm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}} tooltipped"  data-tooltip="{{trans.direct_message}}"><i class="material-icons">email</i><span v-if="menu_text">{{trans.direct_message}}</span></a>
+                                <!--<a id="lm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}} tooltipped"  data-tooltip="{{trans.favourites}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a>
+                                <a id="lm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}} tooltipped"  data-tooltip="{{trans.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a>-->
+                                <a id="lm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}} tooltipped" data-tooltip="{{trans.instances}}"><i class="material-icons">business</i><span v-if="menu_text">{{trans.instances}}</span></a>
+                                <a id="lm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}} tooltipped" data-tooltip="{{trans.notifications}}"><i class="material-icons">notifications</i><span v-if="menu_text">{{trans.notifications}}</span></a>    
+                                <a id="lm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}} tooltipped" data-tooltip="{{trans.settings}}"><i class="material-icons">settings</i><span v-if="menu_text">{{trans.settings}}</span></a>    
+                                <a id="lm_startpage" href="/" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.startpage}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.startpage}}</span></a>    
+                            </template>
+                            <template v-else>
+                                <a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.start_app}}</span></a>
+                            </template>
+                            <a id="lm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span v-if="menu_text">{{trans.help}}</span></a>
                         </div>
                     </div>
+                    <div  id="maincol_rightmain" class="inherited_body_range col s12 m12 l9">
+{% block content %}{% endblock %}
+                    </div>
                 </div>
+            </div>
             <div id="post_btn_area" class="fixed-action-btn">
                 <a id="btn_post_toote" class="btn-floating btn-large waves-effect waves-light red common_ui_off"><i class="material-icons">create</i></a>
             </div>
-            <div id="bottomnav">
+            <div id="bottomnav" class="common_ui_off">
                 <v-bottom-nav
                     :active.sync="activeBtn"
                     :value="showNav"
@@ -169,6 +176,11 @@
                     color="white"
                     style="z-index:200;"
                 >
+                    <v-btn flat color="red" v-on:click="onclick_accounts">
+                        <span>{{trans.accounts}}</span>
+                        <v-icon>account_circle</v-icon>
+                    </v-btn>
+
                     <v-btn flat color="red" v-on:click="onclick_btn(0)">
                         <span>{{trans.timeline}}</span>
                         <v-icon>view_day</v-icon>
@@ -209,13 +221,13 @@
                 </li>
                 <li><a id="sm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}}"><i class="material-icons">person</i><span>{{trans.accounts}}</span></a></li>
                 <li><a id="sm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}}"><i class="material-icons">people</i><span>{{trans.connections}}</span></a></li>
-                <li><a id="sm_directmsg" href="#" class="collection-item maincol_menu {{menustat.directmsg}}"><i class="material-icons">email</i><span>{{trans.direct_message}}</span></a></li>
+                <li><a id="sm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}}"><i class="material-icons">email</i><span>{{trans.direct_message}}</span></a></li>
                 <!--<li><a id="sm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a></li>
                 <li><a id="sm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a></li>-->
                 <li><a id="sm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}}"><i class="material-icons">business</i><span>{{trans.instances}}</span></a></li>
                 <li><a id="sm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}}"><i class="material-icons">notifications</i><span>{{trans.notifications}}</span></a></li>
                 <li><a id="sm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}}"><i class="material-icons">settings</i><span>{{trans.settings}}</span></a></li>
-                <li><a id="sm_startpage" href="/" class="collection-item maincol_menu {{menustat.settings}}"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a></li>
+                <li><a id="sm_startpage" href="/" class="collection-item maincol_menu"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a></li>
             </template>
             <template v-else>
                 <li>
@@ -340,9 +352,9 @@
     <script src="/static/js/cls_main_add1.js"></script>
     <script src="/static/js/cls_main_add2.js"></script>
     
-    <!--
+    
     <script src="/pwabuilder-sw-register.js"></script>
-    -->
+    
 {% block userinclude %}{% endblock %}
     </body>
 </html>

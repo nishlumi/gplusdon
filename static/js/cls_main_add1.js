@@ -3,14 +3,54 @@
  * necessary **1st** include
  =============================================================================*/
 function defineForMainPage(app) {
-    app.commonvue["cur_sel_account"] = new Vue({
-        el : "#cur_sel_account",
+    /*app.commomvue["navibar"] = new Vue({
+        el : "#navibar",
         delimiters : ["{?", "?}"],
         data : {
+            applogined : false,
+            findtext : "",
+            show_notif_badge : false,
+            notif_badge_count : 0,
+
+        }
+    });*/
+    app.commonvue["cur_sel_account"] = new Vue({
+        el : "#maincol_leftmenu",
+        delimiters : ["{?", "?}"],
+        data : {
+            applogined : false,
             account : {},
             whole_notification : false,
+            css : {
+                colwidth : {
+                    l3 : true,
+                    l1 : false
+                },
+                bgred : {
+                    red : false,
+                }
+            },
+            menu_text : true
+        },
+        mounted : function(){
+            this.$nextTick(()=>{
+                this.menu_text = MYAPP.session.config.application.show_menutext;
+                if (MYAPP.session.config.application.show_menutext) {
+                    MYAPP.commonvue.cur_sel_account.css.colwidth.l3 = true;
+                    MYAPP.commonvue.cur_sel_account.css.colwidth.l1 = false;
+                    ID("maincol_rightmain").classList.add("l9");
+                    ID("maincol_rightmain").classList.remove("l11");
+                }else{
+                    MYAPP.commonvue.cur_sel_account.css.colwidth.l3 = false;
+                    MYAPP.commonvue.cur_sel_account.css.colwidth.l1 = true;
+                    ID("maincol_rightmain").classList.remove("l9");
+                    ID("maincol_rightmain").classList.add("l11");
+                }
+
+            });
         },
         computed : {
+            
             acct : function(){
                 return this.account.idname + "@" + this.account.instance;
             }
@@ -20,6 +60,47 @@ function defineForMainPage(app) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
             onclick_current_selaccount : function(e) {
+                if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
+                    if (this.$vuetify.breakpoint.xs) {
+                        MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
+                    }else if (this.$vuetify.breakpoint.sm) {
+                        MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
+                    }else if (this.$vuetify.breakpoint.md) {
+                        MYAPP.commonvue.nav_sel_account.dialog_width = "50%";
+                    }else if (this.$vuetify.breakpoint.lgAndUp) {
+                        MYAPP.commonvue.nav_sel_account.dialog_width = "40%";
+                    }
+
+                }
+                MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
+            }
+        }
+    });
+    /*app.commonvue["leftmenu"] = new Vue({
+        el : "#leftmenu_main",
+        delimiters : ["{?", "?}"],
+        data : {
+            applogined : false,
+            accounts : [],
+        }
+    });*/
+    app.commonvue["sidebar"] = new Vue({
+        el : "#slide-out",
+        delimiters : ["{?", "?}"],
+        data : {
+            applogined : false,
+            account : {},   //---This app's Account
+            whole_notification : false,
+        },
+        computed : {
+            acct : function(){
+                return this.account.idname + "@" + this.account.instance;
+            }
+        },
+        methods: {
+            //---event handler--------------------
+            onclick_current_selaccount : function(e) {
+                MYAPP.forms.sidenav.close();
                 if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
                     if (this.$vuetify.breakpoint.xs) {
                         MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
@@ -64,9 +145,14 @@ function defineForMainPage(app) {
                 //ID("cursel_avatar").src = ac.rawdata.avatar;
                 //ID("cursel_display_name").textContent = display_name + "@" + instance;
                 //ID("cursel_avatar").setAttribute("data-tooltip",display_name + "@" + instance);
-                MYAPP.commonvue.sidebar.account = ac; //Object.assign({},ac);
-                MYAPP.commonvue.cur_sel_account.account = ac; //Object.assign({},ac);
-                
+                if (ac) {
+                    MYAPP.commonvue.sidebar.account = ac; //Object.assign({},ac);
+                    MYAPP.commonvue.cur_sel_account.account = ac; //Object.assign({},ac);
+                }else{
+                    var newac = new Account();
+                    MYAPP.commonvue.sidebar.account = newac;
+                    MYAPP.commonvue.cur_sel_account.account = newac;
+                }
             },
             /**
              * to check the count of all accounts notification 
@@ -80,6 +166,7 @@ function defineForMainPage(app) {
                     }
                 }
                 MYAPP.commonvue.cur_sel_account.whole_notification = ishit;
+                MYAPP.commonvue.cur_sel_account.css.bgred.red = ishit;
                 MYAPP.commonvue.sidebar.whole_notification = ishit;
             },
             fullname : function (ac) {
@@ -202,9 +289,9 @@ function defineForMainPage(app) {
                         Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
                     }
                 }
-                //---/notifications
-                if (Q(".notifcation_body")) {
-                    ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
+                //---/hashtag
+                if (Q(".hashtag_body")) {
+                    Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
                 }
                 //---/notifications
                 if (ID("area_notifications")){
@@ -219,6 +306,29 @@ function defineForMainPage(app) {
 
                         }
                     });
+                }
+                //---/s/*
+                if (Q(".search_body")) {
+                    MYAPP.sns.search(MYAPP.commonvue.nav_search.findtext,{
+                        api : {
+                            resolve : true
+                        },
+                        app : {
+                            
+                        }
+                    })
+                    .then(result=>{
+                        vue_search.hashtags.tags = result.data.hashtags;
+                        vue_search.accounts.accounts.splice(0,vue_search.accounts.accounts.length);
+                        vue_search.accounts.load_accounts(result.data.accounts,{api:{},app:{}});
+                        vue_search.accounts.tootes.statuses(0,vue_search.tootes.statuses.length);
+                        vue_search.tootes.loadTimeline(result.data.statuses,{
+                            api:{},
+                            app:{
+                                tltype : "tt_all"
+                            }
+                        });
+                    });            
                 }
             }
         }
@@ -551,47 +661,6 @@ function defineForMainPage(app) {
             }
         }
     });
-    app.commonvue["leftmenu"] = new Vue({
-        el : "#leftmenu_main",
-        delimiters : ["{?", "?}"],
-        data : {
-            applogined : false,
-            accounts : [],
-        }
-    });
-    app.commonvue["sidebar"] = new Vue({
-        el : "#slide-out",
-        delimiters : ["{?", "?}"],
-        data : {
-            applogined : false,
-            account : {},   //---This app's Account
-            whole_notification : false,
-        },
-        computed : {
-            acct : function(){
-                return this.account.idname + "@" + this.account.instance;
-            }
-        },
-        methods: {
-            //---event handler--------------------
-            onclick_current_selaccount : function(e) {
-                MYAPP.forms.sidenav.close();
-                if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
-                    if (this.$vuetify.breakpoint.xs) {
-                        MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
-                    }else if (this.$vuetify.breakpoint.sm) {
-                        MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
-                    }else if (this.$vuetify.breakpoint.md) {
-                        MYAPP.commonvue.nav_sel_account.dialog_width = "50%";
-                    }else if (this.$vuetify.breakpoint.lgAndUp) {
-                        MYAPP.commonvue.nav_sel_account.dialog_width = "40%";
-                    }
-
-                }
-                MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
-            }
-        }
-    });
     app.commonvue["bottomnav"] = new Vue({
         el : "#bottomnav",
         delimiters : ["{?", "?}"],
@@ -607,6 +676,9 @@ function defineForMainPage(app) {
         },
 
         methods : {
+            onclick_accounts : function () {
+                MYAPP.commonvue.cur_sel_account.onclick_current_selaccount();
+            },
             onclick_btn : function (id) {
                 location.href = `/${this.idpath[id]}`;
             },
@@ -614,12 +686,14 @@ function defineForMainPage(app) {
                 if (!this.$vuetify.breakpoint.smAndDown) return;
                 if (cursa >= this.oldsa) {
                     //---to top
-                    MYAPP.commonvue.bottomnav.showNav = true;
-                    ID("post_btn_area").style.bottom = "80px";
+                    this.showNav = true;
+                    ID("post_btn_area").classList.add("postbtn_scrollup");
+                    ID("post_btn_area").classList.add("postbtn_scroll");
                 }else{
                     //---to bottom
-                    MYAPP.commonvue.bottomnav.showNav = false;
-                    ID("post_btn_area").style.bottom = "23px";
+                    this.showNav = false;
+                    ID("post_btn_area").classList.remove("postbtn_scrollup");
+                    ID("post_btn_area").classList.remove("postbtn_scroll");
                 }
                 this.oldsa = cursa;
             }
@@ -762,20 +836,32 @@ function defineForMainPage(app) {
         //------------------------------------------------
         //  navigation bar
         //$('.sidenav').sidenav();
+        /*window.onunload = function(){
+            navigator.serviceWorker.getRegistration()
+            .then(registration => {
+                registration.unregister();
+            })
+        }*/
         this.forms["sidenav"] = M.Sidenav.init(Q('.sidenav'),{});
         ID("sidenav_btn").addEventListener("click",function(e){
             MYAPP.forms.sidenav.open();
             e.stopPropagation();
         });
         ID("img_brand").addEventListener("click", function (e) {
-            var elems = document.querySelectorAll("#maincol_leftmenu div.collection a.collection-item span");
+            /*var elems = document.querySelectorAll("#maincol_leftmenu div.collection a.collection-item span");
             for (var i = 0; i < elems.length; i++) {
                 elems[i].classList.toggle("user-slideOutLeft");
-            }
-            ID("maincol_leftmenu").classList.toggle("l3");
-            ID("maincol_leftmenu").classList.toggle("l1");
+            }*/
+            MYAPP.commonvue.cur_sel_account.menu_text = !MYAPP.commonvue.cur_sel_account.menu_text;
+            MYAPP.commonvue.cur_sel_account.css.colwidth.l3 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l3;
+            MYAPP.commonvue.cur_sel_account.css.colwidth.l1 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l1;
+            //ID("maincol_leftmenu").classList.toggle("l3");
+            //ID("maincol_leftmenu").classList.toggle("l1");
             ID("maincol_rightmain").classList.toggle("l9");
             ID("maincol_rightmain").classList.toggle("l11");
+
+            MYAPP.session.config.application.show_menutext = !MYAPP.session.config.application.show_menutext;
+            MYAPP.session.save(true);
             e.stopPropagation();
         });
         /*var menu = document.querySelector("#maincol_leftmenu div.collection a.menu_parent, #slide-out");

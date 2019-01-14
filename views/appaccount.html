@@ -12,7 +12,7 @@
         <div class="user-textinfo z-depth-2">
             <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
             <div style="display:inline-block">
-                <span id="us_display_name" class="white-text name">{? display_name ?}</span>
+                <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
                 <span id="us_idname_instance" class="white-text email">@{? idname ?}@{? instance ?}</span>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 </li>
             </ul>
             <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
-            <div class="timelinebody post_card_grid post_card_grid_cellsetting">
+            <div class="timelinebody post_card_grid post_card_grid_cellsetting" v-bind:class="timeline_gridstyle">
                 <timeline-toot 
                     v-bind:translation="translations"
                     v-bind:toote="status"

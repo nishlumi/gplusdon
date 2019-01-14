@@ -1,6 +1,6 @@
 var CK_INPUT_TOOTBOX = {
     //skin : "kama",
-    exptraPlugins: 'autocomplete,mentions,emoji,onchange,basicstyles,undo,link,wysiwygarea,toolbar',
+    exptraPlugins: 'autocomplete,mentions,onchange,basicstyles,undo,link,wysiwygarea,toolbar',
     /*contentsCss: [
         'https://cdn.ckeditor.com/4.11.1/full-all/contents.css',
         'https://sdk.ckeditor.com/samples/assets/mentions/contents.css'
@@ -45,7 +45,14 @@ function CK_dataFeed_mention( opts, callback ) {
 
     var backupAC = MYAPP.sns._accounts;
     MYAPP.sns.setAccount(hitac);
-    MYAPP.sns.getUserSearch(opts.query,{limit:5})
+    MYAPP.sns.getUserSearch(opts.query,{
+        api : {
+            limit : 5
+        },
+        app : {
+
+        }
+    })
     .then(result=>{
         var data = [];
         for (var i = 0; i < result.data.length; i++) {

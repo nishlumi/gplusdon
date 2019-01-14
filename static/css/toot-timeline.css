@@ -89,7 +89,7 @@ div.toot_timeline_grid.width_3 {
     }
 
 }
-@media only screen and (min-width: 1350px) {
+@media only screen and (min-width: 1500px) {
 
     div.toot_timeline_grid.width_count {
         grid-template-columns: 31% 31% 31%;
@@ -105,22 +105,7 @@ div.toot_timeline_grid.width_3 {
     }
 
 }
-@media only screen and (min-width: 1700px) {
 
-    div.toot_timeline_grid.width_count {
-        grid-template-columns: 23% 23% 23% 23%;
-        padding-left : 4%;
-    }
-    div.toot_timeline_grid.width_2 {
-        grid-template-columns: 47% 47%;
-        padding-left : 5%;
-    }
-    div.toot_timeline_grid.width_3 {
-        grid-template-columns: 31% 31% 31%;
-        padding-left : 3%;
-    }
-
-}
 
 
 
@@ -336,19 +321,19 @@ div.toot_card_base.g30 {
     /*height : 15rem;
     max-height : 17rem;*/
 }
-.toot_card_base  .toote_spoiler_or_main {
+.toot_card_base  .toote_spoiler_or_main, .dmsg_body .toote_spoiler_or_main {
     font-size : 14px;
     white-space: pre-wrap;
 }
-.toot_card_base  .toote_main {
+.toot_card_base  .toote_main, .dmsg_body .toote_main {
     font-size : 14px;
     white-space: pre-wrap;
 }
 
-.toot_card_base  .toote_spoiler_or_main p {
+.toot_card_base  .toote_spoiler_or_main p, .dmsg_body .toote_spoiler_or_main p{
     padding : 0 0 0.5rem 0;
 }
-.toot_card_base  .toote_main p {
+.toot_card_base  .toote_main p, .dmsg_body .toote_main p{
     padding : 0 0 0.5rem 0;
 }
 .toot_card_base  .area_spoiler details summary {

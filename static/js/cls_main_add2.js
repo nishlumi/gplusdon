@@ -17,17 +17,8 @@ function defineForTootPage(app) {
             activewidth : "50%",
             show_openInNew : true,
             emoji_bottomsheet : false,
-            btnflags : {
-                loading : false,
-                mood : {
-                    "red-text" : false,
-                },
-                send_disabled : false
-            },
-            ckeditor : null,
             CNS_SAVENAME : "gp_inpt_conn",
 
-            toot_valid : true,
 
             //---account box data
             selaccounts : [],
@@ -61,7 +52,7 @@ function defineForTootPage(app) {
             mention_search : null,
 
             //---status textarea data
-            status_text : "",
+            /*status_text : "",
             strlength : 0,
             status_rules : [
                 function (v) {
@@ -70,7 +61,7 @@ function defineForTootPage(app) {
             ],
             status_class : {
                 dragover_indicate : false,
-            },
+            },*/
 
             //---emoji bottom sheet data
             emojis_title : {
@@ -99,6 +90,15 @@ function defineForTootPage(app) {
                     }
                 ]
             */
+            mainlink : {
+                exists : false,
+                url : "",
+                isimage : false,
+                image : "",
+                description : "",
+                site : "",
+                title : "",
+            },
             selmedias : [],
             medias : [],
             switch_NSFW : false,
@@ -115,15 +115,24 @@ function defineForTootPage(app) {
             selmentions : function(val) {
                 var mentions = this.calc_mentionLength(val).join(" ");
                 console.log(mentions, mentions.length);
-                var tags = this.seltags.join(" ");
+                //var tags = this.seltags.join(" ");
+                var tags = [];
+                for (var i = 0; i < this.seltags.length; i++) {
+                    tags.push(this.seltags[i].text);
+                }
+
                 this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
-                    + mentions.length + tags.length;
+                    + mentions.length + tags.join(" ").length;
             },
             seltags : function(val) {
                 var mentions = this.calc_mentionLength(this.selmentions).join(" ");
-                var tags = val.join(" ");
+
+                var tags = [];
+                for (var i = 0; i < val.length; i++) {
+                    tags.push(val[i].text);
+                }
                 this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
-                    + mentions.length + tags.length;
+                    + mentions.length + tags.join(" ").length;
             },
             selsharescope : function (val) {
                 console.log(val);
@@ -187,6 +196,7 @@ function defineForTootPage(app) {
             //if (this.otherwindow) {
             //}
             //M.FormSelect.init(ID("keymaptitle"), {});
+            /*
             CKEDITOR.disableAutoInline = true;
             CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
             this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
@@ -208,6 +218,7 @@ function defineForTootPage(app) {
             }).on('pasteText',  (ev, data) => {
                 console.log("text: " + data.text);
             });
+            */
 
             var issave = localStorage.getItem(this.CNS_SAVENAME);
             if (issave) {
@@ -233,11 +244,24 @@ function defineForTootPage(app) {
         methods : {
             //---Element event handler------------------------------------
             onclick_close : function (e) {
-                if (this.otherwindow) {
-                    window.close();
-                }else{
-                    this.dialog = false;
-                }
+                var msg = _T("msg_cancel_post");
+                appConfirm(msg,()=>{
+                    this.status_text = "";
+                    this.mainlink.exists = false;
+                    this.ckeditor.editable().setText("");
+                    this.selmentions.splice(0,this.selmentions.length);
+                    this.seltags.splice(0,this.seltags.length);
+                    this.selmedias.splice(0,this.selmedias.length);
+                    this.medias.splice(0,this.medias.length);
+                    this.switch_NSFW = false;
+
+                    if (this.otherwindow) {
+                        window.close();
+                    }else{
+                        this.dialog = false;
+                    }
+
+                });
             },
             onclick_openInNew : function (e) {
                 var savedata = {
@@ -288,49 +312,6 @@ function defineForTootPage(app) {
                 }
                 
             },
-            onclick_send: function (e) {
-                if (this.toot_valid) {
-                    var pros = [];
-                    for (var i = 0; i < this.selaccounts.length; i++) {
-                        var account = this.getTextAccount2Object(i);
-                        console.log(account);
-                        var mediaids = [];
-                        for (var m = 0; m < this.medias.length; m++) {
-                            mediaids.push(this.medias[m][account.acct].id);
-                        }
-                        var pr = MYAPP.executePost(this.joinStatusContent(),{
-                            "account" : account,
-                            "scope" : this.selsharescope,
-                            "media" : mediaids,
-                            "nsfw" : this.switch_NSFW,
-                        });
-                        pros.push(pr);
-                    }
-
-                    Promise.all(pros)
-                    .then(values=>{
-                        //---clear input and close popup
-                        this.status_text = "";
-                        this.ckeditor.editable().setText("");
-                        this.selmentions.splice(0,this.selmentions.length);
-                        this.seltags.splice(0,this.seltags.length);
-                        this.selmedias.splice(0,this.selmedias.length);
-                        this.medias.splice(0,this.medias.length);
-                        this.switch_NSFW = false;
-
-                        //if (!this.fullscreen) {
-                            this.dialog = false;
-                        //}
-                        if (this.otherwindow) {
-                            if (MYAPP.session.config.action.close_aftertoot) {
-                                window.close();
-                            }
-                        }
-                    });
-                }else{
-                    appAlert("Found some error.");
-                }
-            },
             //---Some function------------------------------------
             select_scope: function (item) {
                 for (var i = 0; i < this.sharescopes.length; i++) {
@@ -374,7 +355,6 @@ function defineForTootPage(app) {
             keymaplistvalue : function (v,group) {
                 return `${group}_${v}`;
             },
-            autocomplete_mention_func : CK_dataFeed_mention,
             sizing_window(){
                 var breakpoint = this.$vuetify.breakpoint;
                 var ju_width = "";

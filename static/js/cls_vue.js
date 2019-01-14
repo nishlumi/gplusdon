@@ -12,17 +12,6 @@ Vue.component("timeline-toot", {
 	
 	props: {
 		translation: Object,
-		/*cardtype_size : Object,
-		toot_reactions : {
-			fav : {"lighten-3":Boolean},
-			reb : {"lighten-3":Boolean}
-		},
-		account : Object,
-		toote : Object,
-		toote_mentions : Array,
-		toote_tags : Array,
-		ancestors : Array,
-		descendants : Array*/
 		globalinfo: Object,
 		comment_viewstyle : {
 			type : Object,
@@ -416,7 +405,7 @@ Vue.component("timeline-toot", {
 				}
 			}
 
-			if (this.comment_stat.open) {
+			if (this.comment_stat.open || this.comment_stat.full) {
 				MYAPP.sns.getConversation(this.toote.id, this.toote.id, "")
 				.then((condata) => {
 					var tt = this.toote; //this.getParentToot(condata.parentID);
@@ -442,13 +431,15 @@ Vue.component("timeline-toot", {
 						this.toote.ancestors = this.toote.ancestors.concat(condata.data.ancestors);
 						this.toote.descendants = this.toote.descendants.concat(condata.data.descendants);
 						this.toote.body.replies_count = condata.data.descendants.length;
-						this.first_comment_stat.close = false;
-						this.first_comment_stat.mini = true;
-						this.comment_stat.mini = false;
-						this.comment_stat.open = true;
-							this.$nextTick(function () {
-							return;
-						});
+						if (!this.comment_stat.full) {
+							this.first_comment_stat.close = false;
+							this.first_comment_stat.mini = true;
+							this.comment_stat.mini = false;
+							this.comment_stat.open = true;
+								this.$nextTick(function () {
+								return;
+							});
+						}
 					}
 					return condata;
 				})
@@ -637,8 +628,8 @@ Vue.component("timeline-toot", {
 			var des = this.toote.descendants[index];
 			this.reply_to_id = des.body.id;
 			this.mention_to_id = des.account.id;
-			var editor = CKEDITOR.instances["replyinput_"+this.toote.body.id];
-			editor.editable().insertText("@"+des.account.acct);
+			var editor = CKEDITOR.instances[this.popuping + "replyinput_"+this.toote.body.id];
+			editor.editable().editor.insertText("@"+des.account.acct);
 			this.status_text = "@"+des.account.acct; 
 		},
 		onclick_fav_to_reply: function (e) {
@@ -1045,6 +1036,7 @@ Vue.component("reply-inputbox", {
                 {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
                 {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
                 {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
+                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
             ],
 			selsharescope : {
 				text : _T("sel_tlpublic"),
@@ -1081,9 +1073,33 @@ Vue.component("reply-inputbox", {
 		});
 		//console.log(hitscopes);
 		this.select_scope(hitscopes[0]);
+
+		//---setup CKeditor
+		CKEDITOR.disableAutoInline = true;
+		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+		this.ckeditor = CKEDITOR.inline( this.movingElementID('replyinput_'), CK_INPUT_TOOTBOX);
+
+		console.log("this.status_text=",this.status_text);
+		//this.ckeditor.setData(this.status_text);
+
+		$("#dv_inputcontent").pastableContenteditable();
+		$("#dv_inputcontent").on('pasteImage',  (ev, data) => {
+			console.log(ev,data);
+			if (this.dialog || this.otherwindow) {
+				this.loadMediafiles("blob",[data.dataURL]);
+			}
+		}).on('pasteImageError', (ev, data) => {
+			alert('error paste:',data.message);
+			if(data.url){
+				alert('But we got its url anyway:' + data.url)
+			}
+		}).on('pasteText',  (ev, data) => {
+			console.log("text: " + data.text);
+		});
+
 	},
 	updated() {
-		if (this.isfirst) {
+		/*if (this.isfirst) {
 			CKEDITOR.disableAutoInline = true;
 			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 			//console.log("popuping=",this.popuping + 'replyinput_'+this.id);
@@ -1091,7 +1107,7 @@ Vue.component("reply-inputbox", {
 			this.ckeditor = CKEDITOR.inline( this.popuping + 'replyinput_'+this.id, CK_INPUT_TOOTBOX);
 	
 			this.isfirst = false;
-		}
+		}*/
 	},
 	computed : {
 
@@ -1171,8 +1187,15 @@ Vue.component("reply-inputbox", {
 				this.selmentions.push("@"+this.replydata.reply_account.acct);
 
 				//---fire onreplied event to parent element
-				this.ckeditor.editable().setText("");
+
 				this.status_text = "";
+				this.mainlink.exists = false;
+				this.ckeditor.editable().setText("");
+				this.seltags.splice(0,this.seltags.length);
+				this.selmedias.splice(0,this.selmedias.length);
+				this.medias.splice(0,this.medias.length);
+				this.switch_NSFW = false;
+
 				this.$emit('replied');
 			});
 		}
@@ -1231,6 +1254,134 @@ Vue.component("tootgallery-carousel", {
 		},
 		onmouseleave_gifv : function (e) {
 			e.target.pause();
+		},
+    }
+});
+
+//===----------------------------------------------------------------------===
+//  Component: dmessage-item
+//===----------------------------------------------------------------------===
+Vue.component("dmessage-item", {
+    template: CONS_TEMPLATE_DMSGBODY,
+	props: {
+		translation: Object,
+		/**
+		 * type : me, they
+		 * 
+		 */
+		user_direction : Object,
+		toote: {
+			type : Object,
+			default : null
+		},
+    },
+    data(){
+        return {
+			elementStyle : {
+				"comment-list" : {
+					sizing : true
+				},
+				"toot_avatar_imgsize" : "32px"
+
+			},
+
+			//---reaction dialog: favorite, boost
+			is_reactiondialog : false,
+			reaction_dialog_title : "",
+			reaction_info : {
+				max_id : "",
+				since_id : "",
+			},
+			reaction_accounts : [],
+			
+			is_pause : false
+        }
+    },
+    mounted(){
+		jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
+		$("time.timeago").timeago();
+	},
+	computed : {
+		favourite_type : function() {
+			return _T("favourite_"+MYAPP.session.config.application.showMode);
+		},
+		favourite_icon : function () {
+			if (MYAPP.session.config.application.showMode == "gplus") {
+				return "plus_one";
+			}else if (MYAPP.session.config.application.showMode == "twitter") {
+				return "favorite";
+			}else{
+				return "star";
+			}
+		},
+
+	},
+    methods : {
+		full_display_name : function(user) {
+			return MUtility.replaceEmoji(user.display_name,user.instance,user.emojis,18) + `@${user.instance}`;
+		},
+		onclick_ttbtn_fav: function(e) {
+			var mainfunc = () => {
+				//console.log("target=",e.target);
+				e.target.parentElement.classList.add("pulse");
+				MYAPP.sns.setFav(this.toote.id, !this.toote.body.favourited, {api:{},app:{}})
+				.then(result=>{
+					e.target.parentElement.classList.remove("pulse");
+					//console.log("fav after=",result);
+					this.toote.body.favourites_count = result.favourites_count;
+					//---change color for favourited state.
+					this.toote.reactions.fav["lighten-3"] = result.favourited ? false : true;
+				});
+			};
+			//console.log("onclick_ttbtn_fav=",e,JSON.original(this.toote),!this.toote.body.favourited);
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg = _T("msg_confirm_fav_"+MYAPP.session.config.application.showMode);
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_reaction_fav : function (toote) {
+			this.reaction_dialog_title = this.favourite_reaction_msg();
+			MYAPP.sns.getFavBy(toote.body.id,{
+				api : {},
+				app : {}
+			},"")
+			.then(result => {
+				//console.log("result.data=",result.data);
+				this.reaction_accounts.splice(0,this.reaction_accounts.length);
+				for (var i = 0; i < result.data.length; i++) {
+					this.reaction_accounts.push(result.data[i]);
+				}
+				this.is_reactiondialog = !this.is_reactiondialog;
+			});
+		},
+		onclick_toote_delete : function (toote,commentIndex) {
+			var mainfunc = () => {
+				console.log("target=",toote,commentIndex);
+				MYAPP.sns.deleteStatus(toote.body.id)
+				.then(result=>{
+					console.log("del after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						this.toote.descendants.splice(commentIndex,1);
+						if (this.toote.descendants.length < 1) {
+							this.comment_stat.close = true;
+							this.comment_stat.mini = false;
+							this.comment_stat.open = false;
+						}
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("delete_toot",toote.body.id);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg = _T("msg_delete_toot");
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
 		},
     }
 });

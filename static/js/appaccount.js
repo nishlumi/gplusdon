@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             computed : {
                 full_display_name : function() {
-                    return MUtility.replaceEmoji(this.display_name,this.instance,this.rawdata.emojis,18);
+                    return MUtility.replaceEmoji(this.display_name,this.instance,this.rawdata.emojis,24);
                 },
             }
 

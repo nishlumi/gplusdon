@@ -7,6 +7,7 @@
         <meta content="ie=edge" http-equiv="X-UA-Compatible">
 
         <link rel="shortcut icon" href="/static/images/app_icon.png" >
+        <meta content='{{sysinfo.VAPID}}' name='applicationServerKey'>
 
         <link href="/static/lib/selectize/selectize.bootstrap3.css" rel="stylesheet" >
         <link href="/static/lib/selectize/selectize.css" rel="stylesheet" >
@@ -40,6 +41,8 @@
 
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
+        <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
 
         <script src="/static/lib/polyfill.min.js"></script>
 
@@ -47,6 +50,7 @@
         <script src="/static/lib/jquery.min.js"></script>
         <script src="/static/lib/lodash.min.js"></script>
         {% include "jslib_vue.html" %}
+        <script src="/static/lib/vue-carousel.min.js"></script>
 
         <script src="/static/lib/materialize/js/materialize.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>
@@ -61,6 +65,7 @@
     <script src="/static/res/res_template_tootbody.js"></script>
     <script src="/static/res/res_template_userpop.js"></script>
     <script src="/static/res/res_template_replyinput.js"></script>
+    <script src="/static/res/res_template_tootgallery-cal.js"></script>
 
     <script src="/static/js/cls_ck_inputbox.js"></script>
 
@@ -74,6 +79,8 @@
     <script src="/static/js/clientclass.js"></script>
     <script src="/static/js/cls_main_add2.js"></script>
     <script src="/static/js/cls_ck_inputbox.js"></script>
+
+    <script src="/pwabuilder-sw-register.js"></script>
 
     <script src="/static/js/win_toot.js"></script>
     

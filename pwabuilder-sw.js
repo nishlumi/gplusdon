@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = "G+Don-100";
+var CACHE = "G+Don-100-20190115";
 var precacheFiles = [
     /* Add an array of files to precache for your app */
     /*"/",
@@ -221,7 +221,7 @@ self.addEventListener("install", function(evt) {
 });
 
 //allow sw to control of current page
-self.addEventListener("activate", function(event) {
+self.addEventListener("activate", function(evt) {
     console.log("[PWA Builder] Claiming clients for current page");
     //return self.clients.claim();
     var cacheWhitelist = [CACHE];
@@ -276,14 +276,13 @@ self.addEventListener("fetch", function(evt) {
     );
 });
 self.addEventListener("push", function(event) {
-    console.log("Received a push message", event);
-    var title = "プッシュ通知です！";
-    var body = "プッシュ通知はこのようにして送られるのです";
+    console.log("Received a push message", event, event.data.json());
+    var js = event.data.json();
 
     event.waitUntil(
-        self.registration.showNotification(title, {
-            body: body,
-            icon: "/static/images/app_icon.jpg",
+        self.registration.showNotification(js.title, {
+            body: js.body,
+            icon: js.icon,
             tag: "push-notification-tag"
         })
     );
@@ -291,8 +290,9 @@ self.addEventListener("push", function(event) {
 self.addEventListener(
     "notificationclick",
     function(event) {
+        console.log("n click=",event);
         event.notification.close();
-        clients.openWindow("./");
+        clients.openWindow("/notifications");
     },
     false
 );

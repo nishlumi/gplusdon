@@ -15,9 +15,14 @@ if (navigator.serviceWorker.controller) {
             console.log(
                 "Service worker has been registered for scope:" + reg.scope
             );
+            reg.onupdatefound = function() {
+                console.log('update found');
+                reg.update();
+            }
+
         });
 }
-
+/*
 Notification.requestPermission().then(permission => {
     switch (permission) {
         case "granted":
@@ -36,6 +41,7 @@ Notification.requestPermission().then(permission => {
             break;
     }
 });
+*/
 function encodeBase64(buffer) {
     return window
         .btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))

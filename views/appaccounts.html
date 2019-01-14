@@ -61,11 +61,14 @@
                         <td class="righted">{? item.account.rawdata.following_count ?}</td>
                         <td class="righted">{? item.account.rawdata.followers_count ?}</td>
                         <td>
-                            <v-switch
+                            <v-btn flat icon color="primary" v-on:click="onclick_pushsub(item.account)">
+                                <v-icon>edit</v-icon>
+                            </v-btn>
+                            <!--<v-switch
                                 label="ON"
-                                v-model="accounts_config[index].is_notification"
+                                v-on:change="is_bottomsheet=!is_bottomsheet"
                             ></v-switch>
-                            <!--<div class="switch"><span>{? item.account.display_name ?}</span>
+                            <div class="switch"><span>{? item.account.display_name ?}</span>
                                 <label>
                                     <input type="checkbox" v-model="item.is_notification" v-on:change="oncheck_following">
                                     <span class="lever"></span>
@@ -78,6 +81,55 @@
             </table>
         </div>
     </div>
+    <v-bottom-sheet inset v-model="is_bottomsheet" v-if="select_subscription.account">
+        <v-card>
+            <v-card-title primary-title>
+                <v-layout row wrap>
+                    <v-flex xs2>
+                        <div class="title">Web {{trans.notifications}} :</div>
+                    </v-flex>
+                    <v-flex xs8>
+                        <div class="title" v-html="fullname(select_subscription.account)"></div>
+                    </v-flex>
+                    <v-flex xs2>
+                        <v-btn fab dark color="red" v-on:click="onclick_savepushsub">
+                            <v-icon>save</v-icon>
+                        </v-btn>                                
+                    </v-flex>
+                </v-layout>
+                
+            </v-card-title>
+            <v-card-text>
+                <v-layout row wrap>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            label="{{trans.mention}}"
+                            v-model="select_subscription.alert.mention"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            :label="get_translated_typename('favourite')"
+                            v-model="select_subscription.alert.favourite"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            :label="get_translated_typename('reblog')"
+                            v-model="select_subscription.alert.reblog"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            label="{{trans.acc_tab_following}}"
+                            v-model="select_subscription.alert.follow"
+                        ></v-switch>
+                    </v-flex>
+                        
+                </v-layout>
+            </v-card-text>    
+        </v-card>
+    </v-bottom-sheet>
 </div>
 {% endblock %}
 

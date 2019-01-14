@@ -640,13 +640,23 @@ var vue_mixin_for_timeline = {
 		filterToot: function (gstatus, options) {
 			var data = gstatus.body;
 			var ret = true;
+			//---share range
 			if (options.app.tlshare == "tt_public") {
 				ret = data.visibility == "public" ? true : false;
 			} else if (options.app.tlshare == "tt_tlonly") {
 				ret =  data.visibility == "unlisted" ? true : false;
 			} else if (options.app.tlshare == "tt_private") {
 				ret =  data.visibility == "private" ? true : false;
-			} else if (options.app.tltype == "tt_media") {
+			} else if (data.visibility == "direct") {
+				if (MYAPP.session.config.notification.include_dmsg_tl) {
+					ret = true;
+				}else{
+					ret = false;
+				}
+			} 
+
+			//---additional option
+			if (options.app.tltype == "tt_media") {
 				ret =  gstatus.medias.length > 0 ? true : false;
 			} else if (options.app.tltype == "tt_exclude_bst") {
 				ret = (gstatus.reblogOriginal != null) ? false : true;
@@ -654,9 +664,7 @@ var vue_mixin_for_timeline = {
 				ret =  true;
 			} else if (options.app.only_media) {
 				ret = gstatus.medias.length > 0 ? true : false;
-			} else {
-				ret =  false;
-			}
+			} 
 			
 			if (options.app.exclude_reply) {
 				ret = (data.in_reply_to_id == null) ? true : false;
@@ -729,6 +737,18 @@ var vue_mixin_for_timeline = {
 var vue_mixin_for_inputtoot = {
 	data() {
 		return {
+			ckeditor : null,
+			btnflags : {
+                loading : false,
+                mood : {
+                    "red-text" : false,
+                },
+                send_disabled : false
+			},
+			toot_valid : true,
+			screentype : "toot",	//toot, direct
+
+
 			//---account box data
 			selaccounts : [],
 
@@ -759,12 +779,43 @@ var vue_mixin_for_inputtoot = {
 			seltags : [],
 			tags: [],
 			
+			//---media
 			selmedias : [],
             medias : [],
-            switch_NSFW : false,
+			switch_NSFW : false,
+			
+			//---link
+			mainlink : {
+                exists : false,
+                url : "",
+                isimage : false,
+                image : "",
+                description : "",
+                site : "",
+                title : "",
+            },
+
 		}
 	},
 	watch : {
+		selmentions : function(val) {
+			var mentions;
+			if (this.screentype == "direct") {
+				mentions = this.calc_mentionLength([val]).join(" ");
+			}else{
+				mentions = this.calc_mentionLength(val).join(" ");
+			}
+			console.log(mentions, mentions.length);
+			//var tags = this.seltags.join(" ");
+			var tags = [];
+			for (var i = 0; i < this.seltags.length; i++) {
+				tags.push(this.seltags[i].text);
+			}
+
+			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
+				+ mentions.length + tags.join(" ").length;
+
+		},
 		status_text : function(val) {
 			var cont = MYAPP.extractTootInfo(val);
 			var textWithoutMentions = cont.text;
@@ -794,14 +845,40 @@ var vue_mixin_for_inputtoot = {
 			}
 			this.btnflags.send_disabled = (this.strlength > 500);
 		},
+
 	},
 	mounted() {
 		//M.FormSelect.init(ID("keymaptitle"), {});
 		//CKEDITOR.disableAutoInline = true;
 		//CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 		//this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
+		CKEDITOR.disableAutoInline = true;
+		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+		this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
+
+		console.log("this.status_text=",this.status_text);
+		//this.ckeditor.setData(this.status_text);
+
+		$("#dv_inputcontent").pastableContenteditable();
+		$("#dv_inputcontent").on('pasteImage',  (ev, data) => {
+			console.log(ev,data);
+			if (this.dialog || this.otherwindow) {
+				this.loadMediafiles("blob",[data.dataURL]);
+			}
+		}).on('pasteImageError', (ev, data) => {
+			alert('error paste:',data.message);
+			if(data.url){
+				alert('But we got its url anyway:' + data.url)
+			}
+		}).on('pasteText',  (ev, data) => {
+			console.log("text: " + data.text);
+		});
+
+
 	},
 	methods : {
+		autocomplete_mention_func : CK_dataFeed_mention,
+
 		/**
 		 * Get mention text calculable
 		 * @param {String[]} arr 
@@ -824,8 +901,14 @@ var vue_mixin_for_inputtoot = {
 			if (this.selmentions.length > 0) 
 				content += this.selmentions.join(" ") + " ";
 			content += this.status_text;
-			if (this.seltags.length > 0)
-				content += "\n" + this.seltags.join(" ");
+			if (this.seltags.length > 0) {
+				var tags = [];
+                for (var i = 0; i < this.seltags.length; i++) {
+                    tags.push(this.seltags[i].text);
+                }
+
+				content += "\n" + tags.join(" ");
+			}
 			
 			return content;
 		},
@@ -844,6 +927,39 @@ var vue_mixin_for_inputtoot = {
 			var content = MYAPP.extractTootInfo(this.ckeditor.getData());
 			this.status_text = content.text; //this.ckeditor.editable().getText();
 			//console.log(this.ckeditor.getData(),this.status_text,content);
+
+			if (content.urls.length > 0) {
+				if (!this.mainlink.exists) {
+					var link = content.urls[0];
+					//---preview link image
+					setTimeout(()=>{
+						this.btnflags.loading = true;
+
+						loadOGP(link)
+						.then(result=>{
+							this.mainlink.exists = true;
+							this.mainlink.url = link;
+							if ("og:description" in result.data) {
+								this.mainlink.description = result.data["og:description"];
+							}
+							if ("og:title" in result.data) {
+								this.mainlink.title = result.data["og:title"];
+							}
+							if ("og:site_name" in result.data) {
+								this.mainlink.site = result.data["og:site_name"];
+							}
+							if ("og:image" in result.data) {
+								this.mainlink.isimage = true;
+								this.mainlink.image = result.data["og:image"];
+							}
+							this.btnflags.loading = false;
+
+						});
+					},400);
+				}
+			}else{
+				this.mainlink.exists = false;
+			}
 		},
 		ondragover_inputcontent : function(e){
 			e.stopPropagation();
@@ -878,6 +994,12 @@ var vue_mixin_for_inputtoot = {
 			.then(()=>{
 				this.btnflags.send_disabled = false;
 				this.btnflags.loading = false;
+				if (this.screentype == "direct") {
+					var e = Q(".timeline_cardlist_mobile");
+					e.scroll({top:e.scrollHeight});
+					e = Q(".timeline_cardlist")
+					e.scroll({top:e.scrollHeight});
+				}
 			});
 			/*
 			appPrompt2(
@@ -911,6 +1033,14 @@ var vue_mixin_for_inputtoot = {
 			.then(()=>{
 				this.btnflags.send_disabled = false;
 				this.btnflags.loading = false;
+				if (this.screentype == "direct") {
+					this.$nextTick(()=>{
+						var e = Q(".timeline_cardlist_mobile");
+						e.scroll({top:e.scrollHeight});
+						e = Q(".timeline_cardlist")
+						e.scroll({top:e.scrollHeight});
+					});
+				}
 			});
 		},
 		onclick_addimage : function(e) {
@@ -923,6 +1053,51 @@ var vue_mixin_for_inputtoot = {
 				this.medias.splice(index,1);
 			});
 		},
+		onclick_send: function (e) {
+			if (this.toot_valid) {
+				var pros = [];
+				for (var i = 0; i < this.selaccounts.length; i++) {
+					var account = this.getTextAccount2Object(i);
+					console.log(account);
+					var mediaids = [];
+					for (var m = 0; m < this.medias.length; m++) {
+						mediaids.push(this.medias[m][account.acct].id);
+					}
+					var pr = MYAPP.executePost(this.joinStatusContent(),{
+						"account" : account,
+						"scope" : this.selsharescope,
+						"media" : mediaids,
+						"nsfw" : this.switch_NSFW,
+					});
+					pros.push(pr);
+				}
+
+				Promise.all(pros)
+				.then(values=>{
+					//---clear input and close popup
+					this.status_text = "";
+					this.mainlink.exists = false;
+					this.ckeditor.editable().setText("");
+					this.selmentions.splice(0,this.selmentions.length);
+					this.seltags.splice(0,this.seltags.length);
+					this.selmedias.splice(0,this.selmedias.length);
+					this.medias.splice(0,this.medias.length);
+					this.switch_NSFW = false;
+
+					//if (!this.fullscreen) {
+						this.dialog = false;
+					//}
+					if (this.otherwindow) {
+						if (MYAPP.session.config.action.close_aftertoot) {
+							window.close();
+						}
+					}
+				});
+			}else{
+				appAlert("Found some error.");
+			}
+		},
+
 		//---some function-------------------------------------------------
 		/**
 		 *  Get an Account instance from text info for Account.
@@ -1188,6 +1363,7 @@ var vue_mixin_for_notification = {
 		},
 		save_notification() {
 			//sessionStorage.setItem(this.cons_savename,JSON.stringify(this.notifications));
+			MYAPP.acman.save();
 		},
 		/**
 		 * 
@@ -1282,7 +1458,26 @@ var vue_mixin_for_notification = {
 
 			if (this.pagetype == "popup") {
 				this.remove_notification(account.notifications,index);
+				MYAPP.commonvue.nav_notification.notifications--;
+			}else{
+				var ishit = -1;
+				var an = account.notifications[index];
+				for (var i = 0; i < account.account.notifications.length; i++) {
+					var aan = account.account.notifications[i];
+					if ((aan.status.id == an.status.id) && (aan.type == an.type)) {
+						ishit = i;
+						break;
+					}
+				}
+				if (ishit > -1) {
+					this.remove_notification(account.account.notifications,ishit);
+				}
+				if (MYAPP.commonvue.cur_sel_account.account.acct == account.account.acct) {
+					MYAPP.commonvue.nav_notification.notifications--;
+				}
 			}
+			this.save_notification();
+			
 		},
 		onclick_notif_linebtn : function (account,index) {
 

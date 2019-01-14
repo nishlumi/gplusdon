@@ -1297,23 +1297,56 @@ class Gpsns {
         });
         return def;
     }
+    /**
+     * register push subscription to the instance
+     * @param {JSON} options alerts options: follow,reblog,favourite,mention.
+     */
     createPushSubscription(options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
                 reject(false);
                 return;
             }
-            this._accounts.api.post(`push/subscription`,options.api)
+
+            var endpoint = sessionStorage.getItem("wp_endpoint");
+            var publicKey = sessionStorage.getItem("wp_publickey");
+            var authSecret = sessionStorage.getItem("wp_authsecret");
+            if (!endpoint) {
+                reject({xhr:null,status:"error",data:"subscription.endpoint"});
+                return;
+            }
+            if (!publicKey) {
+                reject({xhr:null,status:"error",data:"p256dh"});
+                return;
+            }
+            if (!authSecret) {
+                reject({xhr:null,status:"error",data:"auth"});
+                return;
+            }
+
+            var opt = {
+                subscription : {
+                    endpoint : endpoint,
+                    keys : {
+                        p256dh : publicKey,
+                        auth : authSecret,
+                    }
+                },
+                data : {
+                    alerts : options
+                }
+            };
+            this._accounts.api.post(`push/subscription`,opt)
             .then((data,status,xhr)=>{
                 console.log(`push/subscription`,data);
                 resolve({data: data, options: options});
             },(xhr,status,err)=>{
-                reject({xhr:xhr,status:status});
+                reject({xhr:xhr,status:status,data:""});
             });
         });
         return def;
     }
-    getSubScription(options) {
+    getPushSubscription(options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
                 reject(false);
@@ -1323,20 +1356,24 @@ class Gpsns {
             this._accounts.api.get(`push/subscription`,options.api)
             .then((data,status,xhr)=>{
                 console.log(`push/subscription`,data);
-                resolve({data: data, listid : id, options: options});
+                resolve({data: data, options: options});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
             });
         });
         return def;
     }
+    /**
+     * update push subscription to the instance
+     * @param {JSON} options alerts options: follow,reblog,favourite,mention.
+     */
     updatePushSubscription(options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
                 reject(false);
                 return;
             }
-            this._accounts.api.put(`push/subscription`,options.api)
+            this._accounts.api.put(`push/subscription`,options)
             .then((data,status,xhr)=>{
                 console.log(`push/subscription`,data);
                 resolve({data: data, options: options});
@@ -1358,6 +1395,25 @@ class Gpsns {
                 console.log(`push/subscription`,data);
                 resolve({data: data, options: options});
             },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
+    getOneNotification(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+
+            this._accounts.api.get(`notification/${id}/`,{
+                reblogs : flag
+            })
+            .then((data)=>{
+                resolve(data);
+            },(xhr,status,err)=>{
+                console.log(xhr,status,err);
                 reject({xhr:xhr,status:status});
             });
         });
@@ -1462,22 +1518,24 @@ class Gpsns {
             */
         }
         
-        for (var i = 0; i < this.medias.length; i++) {
-            if (this.medias[i].meta == null) {
-                var img = GEN("img");
-                img.src = this.medias[i].preview_url;
-                var asp = img.width / img.height;
-                if (img.height > img.width) {
-                    asp = img.height / img.width;
-                }
-                this.medias[i].meta = {
-                    small : {
-                        aspect : asp,
-                        width : img.width,
-                        height : img.height,
-                        size : `${img.width}x${img.height}`
+        if (this.medias) {
+            for (var i = 0; i < this.medias.length; i++) {
+                if (this.medias[i].meta == null) {
+                    var img = GEN("img");
+                    img.src = this.medias[i].preview_url;
+                    var asp = img.width / img.height;
+                    if (img.height > img.width) {
+                        asp = img.height / img.width;
                     }
-                };
+                    this.medias[i].meta = {
+                        small : {
+                            aspect : asp,
+                            width : img.width,
+                            height : img.height,
+                            size : `${img.width}x${img.height}`
+                        }
+                    };
+                }
             }
         }
 
@@ -1620,8 +1678,10 @@ class Gpsns {
         }else{
             num_cardSize += 5;
         }*/
-        if (this.medias.length > 0) {
-            num_cardSize += 3;
+        if (this.medias) {
+            if (this.medias.length > 0) {
+                num_cardSize += 3;
+            }
         }
         //---change card size if available a link
         if (this.urls.length > 0) {

@@ -1107,6 +1107,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         MYAPP.session.status.currentLocation = location.pathname;
 
+        MYAPP.commonvue.bottomnav.activeBtn = 2;
+
     }, function (flag) {
         appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";

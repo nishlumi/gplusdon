@@ -28,13 +28,21 @@ function ondelete_account(e) {
                 instance: seli.instance
             });
         }
+        MYAPP.acman.save();
         if (MYAPP.acman.items.length > 0) {
             var ac = MYAPP.acman.items[0];
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(ac);
         }else{
+            //---initialize app (because of accounts not found)
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(null);
+            MYAPP.commonvue.leftmenu.applogined = false;
+            MYAPP.commonvue.sidebar.applogined = false;
+            MYAPP.commonvue.nav_search.applogined = false;
+            MYAPP.commonvue.nav_search.applogined = false;
+            MYAPP.commonvue.nav_btnbar.applogined = false;
+            MYAPP.commonvue.nav_notification.applogined = false;
+            MYAPP.commonvue.nav_sel_account.applogined = false;
         }
-        MYAPP.acman.save();
         appAlert(_T("remove_account_mes02",[seli.instance]),function(){
             window.open(`https://${seli.instance}/oauth/authorized_applications`,target="");
         });
@@ -131,16 +139,27 @@ document.addEventListener('DOMContentLoaded', function() {
         el : "#area_accounts",
         delimiters : ["{?", "?}"],
         data : {
+            is_bottomsheet : false,
             accounts : [], //account: Object, selected : Boolean
-            accounts_config : [] //idname, instance, is_notification
-            
+            accounts_config : [], //idname, instance, is_notification
+            select_subscription : {
+                account : null,
+                alert : {
+                    mention : false,
+                    follow : false,
+                    reblog : false,
+                    favourite : false
+                }
+            },
+            translations : {},
+
         },
         watch : {
             accounts_config : {
                 handler : function (newval,oldval) {
                     console.log(newval,oldval);
-                    if (newval) {
-                      
+                    if (newval && (newval.is_notification === true)) {
+                        this.doRegister(newval);
                     }
                 },
                 deep : true
@@ -154,7 +173,71 @@ document.addEventListener('DOMContentLoaded', function() {
             fullname : function (ac) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
-            ondelete_account : ondelete_account
+            doRegister : function(ac) {
+                MYAPP.sns.permissionPushSubscription()
+                .then(result=>{
+                    console.log("permission push:",result);
+                });
+            },
+            get_translated_typename : function (type) {
+                if (type == "reblog"){
+                    return _T(`${type}_${MYAPP.session.config.application.showMode}`);
+                }else if (type == "favourite") {
+                    return _T(`${type}_${MYAPP.session.config.application.showMode}`);
+                }else if (type == "follow") {
+                    return _T("acc_tab_following");
+                }else if (type == "mention") {
+                    return _T(type);
+                }else{
+                    return "Unknown";
+                }
+            },
+            ondelete_account : ondelete_account,
+            onclick_pushsub : function(account) {
+                var bkup = MYAPP.sns._accounts;
+                MYAPP.sns.setAccount(account);
+                MYAPP.sns.getPushSubscription({})
+                .then(result=>{
+                    console.log("result=",result);
+                    this.select_subscription.alert.mention = result.data.alerts.mention;
+                    this.select_subscription.alert.reblog = result.data.alerts.reblog;
+                    this.select_subscription.alert.favourite = result.data.alerts.favourite;
+                    this.select_subscription.alert.follow = result.data.alerts.follow;
+                    return Promise.resolve(true);
+                })
+                .catch(error=>{
+                    MYAPP.sns.createPushSubscription({
+                        mention : true,
+                        follow : true,
+                        reblog : true,
+                        favourite : true
+                    })
+                    .then(result2=>{
+                        console.log("result2=",result2);
+                        this.select_subscription.alert.mention = result2.data.alerts.mention;
+                        this.select_subscription.alert.reblog = result2.data.alerts.reblog;
+                        this.select_subscription.alert.favourite = result2.data.alerts.favourite;
+                        this.select_subscription.alert.follow = result2.data.alerts.follow;
+                    })
+                })
+                .finally(()=>{
+                    this.select_subscription.account = account;
+                    this.is_bottomsheet = !this.is_bottomsheet;
+                    MYAPP.sns.setAccount(bkup);
+                });
+            },
+            onclick_savepushsub : function (e) {
+                var bkup = MYAPP.sns._accounts;
+                MYAPP.sns.setAccount(this.select_subscription.account);
+                MYAPP.sns.updatePushSubscription(this.select_subscription.alert)
+                .then(result=>{
+                    console.log("after updatePushSubscription=",result);
+                })
+                .finally(()=>{
+                    MYAPP.sns.setAccount(bkup);
+                    alertify.message(`${this.select_subscription.account.acct}:${_T("msg_save_pushsub")}`);
+                });
+            }
         }
     });
 
@@ -210,7 +293,8 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.acman.checkVerify();
             //var elem = ID("tbl_acc").tBodies[0];
             //var frag = document.createDocumentFragment();
-                
+            vue_accounts.translations = curLocale.messages;
+
             for (var i = 0; i < MYAPP.acman.items.length; i++) {
                 var tmpac = Object.assign({},MYAPP.acman.items[i]);
                 //var tmp = JSON.stringify(MYAPP.acman.items[i]);

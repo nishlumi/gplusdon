@@ -11,6 +11,7 @@ const fs = require("fs");
 
 const CON_ACCEPT_HOSTS = [
     "localhost",
+    "gpdontest.azurewebsites.net",
     "gplusdon.azurewebsites.net",
     "gplusdon.net"
 ];

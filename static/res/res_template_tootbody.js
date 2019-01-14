@@ -178,7 +178,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             </template>
                         </div> -->
                         <tootgallery-carousel
-                            v-bind:medias="reply.body.media_attachments"
+                            v-bind:medias="reply.medias"
                             v-bind:sensitive="reply.body.sensitive"
                             v-bind:translation="translation"
                         ></tootgallery-carousel>
@@ -325,3 +325,120 @@ const CONS_TEMPLATE_TOOTBODY = `
     <input type="hidden" name="tootid" v-bind:value="toote.body.id">
     <input type="hidden" name="userid" v-bind:value="toote.account.id">
 </div>`;
+
+
+const CONS_TEMPLATE_DMSGBODY = `
+<v-layout justify-space-between>
+    <!--<v-flex xs1 >
+        <template v-if="user_direction.type == 'me'">
+            <v-tooltip bottom>
+                <v-img v-bind:src="toote.account.avatar" slot="activator" class="toot_prof userrectangle" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+                <span v-html="full_display_name(toote.account)"></span>    
+            </v-tooltip>
+        </template>
+    </v-flex>-->
+    <v-flex xs11 style="border-top:1px solid rgba(0,0,0,0.2)">
+        <div class="dmsg_onebody">
+            <div class="toot_content_body">
+                <pre class="toote_spoiler_or_main" v-html="toote.body.spoilered ? toote.body.spoiler_text : toote.body.html "></pre>  
+                <div class="area_spoiler" v-if="toote.body.spoilered">  
+                    <!--<label class="button_spoiler">
+                        <input type="checkbox">
+                        <pre class="toote_main " v-html="toote.body.html"></pre>
+                    </label>-->
+                    <details>
+                        <summary>...</summary>
+                        <pre class="toote_main " v-html="toote.body.html"></pre>
+                    </details>
+                </div>
+            </div>
+            <!-----toot with link-->
+            <div class=" card-link" v-if="toote.mainlink.exists">
+                <div class="card"> 
+                <a v-bind:href="toote.mainlink.url" target="_blank" rel="noopener"> 
+                    <div class="image-area card-image"> 
+                    <v-img v-if="toote.mainlink.isimage" class="v-img" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" ></v-img>
+                    <span class="link-title truncate"><i class="material-icons">link</i> 
+                        <span class="link-site" v-html="toote.mainlink.site"></span> 
+                    </span> 
+                    </div> 
+                    <div class="card-content link-content grey-text text-darken-1">
+                    <b class="site-title truncate">{{ toote.mainlink.title }}</b> 
+                    <p class="description-truncate">{{ toote.mainlink.description }}</p> 
+                    </div> 
+                </a> 
+                </div>
+            </div> 
+        <!-----toot media -->
+            <div class=" card-image" v-if="toote.medias.length > 0">  
+                <div class="xcarousel xcarousel-slider center"> 
+                    <tootgallery-carousel
+                        v-bind:medias="toote.medias"
+                        v-bind:sensitive="toote.body.sensitive"
+                        v-bind:translation="translation"
+                    ></tootgallery-carousel>
+                </div> 
+            </div>  
+    
+        </div>
+        <span>
+            <a v-bind:href="toote.body.url" target="_blank">
+                <time class="timeago" v-bind:datetime="toote.body.created_at.toISOString()">{{ toote.body.created_at.toLocaleString() }}</time>
+            </a>
+            <v-tooltip bottom v-if="user_direction.type == 'me'">
+                <v-btn flat icon color="primary" slot="activator"
+                    v-on:click="onclick_toote_delete(toote,-1)"
+                >
+                    <v-icon>delete</v-icon>
+                </v-btn>
+                <span>{{translation.acc_toolbar_remove}}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+                <v-btn flat icon color="primary" slot="activator" 
+                    v-bind:class="toote.reactions.fav" 
+                    v-on:click="onclick_ttbtn_fav">
+                    <v-icon>{{ favourite_icon }}</v-icon>
+                </v-btn>
+                <span>{{ favourite_type }}</span>
+            </v-tooltip>
+            <a v-on:click="onclick_reaction_fav(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.favourites_count==0)}">{{ toote.body.favourites_count }}</span></a>
+        </span>
+        <v-dialog v-model="is_reactiondialog" scrollable max-width="340px">
+            <v-card>
+                <v-card-title>{{ reaction_dialog_title }}</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text >
+                    <v-list two-line>
+                        <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts">
+                            <v-list-tile-avatar>
+                                <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
+                                <input type="hidden" name="sender_id" alt="reaction" v-bind:value="reactitem.id">
+                                <input type="hidden" name="sender_index" v-bind:value="reactindex">
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                                <v-list-tile-title v-html="reactitem.display_name"></v-list-tile-title>
+                                <v-list-tile-sub-title>
+                                    <b>@{{ reactitem.username }}<b class="red-text">@{{ reactitem.instance }}</b></b>
+                                </v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-btn color="blue darken-1" flat @click="is_reactiondialog = false">{{ translation.cons_close }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog> 
+            
+    </v-flex>
+    <v-flex xs1>
+        <template v-if="user_direction.type == 'they'">
+            <v-tooltip bottom>
+                <v-img v-bind:src="toote.account.avatar" slot="activator" class="toot_prof userrectangle" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+                <span v-html="full_display_name(toote.account)"></span>    
+            </v-tooltip>
+        </template>
+    </v-flex>
+</v-layout>
+`;

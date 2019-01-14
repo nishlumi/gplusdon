@@ -7,7 +7,7 @@
 <div id="area_user" class=" account_body">
     <div id="userview" class="user-view" v-cloak>
         <div class="background">
-        <v-img id="us_header" v-bind:src="header" alt=""></v-img>
+        <img id="us_header" v-bind:src="header" alt=""></img>
         </div>
         <div class="user-textinfo z-depth-2">
             <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
@@ -39,8 +39,24 @@
         </div>
         <div class="user-action-btns col3 z-depth-2 row">
             <div class="col s6">
+                <!--<v-tooltip bottom>
+                    <v-btn flat small icon dark color="white" v-on:click="onclick_mention" slot="activator">
+                        <v-icon>alternate_email</v-icon>
+                    </v-btn>
+                    
+                    <span>{{trans.to_mention}}</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                    <v-btn flat small icon dark color="white" v-on:click="onclick_directmsg" slot="activator">
+                        <v-icon>email</v-icon>
+                    </v-btn>
+                    
+                    <span>{{trans.to_directmsg}}</span>
+                </v-tooltip>
+                -->
                 <a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_mention" data-position="bottom" data-tooltip="{{trans.to_mention}}"><i class="material-icons">alternate_email</i></a>
                 <a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_directmsg" data-position="bottom" data-tooltip="{{trans.to_directmsg}}"><i class="material-icons">email</i></a>
+            
             </div>
             <div class="col s2">
                 <a v-bind:href="rss_url" target="_blank" rel="noopener" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>
@@ -79,7 +95,7 @@
                 </li>
             </ul>
             <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
-            <div class="timelinebody post_card_grid post_card_grid_cellsetting" v-if="statuses.length > 0">
+            <div class="timelinebody toot_timeline_grid"  v-bind:class="timeline_gridstyle" v-if="statuses.length > 0">
                 <timeline-toot 
                     v-bind:translation="translations"
                     v-bind:toote="status"
@@ -91,7 +107,7 @@
             </div>
         </div>
         <div id="tt_public" class="col s12 tabcontent">
-            <div class="timelinebody post_card_grid post_card_grid_cellsetting">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card  post_card_base post_card_top" >
                     <div class="card-content">
                     <div class="row">

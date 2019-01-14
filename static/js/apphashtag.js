@@ -5,6 +5,7 @@ var thisform = {
 };
 
 function barancerTimelineType(type,id) {
+    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
     if (type == "taglocal") {
         vue_timeline.taglocal.info.tltype = vue_timeline.taglocal.seltype_current;
         vue_timeline.taglocal.statuses.splice(0,vue_timeline.taglocal.statuses.length);
@@ -44,13 +45,13 @@ function loadTimelineCommon(type,options){
     this.is_asyncing = true;
     var fnltype = type;
     MYAPP.sns.getTimeline(fnltype,options)
-    .then((data)=>{
-        console.log("getTimeline",data);
-        if (data.length == 0) {
+    .then((result)=>{
+        console.log("getTimeline",result);
+        if (result.data.length == 0) {
             MUtility.loadingOFF();
             return;
         }
-        this.generate_toot_detail(data,options);
+        this.generate_toot_detail(result,options);
         
     })
     .catch(error=>{
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_timeline").classList.add("active");
     //ID("sm_timeline").classList.add("active");
-    ID("btn_post_toote").classList.remove("common_ui_off");
+    MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();
 });

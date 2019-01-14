@@ -22,7 +22,7 @@ class Gplusdon {
             token: "",
             //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
             redirect_uri : "/redirect",
-            scopes: ["read", "write", "follow"]
+            scopes: ["read", "write", "follow","push"]
         };
         this.acman = new AccountManager();
 
@@ -70,7 +70,7 @@ class Gplusdon {
     }
     afterLoadAccounts(data){
         //---set up login status to left menu and side bar
-        if ("leftmenu" in this.commonvue) this.commonvue.leftmenu.applogined = true;
+        if ("cur_sel_account" in this.commonvue) this.commonvue.cur_sel_account.applogined = true;
         if ("sidebar" in this.commonvue) this.commonvue.sidebar.applogined = true;
         if ("nav_search" in this.commonvue) this.commonvue.nav_search.applogined = true;
         if ("nav_btnbar" in this.commonvue) this.commonvue.nav_btnbar.applogined = true;
@@ -211,7 +211,9 @@ class Gplusdon {
                         //vue_search.accounts.accounts = result.data.accounts;
                         vue_search.hashtags.tags = result.data.hashtags;
                         //vue_search.tootes.statuses = result.data.statuses;
+                        vue_search.accounts.accounts.splice(0,vue_search.accounts.accounts.length);
                         vue_search.accounts.load_accounts(result.data.accounts,{api:{},app:{}});
+                        vue_search.accounts.tootes.statuses(0,vue_search.tootes.statuses.length);
                         vue_search.tootes.loadTimeline(result.data.statuses,{
                             api:{},
                             app:{
@@ -219,6 +221,16 @@ class Gplusdon {
                             }
                         });
                     });            
+                }
+                if (Q(".dmsg_body")) {
+                    vue_direct.account = tmpac;
+                    vue_direct.selaccounts.splice(0,vue_direct.selaccounts.length);
+                    vue_direct.selaccounts.push(`${vue_direct.account.idname}@${vue_direct.account.instance}`);
+
+                    vue_direct.contacts.splice(0,vue_direct.contacts.length);
+                    vue_direct.load_for_contact();
+                    tmpac.directlst = JSON.original(vue_direct.contacts);
+
                 }
                 //this.session.createStream("user",null,this.commonvue.nav_notifications);
             }
@@ -255,187 +267,7 @@ class Gplusdon {
 
         //---below was moved---
         return;
-        //------------------------------------------------
-        //  navigation bar
-        //$('.sidenav').sidenav();
-        this.forms["sidenav"] = M.Sidenav.init(Q('.sidenav'),{});
-        ID("img_brand").addEventListener("click", function (e) {
-            var elems = document.querySelectorAll("#maincol_leftmenu div.collection a.collection-item span");
-            for (var i = 0; i < elems.length; i++) {
-                elems[i].classList.toggle("user-slideOutLeft");
-            }
-            ID("maincol_leftmenu").classList.toggle("l3");
-            ID("maincol_leftmenu").classList.toggle("l1");
-            ID("maincol_rightmain").classList.toggle("l9");
-            ID("maincol_rightmain").classList.toggle("l11");
-            e.stopPropagation();
-        });
-        /*var menu = document.querySelector("#maincol_leftmenu div.collection a.menu_parent, #slide-out");
-        if (menu) {
-            menu.addEventListener("click", function (e) {
-                var elem = document.querySelectorAll("#maincol_leftmenu div.collection a.maincol_menu.menu_sub");
-                for (var i = 0; i < elem.length; i++) {
-                    elem[i].classList.toggle("common_ui_off");
-                }
-            });
-        }*/
-        console.log(Qs(".nav-wrapper .navcol-left, .navcol-right"));
-        var es = Qs(".nav-wrapper .navcol-left, .navcol-right");
-        for (var i = 0; i < es.length; i++) {
-            var elem = es[i];
-            elem.addEventListener("click",function(e){
-                //---/index
-                if (Q(".view_area")) {
-                    Q(".view_area").scroll({top:0, behavior:"smooth"});
-                }
-                //---/accounts/:instance/:idname
-                //---/users/:instance/:idname
-                if (Q(".account_body")) {
-                    Q(".account_body").scroll({top:0, behavior:"smooth"});
-                }
-                //---/connections
-                if (ID("following")) {
-                    ID("following").scroll({top:0, behavior:"smooth"});
-                }
-                if (ID("follower")) {
-                    ID("follower").scroll({top:0, behavior:"smooth"});
-                }
-
-                //---/tl
-                if (Q(".timelinebody")) {
-                    Q(".tab-content").scroll({top:0, behavior:"smooth"});
-                }
-                e.stopPropagation();
-            },false);
-        }
-        ID("navbtn_refresh").addEventListener("click",function(e){
-            //---/tl
-            if (Q(".timelinebody")) {
-                var tabs = M.Tabs.getInstance(Q(".tabs"));
-                var atab = Q(".tab .active");
-                if (tabs) {
-                    tabs.select(atab.hash.replace("#",""));
-                }
-            }
-            e.stopPropagation();
-        },false);
-
-
-        //------------------------------------------------
-        //  overlay and dialog
-
-        ///ID("nav_sel_account").value = this.session.status.selectedAccount.idname + "," +  this.session.status.selectedAccount.instance;
-        ///var instances = M.FormSelect.init(ID("nav_sel_account"), {});
-        /*ID("nav_sel_account").addEventListener("change",function(e){
-            console.log(this, this.selectedOptions[0].value);
-            var v = this.selectedOptions[0].value.split(",");
-            var ac = MYAPP.selectAccount({"idname":v[0], "instance":v[1]});
-            //MYAPP.sns.setAccount(ac);
-        });*/
-        var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems, {
-        });
-        //this.forms["modal1"] = M.Modal.getInstance(ID("modal1"));
-
-
-        //---toote popup for detail
-        Q(".onetoote_overlay").addEventListener("click",function(e){
-            var q = Q(".onetoote_area *");
-			if (q.querySelector(".card-image .carousel")) {
-                q.querySelector(".card-image .carousel").classList.toggle("fullsize");
-                q.querySelector(".card-image .carousel").style.height = "";
-			}
-            q.querySelector(".card-comment").classList.remove("full");
-            q.querySelector(".card-comment").classList.toggle("mini");
-            q.querySelector(".card-comment").classList.remove("open");
-            q.querySelector(".card-comment .collection").classList.toggle("sizing");
-            if (MYAPP.session.status.pickupDir == "next") {
-                MYAPP.session.status.pickupToote.parentElement.insertBefore(q,MYAPP.session.status.pickupToote);
-            }else if (MYAPP.session.status.pickupDir == "prev") {
-                MYAPP.session.status.pickupToote.parentElement.appendChild(q);
-            }
-            Q(".onetoote_screen").classList.toggle("common_ui_off");
-            //Q(".onetoote_area").classList.toggle("common_ui_off");
-            MYAPP.session.status.pickupToote = null;
-            MYAPP.session.status.pickupDir = "next";
-            
-        },false);
-        Q(".onetoote_area").addEventListener("click",function(e){
-            e.stopPropagation();
-        });
-
-        //---user popup card
-        ID("ov_user").addEventListener("mouseleave",function(e){
-            ID("ov_user").classList.add("common_ui_off");
-            ID("ov_user").classList.remove("scale-up-tl");
-        });
-        var elems = document.querySelectorAll('.tooltipped');
-        var instances = M.Tooltip.init(elems, {
-            enterDelay : 500
-        });
-
-        //---toot modal
-        this.forms["inputtoot"] = M.Modal.getInstance(ID("ov_inputtoot"));
-
-        ID("btn_post_toote").addEventListener("click",function(e){
-            //MYAPP.forms["inputtoot"].open();
-            if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.lgAndUp) {
-                MYAPP.commonvue.inputtoot.activewidth = "50%";
-                MYAPP.commonvue.inputtoot.fullscreen = false;
-            }else if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.md) {
-                MYAPP.commonvue.inputtoot.activewidth = "90%";
-                MYAPP.commonvue.inputtoot.fullscreen = false;
-            }else if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.smAndDown) {
-                MYAPP.commonvue.inputtoot.fullscreen = true;
-            }else{
-                MYAPP.commonvue.inputtoot.activewidth = "50%";
-                MYAPP.commonvue.inputtoot.fullscreen = false;
-            }
-            MYAPP.commonvue.inputtoot.dialog = true;
-        });
         
-        var textbox = ID("dv_inputcontent");
-        textbox.addEventListener("keydown",function(e){
-			//console.log(e.keyCode);
-		    if ((e.keyCode == 13) && (e.ctrlKey || e.metaKey)) {
-		        //var arr = Tweem.tagbox.chipsData;
-		        //var fnlarr = [];
-		        //for (var i = 0; i < arr.length; i++) {
-		        //    fnlarr.push(arr[i].tag);
-		        //}
-		        //Tweem.sendPost(Tweem.getInput(), fnlarr);
-			}
-		});
-		textbox.addEventListener("keyup",function (e){
-            //Tweem.count_inputcontent(Tweem.getInput(),null,null);
-            MYAPP.commonvue.inputtoot.strlength = twttr.txt.getUnicodeTextLength(this.textContent);
-        });
-        textbox.addEventListener("dragover",function(e){
-			e.stopPropagation();
-			e.preventDefault();
-			e.dataTransfer.dropEffect = "copy";
-			ID("dv_inputcontent").classList.add("dragover_indicate");
-		},false);
-		textbox.addEventListener("dragleave",function(e){
-			ID("dv_inputcontent").classList.remove("dragover_indicate");
-		},false);
-		textbox.addEventListener("drop",function(e){
-			e.stopPropagation();
-			e.preventDefault();
-			ID("dv_inputcontent").classList.remove("dragover_indicate");
-			var acs = Tweem.getSelectedAccounts();
-			if (acs.length == 0) {
-				appAlert(_T("post_error_msg01"));
-				return;
-			}
-			appPrompt2(
-				"画像のコメントを入力してください。",
-				Tweem.loadAttachments,
-				e.dataTransfer.files,
-				""
-			);
-			return false;
-		},false);
 
     }
     showUserCard(rect,userdata){
@@ -453,6 +285,15 @@ class Gplusdon {
             });
         //popup_ovuser.open();
         //}
+    }
+    showBottomCtrl(flag) {
+        if (flag) {
+            ID("btn_post_toote").classList.remove("common_ui_off");
+            ID("bottomnav").classList.remove("common_ui_off");
+        }else{
+            ID("btn_post_toote").classList.add("common_ui_off");
+            ID("bottomnav").classList.add("common_ui_off");
+        }
     }
     setupCommonTranslate(){
         //------tranlation for common elements of all pages

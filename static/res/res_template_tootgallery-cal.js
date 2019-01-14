@@ -34,36 +34,40 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
             </template>
             <template v-else>
                 <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                <v-img 
-                    v-bind:src="item.url" 
-                    v-bind:lazy-src="item.preview_url" 
-                    class="landscape" v-if="item.meta.small.width >= item.meta.small.height" v-bind:title="item.description" v-bind:alt="item.description"
-                >
-                    <v-layout
-                        slot="placeholder"
-                        fill-height
-                        align-center
-                        justify-center
-                        ma-0
+                <template v-if="item.meta.small.width >= item.meta.small.height">
+                    <v-img 
+                        v-bind:src="item.url" 
+                        v-bind:lazy-src="item.preview_url" 
+                        class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
                     >
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                    </v-layout>
-                </v-img>
-                <v-img 
-                    v-bind:src="item.preview_url" 
-                    v-bind:lazy-src="item.preview_url" 
-                    class="landscape"  v-else v-bind:title="item.description"  v-bind:alt="item.description"
-                >
-                    <v-layout
-                        slot="placeholder"
-                        fill-height
-                        align-center
-                        justify-center
-                        ma-0
+                        <v-layout
+                            slot="placeholder"
+                            fill-height
+                            align-center
+                            justify-center
+                            ma-0
+                        >
+                            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                        </v-layout>
+                    </v-img>
+                </template>
+                <template v-else>
+                    <v-img 
+                        v-bind:src="item.preview_url" 
+                        v-bind:lazy-src="item.preview_url" 
+                        class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
                     >
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                    </v-layout>
-                </v-img>
+                        <v-layout
+                            slot="placeholder"
+                            fill-height
+                            align-center
+                            justify-center
+                            ma-0
+                        >
+                            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                        </v-layout>
+                    </v-img>
+                </template>
             </template>
         </slide>
     </template>

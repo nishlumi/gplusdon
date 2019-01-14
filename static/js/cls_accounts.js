@@ -21,7 +21,16 @@ class Account {
             public : null
         };
         this.direct = null;
+        this.directlst = [];    //---{id:""}
         this.notifications = [];
+    }
+    dispose() {
+        if (this.stream) this.stream.stop();
+        for (var obj in this.streams) {
+            if (this.streams[obj]) this.streams[obj].stop();
+        }
+        if (this.direct) this.direct.stop();
+        if (this.direct) this.direct.stop();
     }
     getBaseURL() {
         return "https://" + this.instance;
@@ -36,6 +45,7 @@ class Account {
             acct : this.acct,
             rawdata : this.rawdata,
             notifications : this.notifications,
+            directlst : this.directlst,
         };
     }
     getRawdata() {
@@ -45,7 +55,9 @@ class Account {
             this.display_name,
             JSON.stringify(this.token),
             this.instance,
-            JSON.stringify(this.rawdata)
+            JSON.stringify(this.rawdata),
+            JSON.stringify(this.notifications),
+            JSON.stringify(this.directlst)
         ].join("\t");
     }
     load(data) {
@@ -66,7 +78,9 @@ class Account {
             instance: this.getBaseURL(),
             api_user_token: this.token.access_token
         });
-        this.notifications = data.notifications;
+        this.notifications = data["notifications"] || [];
+        this.directlst = data["directlst"] || [];
+        
         this.stream = new Gpstream("user",this,null,null);
         //this.stream.start();
         this.streams.list = new Gpstream("list",this,null,null);
@@ -291,7 +305,8 @@ class AccountManager {
         console.log(i);
         if (i > -1) {
             var old = this.items[i].instance;
-            this.items.splice(i, 1);
+            var delac = this.items.splice(i, 1);
+            delac.dispose();
             var ishit = 0;
             //---check if same instance exists
             for (var j = 0; j < this.items.length; j++) {

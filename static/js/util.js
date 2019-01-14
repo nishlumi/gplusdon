@@ -824,7 +824,14 @@ var MUtility = {
 	 */
 	generate_tootpath : function (status) {
 		var retpath;
-		retpath = `/users/${status.account.instance}/${status.account.username}/toots/${status.id}`;
+		var a = GEN("a");
+		a.href = status.body.uri;
+		
+		var tmppath = a.pathname;
+		tmppath = tmppath.replace("/users/",`/users/${status.account.instance}/`);
+		tmppath = tmppath.replace("statuses","toots");
+		//retpath = `/users/${status.account.instance}/${status.account.username}/toots/${status.id}`;
+		retpath = tmppath;
 		return retpath;
 	},
 	/**
@@ -860,14 +867,16 @@ var MUtility = {
 		}
 		for (var r = 0; r < re.length; r++) {
 			var rstr = re[r];
-			//---from emojis of toot 
-			for (var i = 0; i < emojis.length; i++) {
-				var emo = emojis[i];
-				//console.log("emoji loop=",r,rstr,emo.shortcode,(rstr.indexOf(emo.shortcode) > -1));
-				if (rstr.indexOf(emo.shortcode) > -1) {
-					var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
-					text = text.replace(rstr,img);
-					break;
+			//---from emojis of toot
+			if (emojis) {
+				for (var i = 0; i < emojis.length; i++) {
+					var emo = emojis[i];
+					//console.log("emoji loop=",r,rstr,emo.shortcode,(rstr.indexOf(emo.shortcode) > -1));
+					if (rstr.indexOf(emo.shortcode) > -1) {
+						var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
+						text = text.replace(rstr,img);
+						break;
+					}
 				}
 			}
 			//---from emojis of instance

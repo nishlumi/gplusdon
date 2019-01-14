@@ -33,13 +33,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     showMode : "mastodon",
                     timeline_view : "auto",
                     timeline_viewcount : "20",
+                    gallery_type : "slide",
                 },
                 type_action : {
                     confirmBefore : true,
                     image_everyNsfw : false,
                     popupNewtoot_always : false,
                     close_aftertoot : false,
+                    tags : []
                 },
+                type_notification : {
+                    enable_browser_notification : true,
+                    include_dmsg_tl : false,
+                },
+                temp_tags : "",
                 resulturis : [],
                 randomInstance : [],
                 is_selected : false,
@@ -70,7 +77,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     MYAPP.session.save(true);
                 },
                 deep : true
+            },
+            type_notification : {
+                handler : function (newval,oldval) {
+                    console.log("type_notification=",newval,oldval);
+                    for (var obj in newval) {
+                        MYAPP.session.config.notification[obj] = newval[obj];
+                    }
+                    MYAPP.session.save(true);
+                },
+                deep : true
             }
+
         },
         beforeMount() {
             
@@ -87,7 +105,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (var obj in MYAPP.session.config.action) {
                     this.type_action[obj] = MYAPP.session.config.action[obj];
                 }
+                if (this.type_action.tags.length > -1) {
+                    var tmp = [];
+                    for (var i = 0; i < this.type_action.tags.length; i++) {
+                        var tag = this.type_action.tags[i];
+                        tmp.push(tag.text);
+                    }
+                    this.temp_tags = tmp.join("\n");
+                }
                 console.log("type_action=",MYAPP.session.config.action,this.type_action);
+            },
+            onclick_savetag : function (e) {
+                var arr = this.temp_tags.split("\n");
+                var tagarr = [];
+                for (var i = 0; i < arr.length; i++) {
+                    tagarr.push({
+                        id : i,
+                        text : (arr[i].startsWith("#") ? arr[i] : "#"+arr[i])
+                    });
+                }
+                this.type_action.tags = tagarr;
+            },
+            onclick_uninstall_btn : function (e) {
+                var msg = _T("msg_uninstall_local");
+
+                appConfirm(msg,()=>{
+                    MYAPP.session.uninstall(true);
+                    appAlert(_T("msg_uninstall_after"));
+                });
+            },
+            onclick_clearcache_btn : function(e) {
+                navigator.serviceWorker.getRegistration()
+                .then(registration => {
+                    registration.unregister();
+                });
             }
         }
     });

@@ -4,22 +4,318 @@
  - Direct message
 {% endblock %}
 {% block content %}
-<div id="area_dmsg" class="dmsg_body">
-    <v-tabs fixed-tabs>
-        <v-tab
-          v-for="n in 3"
-          :key="n"
-        >
-          Item {{ n }}
-        </v-tab>
-      </v-tabs>
+<div id="area_dmsg" class="dmsg_body" v-cloak>
+    <v-window v-model="is_turn">
+        <v-window-item>
+            <v-layout row wrap>
+                <v-flex xs12 sm12 md6 lg4>
+                    <v-card>
+                        
+                        <v-toolbar color="blue" dark>
+                            <v-toolbar-title>{{trans.user}}</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-btn icon v-on:click="onclick_addContact">
+                                <v-icon>add</v-icon>
+                            </v-btn>
+                            <v-btn icon v-on:click="onclick_reloadContact">
+                                <v-icon>autorenew</v-icon>
+                            </v-btn>
+                        </v-toolbar>
+                        <v-list two-line>
+                            <v-list-tile avatar>
+                                <v-autocomplete id="mention_box" v-model="autocom_mention" v-bind:items="a_mentions"
+                                    color="red lighten-1" 
+                                    background-color="grey lighten-5"
+                                    name="mention-box"
+                                    box chips small-chips
+                                    append-icon=""
+                                    hide-details 
+                                    v-bind:loading="a_mention_loading"
+                                    v-bind:search-input.sync="a_mention_search"
+                                    v-on:keydown.enter="onclick_mention_addenter"
+                                    item-avatar="avatar" item-text="acct" item-value="acct" 
+                                    solo
+                                >
+                                    <template slot="no-data">
+                                        <v-list-tile>
+                                            <v-list-tile-title>No hit...</v-list-tile-title>
+                                        </v-list-tile>
+                                    </template>
+                                    <template slot="selection" slot-scope="data" >
+                                        <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text" close v-on:input="remove_mention(data.item)">
+                                            <v-avatar><img :src="data.item.avatar"></v-avatar>
+                                            <span v-html='data.item.display_name + "@" + data.item.instance'></span>
+                                        </v-chip>
+                                    </template>
+                                    <template slot="item" slot-scope="data">
+                                        <v-list-tile-avatar>
+                                            <v-img :src="data.item.avatar">
+                                        </v-list-tile-avatar>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
+                                            <v-list-tile-sub-title >{? `${data.item.acct}` ?}</v-list-tile-sub-title>
+                                        </v-list-tile-content>
+                                    </template>
+                                </v-autocomplete>
+                            </v-list-tile>
+                            <template v-for="(item,index) in contacts">
+                                <v-list-tile avatar v-bind:class="item.info.selected" v-on:click="onclick_contactuser(item)">
+                                    <v-list-tile-avatar>
+                                        <v-img :src="item.user.avatar">
+                                    </v-list-tile-avatar>
+                    
+                                    <v-list-tile-content>
+                                        <v-list-tile-title v-html="full_display_name(item.user)"></v-list-tile-title>
+                                        
+                                    </v-list-tile-content>
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                            </template>
+                        </v-list>
+                    </v-card>
+                </v-flex>
+                <v-flex md6 lg8 hidden-sm-and-down>
+                    <v-card>
+                        <v-card-text class="timeline_cardlist" v-on:scroll="onscroll_dmsg">
+                            <v-timeline dense clipped>
+                                <v-slide-x-transition group>
+                                    <template v-if="show_user">
+                                        <v-timeline-item
+                                            v-for="(msg,index) in msgs"
+                                            :key="index"
+                                            class="mb-3"
+                                            :hide-dot="msg.options.hideDot"
+                                            fill-dot color="transpalent"
+                                        >
+                                            <span slot="icon" v-if="msg.user_direction.type == 'me'">
+                                                <img v-bind:src="msg.toote.account.avatar" class="toot_prof userrectangle"></img>
+                                            </span>
+                                            <dmessage-item
+                                                v-bind:translation="translations"
+                                                v-bind:user_direction="msg.user_direction"
+                                                v-bind:toote="msg.toote"
+                                            ></dmessage-item>
+                                        </v-timeline-item>
+                                    </template>
+                                </v-slide-x-transition>
+                                <v-timeline-item
+                                    fill-dot
+                                    class="mb-3"
+                                    color="grey"
+                                    v-if="selmedias.length > 0"
+                                >
+                                    <v-container grid-list-sm fluid>
+                                        <v-layout row wrap>
+                                            <v-flex xs3 v-for="(item,index) in selmedias" :key="index">
+                                                <v-card flat tile>
+                                                    <v-img 
+                                                        v-bind:src="item.src" 
+                                                        v-bind:lazy-src="item.src" 
+                                                        aspect-ratio="1"
+                                                    >
+                                                        <v-layout align-center justify-center>
+                                                            <v-flex xs12 align-start justify-start>
+                                                                <v-btn flat icon dark class="black-half" v-on:click="onclick_mediaclose(index)"><v-icon>close</v-icon></v-btn>
+                                                            </v-flex>
+                                                        </v-layout>
+                                                        <v-layout
+                                                        slot="placeholder"
+                                                        fill-height
+                                                        align-center
+                                                        justify-center
+                                                        ma-0
+                                                        >
+                                                            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>  
+                                                        </v-layout>
+                                                    </v-img>
+                                                    <v-card-title style="padding:1px;">
+                                                        <!--<div class="media_commentbox" contenteditable>{? item.comment ?}</div>
+                                                        <v-text-field>{? item.comment ?}</v-text-field>-->
+                                                        <form v-on:submit.prevent="onsubmit_comment(index)">
+                                                            <div class="input-field col s12">
+                                                                <input type="text" class="validate" v-model="item.comment">
+                                                            </div>
+                                                        </form>
+                                                    </v-card-title>
+                                                </v-card>       
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
+                                </v-timeline-item>
+    
+                            </v-timeline>
+                        </v-card-text>
+                        <v-card-actions class="timeline_cardaction">
+                            
+                            <v-layout row wrap>
+                                <v-flex xs1>
+                                    <span >
+                                        <template >
+                                            <img v-if="account" v-bind:src="account.rawdata.avatar" class="toot_prof_base userrectangle">
+                                        </template>
+                                    </span>
+                                    <v-btn id="btn_addimage" icon v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn>
+                                    <input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+            
+                                </v-flex>
+                                <v-flex xs9>
+                                    <div id="dv_inputcontent" 
+                                        name="inputcontent" 
+                                        class="onetoot_inputcontent" 
+                                        contenteditable 
+                                        v-bind:class="status_class"
+                                        v-on:keydown="onkeydown_inputcontent"
+                                        v-on:keyup="onkeyup_inputcontent"
+                                        v-on:dragover="ondragover_inputcontent"
+                                        v-on:dragleave="ondragleave_inputcontent"
+                                        v-on:drop="ondrop_inputcontent"
+
+                                    >{? status_text ?}</div>
+                                    <span class="subheading toottext_length" v-bind:class="strlength_class" >{? strlength ?}</span>
+                                </v-flex>
+                                <v-flex xs2>
+                                    <v-btn fab dark small
+                                        style="margin-top:20%"
+                                        depressed
+                                        v-on:click="onsubmit_comment"
+                                    ><v-icon>send</v-icon></v-btn>
+                                </v-flex>
+                            </v-layout>
+                        </v-card-actions>
+
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-window-item>
+        <v-window-item>
+            <v-card>
+                <v-toolbar color="blue" dark>
+                    <v-btn icon v-on:click="onclick_returnwin">
+                        <v-icon>arrow_left</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>
+                        <span v-html="full_display_name(show_user)"></span>
+                    </v-toolbar-title>
+                    
+                </v-toolbar>
+                <v-card>
+                    <v-card-text class="timeline_cardlist_mobile" v-on:scroll="onscroll_dmsg">
+                        <v-timeline dense clipped>
+                            <v-slide-x-transition group>
+                                <template v-if="show_user">
+                                    <v-timeline-item
+                                        v-for="(msg,index) in msgs"
+                                        :key="index"
+                                        class="mb-3"
+                                        :hide-dot="msg.options.hideDot"
+                                        fill-dot color="transpalent"
+                                    >
+                                        <span slot="icon" v-if="msg.user_direction.type == 'me'">
+                                            <img v-bind:src="msg.toote.account.avatar" class="toot_prof userrectangle"></img>
+                                        </span>
+                                        <dmessage-item
+                                            v-bind:translation="translations"
+                                            v-bind:user_direction="msg.user_direction"
+                                            v-bind:toote="msg.toote"
+                                        ></dmessage-item>
+                                    </v-timeline-item>
+                                </template>
+                            </v-slide-x-transition>
+                            <v-timeline-item
+                                fill-dot
+                                class="mb-3"
+                                color="grey"
+                                v-if="selmedias.length > 0"
+                            >
+                                <v-container grid-list-sm fluid>
+                                    <v-layout row wrap>
+                                        <v-flex xs3 v-for="(item,index) in selmedias" :key="index">
+                                            <v-card flat tile>
+                                                <v-img 
+                                                    v-bind:src="item.src" 
+                                                    v-bind:lazy-src="item.src" 
+                                                    aspect-ratio="1"
+                                                >
+                                                    <v-layout align-center justify-center>
+                                                        <v-flex xs12 align-start justify-start>
+                                                            <v-btn flat icon dark class="black-half" v-on:click="onclick_mediaclose(index)"><v-icon>close</v-icon></v-btn>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-layout
+                                                    slot="placeholder"
+                                                    fill-height
+                                                    align-center
+                                                    justify-center
+                                                    ma-0
+                                                    >
+                                                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>  
+                                                    </v-layout>
+                                                </v-img>
+                                                <v-card-title style="padding:1px;">
+                                                    <!--<div class="media_commentbox" contenteditable>{? item.comment ?}</div>
+                                                    <v-text-field>{? item.comment ?}</v-text-field>-->
+                                                    <form v-on:submit.prevent="onsubmit_comment(index)">
+                                                        <div class="input-field col s12">
+                                                            <input type="text" class="validate" v-model="item.comment">
+                                                        </div>
+                                                    </form>
+                                                </v-card-title>
+                                            </v-card>       
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
+                            </v-timeline-item>
+
+                        </v-timeline>
+                    </v-card-text>
+                    <v-card-actions class="timeline_cardaction">
+                        
+                        <v-layout row wrap>
+                            <v-flex xs1>
+                                <span >
+                                    <template >
+                                        <img v-if="account" v-bind:src="account.rawdata.avatar" class="toot_prof_base userrectangle">
+                                    </template>
+                                </span>
+                                <v-btn id="btn_addimage" icon v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn>
+                                <input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+        
+                            </v-flex>
+                            <v-flex xs9>
+                                <div id="dv_inputcontent" 
+                                    name="inputcontent" 
+                                    class="onetoot_inputcontent" 
+                                    contenteditable 
+                                    v-bind:class="status_class"
+                                    v-on:keydown="onkeydown_inputcontent"
+                                    v-on:keyup="onkeyup_inputcontent"
+                                    v-on:dragover="ondragover_inputcontent"
+                                    v-on:dragleave="ondragleave_inputcontent"
+                                    v-on:drop="ondrop_inputcontent"
+
+                                >{? status_text ?}</div>
+                            </v-flex>
+                            <v-flex xs2>
+                                <v-btn fab dark small
+                                    style="margin-top:20%"
+                                    depressed
+                                    v-on:click="onsubmit_comment"
+                                ><v-icon>send</v-icon></v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-card-actions>
+
+                </v-card>
+            </v-card>
+        </v-window-item>
+    </v-window>
 
 </div>
-<input type="hidden" id="hid_list" value="{{init_list}}" />
-<input type="hidden" id="hid_page" value="{{page}}" />
+<input type="hidden" id="hid_list" value="" />
+<input type="hidden" id="hid_page" value="" />
 {% endblock %}
 
 
 {% block userinclude %}
-<script src="/static/js/applists.js"></script>
+<script src="/static/js/appdirect.js"></script>
 {% endblock %}

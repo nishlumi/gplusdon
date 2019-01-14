@@ -161,7 +161,7 @@
                             
                             required
                         ></v-textarea>-->
-                        
+                        <span class="subheading toottext_length" v-bind:class="strlength_class" >{? strlength ?}</span>
                         <p id="toot_input_help" class="common_ui_off">
                             <span class="body-1 red-text">{{ trans.accounts }}:</span><br>
                             {{ trans.mn_accountbox_placeHolder }}<br>
@@ -170,7 +170,7 @@
                             <b class="red-text">-end-</b> 本文中に入れると、本アプリを使う相手からはその行以降が見えなくなります。（注！他のアプリからは見えます！）<br>
                         </p>
                     </v-flex>
-                    <v-flex xs10 class="tagbottomstyle1">
+                    <v-flex xs12 class="tagbottomstyle1">
                         
                         <v-combobox v-model="seltags" v-bind:items="tags" box chips
                             color="red lighten-1" label="{{ trans.tags }}"
@@ -182,10 +182,25 @@
                             item-text="text" item-value="text"
                         >
                         </v-combobox>
-
                     </v-flex>
-                    <v-flex xs2 class="tagbottomstyle2">
-                        <span class="subheading toottext_length" v-bind:class="strlength_class" >{? strlength ?}</span>
+                    <v-flex xs12 v-if="mainlink.exists">
+                        <div class="card-link" >
+                            <div class="card"> 
+                            <a v-bind:href="mainlink.url" target="_blank" rel="noopener"> 
+                                <div class="image-area card-image"> 
+                                <v-img v-if="mainlink.isimage" class="v-img" v-bind:src="mainlink.image" v-bind:alt="mainlink.description" v-bind:title="mainlink.description" ></v-img>
+                                <span class="link-title truncate"><i class="material-icons">link</i> 
+                                    <span class="link-site" v-html="mainlink.site"></span> 
+                                </span> 
+                                </div> 
+                                <div class="card-content link-content grey-text text-darken-1">
+                                <b class="site-title truncate">{? mainlink.title ?}</b> 
+                                <p class="description-truncate">{? mainlink.description ?}</p> 
+                                </div> 
+                            </a> 
+                            </div>
+                        </div> 
+
                     </v-flex>
                     <v-flex xs2 class="mediabottomstyle">
                         <v-btn id="btn_addimage" icon color="primary" v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn>

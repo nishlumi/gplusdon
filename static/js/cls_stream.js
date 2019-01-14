@@ -10,6 +10,7 @@ class Gpstream {
     constructor(streamType, account, target_tl, target_notif) {
         this._targetObject = target_tl;
         this._targetNotification = target_notif;
+        this._targetDirect = null;
         this._targetPageNotification = null;
         this._targetAccount = {
             acct : account.acct,
@@ -30,6 +31,9 @@ class Gpstream {
     setTargetTimeline(tl) {
         this._targetObject = tl;
     }
+    setTargetDirect(tl) {
+        this._targetDirect = tl;
+    }
     setTargetNotification(nt) {
         this._targetNotification = nt;
     }
@@ -44,18 +48,18 @@ class Gpstream {
     }
     start() {
         var mainbody = (result)=>{
-            console.log(this._targetAccount.acct,`during stream:${this._type}?${this._query}`,result);
             if (result.event === "notification") {
+                console.log(this._targetAccount.acct,`during stream:${this._type}?${this._query}`,result);
                 // result.payload is a notification
                 this._start_nofitication(result.payload);
             } else if (result.event === "update") {
                 // status update for one of your timelines
-                if (this._targetObject) {
+                if (this._targetObject || this._targetDirect) {
                     this._start_update(result.payload);
                 }
             } else if (result.event === "delete") {
                 // status delete from your timelines
-                if (this._targetObject) {
+                if (this._targetObject || this._targetDirect) {
                     this._start_delete(result.payload);
                 }
             } else {
@@ -131,43 +135,81 @@ class Gpstream {
         MYAPP.acman.save();
     }
     _start_update(data){
-        this._targetObject.generate_toot_detail({
+        if (this._targetObject) {
+            this._targetObject.generate_toot_detail({
+                    data:[data],
+                    paging : {
+                        prev : data.id
+                    }
+                },{
+                api : {
+                    exclude_replies : true,
+                    since_id : "",
+                },
+                app : {
+                    is_nomax : true,
+                    is_nosince : false,
+                    tlshare : "",
+                    tltype : "",
+                    exclude_reply : true,
+                }
+            });
+            //---finish get update from stream, remove old loaded tootes
+            if (this._targetObject.is_scrolltop) {
+                if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                    while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                        this._targetObject.statuses.pop();
+                    }
+                }
+            }
+        }else if (this._targetDirect) {
+            var meacct = this._targetDirect.account.rawdata.url;
+            var options = {
+                api : {
+                    since_id : "",
+                },
+                app : {
+                    is_nomax : true,
+                    is_nosince : false,
+                    acct : meacct,
+                    user : this._targetDirect.show_user
+                    
+                }
+            };
+        
+            this._targetDirect.generate_toot_detail({
                 data:[data],
                 paging : {
+                    next : "",
                     prev : data.id
                 }
-            },{
-            api : {
-                exclude_replies : true,
-                since_id : "",
-            },
-            app : {
-                is_nomax : true,
-                is_nosince : false,
-                tlshare : "",
-                tltype : "",
-                exclude_reply : true,
-            }
-        });
-        //---finish get update from stream, remove old loaded tootes
-        if (this._targetObject.is_scrolltop) {
-            if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                    this._targetObject.statuses.pop();
-                }
-            }
+            },options);
         }
     }
     _start_delete(data) {
-        var arr = this._targetObject.statuses;
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i].id == data) {
-                this._targetObject.statuses.splice(i,1);
-                this._targetObject.info.sinceid = this._targetObject.statuses[0].id;
-                this._targetObject.info.is_nosince = false;
-                this._targetObject.info.is_nomax = true;
-                this.logger(`delete toot <${data}>`);
-                break;
+        if (this._targetObject) {
+            var arr = this._targetObject.statuses;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].id == data) {
+                    this._targetObject.statuses.splice(i,1);
+                    this._targetObject.info.sinceid = this._targetObject.statuses[0].id;
+                    this._targetObject.info.is_nosince = false;
+                    this._targetObject.info.is_nomax = true;
+                    this.logger(`delete toot <${data}>`);
+                    break;
+                }
+            }
+        }else if (this._targetDirect) {
+            var arr = this._targetDirect.msgs;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].toote.id == data) {
+                    this._targetDirect.msgs.splice(i,1);
+                    this._targetDirect.msginfo.sinceid = this._targetObject.statuses[0].id;
+                    this._targetDirect.msginfo.is_nosince = false;
+                    this._targetDirect.msginfo.is_nomax = true;
+                    this.logger(`delete toot <${data}>`);
+                    break;
+                }
             }
         }
     }

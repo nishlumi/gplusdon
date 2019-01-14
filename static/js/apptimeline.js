@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_timeline").classList.add("active");
     //ID("sm_timeline").classList.add("active");
-    ID("btn_post_toote").classList.remove("common_ui_off");
+    MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();
 });
@@ -711,6 +711,8 @@ document.addEventListener('DOMContentLoaded', function() {
         barancerTimelineType(tltype,tltypeid);
 
         vue_timeline.list.loadListNames();
+
+        MYAPP.commonvue.bottomnav.activeBtn = 1;
     }, function (flag) {
         appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
