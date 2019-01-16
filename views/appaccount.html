@@ -10,11 +10,22 @@
         <img id="us_header" v-bind:src="header" alt="">
         </div>
         <div class="user-textinfo z-depth-2">
-            <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
-            <div style="display:inline-block">
-                <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
-                <span id="us_idname_instance" class="white-text email">@{? idname ?}@{? instance ?}</span>
-            </div>
+            <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
+                <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
+                <div style="display:inline-block">
+                    <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
+                    <span id="us_idname_instance" class="white-text email">@{? idname ?}@{? instance ?}</span>
+                </div>
+            </a>
+        </div>
+        <div class="user-action-btns col1 elevation-2">
+            <v-layout>
+                <v-flex xs1>
+                    <v-btn flat icon>
+                        <v-icon>edit</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-layout>
         </div>
         <!--<div class="user-action-btns col1 z-depth-2 row">
             <div class="col s12">
@@ -66,11 +77,11 @@
                 <li class="collection-item avatar" v-for="fld in fields">
                     <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
                     <span class="title">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[1] : fld.name ?}</span>
-                    <p>{? fld.value ?}</p>
+                    <p v-html="fld.value"></p>
                 </li>
             </ul>
             <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
-            <div class="timelinebody post_card_grid post_card_grid_cellsetting" v-bind:class="timeline_gridstyle">
+            <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <timeline-toot 
                     v-bind:translation="translations"
                     v-bind:toote="status"

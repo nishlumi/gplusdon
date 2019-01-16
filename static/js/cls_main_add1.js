@@ -351,6 +351,24 @@ function defineForMainPage(app) {
             saveitem : null,
             translation : {},
             status : null,
+            popuping : "ov_",
+            comment_viewstyle : {
+                close : false,
+                mini : false,
+                open : false,
+                full : true
+            },
+            comment_list_area_viewstyle : {
+				default : false
+            },
+            content_body_style : {
+                "sizing-fullmax" : true
+            },
+            datastyle : {
+				"comment-list" : {
+					sizing : false
+				}
+			},
             globalInfo : {
 				staticpath : ""
 			},
@@ -830,6 +848,18 @@ function defineForMainPage(app) {
                 this.activewidth = ju_width;
                 this.fullscreen = ju_fullscreen;
             },
+        }
+    });
+    app.commonvue["imagecard"] = new Vue({
+        el : "#imagescreen",
+        delimiters : ["{?", "?}"],
+        data : {
+            imgdialog : false,
+            item : null,
+            
+        },
+        methods : {
+            
         }
     });
     app["setupMainPageElement"] = function() {

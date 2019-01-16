@@ -905,7 +905,7 @@ div.account_body .user-view .email {
 .user-action-btns {
     width : -moz-fit-content;
     width: fit-content;
-    height: 40px;
+    
     background-color: rgba(0,0,0, 0.2);
     text-shadow : 1px 1px 1px #000000;
     padding: 1rem 1rem 3rem 1rem;
@@ -916,21 +916,25 @@ div.account_body .user-view .email {
 }
 .user-action-btns.col1 {
     position: absolute;
-    bottom: 0;
+    bottom: 2rem;
     left: 2%;
-    width: 14.5rem;
+    height: 40px;
+    /*width: 14.5rem;*/
 }
 .user-action-btns.col2 {
     position: absolute;
     bottom: 6rem;
     left: 2%;
     color : white;
+    height: 40px;
 
 }
 .user-action-btns.col3 {
     position: absolute;
-    bottom: 0;
+    bottom: 2rem;
     right :  2%;
+    width : 4.5rem;
+    height: 17rem;
 }
 
 div.account_body .tabs .tab a {

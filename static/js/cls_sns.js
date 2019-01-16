@@ -1144,7 +1144,9 @@ class Gpsns {
             this._accounts.api.get(`lists/${id}/accounts`,options.api)
             .then((data,status,xhr)=>{
                 console.log(`lists/${id}/accounts`,data);
-                resolve({data: data, listid : id, options: options});
+                var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
+
+                resolve({data: data, listid : id, options: options, paging : hlink});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
             });

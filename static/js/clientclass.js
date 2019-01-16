@@ -230,6 +230,7 @@ class Gplusdon {
                     vue_direct.contacts.splice(0,vue_direct.contacts.length);
                     vue_direct.load_for_contact();
                     tmpac.directlst = JSON.original(vue_direct.contacts);
+                    vue_direct.clear_dmsg_tl();
 
                 }
                 //this.session.createStream("user",null,this.commonvue.nav_notifications);

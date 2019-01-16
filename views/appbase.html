@@ -240,7 +240,7 @@
             <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
         </ul>
         <div id="ov_toote">
-            
+            <v-app>
             <v-dialog v-model="is_overlaying" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
                 <v-card>
                     <v-card-title class="onetoote_cardtitle">
@@ -266,7 +266,7 @@
                 </v-card>
                 
             </v-dialog>
-           
+        </v-app>
         </div>
         <!--<div id="ov_toote" class="onetoote_screen" v-if="is_overlaying" v-cloak>
             <div class="onetoote_overlay " v-on:click="onclick_overlay">
@@ -293,11 +293,11 @@
             ></user-popupcard>
         </div>
         <div id="ov_inputtoot" class="dmy_inputtoot">
-            <v-app id="inspire">
+            
                 <v-dialog v-model="dialog" class="white" persistent v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
             {% include  "onetoote.html"  %}
                 </v-dialog>
-            </v-app>
+            
         </div>
         {% include  "onedialog.html"  %}
         

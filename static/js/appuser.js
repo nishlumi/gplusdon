@@ -387,6 +387,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     options.medias = "";
                     MYAPP.callNewToot(options);
                 },
+                onclick_rssfeed : function (url) {
+                    window.open(url,"_blank");
+                },
                 onclick_endorse : function (e) {
                     var commentIndex = 0;
                     var mainfunc = () => {

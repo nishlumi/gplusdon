@@ -196,7 +196,7 @@ function defineForTootPage(app) {
             //if (this.otherwindow) {
             //}
             //M.FormSelect.init(ID("keymaptitle"), {});
-            /*
+            
             CKEDITOR.disableAutoInline = true;
             CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
             this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
@@ -218,7 +218,7 @@ function defineForTootPage(app) {
             }).on('pasteText',  (ev, data) => {
                 console.log("text: " + data.text);
             });
-            */
+            
 
             var issave = localStorage.getItem(this.CNS_SAVENAME);
             if (issave) {

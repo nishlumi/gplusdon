@@ -140,7 +140,9 @@ Vue.component("timeline-toot", {
 		reblog_type : function() {
 			return _T("reblog_"+MYAPP.session.config.application.showMode);
 		},
-
+		gal_viewmode : function () {
+			return MYAPP.session.config.application.gallery_type;
+		}
 	},
 	beforeMount(){
 
@@ -1074,29 +1076,36 @@ Vue.component("reply-inputbox", {
 		//console.log(hitscopes);
 		this.select_scope(hitscopes[0]);
 
-		//---setup CKeditor
-		CKEDITOR.disableAutoInline = true;
-		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-		this.ckeditor = CKEDITOR.inline( this.movingElementID('replyinput_'), CK_INPUT_TOOTBOX);
 
-		console.log("this.status_text=",this.status_text);
-		//this.ckeditor.setData(this.status_text);
+	},
+	beforeUpdate() {
+		if (this.isfirst) {
+			//---setup CKeditor
+			CKEDITOR.disableAutoInline = true;
+			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+			var elemid = this.movingElementID('replyinput_');
+			this.ckeditor = CKEDITOR.inline( elemid, CK_INPUT_TOOTBOX);
 
-		$("#dv_inputcontent").pastableContenteditable();
-		$("#dv_inputcontent").on('pasteImage',  (ev, data) => {
-			console.log(ev,data);
-			if (this.dialog || this.otherwindow) {
-				this.loadMediafiles("blob",[data.dataURL]);
-			}
-		}).on('pasteImageError', (ev, data) => {
-			alert('error paste:',data.message);
-			if(data.url){
-				alert('But we got its url anyway:' + data.url)
-			}
-		}).on('pasteText',  (ev, data) => {
-			console.log("text: " + data.text);
-		});
+			console.log("this.status_text=",this.status_text);
+			//this.ckeditor.setData(this.status_text);
 
+			$("#"+elemid).pastableContenteditable();
+			$("#"+elemid).on('pasteImage',  (ev, data) => {
+				console.log(ev,data);
+				if (this.dialog || this.otherwindow) {
+					this.loadMediafiles("blob",[data.dataURL]);
+				}
+			}).on('pasteImageError', (ev, data) => {
+				alert('error paste:',data.message);
+				if(data.url){
+					alert('But we got its url anyway:' + data.url)
+				}
+			}).on('pasteText',  (ev, data) => {
+				console.log("text: " + data.text);
+			});
+
+			this.isfirst = false;
+		}
 	},
 	updated() {
 		/*if (this.isfirst) {
@@ -1217,12 +1226,27 @@ Vue.component("tootgallery-carousel", {
         medias : Array,
         sensitive : Boolean,
 		translation : Object,
+		viewmode : {
+			type : String,
+			default : "slide"
+		}
     },
     data(){
         return {
+			is_sensitive_hidden : {
+				common_ui_off : false
+			},
+			is_sensitive_title : {
+				common_ui_off : false
+			},
 			is_pause : false
         }
-    },
+	},
+	beforeMount() {
+		if (this.sensitive) {
+			this.is_sensitive_hidden.common_ui_off = true;
+		}
+	},
     mounted(){
         /*console.log("el=",this.$el);
         $(this.$el).slick({
@@ -1255,6 +1279,21 @@ Vue.component("tootgallery-carousel", {
 		onmouseleave_gifv : function (e) {
 			e.target.pause();
 		},
+		onclick_openinnew : function (url) {
+			window.open(url,"_blank");
+		},
+		onclick_openfull : function (item) {
+			MYAPP.commonvue.imagecard.item = item;
+			MYAPP.commonvue.imagecard.imgdialog = true;
+		},
+		onclick_sensitive_ingrid : function (e) {
+			this.is_sensitive_hidden.common_ui_off = false;
+			this.is_sensitive_title.common_ui_off = true;
+		},
+		onclick_rehide : function (){
+			this.is_sensitive_hidden.common_ui_off = true;
+			this.is_sensitive_title.common_ui_off = false;
+		}
     }
 });
 

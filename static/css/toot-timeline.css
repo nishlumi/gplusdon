@@ -422,24 +422,26 @@ div.toot_card_base.g30 {
     width : 100%;
 }
 /* .carousel .carousel-item  */
-.tootgallery-carousel .sensitive-image-text {
+.sensitive-image-text, .tootgallery-carousel .sensitive-image-text {
     position: relative;
     bottom : 6.5rem;
     color : black;
     z-index : 10;
 }
-.carousel .carousel-item img.landscape, .modal-content img.landscape,
-.carousel .carousel-item video.landscape, .modal-content video.landscape,
-.tootgallery-carousel img.landscape, .tootgallery-carousel video.landscape {
+img.landscape, .carousel .carousel-item img.landscape, .modal-content img.landscape,
+video.landscape, .carousel .carousel-item video.landscape, .modal-content video.landscape,
+.tootgallery-carousel img.landscape, .tootgallery-carousel video.landscape,
+.v-image.img.landscape  {
     width : 100%;
     height : auto;
     margin : auto;
     z-index : 9;
     position : relative;
 }
-.carousel .carousel-item img.portrait, .modal-content img.portrait,
-.carousel .carousel-item video.portrait, .modal-content video.portrait,
-.tootgallery-carousel img.portrait, .tootgallery-carousel video.portrait {
+img.portrait, .carousel .carousel-item img.portrait, .modal-content img.portrait,
+video.portrait, .carousel .carousel-item video.portrait, .modal-content video.portrait,
+.tootgallery-carousel img.portrait, .tootgallery-carousel video.portrait,
+.v-image.img.portrait {
     /*width : auto;*/
     height : 100%;
     margin : auto;
@@ -457,6 +459,16 @@ div.toot_card_base.g30 {
 .tootgallery-carousel .slick-list .draggable {
     height : auto !important;
 }
+.grid_sensitive_btn {
+    position: absolute;
+    top : 0px;
+    left : 0px;
+    z-index : 1;
+    color : #BABABA;
+    text-shadow: 2px 2px 2px #696969;
+
+}
+
 
 /*=== toot action ===*/
 .toot_card_base .toot_content_action {

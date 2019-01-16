@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.userview.display_name = tmpac.display_name;
         vue_user.userview.idname = tmpac.idname;
         vue_user.userview.instance = tmpac.instance;
-        vue_user.userview.rawdata = tmpac;
+        vue_user.userview.rawdata = tmpac.rawdata;
 
         vue_user.basicinfo.note = tmpac.rawdata.note;
         vue_user.basicinfo.fields = vue_user.basicinfo.fields.concat(tmpac.rawdata.fields);

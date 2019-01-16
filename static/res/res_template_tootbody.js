@@ -77,6 +77,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 v-bind:medias="toote.medias"
                 v-bind:sensitive="toote.body.sensitive"
                 v-bind:translation="translation"
+                v-bind:viewmode="gal_viewmode"
             ></tootgallery-carousel>
         </div> 
     </div>  
@@ -181,6 +182,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             v-bind:medias="reply.medias"
                             v-bind:sensitive="reply.body.sensitive"
                             v-bind:translation="translation"
+                            v-bind:viewmode="gal_viewmode"
                         ></tootgallery-carousel>
                     </div> 
                     </p>
@@ -376,6 +378,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                         v-bind:medias="toote.medias"
                         v-bind:sensitive="toote.body.sensitive"
                         v-bind:translation="translation"
+                        v-bind:viewmode="gal_viewmode"
                     ></tootgallery-carousel>
                 </div> 
             </div>  

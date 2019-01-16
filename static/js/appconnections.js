@@ -246,28 +246,28 @@ function load_listmember(id,options) {
             MUtility.loadingOFF();
             return;
         }
-        return result.data;
+        return result;
     })
-    .then(data=>{
+    .then(result2=>{
         var users = [];
-        for (var i = 0; i < data.length; i++) {
-            users.push(data[i].id);
+        for (var i = 0; i < result2.data.length; i++) {
+            users.push(result2.data[i].id);
         }
         console.log("list members=",users);
         return MYAPP.sns.getRelationship(users)
-        .then(result=>{
+        .then(result3=>{
             //---get the users relationship
-            for (var d = 0; d < data.length; d++) {
-                var datum = data[d];
-                for (var i = 0; i < result.data.length; i++) {
-                    if (datum.id == result.data[i].id) {
-                        datum["relationship"] = result.data[i];
+            for (var d = 0; d < result2.data.length; d++) {
+                var datum = result2.data[d];
+                for (var i = 0; i < result3.data.length; i++) {
+                    if (datum.id == result3.data[i].id) {
+                        datum["relationship"] = result3.data[i];
                         datum["lists"] = [];
                         break;
                     }
                 }
             }
-            this.generate_account_detail(data,options);
+            this.generate_account_detail(result2,options);
             
         })
     })

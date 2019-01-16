@@ -648,6 +648,7 @@ var vue_mixin_for_timeline = {
 			} else if (options.app.tlshare == "tt_private") {
 				ret =  data.visibility == "private" ? true : false;
 			} else if (data.visibility == "direct") {
+				console.log(data.visibility,"include_dmsg_tl",MYAPP.session.config.notification.include_dmsg_tl);
 				if (MYAPP.session.config.notification.include_dmsg_tl) {
 					ret = true;
 				}else{
@@ -852,27 +853,6 @@ var vue_mixin_for_inputtoot = {
 		//CKEDITOR.disableAutoInline = true;
 		//CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 		//this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
-		CKEDITOR.disableAutoInline = true;
-		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-		this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
-
-		console.log("this.status_text=",this.status_text);
-		//this.ckeditor.setData(this.status_text);
-
-		$("#dv_inputcontent").pastableContenteditable();
-		$("#dv_inputcontent").on('pasteImage',  (ev, data) => {
-			console.log(ev,data);
-			if (this.dialog || this.otherwindow) {
-				this.loadMediafiles("blob",[data.dataURL]);
-			}
-		}).on('pasteImageError', (ev, data) => {
-			alert('error paste:',data.message);
-			if(data.url){
-				alert('But we got its url anyway:' + data.url)
-			}
-		}).on('pasteText',  (ev, data) => {
-			console.log("text: " + data.text);
-		});
 
 
 	},
@@ -1442,6 +1422,7 @@ var vue_mixin_for_notification = {
 				this.status = d;
 
 				MYAPP.commonvue.tootecard.status = this.status;
+				MYAPP.commonvue.tootecard.sizing_window();
 				MYAPP.commonvue.tootecard.is_overlaying = true;
 				//---change URL
 				if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {

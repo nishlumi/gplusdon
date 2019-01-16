@@ -467,7 +467,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 selected:{"red-text":false}
             };
             this.screentype = "direct";
-            this.selmentions = "";
+            //this.selmentions = "";
+
+            //---create ckeditor for direct message input box
+            CKEDITOR.disableAutoInline = true;
+            CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+            this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
+    
+            console.log("this.status_text=",this.status_text);
+            //this.ckeditor.setData(this.status_text);
+    
+            $("#dv_inputcontent").pastableContenteditable();
+            $("#dv_inputcontent").on('pasteImage',  (ev, data) => {
+                console.log(ev,data);
+                if (this.dialog || this.otherwindow) {
+                    this.loadMediafiles("blob",[data.dataURL]);
+                }
+            }).on('pasteImageError', (ev, data) => {
+                alert('error paste:',data.message);
+                if(data.url){
+                    alert('But we got its url anyway:' + data.url)
+                }
+            }).on('pasteText',  (ev, data) => {
+                console.log("text: " + data.text);
+            });
+    
         },
         watch : {
             autocom_mention : function (val) {
@@ -599,6 +623,20 @@ document.addEventListener('DOMContentLoaded', function() {
             },
 
             generate_toot_detail : generate_toot_detail,
+            clear_dmsg_tl : function () {
+                //---clear tl
+                this.msgs.splice(0,this.msgs.length);
+                //---clear input box
+                this.status_text = "";
+                this.mainlink.exists = false;
+                this.ckeditor.editable().setText("");
+                this.selmentions.splice(0,this.selmentions.length);
+                this.seltags.splice(0,this.seltags.length);
+                this.selmedias.splice(0,this.selmedias.length);
+                this.medias.splice(0,this.medias.length);
+                this.switch_NSFW = false;
+
+            },
             //---event handler
             onclick_contactuser : function (item) {
                 for (var i = 0; i < this.contacts.length; i++) {
@@ -609,8 +647,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.info.selected.grey = true;
                 item.info.selected["lighten-2"] = true;
                 this.show_user = item.user;
-                this.selmentions = "";
-                this.selmentions = "@"+item.user.acct;
+                this.selmentions.splice(0,this.selmentions.length);
+                this.selmentions.push("@"+item.user.acct);
                 this.msgs.splice(0,this.msgs.length);
                 this.loadTimeline(this.show_user,{
                     api : {
@@ -649,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     this.mentions.splice(0,this.mentions.length);
-                    this.selmentions = "";
+                    this.selmentions.splice(0,this.selmentions.length);
                 });
             },
             onclick_returnwin : function (e) {
@@ -673,7 +711,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(values=>{
                     //---clear input and close popup
                     this.status_text = "";
-                    this.selmentions = "";
+                    this.selmentions.splice(0,this.selmentions.length);
                     this.seltags.splice(0,this.seltags.length);
                     this.selmedias.splice(0,this.selmedias.length);
     
@@ -684,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .finally(()=>{
                     //---recover base reply mention of this toot 
-                    this.selmentions = "@"+this.show_user;
+                    this.selmentions.push("@"+this.show_user);
     
                     //---fire onreplied event to parent element
     

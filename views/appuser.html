@@ -18,54 +18,96 @@
                 </div>
             </a>
         </div>
-        <div class="user-action-btns col1 z-depth-2 row">
-            <div class="col s12">
-                <!--
+        <div class="user-action-btns col1 elevation-2">
+            <v-layout column>
+                <v-flex xs12>
+                    
+                </v-flex>
+                <v-flex xs12>
+                    <div class="switch">
+                        <label>
+                            <i class="material-icons tooltipped" data-position="bottom" data-tooltip="{{trans.to_unfollow}}">person_outline</i>
+                            <input type="checkbox" v-model="stat.following" v-on:change="oncheck_following">
+                            <span class="lever"></span>
+                            <i class="material-icons tooltipped white-text" data-position="bottom" data-tooltip="{{trans.to_follow}}">person_add</i>
+                        </label>
+                    </div>
+                </v-flex>
+            </v-layout>
+            <!--<div class="col s12">
+                
                     <a href="#" v-if="stat.following" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_follow}}"><i class="material-icons">person_add</i></a>
                     <a href="#" v-else class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_unfollow}}"><i class="material-icons">person_outline</i></a>
-                -->
-                <div class="switch">
-                    <label>
-                        <i class="material-icons tooltipped" data-position="bottom" data-tooltip="{{trans.to_unfollow}}">person_outline</i>
-                        <input type="checkbox" v-model="stat.following" v-on:change="oncheck_following">
-                        <span class="lever"></span>
-                        <i class="material-icons tooltipped white-text" data-position="bottom" data-tooltip="{{trans.to_follow}}">person_add</i>
-                    </label>
-                </div>
-            </div>
+                
+                
+            </div>-->
         </div>
-        <div class="user-action-btns col2 z-depth-2 row" v-if="stat.followed_by">
+        <div class="user-action-btns col2 elevation-2" v-if="stat.followed_by">
             <span>{? showRelationshpText() ?}</span>
         </div>
-        <div class="user-action-btns col3 z-depth-2 row">
-            <div class="col s6">
-                <!--<v-tooltip bottom>
-                    <v-btn flat small icon dark color="white" v-on:click="onclick_mention" slot="activator">
-                        <v-icon>alternate_email</v-icon>
-                    </v-btn>
+        <div class="user-action-btns col3 elevation-2">
+            <v-layout row wrap>
+                <v-flex xs12>
+                    <!--<v-tooltip bottom>
+                        <v-btn flat small icon dark color="white" v-on:click="onclick_mention" slot="activator">
+                            <v-icon>alternate_email</v-icon>
+                        </v-btn>
+                        
+                        <span>{{trans.to_mention}}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                        <v-btn flat small icon dark color="white" v-on:click="onclick_directmsg" slot="activator">
+                            <v-icon>email</v-icon>
+                        </v-btn>
+                        
+                        <span>{{trans.to_directmsg}}</span>
+                    </v-tooltip>
+                    -->
+                    <v-tooltip bottom>
+                        <v-btn flat icon color="white" slot="activator" v-on:click="onclick_mention">
+                            <v-icon>alternate_email</v-icon>
+                        </v-btn>
+                        <span>{{trans.to_mention}}</span>
+                    </v-tooltip>
                     
-                    <span>{{trans.to_mention}}</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                    <v-btn flat small icon dark color="white" v-on:click="onclick_directmsg" slot="activator">
-                        <v-icon>email</v-icon>
-                    </v-btn>
+                    <!--<a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_mention" data-position="bottom" data-tooltip="{{trans.to_mention}}"><i class="material-icons">alternate_email</i></a>-->
+                </v-flex>
+                <v-flex xs12>
+                    <!--<a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_directmsg" data-position="bottom" data-tooltip="{{trans.to_directmsg}}"><i class="material-icons">email</i></a>-->
+                    <v-tooltip bottom>
+                        <v-btn flat icon color="white" slot="activator" v-on:click="onclick_directmsg">
+                            <v-icon>email</v-icon>
+                        </v-btn>
+                        <span>{{trans.to_directmsg}}</span>
+                    </v-tooltip>
+                </v-flex>
+                <v-flex xs12>
+                    <!--<a v-bind:href="rss_url" target="_blank" rel="noopener" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>-->
+                    <v-tooltip bottom>
+                        <v-btn flat icon color="white" slot="activator" v-on:click="onclick_rssfeed(rss_url)">
+                            <v-icon>rss_feed</v-icon>
+                        </v-btn>
+                        <span>{{trans.to_rssfeed}}</span>
+                    </v-tooltip>
                     
-                    <span>{{trans.to_directmsg}}</span>
-                </v-tooltip>
-                -->
-                <a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_mention" data-position="bottom" data-tooltip="{{trans.to_mention}}"><i class="material-icons">alternate_email</i></a>
-                <a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_directmsg" data-position="bottom" data-tooltip="{{trans.to_directmsg}}"><i class="material-icons">email</i></a>
+                </v-flex>
+                <v-flex xs12>
+                    <!--<a class="waves-effect waves-red white-text dropdown-trigger" data-target='dropdown1'><i class="material-icons">more_vert</i></a>
+                    -->
+                    <v-btn flat icon color="white" class="dropdown-trigger" data-target='dropdown1'>
+                        <v-icon>more_vert</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-layout>
+            <!--<div class="col s6">
             
             </div>
             <div class="col s2">
-                <a v-bind:href="rss_url" target="_blank" rel="noopener" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>
             </div>
             <div class="col s2">
-                <a class="waves-effect waves-red white-text dropdown-trigger" data-target='dropdown1'><i class="material-icons">more_vert</i></a>
-            </div>
+            </div>-->
         </div>
-        <ul id='dropdown1' class='dropdown-content'>
+        <ul id='dropdown1' class='dropdown-content' style="width:250px">
             <li><a v-bind:class="stat_style.endorsed" v-on:click="onclick_endorse" ><i class="material-icons">sentiment_very_satisfied</i>{? !stat.endorsed ? translations.to_endorse : translations.to_unendorse ?}</a></li>
             <li v-if="stat.following"><a v-bind:class="stat_style.showing_reblogs" v-on:click="onclick_showing_reblogs"><i class="material-icons">notifications_paused</i>{? cssstyle_showing_reblogs ?}</a></li>
             <li><a v-bind:class="stat_style.mute" v-on:click="onclick_mute"><i class="material-icons">volume_off</i>{? stat.muting ? translations.to_muteoff : translations.to_mute ?}</a></li>
