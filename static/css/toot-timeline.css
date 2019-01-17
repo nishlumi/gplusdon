@@ -468,7 +468,9 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     text-shadow: 2px 2px 2px #696969;
 
 }
-
+.media_borderset_forgrid {
+    border-radius: 1.5rem;
+}
 
 /*=== toot action ===*/
 .toot_card_base .toot_content_action {

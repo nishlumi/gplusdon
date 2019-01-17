@@ -230,7 +230,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                     <v-img 
                                         v-bind:src="item.url" 
                                         v-bind:lazy-src="item.preview_url" 
-                                        class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
+                                        class="landscape media_borderset_forgrid" v-bind:title="item.description" v-bind:alt="item.description"
                                         v-on:click="onclick_openfull(item)"
                                     >
                                         <v-layout slot="placeholder"
@@ -244,7 +244,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                     <v-img 
                                         v-bind:src="item.url" 
                                         v-bind:lazy-src="item.preview_url" 
-                                        class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
+                                        class="portrait media_borderset_forgrid" v-bind:title="item.description"  v-bind:alt="item.description"
                                         v-on:click="onclick_openfull(item)"
                                     >
                                     <v-layout slot="placeholder"
@@ -264,7 +264,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                     <v-img 
                                         v-bind:src="item.url" 
                                         v-bind:lazy-src="item.preview_url" 
-                                        class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
+                                        class="landscape media_borderset_forgrid" v-bind:title="item.description" v-bind:alt="item.description"
                                         v-on:click="onclick_openfull(item)"
                                     >
                                         <v-layout slot="placeholder"
@@ -278,7 +278,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                     <v-img 
                                         v-bind:src="item.url" 
                                         v-bind:lazy-src="item.preview_url" 
-                                        class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
+                                        class="portrait media_borderset_forgrid" v-bind:title="item.description"  v-bind:alt="item.description"
                                         v-on:click="onclick_openfull(item)"
                                     >
                                     <v-layout slot="placeholder"
@@ -304,7 +304,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                         <v-img 
                                             v-bind:src="item.preview_url" 
                                             v-bind:lazy-src="item.preview_url" 
-                                            class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
+                                            class="landscape media_borderset_forgrid" v-bind:title="item.description" v-bind:alt="item.description"
                                             v-on:click="onclick_openfull(item)"
                                         >
                                             <v-layout slot="placeholder"
@@ -318,7 +318,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                         <v-img 
                                             v-bind:src="item.preview_url" 
                                             v-bind:lazy-src="item.preview_url" 
-                                            class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
+                                            class="portrait media_borderset_forgrid" v-bind:title="item.description"  v-bind:alt="item.description"
                                             v-on:click="onclick_openfull(item)"
                                         >
                                         <v-layout slot="placeholder"
@@ -338,7 +338,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                         <v-img 
                                             v-bind:src="item.url" 
                                             v-bind:lazy-src="item.preview_url" 
-                                            class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
+                                            class="landscape media_borderset_forgrid" v-bind:title="item.description" v-bind:alt="item.description"
                                             v-on:click="onclick_openfull(item)"
                                         >
                                             <v-layout slot="placeholder"
@@ -352,7 +352,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                         <v-img 
                                             v-bind:src="item.preview_url" 
                                             v-bind:lazy-src="item.preview_url" 
-                                            class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
+                                            class="portrait media_borderset_forgrid" v-bind:title="item.description"  v-bind:alt="item.description"
                                             v-on:click="onclick_openfull(item)"
                                         >
                                         <v-layout slot="placeholder"

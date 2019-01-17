@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     //ID("lm_accounts").classList.add("active");
     //ID("sm_accounts").classList.add("active");
+    MYAPP.showBottomCtrl(true);
+
 
     MYAPP.setupCommonElement();
 });
@@ -194,37 +196,52 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             ondelete_account : ondelete_account,
             onclick_pushsub : function(account) {
-                var bkup = MYAPP.sns._accounts;
-                MYAPP.sns.setAccount(account);
-                MYAPP.sns.getPushSubscription({})
-                .then(result=>{
-                    console.log("result=",result);
-                    this.select_subscription.alert.mention = result.data.alerts.mention;
-                    this.select_subscription.alert.reblog = result.data.alerts.reblog;
-                    this.select_subscription.alert.favourite = result.data.alerts.favourite;
-                    this.select_subscription.alert.follow = result.data.alerts.follow;
-                    return Promise.resolve(true);
-                })
-                .catch(error=>{
-                    MYAPP.sns.createPushSubscription({
-                        mention : true,
-                        follow : true,
-                        reblog : true,
-                        favourite : true
+                var mainfunc = ()=>{
+                    console.log(JSON.original(account));
+                    var bkup = MYAPP.sns._accounts;
+                    MYAPP.sns.setAccount(account);
+                    MYAPP.sns.getPushSubscription({})
+                    .then(result=>{
+                        console.log("result=",result);
+                        this.select_subscription.alert.mention = result.data.alerts.mention;
+                        this.select_subscription.alert.reblog = result.data.alerts.reblog;
+                        this.select_subscription.alert.favourite = result.data.alerts.favourite;
+                        this.select_subscription.alert.follow = result.data.alerts.follow;
+                        return Promise.resolve(true);
                     })
-                    .then(result2=>{
-                        console.log("result2=",result2);
-                        this.select_subscription.alert.mention = result2.data.alerts.mention;
-                        this.select_subscription.alert.reblog = result2.data.alerts.reblog;
-                        this.select_subscription.alert.favourite = result2.data.alerts.favourite;
-                        this.select_subscription.alert.follow = result2.data.alerts.follow;
+                    .catch(error=>{
+                        MYAPP.sns.createPushSubscription({
+                            mention : true,
+                            follow : true,
+                            reblog : true,
+                            favourite : true
+                        })
+                        .then(result2=>{
+                            console.log("result2=",result2);
+                            this.select_subscription.alert.mention = result2.data.alerts.mention;
+                            this.select_subscription.alert.reblog = result2.data.alerts.reblog;
+                            this.select_subscription.alert.favourite = result2.data.alerts.favourite;
+                            this.select_subscription.alert.follow = result2.data.alerts.follow;
+                        })
                     })
-                })
-                .finally(()=>{
-                    this.select_subscription.account = account;
-                    this.is_bottomsheet = !this.is_bottomsheet;
-                    MYAPP.sns.setAccount(bkup);
-                });
+                    .finally(()=>{
+                        this.select_subscription.account = account;
+                        this.is_bottomsheet = !this.is_bottomsheet;
+                        MYAPP.sns.setAccount(bkup);
+                    });
+                }
+
+                if (Push.Permission.has()) {
+                    mainfunc();
+                }else{
+                    Push.Permission.request(()=>{
+                        console.log("Push notification OK");
+                        mainfunc();
+                    },()=>{
+                        console.log("Push notification NG");
+                    });
+                }
+
             },
             onclick_savepushsub : function (e) {
                 var bkup = MYAPP.sns._accounts;

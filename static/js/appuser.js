@@ -226,6 +226,8 @@ function load_follower(userid, options){
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
+    MYAPP.showBottomCtrl(true);
+
 
     MYAPP.setupCommonElement();
 });

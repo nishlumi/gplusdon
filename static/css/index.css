@@ -936,7 +936,13 @@ div.account_body .user-view .email {
     width : 4.5rem;
     height: 17rem;
 }
-
+.user-action-btns.col_ac1 {
+    position: absolute;
+    bottom: 2rem;
+    left: 2%;
+    height: 64px;
+    
+}
 div.account_body .tabs .tab a {
     color : #F44336 !important;
 }

@@ -24,12 +24,22 @@
                                 </v-radio-group>
                             </v-flex>
                             <v-flex xs12 sm12 md6 lg6>
+                                <v-radio-group 
+                                    label="{{trans.app_lab_gallerymode}}"
+                                    v-model="type_app.gallery_type" 
+                                    column
+                                >
+                                    <v-radio label="{{trans.app_item_gallery_slide}}" value="slide"></v-radio>
+                                    <v-radio label="{{trans.app_item_gallery_grid}}" value="grid"></v-radio>
+                                </v-radio-group>
+                            </v-flex>
+                            <v-flex xs12 sm12 md4 lg4>
                                 <!--<v-select
                                     :items="vals_timeline_view"
                                     v-model="type_app.timeline_view"
                                     label="{{trans.app_lab_timelineview}}"
                                 ></v-select>-->
-                                <div class="input-field col s12">
+                                <div class="input-field xs6">
                                     <select v-model="type_app.timeline_view">
                                         <template v-for="item in vals_timeline_view">
                                             <option v-bind:value="item.value">{? item.text ?}</option>
@@ -39,7 +49,7 @@
                                 </div>
                                 <span class="red-text">{{ trans.app_lab_timelineview_exception }}</span>
                             </v-flex>
-                            <v-flex xs12 sm12 md6 lg6>
+                            <v-flex xs12 sm12 md6 lg6 offset-md2 offset-lg2>
                                 <span class="grey-text">{{trans.app_lab_timeline_viewcount}}</span>
                                 <v-btn-toggle v-model="type_app.timeline_viewcount">
                                     <v-btn flat v-bind:value="cons_timeline_viewcont[0]">
@@ -53,15 +63,8 @@
                                     </v-btn>
                                 </v-btn-toggle>
                             </v-flex>
-                            <v-flex xs12 sm12 md6 lg6>
-                                <v-radio-group 
-                                    label="{{trans.app_lab_gallerymode}}"
-                                    v-model="type_app.gallery_type" 
-                                    column
-                                >
-                                    <v-radio label="{{trans.app_item_gallery_slide}}" value="slide"></v-radio>
-                                    <v-radio label="{{trans.app_item_gallery_grid}}" value="grid"></v-radio>
-                                </v-radio-group>
+                            <v-flex xs12 sm12 md6>
+                                <v-checkbox v-model="type_app.skip_startpage" label="{{trans.app_lab_skip_startpage}}"></v-checkbox>
                             </v-flex>
                             <v-flex xs12 sm12 md6 lg6>
                                 <v-btn large color="red" v-on:click="onclick_uninstall_btn">{{trans.lab_uninstall_btn}}</v-btn>

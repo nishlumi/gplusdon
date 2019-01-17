@@ -335,6 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //ID("lm_connections").classList.add("active");
     //ID("sm_connections").classList.add("active");
+    MYAPP.showBottomCtrl(true);
+
 
     MYAPP.setupCommonElement();
     ID("nav_sel_account").addEventListener("change",function(e){

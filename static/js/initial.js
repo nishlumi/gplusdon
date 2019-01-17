@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
             is_use : false,
             initial_instance : ""
         },
+        beforeMount() {
+            if (MYAPP.session.config.application.skip_startpage) {
+                location.replace("/tl");
+            }
+        },
         methods : {
             btn_reg_account_clicked : btn_reg_account_clicked,
         }

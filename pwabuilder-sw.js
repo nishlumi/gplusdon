@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = "G+Don-100-20190117-01";
+var CACHE = "G+Don-100-20190118-01";
 var precacheFiles = [
     /* Add an array of files to precache for your app */
     /*"/",
@@ -283,12 +283,10 @@ self.addEventListener("push", function(event) {
         self.registration.showNotification(js.title, {
             body: js.body,
             icon: js.icon,
-            tag: "push-notification-tag"
         })
     );
 });
-self.addEventListener(
-    "notificationclick",
+self.addEventListener("notificationclick",
     function(event) {
         console.log("n click=",event);
         event.notification.close();
