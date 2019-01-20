@@ -13,6 +13,7 @@ var packagejson = require('./package.json');
 
 var session = require("express-session");
 var csurf = require('csurf');
+var frameguard = require('frameguard')
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -65,6 +66,12 @@ app.use(i18n({
     // dictionary file path
     translationsPath: path.join(__dirname, "/static/strings"),
     textsVarName : "trans"
+}));
+
+// Allow from a specific host:
+app.use(frameguard({
+    action: 'allow-from',
+    domain: 'https://google.com'
 }));
 
 

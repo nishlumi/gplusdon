@@ -1026,6 +1026,20 @@ var vue_mixin_for_inputtoot = {
 		onclick_addimage : function(e) {
 			ID("dmy_openmdia").click();
 		},
+		onclick_addgeo : function (e) {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					(pos)=>{
+
+					},
+					(error)=>{
+						aletify.error("You can not to use geolocation...");
+					}
+				)
+			}else{
+				console.log("can not to use geolocation");
+			}
+		},
 		onclick_mediaclose : function(index) {
 			appConfirm(_T("image_confirm_msg01"),()=>{
 				//console.log("index=",index);

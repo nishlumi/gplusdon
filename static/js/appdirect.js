@@ -91,13 +91,13 @@ function loadTimelineCommon(user,options){
         MUtility.loadingOFF();
         this.is_asyncing = false;
         this.$nextTick(()=>{
-            var e = Q(".timeline_cardlist_mobile");
-            //e.scroll({top:e.scrollHeight});
-            e.scrollTop = e.scrollHeight;
-            e = Q(".timeline_cardlist")
-            //e.scroll({top:e.scrollHeight});
-            console.log("e.scrollHeight;=",e.scrollHeight);
-            e.scrollTop = e.scrollHeight;
+            //var e = Q(".timeline_cardlist_mobile");
+            ////e.scroll({top:e.scrollHeight});
+            //e.scrollTop = e.scrollHeight;
+            //e = Q(".timeline_cardlist")
+            ////e.scroll({top:e.scrollHeight});
+            //console.log("e.scrollHeight;=",e.scrollHeight);
+            //e.scrollTop = e.scrollHeight;
         });
     });
 }
@@ -436,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 color : "",
             }
             */
+            is_show_autocom : false,
             autocom_mention : "",   //---for direct message, one user
             a_mentions : [],
 			a_mention_loading : false,
@@ -662,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             },
             onclick_addContact : function (e) {
-
+                this.is_show_autocom = !this.is_show_autocom;
             },
             onclick_reloadContact : function (e) {
                 vue_direct.account.directlst.splice(0,vue_direct.account.directlst.length);

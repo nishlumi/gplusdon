@@ -250,7 +250,9 @@ function defineForTootPage(app) {
                     this.mainlink.exists = false;
                     this.ckeditor.editable().setText("");
                     this.selmentions.splice(0,this.selmentions.length);
-                    this.seltags.splice(0,this.seltags.length);
+                    if (!MYAPP.session.config.action.noclear_tag) {
+                        this.seltags.splice(0,this.seltags.length);
+                    }
                     this.selmedias.splice(0,this.selmedias.length);
                     this.medias.splice(0,this.medias.length);
                     this.switch_NSFW = false;

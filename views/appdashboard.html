@@ -45,6 +45,7 @@
         <link href="/static/css/accounts.css" rel="stylesheet" >
         <link href="/static/css/index.css" rel="stylesheet" >
         <link href="/static/css/toot-timeline.css" rel="stylesheet" >
+        <link href="/static/css/dashboard.css" rel="stylesheet" >
 
     </HEAD>
     <body>
@@ -101,70 +102,84 @@
                     </div>
                 </nav>
             </div>
-            
-
-            
 
             <div id="mainpanel">
                 <div class="row inherited_body_range">
-                    <div id="maincol_leftmenu" class="col hide-on-med-and-down" v-bind:class="css.colwidth" v-cloak>
-                        <div id="cur_sel_account" v-if="'rawdata' in account">
-                            <!--<ul class="collection cursel-accountbox z-depth-1">
-                                <li class="collection-item avatar">
-                                    <a  v-on:click="onclick_current_selaccount">
-                                        <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
-                                        <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
-                                    </a>
-                                    <i class="material-icons whole-notification red-text" v-if="whole_notification" v-cloak>notifications</i>
-                                </li>
-                            </ul>-->
-                            <v-card >
-                                <v-card-text class="pa-1" v-bind:class="css.bgred">
-                                    <v-list>
-                                        <v-list-tile avatar v-on:click="onclick_current_selaccount">
-                                            <v-list-tile-avatar>
-                                                <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
-                                            </v-list-tile-avatar>
-                                            <v-list-tile-content>
-                                                <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
-                                                <!--<v-icon color="red" v-if="whole_notification" v-cloak>notifications</v-icon>-->
-                                            </v-list-tile-content>
-                                        </v-list-tile>
-                                    </v-list>
-                                </v-card-text>
-                            </v-card>
+                    <div id="maincol_leftmenu" class="common_ui_off"></div>
+                    <div  id="maincol_rightmain" class="inherited_body_range xs12">
+                        <div id="area_dashboard">
+                            <grid-layout :layout="gadgets"
+                                :col-num="12"
+                                :row-height="30"
+                                :is-draggable="grid_config.draggable"
+                                :is-resizable="grid_config.resizable"
+                                :vertical-compact="false"
+                                :use-css-transforms="true"
+                                :responsive="grid_config.responsive"
+                            >
+                                <grid-item v-for="(item,index) in gadgets"
+                                    :x="item.x"
+                                    :y="item.y"
+                                    :w="item.w"
+                                    :h="item.h"
+                                    :i="item.i"
+                                    :is-draggable="item.draggable"
+                                    :is-resizable="item.resizable"    
+                                    :drag-allow-from="item.drag.allow"
+                                    :drag-ignore-from="item.drag.ignore"
+                                >
+                                    <div class="text">
+                                        <div class="vue-draggable-handle"></div>
+                                        <div class="no-drag">
+                                            <dashboard-gadget :translation="translations"
+                                                :globalinfo="globalInfo"
+                                                :type="item.type" :size="item.size" :userstyle="item.userstyle"
+                                                :body="item.body"
+                                                :src="item.src"
+                                                :label="item.label" :icon="item.icon"
+                                                :timeline="item.timeline"
+                                                :toot="item.toot"
+                                                :user="item.user"
+                                                :datalist="item.list"
+                                                
+                                            ></dashboard-gadget>
+                                        </div>
+                                    </div>
+                                </grid-item>
+                            </grid-layout>
                         </div>
-                        <div id="leftmenu_main" class="collection">
-                            <!--<a href="#" class="red collection-item  maincol_button  waves-effect waves-light btn"><i class="material-icons white-text">edit</i><span class="white-text">Toot</span></a>-->
-                            <template v-if="applogined">
-                                <a id="lm_dashboard" href="/" class="collection-item maincol_menu tooltipped {{menustat.dashboard}}" data-tooltip="{{trans.dashboard}}"><i class="material-icons">dashboard</i><span v-if="menu_text">{{trans.dashboard}}</span></a>
-                                <a id="lm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}} tooltipped" data-tooltip="{{trans.timeline}}"><i class="material-icons">view_day</i><span v-if="menu_text">{{trans.timeline}}</span></a>
-                                    <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
-                                    -->
-                                <a id="lm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}} tooltipped" data-tooltip="{{trans.accounts}}"><i class="material-icons">person</i><span v-if="menu_text">{{trans.accounts}}</span></a>
-                                <a id="lm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}} tooltipped" data-tooltip="{{trans.connections}}"><i class="material-icons">people</i><span v-if="menu_text">{{trans.connections}}</span></a>
-                                <a id="lm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}} tooltipped"  data-tooltip="{{trans.direct_message}}"><i class="material-icons">email</i><span v-if="menu_text">{{trans.direct_message}}</span></a>
-                                <!--<a id="lm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}} tooltipped"  data-tooltip="{{trans.favourites}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a>
-                                <a id="lm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}} tooltipped"  data-tooltip="{{trans.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a>-->
-                                <a id="lm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}} tooltipped" data-tooltip="{{trans.instances}}"><i class="material-icons">business</i><span v-if="menu_text">{{trans.instances}}</span></a>
-                                <a id="lm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}} tooltipped" data-tooltip="{{trans.notifications}}"><i class="material-icons">notifications</i><span v-if="menu_text">{{trans.notifications}}</span></a>    
-                                <a id="lm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}} tooltipped" data-tooltip="{{trans.settings}}"><i class="material-icons">settings</i><span v-if="menu_text">{{trans.settings}}</span></a>    
-                                <a id="lm_startpage" href="/" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.startpage}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.startpage}}</span></a>    
-                            </template>
-                            <template v-else>
-                                <a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.start_app}}</span></a>
-                            </template>
-                            <a id="lm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span v-if="menu_text">{{trans.help}}</span></a>
+                        <div id="dab_inputbox">
+                            <v-dialog
+                                v-model="is_dialog"
+                                fullscreen hide-overlay
+                                transition="dialog-transition"
+                            >
+                                <v-card>
+                                    <v-toolbar dark color="primary">
+                                        <v-btn icon dark @click="is_dialog = false">
+                                            <v-icon>close</v-icon>
+                                        </v-btn>
+                                        <v-toolbar-title>Settings</v-toolbar-title>
+                                        <v-spacer></v-spacer>
+                                        <v-toolbar-items>
+                                            <v-btn dark flat @click="is_dialog = false">Save</v-btn>
+                                        </v-toolbar-items>
+                                    </v-toolbar>
+                                    <v-card-text>
+                                        <v-select
+                                            :items="cons_boxtype"
+                                            v-model="is_boxtype"
+                                            label="Gadget type"
+                                        ></v-select>
+                                    </v-card-text>
+                                </v-card>
+                            </v-dialog>
                         </div>
-                    </div>
-                    <div  id="maincol_rightmain" class="inherited_body_range col s12 m12 l9">
-{% block content %}{% endblock %}
                     </div>
                 </div>
             </div>
+            <ul id="slide-out" class="common_ui_off sidenav"></ul>
+
             <div id="post_btn_area" class="fixed-action-btn">
                 <a id="btn_post_toote" class="btn-floating btn-large waves-effect waves-light red common_ui_off"><i class="material-icons">create</i></a>
             </div>
@@ -197,48 +212,7 @@
                 </v-bottom-nav>
             </div>
         </div>
-        <ul id="slide-out" class="sidenav">
-            <template v-if="applogined">
-                <li>
-                    <div id="side_userview" class="user-view">
-                        <div class="background">
-                            <v-img v-bind:src="account.rawdata.header" v-bind:alt="account.idname" style="width:100%;"></v-img>
-                        </div>
-                        <a v-on:click="onclick_current_selaccount"><img class="userrectangle" v-bind:src="account.rawdata.avatar"></a>
-                        <a ><span class="white-text name" v-html="account.display_name"></span></a>
-                        <a ><span class="white-text email">{? acct ?}</span></a>
-                        <i class="material-icons whole-notification red-text" v-if="whole_notification">notifications</i>
-                    </div>
-                </li>
-                <li><a id="sm_dashboard" href="/" class="collection-item maincol_menu {{menustat.dashboard}}"><i class="material-icons">dashboard</i><span>{{trans.dashboard}}</span></a></li>
-                <li>
-                    <a id="sm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}}"><i class="material-icons">view_day</i><span>{{trans.timeline}}</span></a>
-                        <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
-                        -->
-                </li>
-                <li><a id="sm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}}"><i class="material-icons">person</i><span>{{trans.accounts}}</span></a></li>
-                <li><a id="sm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}}"><i class="material-icons">people</i><span>{{trans.connections}}</span></a></li>
-                <li><a id="sm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}}"><i class="material-icons">email</i><span>{{trans.direct_message}}</span></a></li>
-                <!--<li><a id="sm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a></li>
-                <li><a id="sm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a></li>-->
-                <li><a id="sm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}}"><i class="material-icons">business</i><span>{{trans.instances}}</span></a></li>
-                <li><a id="sm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}}"><i class="material-icons">notifications</i><span>{{trans.notifications}}</span></a></li>
-                <li><a id="sm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}}"><i class="material-icons">settings</i><span>{{trans.settings}}</span></a></li>
-                <li><a id="sm_startpage" href="/" class="collection-item maincol_menu"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a></li>
-            </template>
-            <template v-else>
-                <li>
-                    <img id="img_brand" class="brand-image" src="/static/images/app_icon.png" width="52" height="52">
-                    <h1 class="brand-title black-text">G+don</h1>
-                    <br>
-                </li>
-                <li><a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span>{{trans.start_app}}</span></a></li>
-            </template>
-            <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
-        </ul>
+        
         <div id="ov_toote">
             <v-app>
             <v-dialog v-model="is_overlaying" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
@@ -327,6 +301,7 @@
         <script src="/static/lib/vue-carousel.min.js"></script>
         <!--<script src="/static/lib/vue-metal-grid/index.js" type='module'></script>
         <script src="/static/lib/element-resize-detector.min.js"></script>-->
+        <script src="/static/lib/vue-grid-layout.umd.min.js"></script>
         
         <script src="/static/lib/materialize/js/materialize.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>
@@ -365,7 +340,7 @@
     
     <script src="/pwabuilder-sw-register.js"></script>
     
-{% block userinclude %}{% endblock %}
+    <script src="/static/js/appdashboard.js"></script>
 
 <script src="/static/js/cls_gdrive.js"></script>
 

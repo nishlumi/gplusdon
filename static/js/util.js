@@ -988,3 +988,49 @@ function test_oran() {
 	xmlHttpRequest.setRequestHeader("Authorization",`Bearer ${token}`);
 	xmlHttpRequest.send(null);
 }
+function testsend(isget) {
+	var path = "https://script.google.com/macros/s/AKfycbyGDXR5ju8n9bbiaJ0iap_86wJAGqmQvoWqOKxXu-A/dev";
+	if (isget) {
+		ID("hid_send_mode").value = "load";
+		ID("hid_send").action = path;
+		ID("hid_send").method = "get";
+		ID("hid_send").addEventListener("submit",function (e) {
+			
+			$.ajax({
+				url : path + "?mode=load",
+				method : "GET",
+			})
+			.then(result=>{
+				console.log("get success:",result);
+			});
+			e.preventDefault();
+			
+		},false);
+		document.hid_send.submit();
+
+	}else{
+		var testdata = {
+			mode : "save",
+			data : JSON.stringify(MYAPP.acman.items[0])
+		};
+		ID("hid_send_mode").value = testdata.mode;
+		ID("hid_send_data").value = testdata.data;
+		ID("hid_send").action = path;
+		ID("hid_send").method = "post";
+		ID("hid_send").addEventListener("submit",function (e) {
+			
+			$.ajax({
+				url : path,
+				method : "POST",
+				data : testdata
+			})
+			.then(result=>{
+				console.log("post success:",result);
+			});
+			e.preventDefault();
+			
+		},false);
+		document.hid_send.submit();
+
+	}
+}

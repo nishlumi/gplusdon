@@ -31,7 +31,7 @@ var CK_INPUT_TOOTBOX = {
         {
             feed: CK_dataFeed_tag,
             marker: '#',
-            itemTemplate: '<li data-id="{id}">{text}</li>',
+            itemTemplate: '<li data-id="{text}">{text}</li>',
             outputTemplate: '#{text}&nbsp;',
             minChars: 1
         }
