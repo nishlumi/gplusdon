@@ -22,13 +22,8 @@ class Gplusdon {
             token: "",
             //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
             redirect_uri : "/redirect",
-            scopes: ["read", "write", "follow","push"],
-            ggl : {
-                ak : hidinfo[4],
-                ci : hidinfo[5]
-            }  
+            scopes: ["read", "write", "follow","push"]
         };
-        
         this.acman = new AccountManager();
 
         this.session = new Gpsession();

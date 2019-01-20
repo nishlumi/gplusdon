@@ -23,49 +23,15 @@ document.addEventListener('DOMContentLoaded', function () {
         delimiters : ["{?","?}"],
         data :  {
             is_use : false,
-            initial_instance : "",
-            is_gdrive_authorize : false,
+            initial_instance : ""
         },
         beforeMount() {
             if (MYAPP.session.config.application.skip_startpage) {
                 location.replace("/tl");
             }
         },
-        mounted() {
-            //this.is_gdrive_authorize = gpGLD.is_authorize;
-
-        },
         methods : {
             btn_reg_account_clicked : btn_reg_account_clicked,
-            onclick_authorize_drive_btn : function (e) {
-                gpGLD.handleAuth()
-                .then(flag=>{
-                    //---count config file in google drive
-                    gpGLD.loadFromFolder()
-                    .then(files=>{
-                        var ret = null;
-                        for (var i = 0; i < files.length; i++) {
-                            if (gpGLD.setname == files[i].name) {
-                                ret = files[i];
-                            }
-                        }
-                        return ret;
-                    })
-                    .then(file=>{
-                        if (file) {
-                            //---load config from google drive
-                            return gpGLD.loadFile(file.id)
-                            .then(result=>{
-                                localStorage.setItem(MYAPP.acman.setting.NAME,result.body);
-                                return result.result;
-                            });
-                        }
-                    })
-                    .finally(()=>{
-                        alertify.message(_T("msg_login_service",["Google"]));
-                    });
-                });
-            },
         }
     });
 

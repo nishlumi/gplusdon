@@ -308,17 +308,9 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
         <input type="hidden" id="_csrf" value="{{csrfToken}}">
-        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid ] %}
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
         <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
-        <form id="hid_send" class="common_ui_off" name="hid_send" method="post" action="" target="nodisp">
-            <input id="hid_send_mode" name="mode" value="">
-            <input id="hid_send_data" name="data" value="">
-            <input type="submit" value="送信" />
-        </form>
-        <iframe name="nodisp"  id="dummyfrm" class="common_ui_off"></iframe>
 
-
-        
         <script src="/static/lib/polyfill.min.js"></script>
         <script src="/static/lib/cookies.js"></script>
         <script src="/static/lib/jquery.min.js"></script>
@@ -347,7 +339,6 @@
     <script src="/static/res/res_template_userpop.js"></script>
     <script src="/static/res/res_template_replyinput.js"></script>
     <script src="/static/res/res_template_tootgallery-cal.js"></script>
-    <script src="/static/res/res_template_db_gadget.js"></script>
 
     <script src="/static/js/cls_ck_inputbox.js"></script>
     
@@ -366,12 +357,5 @@
     <script src="/pwabuilder-sw-register.js"></script>
     
 {% block userinclude %}{% endblock %}
-
-<script src="/static/js/cls_gdrive.js"></script>
-
-<script async defer src="https://apis.google.com/js/api.js"
-      onload="this.onload=function(){};gpGLD.handleClientLoad()"
-      onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script>
     </body>
 </html>

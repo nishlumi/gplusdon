@@ -37,7 +37,6 @@ class Gpsession {
                     popupNewtoot_always : false,
                     close_aftertoot : false,
                     tags : [],
-                    noclear_tag : false
                 },
                 notification : {
                     enable_browser_notification : true,

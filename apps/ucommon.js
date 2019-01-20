@@ -53,9 +53,7 @@ var ucommon = {
         author: sysconst.package_info.author.name,
         advisor: [],
         version: sysconst.package_info.version,
-        VAPID: sysconst.vap_id(),
-        gdaky: sysconst.gdrive.web.api_key,
-        gdid: sysconst.gdrive.web.client_id
+        VAPID: sysconst.vap_id()
     },
     load_translation: function (locales) {
         var ret = "";

@@ -36,15 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     timeline_view : "auto",
                     timeline_viewcount : "20",
                     gallery_type : "slide",
-                    skip_startpage : false,
                 },
                 type_action : {
                     confirmBefore : true,
                     image_everyNsfw : false,
                     popupNewtoot_always : false,
                     close_aftertoot : false,
-                    tags : [],
-                    noclear_tag : false
+                    tags : []
                 },
                 type_notification : {
                     enable_browser_notification : true,
@@ -58,13 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 //translation : {},
                 selected : {},
                 selected_base : {},
-
-                is_gdrive_authorize : false,
-                is_sync_confirm : false,
-                temp_sync : {
-                    gglid : "",
-                    ggldata : null,
-                },
                 globalInfo : {}
             }
         },
@@ -98,13 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     MYAPP.session.save(true);
                 },
                 deep : true
-            },
-            is_gdrive_authorize : function (val) {
-                //---count config file in google drive
-                if (!val) return;
-
-                
             }
+
         },
         beforeMount() {
             
@@ -155,176 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(registration => {
                     registration.unregister();
                 });
-            },
-            onclick_authorize_drive_btn : function (e) {
-                MUtility.loadingON();
-                gpGLD.handleAuth()
-                .then(flag=>{
-                    gpGLD.loadFromFolder()
-                    .then(files=>{
-                        var ret = null;
-                        for (var i = 0; i < files.length; i++) {
-                            if (gpGLD.setname == files[i].name) {
-                                ret = files[i];
-                            }
-                        }
-                        return ret;
-                    })
-                    .then(file=>{
-                        if (file) {
-                            //---if already exists, load config from google drive
-                            this.temp_sync.gglid = file.id;
-                            return gpGLD.loadFile(file.id)
-                            .then(result=>{
-                                this.temp_sync.ggldata = result;
-                                //localStorage.setItem(MYAPP.acman.setting.NAME,result.body);
-                                //return result.result;
-                                this.is_sync_confirm = true;
-                            });
-                        }else{
-                            //---newly save current local config
-                            gpGLD.writeFile();
-                        }
-                    })
-                    .finally(result=>{
-                        MUtility.loadingOFF();
-                    });
-                });
-            },
-            onclick_organization_account_btn : function (e) {
-                MUtility.loadingON();
-                if (this.temp_sync.gglid == "") {
-                    gpGLD.loadFromFolder()
-                    .then(files=>{
-                        var ret = null;
-                        for (var i = 0; i < files.length; i++) {
-                            if (gpGLD.setname == files[i].name) {
-                                ret = files[i];
-                            }
-                        }
-                        return ret;
-                    })
-                    .then(file=>{
-                        if (file) {
-                            this.temp_sync.gglid = file.id;
-                            //---if already exists, load config from google drive
-                            return gpGLD.loadFile(file.id)
-                            .then(result=>{
-                                this.temp_sync.ggldata = result;
-                                //localStorage.setItem(MYAPP.acman.setting.NAME,result.body);
-                                //return result.result;
-                                this.is_sync_confirm = true;
-                            });
-                        }
-                    })
-                    .finally(result=>{
-                        MUtility.loadingOFF();
-                    });
-                }else{
-                    gpGLD.loadFile(this.temp_sync.gglid)
-                    .then(result=>{
-                        this.temp_sync.ggldata = result;
-                        //localStorage.setItem(MYAPP.acman.setting.NAME,result.body);
-                        //return result.result;
-                        this.is_sync_confirm = true;
-                    })
-                    .finally(result=>{
-                        MUtility.loadingOFF();
-                    });
-                }
-            },
-            onclick_syncconfirm : function (ans) {
-                if (ans == 1) {
-                    //---priority local
-                }else if (ans == 2) {
-                    //---priority drive
-                    var file = this.temp_sync.ggldata;
-                    console.log("ans=",ans,file);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,file.body);
-                }else if (ans == 3) {
-                    //---integrate, priority local
-                    var local = MYAPP.acman.items;
-                    var drive = this.temp_sync.ggldata.result;
-                    var integarr = [];
-                    var skiparr = [];
-                    //---check existed, append local
-                    for (var i = 0; i < local.length; i++) {
-                        var ishit = false;
-                        for (var j = 0; j < drive.length; j++) {
-                            var test1 = (local[i].idname == drive[j].idname);
-                            var test2 = (local[i].instance == drive[j].instance);
-                            if (test1 && test2) {
-                                integarr.push(local[i]);
-                                skiparr.push(j);
-                                ishit = true;
-                            }
-                        }
-                        if (!ishit) {
-                            integarr.push(local[i]);
-                        }
-                    }
-                    //---append remaining
-                    for (var i = 0; i < drive.length; i++) {
-                        var ishit = false;
-                        for (var j = 0; j < skiparr.length; j++) {
-                            if (i != skiparr[j]) {
-                                ishit = true;
-                            }
-                        }
-                        if (!ishit) {
-                            integarr.push(drive[i]);
-                        }
-                    }
-                    console.log("ans=",ans,integarr);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
-                }else if (ans == 4) {
-                    //---integrate, priority drive
-                    var local = MYAPP.acman.items;
-                    var drive = this.temp_sync.ggldata.result;
-                    var integarr = [];
-                    var skiparr = [];
-                    //---check existed, append local
-                    for (var i = 0; i < local.length; i++) {
-                        var ishit = false;
-                        for (var j = 0; j < drive.length; j++) {
-                            var test1 = (local[i].idname == drive[j].idname);
-                            var test2 = (local[i].instance == drive[j].instance);
-                            if (test1 && test2) {
-                                integarr.push(drive[j]);
-                                skiparr.push(j);
-                                ishit = true;
-                            }
-                        }
-                        if (!ishit) {
-                            integarr.push(local[i]);
-                        }
-                    }
-                    //---append remaining
-                    for (var i = 0; i < drive.length; i++) {
-                        var ishit = false;
-                        for (var j = 0; j < skiparr.length; j++) {
-                            if (i != skiparr[j]) {
-                                ishit = true;
-                            }
-                        }
-                        if (!ishit) {
-                            integarr.push(drive[i]);
-                        }
-                    }
-                    console.log("ans=",ans,integarr);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
-                }else if (ans == 5) {
-                    //---nothing. cancel
-                    this.is_sync_confirm = false;
-                }
-                this.is_sync_confirm = false;
-            },
-            onclick_forget_drive_btn : function (e) {
-                var msg = _T("msg_logout_google");
-                appConfirm(msg,()=>{
-                    gpGLD.handleSignout();
-                });
-                
             }
         }
     });
@@ -341,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("scroll up max");
         }
     });
-
 
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
@@ -370,10 +185,10 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.session.status.currentLocation = location.pathname;
 
     }, function (flag) {
-        /*appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+        appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
-        });*/
+        });
         //=== can use, if no logined===
         //---if already exists hid_instance, show instance information
         

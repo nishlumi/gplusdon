@@ -305,8 +305,8 @@ class AccountManager {
         console.log(i);
         if (i > -1) {
             var old = this.items[i].instance;
-            this.items[i].dispose();
-            this.items.splice(i, 1);
+            var delac = this.items.splice(i, 1);
+            delac.dispose();
             var ishit = 0;
             //---check if same instance exists
             for (var j = 0; j < this.items.length; j++) {
@@ -412,29 +412,6 @@ class AccountManager {
                     this.items.splice(values.index,1);
                 }
             }*/
-            if (gpGLD.is_authorize) {
-                //---save to google drive
-                //---count config file in google drive
-                gpGLD.loadFromFolder()
-                .then(files=>{
-                    var ret = null;
-                    for (var i = 0; i < files.length; i++) {
-                        ret = files[i];
-                    }
-                    return ret;
-                })
-                .then(file=>{
-                    if (file) {
-                        var tmparr = [];
-                        for (var i = 0; i < this.items.length; i++) {
-                            tmparr.push(this.items[i].getRaw());
-                        }
-                        //---overwrite existing config file (because it already exists at here!!) 
-                        gpGLD.updateFile(file.id,JSON.stringify(tmparr));
-                    }
-                });
-
-            }
             return this.items;
         });
     }

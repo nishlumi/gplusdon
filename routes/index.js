@@ -40,19 +40,6 @@ router.get('/', function (req, res) {
     });
 });
 
-router.get('/dashboard', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
-    clearStatus();
-    
-    res.render('appdashboard', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
-        csrfToken: req.csrfToken(),
-        menustat: menuStatus
-
-    });
-});
 router.get('/test', function (req, res) {
     var lan = req.acceptsLanguages();
     var trans = ucommon.load_translation(lan);
@@ -110,18 +97,6 @@ router.get('/s/:findtext', function (req, res) {
         sysinfo: ucommon.sysinfo,
         transjs: trans,
         findtext : req.params.findtext,
-        csrfToken: req.csrfToken(),
-        menustat: menuStatus
-
-    });
-});
-router.get('/terms', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
-    clearStatus();
-    res.render('terms', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
