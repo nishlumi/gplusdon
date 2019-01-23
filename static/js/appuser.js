@@ -800,6 +800,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var atab = Q(".tab .active");
             if (atab.hash == "#tt_public") {
+                for (var obj in vue_user.tootes.currentOption.api) {
+                    pastOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
+                }
                 console.log(JSON.stringify(vue_user.tootes.info));
                 /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
                     api : {
@@ -869,6 +872,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var atab = Q(".tab .active");
             if (atab.hash == "#tt_public") {
+                for (var obj in vue_user.tootes.currentOption.api) {
+                    futureOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
+                }
                 /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
                     api : {
                         exclude_replies : true,

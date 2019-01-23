@@ -209,3 +209,59 @@
         </v-card>
     </v-dialog>
 </div>
+<div class="emoji-view">
+    <v-bottom-sheet v-model="is_sheet"
+        hide-overlay persistent  
+    >
+        <v-layout row wrap  class="white">
+            <v-flex xs12 sm4 md3 lg3  style="height:24rem;overflow:auto;">
+                
+                <details>
+                    <summary class="list_summary">UTF-8 {{ trans.Pictogram }} </summary>
+                    <v-list two-line full-width>
+                        <template v-for="(item, index) in emojis_title.utf8">
+                            <v-list-tile v-if="item.type == 'pict'" :key="index"  v-on:click="onclick_keymaplistitem(index,'pict')">
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                    <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </details>
+                <details>
+                    <summary class="list_summary">UTF-8 {{ trans.Letter }}</summary>
+                    <v-list two-line full-width>
+                        <template v-for="(item, index) in emojis_title.utf8">
+                            <v-list-tile v-if="item.type == 'lett'" :key="index"  v-on:click="onclick_keymaplistitem(index,'lett')">
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                    <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </details>
+
+                <details>
+                    <summary class="list_summary">{{ trans.tbl_acc_col3 }}</summary>
+                    <v-list two-line full-width>
+                        <v-list-tile  :key="index" v-for="(item, index) in emojis_title.instances" v-on:click="onclick_keymaplistitem(index,'inst')">
+                            <v-list-tile-content>
+                                <v-list-tile-title v-html="item.text"></v-list-tile-title>
+                                <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </details>
+                
+            </v-flex>
+            <v-flex xs12 sm8 md9 lg9>
+                <v-card flat>
+                    <div id="chararea"></div>    
+                </v-card>
+            </v-flex>
+        </v-layout>
+        
+    </v-bottom-sheet>
+</div>

@@ -70,6 +70,20 @@ var vue_mixin_for_timeline = {
 			is_scrolltop : true,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
+			currentOption : {
+				api : {
+					exclude_replies : true,
+					only_media : false,
+				},
+				app : {
+					is_nomax : false,
+					is_nosince : false,
+					tlshare : "",
+					tltype : "",
+					exclude_reply : true,
+
+				}
+			},
 			info : {
 				maxid : "",
 				sinceid : "",
@@ -132,11 +146,14 @@ var vue_mixin_for_timeline = {
                     app : {
                         is_nomax : false,
                         is_nosince : true,
-                        tlshare : "",
-                        tltype : "",
+                        tlshare : this.currentOption.app.tlshare,
+                        tltype : this.currentOption.app.tltype,
                         exclude_reply : true,
-                    }
-                }
+					}	
+				}
+				for (var obj in this.currentOption.api) {
+					pastOptions.api[obj] = this.currentOption.api[obj];
+				}
                 //var atab = Q(".tab .active");
                 if (this.$el.id == "tl_home") {
 					tlid = "home";
@@ -173,11 +190,14 @@ var vue_mixin_for_timeline = {
                     app : {
                         is_nomax : true,
                         is_nosince : false,
-                        tlshare : "",
-                        tltype : "",
+                        tlshare : this.currentOption.app.tlshare,
+                        tltype : this.currentOption.app.tltype,
                         exclude_reply : true,
                     }
                 }
+				for (var obj in this.currentOption.api) {
+					futureOptions.api[obj] = this.currentOption.api[obj];
+				}
                 //---page max scroll up
                 console.log("scroll up max");
                 //var atab = Q(".tab .active");
@@ -615,7 +635,28 @@ var vue_mixin_for_timeline = {
 			}
 			console.log("vm.statuses=" + this.statuses.length);
 			this.is_asyncing = false;
-			this.$nextTick(function () {
+			this.$nextTick(() =>{
+				for (var s = 0; s < this.statuses.length; s++) {
+					if (this.statuses[s].geo.enabled) {
+						var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+							OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+							Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+							latlng = L.latLng(this.statuses[s].geo.location[0].lat, this.statuses[s].geo.location[0].lng);
+	
+						var geomap = L.map(this.$children[s].$el.querySelector('.here_map'), {center: latlng, dragging : false, zoom: this.statuses[s].geo.location[0].zoom,layers: [Osm]});
+	
+						for (var i = 0; i < this.statuses[s].geo.location.length; i++) {
+							var ll = this.statuses[s].geo.location[i];
+							var marker = L.marker({lat:ll.lat,lng:ll.lng}).addTo(geomap);
+							marker.on("click",(ev)=>{
+								//ev.sourceTarget.remove();
+								//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
+							});
+							marker.bindPopup(ll.name);
+						}
+					}
+				}
+				
 				return;
 				var es = this.$el.querySelectorAll(".carousel");
 				console.log(es.length);
@@ -689,7 +730,11 @@ var vue_mixin_for_timeline = {
 		forWatch_selshare : function (val) {
 			this.statuses.splice(0,this.statuses.length);
 			//this.info.tltype = sel;
-			var opt = {
+			this.currentOption.api["exclude_replies"] = true;
+			this.currentOption.app["tlshare"] = val;
+			this.currentOption.app["tltype"] = this.seltype_current;
+
+			/*var opt = {
 				api : {
 					exclude_replies : true
 				},
@@ -697,13 +742,17 @@ var vue_mixin_for_timeline = {
 					tlshare : val,
 					tltype : this.seltype_current,
 				}
-			};
-			return opt;
+			};*/
+			return this.currentOption;
 		},
 		forWatch_seltype : function (val) {
 			this.statuses.splice(0,this.statuses.length);
 			//this.info.tltype = sel;
-			var opt = {
+			this.currentOption.api["exclude_replies"] = true;
+			this.currentOption.app["tlshare"] = this.selshare_current;
+			this.currentOption.app["tltype"] = val;
+			
+			/*var opt = {
 				api : {
 					exclude_replies : true
 				},
@@ -711,11 +760,13 @@ var vue_mixin_for_timeline = {
 					tlshare : this.selshare_current,
 					tltype : val,
 				}
-			};
+			};*/
 			if (val == "tt_media") {
-				opt.api["only_media"] = true;
+				this.currentOption.api["only_media"] = true;
+			}else{
+				delete this.currentOption.api["only_media"];
 			}
-			return opt;
+			return this.currentOption;
 		},
 		changeTimelineStyle : function (e) {
 			for (var st in this.timeline_gridstyle) {
@@ -736,6 +787,16 @@ var vue_mixin_for_timeline = {
 };
 //----------------------------------------------------------------------
 var vue_mixin_for_inputtoot = {
+	props : {
+		accounts : {
+			type: Array,
+			default: null
+		},
+		selaccounts : {
+			type : Array,
+			default : null
+		}
+	},
 	data() {
 		return {
 			ckeditor : null,
@@ -751,10 +812,23 @@ var vue_mixin_for_inputtoot = {
 
 
 			//---account box data
-			selaccounts : [],
+			//selaccounts : [],
 
 			//---share scope box and mention box data
-			selsharescope : "tt_public",
+			sharescopes : [
+                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
+                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
+                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
+                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
+            ],
+
+			selsharescope : {
+				text : _T("sel_tlpublic"),
+				value : "tt_public",
+				avatar : "public",
+				selected:{"red-text":true}
+			},
+			
 			isopen_mention : false,
 			selmentions : [],
 			mentions : [],
@@ -794,7 +868,26 @@ var vue_mixin_for_inputtoot = {
                 description : "",
                 site : "",
                 title : "",
-            },
+			},
+			
+			//---geo
+			geotext : "",
+			geouris : [],
+			geochk_error : false,
+			geouris_rules : [
+                function (v) {
+                    return v.length <= 4 || "Max: 4 location"
+                }
+            ],
+			is_geo : false,
+			geomap : null,
+			geoitems : [],
+			geo : {
+				lat : 0,
+				lng : 0,
+				zoom : 1,
+				locos : []
+			},
 
 		}
 	},
@@ -817,8 +910,26 @@ var vue_mixin_for_inputtoot = {
 				+ mentions.length + tags.join(" ").length;
 
 		},
+		geouris : function (val,old) {
+			//var len = val.length;
+			//this.strlength += len + 1; //1 is space.
+			console.log(val,old);
+			if (val.length > 4) {
+				return false;
+			}else{
+			}
+			this.calc_fulltext(this.status_text);
+
+			//---warning near limit.
+			if (this.strlength > 490) {
+				this.strlength_class["red-text"] = true;
+			}else{
+				this.strlength_class["red-text"] = false;
+			}
+			this.btnflags.send_disabled = (this.strlength > 500);
+		},
 		status_text : function(val) {
-			var cont = MYAPP.extractTootInfo(val);
+			/*var cont = MYAPP.extractTootInfo(val);
 			var textWithoutMentions = cont.text;
 			var mentions = [];
 			if (this.selmentions.length > 0) {
@@ -837,7 +948,10 @@ var vue_mixin_for_inputtoot = {
 
 			//console.log(textWithoutMentions,mentions,tags);
 			this.strlength = twttr.txt.getUnicodeTextLength(textWithoutMentions)
-				+ mentions.join(" ").length + tags.length;
+				+ mentions.join(" ").length + tags.length + this.geotext.length;
+			*/
+
+			this.calc_fulltext(val);
 			//---warning near limit.
 			if (this.strlength > 490) {
 				this.strlength_class["red-text"] = true;
@@ -889,10 +1003,37 @@ var vue_mixin_for_inputtoot = {
 
 				content += "\n" + tags.join(" ");
 			}
+			if (this.geouris.length > 0) {
+				content += this.geouris.join(" ") + " ";
+			}
 			
 			return content;
 		},
+		calc_fulltext : function (val) {
+			var cont = MYAPP.extractTootInfo(val);
+			var textWithoutMentions = cont.text;
+			var mentions = [];
+			if (this.selmentions.length > 0) {
+				mentions = MYAPP.calcMentionLength(this.selmentions);
+			}
+			if (cont.mentions) {
+				for (var i = 0; i < cont.mentions.length; i++) {
+					textWithoutMentions = textWithoutMentions.replace(cont.mentions[i],"");
+				}
+				mentions = mentions.concat(MYAPP.calcMentionLength(cont.mentions));
+				//console.log("text=",textWithoutMentions,"mentions=",mentions);
+			}
 
+			var tags = this.seltags.join(" ");
+
+
+			//console.log(textWithoutMentions,mentions,tags);
+			this.strlength = twttr.txt.getUnicodeTextLength(textWithoutMentions)
+				+ mentions.join(" ").length + tags.length + this.geouris.join(" ").length;
+		},
+		generate_geouri : function (item) {
+			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${item.Name}`;
+		},
 		//---event handler---------------------------------------------
 		onchange_inputcontent : function (e) {
 			var content = MYAPP.extractTootInfo(this.ckeditor.getData());
@@ -1026,6 +1167,126 @@ var vue_mixin_for_inputtoot = {
 		onclick_addimage : function(e) {
 			ID("dmy_openmdia").click();
 		},
+		onclick_addgeo : function (e) {
+			if (this.is_geo) {
+				this.is_geo = false;
+				this.geo.lat = 0;
+				this.geo.lng = 0;
+				this.geo.zoom = 1;
+				this.geo.locos.splice(0,this.geo.locos.length);
+				this.geouris.splice(0,this.geouris.length);
+				this.geotext = "";
+				return;
+			}
+			var generate_marker = (lat, lng, zoom) => {
+				var marker = L.marker({lat:lat,lng:lng},{icon:redIcon}).addTo(this.geomap);
+				marker.on("click",(ev)=>{
+					//ev.sourceTarget.remove();
+					//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}`;
+				});
+				marker.bindPopup(`${lat},${lng}`);
+				this.geoitems.push(marker);
+				this.geo.locos.push({
+					"Geometry" : {
+						"Coordinates" : `${lng},${lat}`,
+						"latlng" : {
+							"lat" : lat,
+							"lng" : lng,
+						},
+						"zoom" : zoom
+					},
+					"Property" : {
+						"Address" : ""
+					},
+					"Name" : `(${lat}/${lng})`
+				});
+
+				//---arround location
+				loadGeoLoco(lat,lng)
+				.then(result=>{
+					//---set near location marker
+					
+					for (var i = 0; i < result.Feature.length; i++) {
+						var pos = result.Feature[i].Geometry.Coordinates.split(",");
+
+						result.Feature[i].Geometry["latlng"] = {
+							lat : pos[1],
+							lng : pos[0]
+						};
+						result.Feature[i].Geometry["zoom"] = zoom;
+						this.geo.locos.push(result.Feature[i]);
+						
+
+						var marker = L.marker({lat:pos[1],lng:pos[0]}).addTo(this.geomap);
+						marker.on("click",(ev)=>{
+							//ev.sourceTarget.remove();
+							//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
+						});
+						marker.bindPopup(result.Feature[i].Name);
+						this.geoitems.push(marker);
+					}
+				})
+				.catch(error=>{
+
+				});
+			}
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					(pos)=>{
+						this.is_geo = true;
+						this.geo.lat = pos.coords.latitude; //35.62481; //
+						this.geo.lng = pos.coords.longitude; //140.05563; //
+
+						this.geo.locos.splice(0,this.geo.locos.length);
+						for (var i = 0; i < this.geoitems.length; i++) {
+							this.geomap.removeControl(this.geoitems[i]);
+						}
+
+						console.log(pos);
+						this.$nextTick(()=>{
+							var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+								OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+								Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+								latlng = L.latLng(this.geo.lat, this.geo.lng);
+
+							if (!this.geomap) {
+								this.geomap = L.map(this.$el.querySelector('.here_map'), {center: latlng, dragging : true, zoom: 18,layers: [Osm]});
+							}
+
+							//---re-calculate location mark
+							this.geomap.on("click",(e)=>{
+								console.log(e);
+								this.geo.locos.splice(0,this.geo.locos.length);
+								for (var i = 0; i < this.geoitems.length; i++) {
+									this.geomap.removeControl(this.geoitems[i]);
+								}
+								
+
+								this.geo.lat = e.latlng.lat;
+								this.geo.lng = e.latlng.lng;
+								generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
+							});
+							this.geo.zoom = this.geomap.getZoom();
+							
+
+							generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
+
+							
+ 
+						});
+					},
+					(error)=>{
+						aletify.error("You can not to use geolocation...");
+					}
+				)
+			}else{
+				console.log("can not to use geolocation");
+			}
+		},
+		onclick_selloco : function(item) {
+			var pos = item.Geometry.Coordinates.split(",");
+			this.geomap.setView({ lat:pos[1], lng: pos[0] });
+		},
 		onclick_mediaclose : function(index) {
 			appConfirm(_T("image_confirm_msg01"),()=>{
 				//console.log("index=",index);
@@ -1059,7 +1320,9 @@ var vue_mixin_for_inputtoot = {
 					this.mainlink.exists = false;
 					this.ckeditor.editable().setText("");
 					this.selmentions.splice(0,this.selmentions.length);
-					this.seltags.splice(0,this.seltags.length);
+					if (!MYAPP.session.config.action.noclear_tag) {
+						this.seltags.splice(0,this.seltags.length);
+					}
 					this.selmedias.splice(0,this.selmedias.length);
 					this.medias.splice(0,this.medias.length);
 					this.switch_NSFW = false;
@@ -1072,9 +1335,11 @@ var vue_mixin_for_inputtoot = {
 							window.close();
 						}
 					}
+					this.$emit("send",{isOK:true});
 				});
 			}else{
-				appAlert("Found some error.");
+				//appAlert("Found some error.");
+				this.$emit("send",{isOK:false});
 			}
 		},
 

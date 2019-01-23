@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
 
         MYAPP.commonvue.inputtoot.show_openInNew = false;
+        MYAPP.commonvue.inputtoot.tootIB.btns.open_in_new = false;
         MYAPP.commonvue.inputtoot.otherwindow = true;
+        MYAPP.commonvue.inputtoot.translation = curLocale.messages;
 
         /*var issave = localStorage.getItem(MYAPP.commonvue.inputtoot.CNS_SAVENAME);
         if (issave) {

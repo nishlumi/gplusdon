@@ -7,7 +7,7 @@ function defineForTootPage(app) {
     app.commonvue["inputtoot"] = new Vue({
         el : "#ov_inputtoot",
         delimiters : ["{?", "?}"],
-        mixins : [vue_mixin_for_inputtoot],
+        //mixins : [vue_mixin_for_inputtoot],
         data :  {
             //--dialog basic data
             dialog : false,
@@ -18,6 +18,25 @@ function defineForTootPage(app) {
             show_openInNew : true,
             emoji_bottomsheet : false,
             CNS_SAVENAME : "gp_inpt_conn",
+            translation : null,
+            globalinfo : null,
+
+            eid : "dvnew",
+            tootIB : {
+                visibility : "",
+                first_scope : "public",
+                popuping : "",
+                btns : {
+                    close : true,
+                    open_in_new : true,
+                    help : true,
+                    open_in_browser : false,
+                    addimage : true,
+                    addgeo : true,
+                    emoji : true,
+                    send : true
+                }
+            },
 
 
             //---account box data
@@ -196,7 +215,7 @@ function defineForTootPage(app) {
             //if (this.otherwindow) {
             //}
             //M.FormSelect.init(ID("keymaptitle"), {});
-            
+            /*
             CKEDITOR.disableAutoInline = true;
             CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
             this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
@@ -236,7 +255,9 @@ function defineForTootPage(app) {
                 //var ed = this.ckeditor.editable();
                 //ed.insertText(js.text); //
             }
-    
+            */
+            this.translation = curLocale.messages;
+            this.globalinfo = {};
         },
         computed : {
             
@@ -244,34 +265,36 @@ function defineForTootPage(app) {
         methods : {
             //---Element event handler------------------------------------
             onclick_close : function (e) {
-                var msg = _T("msg_cancel_post");
+                /*var msg = _T("msg_cancel_post");
                 appConfirm(msg,()=>{
                     this.status_text = "";
                     this.mainlink.exists = false;
                     this.ckeditor.editable().setText("");
                     this.selmentions.splice(0,this.selmentions.length);
-                    this.seltags.splice(0,this.seltags.length);
+                    if (!MYAPP.session.config.action.noclear_tag) {
+                        this.seltags.splice(0,this.seltags.length);
+                    }
                     this.selmedias.splice(0,this.selmedias.length);
                     this.medias.splice(0,this.medias.length);
                     this.switch_NSFW = false;
 
-                    if (this.otherwindow) {
-                        window.close();
-                    }else{
-                        this.dialog = false;
-                    }
+                });*/
+                if (this.otherwindow) {
+                    window.close();
+                }else{
+                    this.dialog = false;
+                }
 
-                });
             },
             onclick_openInNew : function (e) {
                 var savedata = {
-                    accounts : JSON.original(this.selaccounts),
-                    scope : JSON.original(this.selsharescope),
-                    mentionlist : JSON.original(this.mentions),
-                    mentions : JSON.original(this.selmentions),
-                    tags : JSON.original(this.seltags),
-                    text : JSON.original(this.status_text),
-                    medias : JSON.original(this.medias)
+                    accounts : (this.selaccounts),
+                    scope : (this.selsharescope),
+                    mentionlist : (this.mentions),
+                    mentions : (this.selmentions),
+                    tags : (this.seltags),
+                    text : (this.status_text),
+                    medias : (this.medias)
                 };
                 localStorage.setItem(this.CNS_SAVENAME,JSON.stringify(savedata));
                 var srvurl = ID("hid_staticpath").value.replace("/static","");
@@ -311,6 +334,14 @@ function defineForTootPage(app) {
                     });
                 }
                 
+            },
+            onclick_send : function (e) {
+                this.dialog = false;
+                if (this.otherwindow) {
+                    if (MYAPP.session.config.action.close_aftertoot) {
+                        window.close();
+                    }
+                }
             },
             //---Some function------------------------------------
             select_scope: function (item) {

@@ -1,0 +1,88 @@
+<v-navigation-drawer
+    fixed
+    :clipped="$vuetify.breakpoint.smAndUp"
+    :mini-variant="mini"
+    app
+    v-model="drawer"
+>
+    <template v-if="applogined">
+        <div id="cur_sel_account" v-if="'rawdata' in account">
+            <v-card v-if="$vuetify.breakpoint.mdAndUp">
+                <v-card-text class="pa-1" v-bind:class="css.bgred">
+                    <v-list>
+                        <v-list-tile avatar v-on:click="onclick_current_selaccount">
+                            <v-list-tile-avatar>
+                                <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                                <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
+                                <!--<v-icon color="red" v-if="whole_notification" v-cloak>notifications</v-icon>-->
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+            </v-card>
+        </div>
+        <v-list dense>
+            <v-list-tile v-on:click="onclick_menulink('/dashboard')">
+                <v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title class="{{menustat.dashboard}}">{{trans.dashboard}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/tl')">
+                <v-list-tile-action><v-icon>view_day</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title class="{{menustat.timeline}}">{{trans.timeline}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/accounts')">
+                <v-list-tile-action><v-icon>person</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.accounts}}">
+                    <v-list-tile-title>{{trans.accounts}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/connections')">
+                <v-list-tile-action><v-icon>people</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.connections}}">
+                    <v-list-tile-title>{{trans.connections}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/instances')">
+                <v-list-tile-action><v-icon>business</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.instances}}">
+                    <v-list-tile-title>{{trans.instances}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/notifications')">
+                <v-list-tile-action><v-icon>notifications</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.notifications}}">
+                    <v-list-tile-title>{{trans.notifications}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/settings')">
+                <v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.settings}}">
+                    <v-list-tile-title>{{trans.settings}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <v-list-tile v-on:click="onclick_menulink('/')">
+                <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title>{{trans.startpage}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+        </v-list>
+    </template>
+    <template v-else>
+        <v-list dense>
+            <v-list-tile v-on:click="onclick_menulink('/')">
+                <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title>{{trans.start_app}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+        </v-list>
+    </template>
+    <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
+</v-navigation-drawer>

@@ -70,10 +70,52 @@
                                 <v-btn large color="red" v-on:click="onclick_uninstall_btn">{{trans.lab_uninstall_btn}}</v-btn>
                                 <v-btn large color="yellow" v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
                             </v-flex>
-    
+                            <v-flex xs12 sm12 md6 lg6>
+                                <span>{{ trans.app_item_sync_gdrive }}</span>
+                                <p>{{ trans.app_lab_sync_gdrive }}</p>
+                                <v-btn small color="primary" v-if="!is_gdrive_authorize" v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
+                                <v-btn small color="yellow" v-if="is_gdrive_authorize" v-on:click="onclick_forget_drive_btn">{{trans.app_lab_sync_gdrive_forget}}</v-btn>
+                                <v-btn small  v-if="is_gdrive_authorize" v-on:click="onclick_organization_account_btn">{{trans.app_lab_sync_gdrive_integrate}}</v-btn>
+                            </v-flex>
                         </v-layout>
                     </v-card-text>
-                </v-card>                
+                </v-card>
+                <v-dialog
+                    v-model="is_sync_confirm"
+                    persistent transition="dialog-transition"
+                >
+                    <v-card>
+                        <v-card-title primary-title>
+                            <h1 class="title">
+                            {{trans.app_lab_sync_gdrive_msg1}}
+                            </h1>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-list>
+                                <v-list-tile v-on:click="onclick_syncconfirm(1)">
+                                    {{trans.app_lab_sync_gdrive_first1}}
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_syncconfirm(2)">
+                                    {{trans.app_lab_sync_gdrive_first2}}
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_syncconfirm(3)">
+                                    {{trans.app_lab_sync_gdrive_first3}}
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_syncconfirm(4)">
+                                    {{trans.app_lab_sync_gdrive_first4}}
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_syncconfirm(5)">
+                                    {{trans.cons_cancel}}
+                                </v-list-tile>
+                            </v-list>
+                        </v-card-text>
+                    </v-card>
+
+                </v-dialog>
             </v-expansion-panel-content>
             <v-expansion-panel-content>
                 <div slot="header">{{trans.cfg_panel_action}}</div>
@@ -82,13 +124,10 @@
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
-                            </v-flex>
-                            <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}"></v-checkbox>
-                            </v-flex>
-                            <v-flex xs12 sm12 md6>
                                 <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
+                                <v-checkbox v-model="type_action.noclear_tag" label="{{trans.act_lab_noclear_tag}}"></v-checkbox>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-container fluid grid-list-md>
@@ -111,7 +150,10 @@
                                     
                                 </v-container>
                             </v-flex>
-    
+                            <v-flex xs12 sm12 md6>
+                                <v-checkbox v-model="type_action.open_url_after_remove_account" label="{{trans.act_lab_open_url_after_remove_account}}"></v-checkbox>
+                                <span>{{trans.act_msg_open_url_after_remove_account}}</span>
+                            </v-flex>
                         </v-layout>
                     </v-card-text>
                 </v-card>                

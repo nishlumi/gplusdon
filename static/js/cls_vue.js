@@ -999,218 +999,7 @@ Vue.component("user-popupcard", {
 		}
 	}
 });
-//===----------------------------------------------------------------------===
-//  Component: reply-inputbox
-//===----------------------------------------------------------------------===
-Vue.component("reply-inputbox", {
-	template: CONS_TEMPLATE_REPLYINPUT,
-	mixins: [vue_mixin_for_inputtoot],
-	props: {
-		id : String,
-		visibility : Boolean,
-		translation: Object,
-		globalinfo: Object,
-		first_sharescope : String,
-		popuping : {
-			type : String,
-			default : ""
-		},
-		/**
-		 * @param {String} reply_to_id toot ID to reply 
-		 * @param {String} mention_to_id user ID to reply
-		 * @param {Object} reply_account user object to reply
-		 * @param {String} selectaccount account data to use as sender
-		 */
-		replydata : Object
-	},
-	data() {
-		return {
-			reply_to_id : "",
-			//mention_to_id : "",
-			isfirst : true,
-			ckeditor : {},
-			btnflags : {
-				send_disabled : false
-			},
 
-			//---share scope box and mention box data
-            sharescopes : [
-                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
-                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
-                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
-                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
-            ],
-			selsharescope : {
-				text : _T("sel_tlpublic"),
-				value : "tt_public",
-				avatar : "public",
-				selected:{"red-text":true}
-			},
-
-		}
-	},
-	beforeMount(){
-	},
-	mounted(){
-		//---each initialize
-		this.selaccounts.push(this.replydata.selectaccount);
-		this.reply_to_id = this.replydata.reply_to_id;
-		//this.mention_to_id = this.replydata.mention_to_id;
-
-		//this.ckeditor.on("keydown",this.onkeydown_inputcontent);
-		//this.ckeditor.on("dragstart",this.ondragover_inputcontent);
-		//this.ckeditor.on("change",this.onchange_inputcontent);
-		this.selmentions.push("@"+this.replydata.reply_account.acct);
-
-		var tmpscope = "tt_"+this.first_sharescope;
-		if (this.first_sharescope == "unlisted") {
-			tmpscope = "tt_tlonly"	
-		}
-		//console.log("first_sharescope=",this.first_sharescope,tmpscope);
-		var hitscopes = this.sharescopes.filter(e=>{
-			if (tmpscope == e.value) {
-				return true;
-			}
-			return false;
-		});
-		//console.log(hitscopes);
-		this.select_scope(hitscopes[0]);
-
-
-	},
-	beforeUpdate() {
-		if (this.isfirst) {
-			//---setup CKeditor
-			CKEDITOR.disableAutoInline = true;
-			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-			var elemid = this.movingElementID('replyinput_');
-			this.ckeditor = CKEDITOR.inline( elemid, CK_INPUT_TOOTBOX);
-
-			console.log("this.status_text=",this.status_text);
-			//this.ckeditor.setData(this.status_text);
-
-			$("#"+elemid).pastableContenteditable();
-			$("#"+elemid).on('pasteImage',  (ev, data) => {
-				console.log(ev,data);
-				if (this.dialog || this.otherwindow) {
-					this.loadMediafiles("blob",[data.dataURL]);
-				}
-			}).on('pasteImageError', (ev, data) => {
-				alert('error paste:',data.message);
-				if(data.url){
-					alert('But we got its url anyway:' + data.url)
-				}
-			}).on('pasteText',  (ev, data) => {
-				console.log("text: " + data.text);
-			});
-
-			this.isfirst = false;
-		}
-	},
-	updated() {
-		/*if (this.isfirst) {
-			CKEDITOR.disableAutoInline = true;
-			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-			//console.log("popuping=",this.popuping + 'replyinput_'+this.id);
-			//console.log(ID(this.popuping + 'replyinput_'+this.id));
-			this.ckeditor = CKEDITOR.inline( this.popuping + 'replyinput_'+this.id, CK_INPUT_TOOTBOX);
-	
-			this.isfirst = false;
-		}*/
-	},
-	computed : {
-
-	},
-	methods: {
-		movingElementID : function (text) {
-			return this.popuping + text + this.id;
-		},
-		select_scope: function (item) {
-			for (var i = 0; i < this.sharescopes.length; i++) {
-				this.sharescopes[i].selected["red-text"] = false;
-			}
-			item.selected["red-text"] = true;
-			this.selsharescope.text = item.text;
-			this.selsharescope.value = item.value;
-			this.selsharescope.avatar = item.avatar;
-		},
-		autocomplete_mention_func : CK_dataFeed_mention,
-		//---event handler-------------------------------------
-		onfocus_dv_inputcontent: function (e) {
-			//e.target.nextElementSibling.classList.remove("common_ui_off");
-		},
-		onclick_btn_reply_cancel: function (e) {
-			var msg = _T("msg_cancel_post");
-
-			appConfirm(msg,()=>{
-				this.ckeditor.editable().setText("");
-				this.status_text = "";
-				this.selsharescope = {
-					text : _T("sel_tlpublic"),
-					value : "tt_public",
-					avatar : "public",
-					selected:{"red-text":true}
-				};
-				this.selmedias.splice(0,this.selmedias.length);
-				this.medias.splice(0,this.medias.length);
-				this.switch_NSFW = false;
-				this.seltags.splice(0,this.seltags.length);
-				this.tags.splice(0,this.tags.length);
-				this.strlength = 0;
-			});
-
-		},
-		onclick_btn_reply_post : function (e) {
-			var pros = [];
-			for (var i = 0; i < this.selaccounts.length; i++) {
-				var account = this.getTextAccount2Object(i);
-				console.log(account);
-				var mediaids = [];
-				for (var m = 0; m < this.medias.length; m++) {
-					mediaids.push(this.medias[m][account.acct].id);
-				}
-				var pr = MYAPP.executePost(this.joinStatusContent(),{
-					"in_reply_to_id" : this.reply_to_id,
-					"account" : account,
-					"scope" : this.selsharescope,
-					"media" : mediaids
-				});
-				pros.push(pr);
-			}
-
-			Promise.all(pros)
-			.then(values=>{
-				//---clear input and close popup
-				this.status_text = "";
-				this.selmentions.splice(0,this.selmentions.length);
-				this.seltags.splice(0,this.seltags.length);
-				this.selmedias.splice(0,this.selmedias.length);
-
-
-				if (!this.fullscreen) {
-					this.dialog = false;
-				}
-			})
-			.finally(()=>{
-				//---recover base reply mention of this toot 
-				this.selmentions.push("@"+this.replydata.reply_account.acct);
-
-				//---fire onreplied event to parent element
-
-				this.status_text = "";
-				this.mainlink.exists = false;
-				this.ckeditor.editable().setText("");
-				this.seltags.splice(0,this.seltags.length);
-				this.selmedias.splice(0,this.selmedias.length);
-				this.medias.splice(0,this.medias.length);
-				this.switch_NSFW = false;
-
-				this.$emit('replied');
-			});
-		}
-
-	}
-});
 
 
 //===----------------------------------------------------------------------===
@@ -1422,5 +1211,105 @@ Vue.component("dmessage-item", {
 				mainfunc();
 			}
 		},
+    }
+});
+
+
+//===----------------------------------------------------------------------===
+//  Component: dashboard-gadget
+//===----------------------------------------------------------------------===
+Vue.component("dashboard-gadget", {
+	template: CONS_TEMPLATE_DASHBOARD_GADGET,
+	mixins : [vue_mixin_for_timeline],
+	props: {
+		//---common
+		type : String,
+		size : {
+			type : Object,
+			default : {width : 0, height : 0}
+		},
+		userstyle : {
+			type : Object,
+			default : {
+				color : "primary"
+			}
+		},
+		//---text
+		body : {
+			type : String,
+			default : "",
+		},
+		//---img
+		src : {
+			type : String,
+			default : "",
+		},
+		//---btn
+		label : {
+			type : String,
+			default : "",
+		},
+		icon : {
+			type : String,
+			default : "",
+		},
+		//---timeline
+		timeline : {
+			type : Object,
+			default : null
+		},
+		//---toot
+		toot : {
+			type : Object,
+			default : null
+		},
+		//---user
+		user : {
+			type : Object,
+			default : null
+		},
+		//---list
+		datalist : Array,
+		translation: Object,
+		globalinfo: Object,
+
+		//---input
+		input : {
+			type : Object,
+			default : null
+		}
+		
+    },
+    data(){
+        return {
+			tlshare : [
+				{text : "---", type: "share", value: "tt_all", selected:true},
+				{text : _T("sel_tlpublic"), type: "share", value: "tt_public", selected:false},
+				{text : _T("sel_tlonly"), type: "share", value: "tt_tlolny", selected:false},
+				{text : _T("sel_private"), type: "share", value: "tt_private", selected:false},
+			],
+			tltype :  [
+				{text : "---", type: "type", value: "tt_all", selected:true},
+				{text : _T("sel_media"), type: "type", value: "tt_media", selected:false},
+				{text : _T("sel_exclude_share_"+MYAPP.session.config.application.showMode), type: "type", value: "tt_exclude_bst", selected:false},
+			],
+		
+			
+        }
+	},
+	beforeMount() {
+		
+	},
+    mounted(){
+        
+    },
+    methods : {
+		onclick_close : function (e) {
+
+		},
+		onclick_send : function (e) {
+
+		}
+
     }
 });

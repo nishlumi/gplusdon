@@ -44,7 +44,30 @@ async function loadWebsiteOGP(request, url) {
     });
     return def;
 }
+async function getGeolocation(request,param) {
+    var def = new Promise((resolve, reject) => {
+        var ishit = false;
+        //console.log("refer=",request.headers.referer);
+        for (var i = 0; i < CON_ACCEPT_HOSTS.length; i++) {
+            if (request.headers.referer.indexOf(CON_ACCEPT_HOSTS[i]) > -1) {
+                ishit = true;
+                break;
+            }
+        }
+        var yolpurl = `https://map.yahooapis.jp/search/local/V1/localSearch?appid=${sysconst.yh_id}&lat=${param.lat}&lon=${param.lng}&dist=${param.dist}&output=json`;
+        //console.log("ishit=",ishit);
+        if (!ishit) reject("");
 
+        web(yolpurl, (error, response, body) => {
+            //console.log(body);
+            resolve(body);
+        });
+
+        
+
+    });
+    return def;
+}
 
 var ucommon = {
     sysinfo: {
@@ -53,7 +76,9 @@ var ucommon = {
         author: sysconst.package_info.author.name,
         advisor: [],
         version: sysconst.package_info.version,
-        VAPID: sysconst.vap_id()
+        VAPID: sysconst.vap_id(),
+        gdaky: sysconst.gdrive.web.api_key,
+        gdid: sysconst.gdrive.web.client_id
     },
     load_translation: function (locales) {
         var ret = "";
@@ -77,7 +102,8 @@ var ucommon = {
         }
         return ret;
     },
-    load_website_ogp: loadWebsiteOGP
+    load_website_ogp: loadWebsiteOGP,
+    get_geolocation : getGeolocation
 };
 
 module.exports = ucommon;

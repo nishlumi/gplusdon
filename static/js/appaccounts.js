@@ -37,15 +37,17 @@ function ondelete_account(e) {
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(null);
             MYAPP.commonvue.leftmenu.applogined = false;
             MYAPP.commonvue.sidebar.applogined = false;
-            MYAPP.commonvue.nav_search.applogined = false;
+            //MYAPP.commonvue.nav_search.applogined = false;
             MYAPP.commonvue.nav_search.applogined = false;
             MYAPP.commonvue.nav_btnbar.applogined = false;
             MYAPP.commonvue.nav_notification.applogined = false;
             MYAPP.commonvue.nav_sel_account.applogined = false;
         }
-        appAlert(_T("remove_account_mes02",[seli.instance]),function(){
-            window.open(`https://${seli.instance}/oauth/authorized_applications`,target="");
-        });
+        if (MYAPP.session.config.action.open_url_after_remove_account) {
+            appAlert(_T("remove_account_mes02",[seli.instance]),function(){
+                window.open(`https://${seli.instance}/oauth/authorized_applications`,target="");
+            });
+        }
     });
 }
 /*function generate_account_row(data) {

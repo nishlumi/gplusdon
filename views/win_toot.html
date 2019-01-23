@@ -22,6 +22,10 @@
 
         <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" >
         <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+            integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+            crossorigin=""
+        />
 
         <link href="/static/css/accounts.css" rel="stylesheet" >
         <link href="/static/css/index.css" rel="stylesheet" >
@@ -29,11 +33,25 @@
 
     </HEAD>
     <body style="overflow:auto;">
-        <div id="ov_inputtoot" class="dmy_inputtoot" v-cloak>
+        <div id="ov_inputtoot" class="dmy_inputtoot" v-if="accounts.length > 0" v-cloak>
             <v-app id="inspire">
                 <v-card width="100%" height="100%">
-            {% include  "onetoote.html"  %}
-                </v-card>
+            <!--% include  "onetoote.html"  %}-->
+                
+                <toot-inputbox
+                    :id="eid"
+                    :visibility="tootIB.visibility"
+                    :translation="translation"
+                    :globalinfo="globalinfo"
+                    :first_sharescope="tootIB.first_scope"
+                    :popuping="tootIB.popuping"
+                    :toolbtn="tootIB.btns"
+                    :accounts="accounts"
+                    :selaccounts="selaccounts"
+                    v-on:close="onclick_close"
+                    v-on:send="onclick_send"
+                ></toot-inputbox>
+            </v-card>
             </v-app>
         </div>
 
@@ -60,18 +78,25 @@
         <script src="/static/lib/paste.js"></script>
 
         <script src="/static/lib/cke/ckeditor.js"></script>
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+            integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+            crossorigin=""
+        ></script>
 
     <!-- user include -->
     <script src="/static/res/res_template_tootbody.js"></script>
     <script src="/static/res/res_template_userpop.js"></script>
     <script src="/static/res/res_template_replyinput.js"></script>
     <script src="/static/res/res_template_tootgallery-cal.js"></script>
+    <script src="/static/res/res_template_db_gadget.js"></script>
+    <script src="/static/res/res_template_inputbox.js"></script>
 
     <script src="/static/js/cls_ck_inputbox.js"></script>
 
     <script src="/static/js/util.js"></script>
     <script src="/static/js/mixins_vue.js"></script>
     <script src="/static/js/cls_vue.js"></script>
+    <script src="/static/js/cls_vue2.js"></script>
     <script src="/static/js/cls_accounts.js"></script>
     <script src="/static/js/cls_sns.js"></script>
     <script src="/static/js/cls_session.js"></script>

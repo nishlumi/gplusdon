@@ -40,6 +40,19 @@ router.get('/', function (req, res) {
     });
 });
 
+router.get('/dashboard', function (req, res) {
+    var lan = req.acceptsLanguages();
+    var trans = ucommon.load_translation(lan);
+    clearStatus();
+    
+    res.render('appdashboard', {
+        sysinfo: ucommon.sysinfo,
+        transjs: trans,
+        csrfToken: req.csrfToken(),
+        menustat: menuStatus
+
+    });
+});
 router.get('/test', function (req, res) {
     var lan = req.acceptsLanguages();
     var trans = ucommon.load_translation(lan);
@@ -102,6 +115,18 @@ router.get('/s/:findtext', function (req, res) {
 
     });
 });
+router.get('/terms', function (req, res) {
+    var lan = req.acceptsLanguages();
+    var trans = ucommon.load_translation(lan);
+    clearStatus();
+    res.render('terms', {
+        sysinfo: ucommon.sysinfo,
+        transjs: trans,
+        csrfToken: req.csrfToken(),
+        menustat: menuStatus
+
+    });
+});
 
 router.post('/srv/ogp', function (req, res) {
     //console.log(req.body["url"], req.headers.referer);
@@ -118,6 +143,16 @@ router.get('/srv/iapi', function (req, res) {
     res.send(text);
     
 });
+router.get('/srv/geolocation', function (req, res) {
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(lan);
+    console.log(req.query);
+    var text = ucommon.get_geolocation(req,req.query);
+    text.then(result=>{
+        res.send(result);
+    });
+});
+
 
 
 module.exports = router;

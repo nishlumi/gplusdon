@@ -1,0 +1,43 @@
+<v-toolbar
+    fixed app
+    :clipped-left="$vuetify.breakpoint.mdAndUp"
+>
+    <v-toolbar-title style="width: 300px">
+        <!--<v-toolbar-side-icon @click.stop="onclick_sideicon" class="hidden-lg-and-up"></v-toolbar-side-icon>-->
+        <img id="img_brand" class="brand-image hidden-lg-and-up" src="/static/images/app_icon.png" width="48" height="48" @click="onclick_sideicon">
+        <img id="img_brand" class="brand-image hidden-md-and-down" src="/static/images/app_icon.png" width="48" height="48" @click="onclick_brandmini">
+        <span class="brand-title black-text hidden-sm-and-down">G+Don</span>
+    </v-toolbar-title>
+    <v-tooltip bottom>
+            <span id="general_title" slot="activator" class="black-text general-title truncate tooltipped">{? generates.text ?}</span>
+            <span>{? generates.tip ?}</span>
+    </v-tooltip>
+    
+    <form class=""  v-on:submit.prevent="onsubmit_search">
+        <v-text-field v-model="findtext"
+            flat clearable
+            solo-inverted
+            prepend-icon="search"
+            label="Search"
+            class="hidden-sm-and-down"
+        ></v-text-field>
+    </form>
+    <v-spacer></v-spacer>
+    <v-progress-circular id="apploading" v-show="loadicon.is_show"
+        :width="3"
+        color="red"
+        :indeterminate="loadicon.is_active"
+    ></v-progress-circular>
+    <v-btn icon class="hidden-md-and-up" v-on:click.stop="onclick_search">
+        <v-icon>search</v-icon>
+    </v-btn>
+    <v-badge overlap bottom color="red" v-model="show_notif_badge">
+        <span slot="badge">{? notif_badge_count ?}</span> 
+        <v-btn icon v-on:click.stop="onclick_notification">
+            <v-icon>{? notif_icon ?}</v-icon>
+        </v-btn>
+    </v-badge>
+    <v-btn icon class="hidden-sm-and-down" v-on:click.stop="onclick_refresh">
+        <v-icon>refresh</v-icon>
+    </v-btn>
+</v-toolbar>

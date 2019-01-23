@@ -52,7 +52,11 @@ const CONS_TEMPLATE_TOOTBODY = `
                 </details>
             </div>
         </div>  
-    </div>  
+    </div>
+    <!-----toot with geo-->
+    <div class="toot_content_geo" v-if="toote.geo.enabled">
+        <div class="here_map"></div>
+    </div>
     <!-----toot with link-->
     <div class=" card-link" v-if="toote.mainlink.exists">
         <div class="card"> 
@@ -251,6 +255,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             <reply-inputbox
                 v-bind:popuping="popuping"
                 v-bind:id="toote.id"
+                v-bind:selaccounts="[]"
                 v-bind:visibility="isshow_replyinput"
                 v-bind:translation="translation"
                 v-bind:globalinfo="globalinfo"

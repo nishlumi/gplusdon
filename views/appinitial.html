@@ -4,6 +4,8 @@
 
 <head>
     <title>G+Don</title>
+    <meta name="google-site-verification" content="5N-ghjLpmgwE0bs6B4Pp379BucvWGKt0y_nM9S7SKRM" />
+    <meta name="google-site-verification" content="btzXVnZEh5XcG32MwgYOIEDumJW2il-JhjzgLvpZgt4" />
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="{{trans.appDescription}}">
@@ -82,7 +84,13 @@
                                         <v-icon>input</v-icon>
                                     </v-btn>
                                     <span class="headline">{{ trans.start_app }}</span>
-                                </a><br>
+                                </a>
+                                
+                            </v-flex>
+                            <v-flex xs12 v-if="!is_gdrive_authorize">
+                                Google Drive からアカウントを復元 <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
+                            </v-flex>
+                            <v-flex xs12>
                                 <a href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" style="font-size:2.1rem;">
                                     <v-btn flat icon>
                                         <v-icon>help</v-icon>
@@ -114,7 +122,7 @@
                                             ></v-text-field>
                                         </v-flex>
                                         <v-flex xs1>
-                                            <v-btn flat icon color="red" v-on:click.stop="btn_reg_account_clicked">
+                                            <v-btn flat icon color="red" v-on:click="btn_reg_account_clicked">
                                                 <v-icon>send</v-icon>
                                             </v-btn>
                                         </v-flex>
@@ -288,7 +296,13 @@
         </div>
         <v-footer height="" fixed>
             <div>
-                <a href="https://docs.google.com/document/d/e/2PACX-1vTW2XUeFZS7vTLjnUGQZEsBi8yAGx3My171GdBjRSGwTF9zC1y2FDAc49yZLA4j9wd2GTEtpdFjqaXS/pub" target="_blank">Privacy Policy and Terms</a>
+                <a href="/terms" target="_blank">Privacy Policy and Terms</a>
+            </div>
+            <div>
+                <!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
+                <span style="margin:15px 15px 15px 15px"><a href="https://developer.yahoo.co.jp/about">Web Services by Yahoo! JAPAN</a></span>
+                <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->
+
             </div>
             <v-spacer></v-spacer>
             <div>
@@ -305,7 +319,7 @@
     <input type="hidden" id="hid_staticpath" value="/static/">
     <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
     <input type="hidden" id="_csrf" value="{{csrfToken}}">
-    {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
+    {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid ] %}
     <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
 
     <script src="/static/lib/polyfill.min.js"></script>
@@ -332,5 +346,12 @@
     <script src="/static/js/cls_main_add1.js"></script>
     <script src="/static/js/cls_main_add2.js"></script>
 
+    <script src="/static/js/cls_gdrive.js"></script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+          onload="this.onload=function(){};gpGLD.handleClientLoad()"
+          onreadystatechange="if (this.readyState === 'complete') this.onload()">
+        </script>
+    
     </body>
 </html>

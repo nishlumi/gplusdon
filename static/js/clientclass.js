@@ -22,8 +22,13 @@ class Gplusdon {
             token: "",
             //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
             redirect_uri : "/redirect",
-            scopes: ["read", "write", "follow","push"]
+            scopes: ["read", "write", "follow","push"],
+            ggl : {
+                ak : hidinfo[4],
+                ci : hidinfo[5]
+            }  
         };
+        
         this.acman = new AccountManager();
 
         this.session = new Gpsession();
@@ -377,11 +382,50 @@ class Gplusdon {
         }
         //console.log(`text=[${text}]`,resultMentions);
 
+        //---geo tag ( geo:35.3939,139.3939?z=5&n=%39%49%96 )
+        let geoReg = new RegExp("(?:geo:[a-zA-Z0-9.,?=&$%\(\)//]+)");
+        var tmpgeo = text.match(geoReg);
+        var resultGeo = {
+            enabled : false,
+            location : [],
+        };
+        //{
+        //    enabled : false,
+        //    [
+        //    lat:0, lng:0, zoom:1, name:""
+        //    ],... 
+        //};
+        if (tmpgeo) {
+            for (var i = 0; i < tmpgeo.length; i++) {
+                var onegeo = tmpgeo[i];
+                var tmpa = GEN("a");
+                tmpa.href = onegeo;
+                var asearch = MUtility.generate_searchQuery(tmpa.search);
+
+
+                onegeo = onegeo.replace("geo:","");
+                var arr = onegeo.split("?");
+                var arr2 = arr[0].split(",");
+                var fnlgeo = {lat:0, lng:0, zoom:1, name:""};
+                if (arr2.length >= 2) {
+                    fnlgeo.lat = arr2[0];
+                    fnlgeo.lng = arr2[1];
+                    fnlgeo.zoom = asearch["z"];
+                    fnlgeo.name = asearch["n"];
+                    
+                    resultGeo.location.push(fnlgeo);
+                    resultGeo.enabled = true;
+
+                }
+            }
+        }
+
         var ret = {
             text : text,
             mentions : resultMentions, //twttr.txt.extractMentions(text),
             tags : twttr.txt.extractHashtags(text),
-            urls : twttr.txt.extractUrls(text)
+            urls : twttr.txt.extractUrls(text),
+            geo : resultGeo
         }
         //console.log(ret);
         tmparea.removeChild(tmp);

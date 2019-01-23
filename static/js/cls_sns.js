@@ -1641,6 +1641,7 @@ class Gpsns {
         this.body.content = content.text;
         this.mentions = content.mentions;
         this.tags = content.tags;
+        this.geo = content.geo;
         this.ancestors = [];
         this.descendants = [];
         this.comment_stat = {

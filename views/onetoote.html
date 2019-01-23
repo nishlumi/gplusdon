@@ -17,14 +17,17 @@
     </v-btn>
     <v-toolbar-title class="white-text truncate" v-html="dialog_title"></v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-btn icon v-on:click="onclick_moodbtn" v-bind:class="btnflags.mood">
+    <v-btn id="btn_addimage" icon v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn><input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+    <v-btn id="btn_addgeo" icon v-on:click="onclick_addgeo"><v-icon>map</v-icon></v-btn>
+    <v-btn icon v-bind:class="btnflags.mood" v-on:click="onclick_moodbtn">
         <v-icon>mood</v-icon>
     </v-btn>
-    <v-btn icon class="blue-text text-darken-2" v-on:click="onclick_send" v-bind:disabled="btnflags.send_disabled">
+    <v-btn icon class="red-text text-darken-2" v-on:click="onclick_send" v-bind:disabled="btnflags.send_disabled">
         <v-icon>send</v-icon>
     </v-btn>
 </v-toolbar>
 <div id="toot_dlg_container" class="scroll-y" style="height:100%">
+   
     <v-card class="grey lighten-5" style="height:100%">
         <v-form v-model="toot_valid">
             <v-container  fluid fill-height class="grey lighten-5" style="padding:12px">
@@ -202,9 +205,14 @@
                         </div> 
 
                     </v-flex>
-                    <v-flex xs2 class="mediabottomstyle">
+                    <v-flex xs2 class="mediabottomstyle common_ui_off">
                         <v-btn id="btn_addimage" icon color="primary" v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn>
                         <input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+                    </v-flex>
+                    <v-flex xs2 class="mediabottomstyle common_ui_off">
+                        <v-btn id="btn_addgeo" icon color="primary" v-on:click="onclick_addgeo"><v-icon>map</v-icon></v-btn>
+                    </v-flex>
+                        
                     </v-flex>
                     <v-flex xs10 class="mediabottomstyle">
                         <v-switch

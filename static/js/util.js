@@ -36,6 +36,9 @@ const SNSPROP = {
 const LONGPOLLING_INSTANCE = [
 	"oransns.com"
 ];
+var LeafIcon;;
+var redIcon;
+
 function _T(){
 	//console.log(arguments);
 	var res = arguments[0];
@@ -131,6 +134,20 @@ function setupLocale(params){
 	}
 	if (appEnvironment == "h") {
 		window.console.log = function(){ };
+	}
+
+	if ("L" in window) {
+		LeafIcon = L.Icon.extend({
+			options: {
+				shadowUrl: '/static/lib/leaflet/images/marker-shadow.png',
+				iconSize:     [25, 41],
+				shadowSize:   [41, 41],
+				iconAnchor:   [22, 41],
+				shadowAnchor: [25, 41],
+				popupAnchor:  [-3, -41]
+			}
+		});
+		redIcon = new LeafIcon({iconUrl: '/static/lib/leaflet/images/marker-icon_red.png'});
 	}
 
 
@@ -604,6 +621,21 @@ function loadIAPI() {
 	});
 	return def;
 }
+function loadGeoLoco(lat,lng) {
+	var def = new Promise((resolve,reject)=>{
+		var srvurl = `/srv/geolocation?lat=${lat}&lng=${lng}&dist=1`;
+		$.ajax({
+			url : srvurl,
+			type : "GET",
+
+		}).then((result)=>{
+			resolve(JSON.parse(result));
+		},(xhr,status,err)=>{
+			reject(false);
+		});
+	});
+	return def;
+}
 /**
 * プレーンテキストをHTMLで適切な表示になるよう変換する
 * @param {String} text 元のテキスト
@@ -843,7 +875,16 @@ var MUtility = {
 		retpath = `/users/${account.instance}/${account.username}`;
 		return retpath;
 	},
-
+	generate_searchQuery(path) {
+		var a = path.replace("?","");
+		var arr = a.split("&");
+		var ret = {};
+		for (var i = 0; i < arr.length; i++) {
+			var t = arr[i].split("=");
+			ret[t[0]] = t[1];
+		}
+		return ret;
+	},
 	getInstanceFromAccount(url) {
 		var a = GEN("a");
 		a.href = url;
@@ -987,4 +1028,50 @@ function test_oran() {
 	xmlHttpRequest.open("GET","https://oransns.com/api/v1/streaming/user");
 	xmlHttpRequest.setRequestHeader("Authorization",`Bearer ${token}`);
 	xmlHttpRequest.send(null);
+}
+function testsend(isget) {
+	var path = "https://script.google.com/macros/s/AKfycbyGDXR5ju8n9bbiaJ0iap_86wJAGqmQvoWqOKxXu-A/dev";
+	if (isget) {
+		ID("hid_send_mode").value = "load";
+		ID("hid_send").action = path;
+		ID("hid_send").method = "get";
+		ID("hid_send").addEventListener("submit",function (e) {
+			
+			$.ajax({
+				url : path + "?mode=load",
+				method : "GET",
+			})
+			.then(result=>{
+				console.log("get success:",result);
+			});
+			e.preventDefault();
+			
+		},false);
+		document.hid_send.submit();
+
+	}else{
+		var testdata = {
+			mode : "save",
+			data : JSON.stringify(MYAPP.acman.items[0])
+		};
+		ID("hid_send_mode").value = testdata.mode;
+		ID("hid_send_data").value = testdata.data;
+		ID("hid_send").action = path;
+		ID("hid_send").method = "post";
+		ID("hid_send").addEventListener("submit",function (e) {
+			
+			$.ajax({
+				url : path,
+				method : "POST",
+				data : testdata
+			})
+			.then(result=>{
+				console.log("post success:",result);
+			});
+			e.preventDefault();
+			
+		},false);
+		document.hid_send.submit();
+
+	}
 }

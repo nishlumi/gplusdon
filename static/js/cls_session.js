@@ -37,6 +37,8 @@ class Gpsession {
                     popupNewtoot_always : false,
                     close_aftertoot : false,
                     tags : [],
+                    noclear_tag : false,
+                    open_url_after_remove_account : true,
                 },
                 notification : {
                     enable_browser_notification : true,

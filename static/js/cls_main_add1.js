@@ -3,7 +3,7 @@
  * necessary **1st** include
  =============================================================================*/
 function defineForMainPage(app) {
-    /*app.commomvue["navibar"] = new Vue({
+    /*app.commonvue["navibar"] = new Vue({
         el : "#navibar",
         delimiters : ["{?", "?}"],
         data : {
@@ -862,6 +862,31 @@ function defineForMainPage(app) {
             
         }
     });
+    app.commonvue["emojisheet"] = new Vue({
+        el : ".emoji-view",
+        delimiters : ["{?", "?}"],
+        data : {
+            is_sheet : false,
+            emojis_title : {
+                utf8 : [],
+                instances : []
+            },
+
+        },
+        methods : {
+            onclick_keymaplistitem : function (index,type) {
+                if (type == "pict") {
+                    MYAPP.generateSelectedCharList(index);
+                }else if (type == "lett") {
+                    MYAPP.generateSelectedCharList(index+28);
+                }else if (type == "inst") {
+                    MYAPP.generateSelectedCharList_Instance(index);
+                }
+            },
+
+        }
+    });
+
     app["setupMainPageElement"] = function() {
         //------------------------------------------------
         //  navigation bar
