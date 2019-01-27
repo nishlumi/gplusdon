@@ -177,28 +177,19 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             mixins : [vue_mixin_for_timeline],
             data : {
-                /*is_asyncing : false,
-                seltype_current : "tt_all",
-                info : {
-                    maxid : "",
-                    sinceid : "",
-                    is_nomax : false,
-                    is_nosince : false, 
-                    tltype : "tt_all"
-                },
-                translations : {},
-                globalInfo : {
-                    staticpath : MYAPP.appinfo.staticPath
-                },
-                statuses : [],*/
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
+
+                tlcond : null,
 
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+            },
+            mounted() {
+                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -222,8 +213,13 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             methods : {
                 loadTimeline : loadTimelineCommon,
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                    }
+                }
             }
         }),
         "fav" : new Vue({
@@ -271,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
                 //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_user.tootes.info.tltype = ID("sel_tltype").selectedOptions[0].value;
+                    /*vue_user.tootes.info.tltype = ID("sel_tltype").selectedOptions[0].value;
                     vue_user.tootes.statuses.splice(0,vue_user.tootes.statuses.length);
                     vue_user.tootes.loadTimeline({
                         api : {
@@ -280,7 +276,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         app : {
                             tltype : vue_user.tootes.info.tltype
                         }
-                    });
+                    });*/
+                    var opt = vue_user.tootes.forWatch_allcondition(vue_user.tootes.tlcond.getReturn());
+                    vue_user.tootes.loadTimeline(opt);
+
                 //}
             }else if (e.id == "tt_fav") {
                 vue_user.fav.statuses.splice(0,vue_user.basicinfo.statuses.length);

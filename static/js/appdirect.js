@@ -91,13 +91,13 @@ function loadTimelineCommon(user,options){
         MUtility.loadingOFF();
         this.is_asyncing = false;
         this.$nextTick(()=>{
-            var e = Q(".timeline_cardlist_mobile");
-            //e.scroll({top:e.scrollHeight});
-            e.scrollTop = e.scrollHeight;
-            e = Q(".timeline_cardlist")
-            //e.scroll({top:e.scrollHeight});
-            console.log("e.scrollHeight;=",e.scrollHeight);
-            e.scrollTop = e.scrollHeight;
+            //var e = Q(".timeline_cardlist_mobile");
+            ////e.scroll({top:e.scrollHeight});
+            //e.scrollTop = e.scrollHeight;
+            //e = Q(".timeline_cardlist")
+            ////e.scroll({top:e.scrollHeight});
+            //console.log("e.scrollHeight;=",e.scrollHeight);
+            //e.scrollTop = e.scrollHeight;
         });
     });
 }
@@ -238,10 +238,10 @@ function generate_toot_detail(rawdata,options) {
         */
         if (this.checkExistToot(data[i].id)) continue;
 
+        var st = new Gpstatus(data[i],18);
         if ((dataacct == options.app.user.url) ||
-            ((dataacct == meacct) && (data[i].mentions[0].url == options.app.user.url))
+            ((dataacct == meacct) && (st.mentions.indexOf("@"+options.app.user.username) > -1))
         ) {
-            var st = new Gpstatus(data[i],18);
 
             var useracct = st.body.account.url;
 
@@ -436,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 color : "",
             }
             */
+            is_show_autocom : false,
             autocom_mention : "",   //---for direct message, one user
             a_mentions : [],
 			a_mention_loading : false,
@@ -629,7 +630,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---clear input box
                 this.status_text = "";
                 this.mainlink.exists = false;
-                this.ckeditor.editable().setText("");
+                var edit = this.ckeditor.editable();
+                if (edit && ("setText" in edit)) edit.setText("");
                 this.selmentions.splice(0,this.selmentions.length);
                 this.seltags.splice(0,this.seltags.length);
                 this.selmedias.splice(0,this.selmedias.length);
@@ -662,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             },
             onclick_addContact : function (e) {
-
+                this.is_show_autocom = !this.is_show_autocom;
             },
             onclick_reloadContact : function (e) {
                 vue_direct.account.directlst.splice(0,vue_direct.account.directlst.length);

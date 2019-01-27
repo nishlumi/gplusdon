@@ -19,7 +19,7 @@ var menuStatus = {
 /* GET users listing. */
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('apptimeline', {
         sysinfo: ucommon.sysinfo,
         "timelinetype": "home",
@@ -32,7 +32,7 @@ router.get('/', function (req, res) {
 });
 router.get('/:type', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('apptimeline', {
         sysinfo : ucommon.sysinfo,
         "timelinetype": req.params.type,
@@ -45,7 +45,7 @@ router.get('/:type', function (req, res) {
 });
 router.get('/lists/:type', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('apptimeline', {
         sysinfo: ucommon.sysinfo,
         "timelinetype": "list",
@@ -58,7 +58,7 @@ router.get('/lists/:type', function (req, res) {
 });
 router.get('/tags/:type', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('apphashtag', {
         sysinfo: ucommon.sysinfo,
         "timelinetype": "tags",

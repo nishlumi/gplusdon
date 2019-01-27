@@ -9,15 +9,29 @@
     <div class="row white z-depth-2 search-box">
         <div class="col s12">
             <form name="addinstance" v-on:submit.prevent="onsubmit_addinstance">
-                <div class="col s9 m6 offset-m3">
+                <v-layout row wrap>
+                    <v-flex xs9 sm9 md6 offset-md3>
+                            <v-text-field v-model="inputinstance"
+                            flat clearable
+                            hide-details
+                            label="{{trans.txt_add_instance}}"
+                            class="hidden-sm-and-down"
+                        ></v-text-field>
+                    </v-flex>
+                    <v-flex xs3>
+                        <button id="btn_reg_account" class="btn-floating btn waves-effect waves-light red"><i class="material-icons">add</i></button>
+                    </v-flex>
+                </v-layout>
+                <!--<div class="col s9 m6 offset-m3">
                     <div class="input-field red-text">
                         <input placeholder="{{trans.txt_add_instance}}" id="txt_add_instance" type="text" class="validate">
                         <label for="txt_add_instance" >{{trans.lab_txt_add_instance}}</label>
                     </div>
+                    
                 </div>
                 <div class="col s3">
                     <button id="btn_reg_account" class="btn-floating btn waves-effect waves-light red"><i class="material-icons">add</i></button>
-                </div>
+                </div>-->
             </form>
         </div>
     </div>
@@ -34,7 +48,7 @@
                         <!--<th>{{trans.tbl_acc_col4}}</th>-->
                         <th>{{trans.tbl_acc_col5}}</th>
                         <th>{{trans.tbl_acc_col6}}</th>
-                        <th>Web {{trans.notifications}}</th>
+                        <th>{{trans.notifications}}</th>
                     </tr>
                 </thead>
                 <tbody v-cloak>
@@ -86,7 +100,7 @@
             <v-card-title primary-title>
                 <v-layout row wrap>
                     <v-flex xs2>
-                        <div class="title">Web {{trans.notifications}} :</div>
+                        <div class="title">{{trans.notifications}} :</div>
                     </v-flex>
                     <v-flex xs8>
                         <div class="title" v-html="fullname(select_subscription.account)"></div>
@@ -101,6 +115,39 @@
             </v-card-title>
             <v-card-text>
                 <v-layout row wrap>
+                    <v-flex xs12>
+                        Desktop {{trans.notifications}}
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            label="{{trans.mention}}"
+                            v-model="select_desktop.alert.mention"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            :label="get_translated_typename('favourite')"
+                            v-model="select_desktop.alert.favourite"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            :label="get_translated_typename('reblog')"
+                            v-model="select_desktop.alert.reblog"
+                        ></v-switch>
+                    </v-flex>
+                    <v-flex xs6 sm6 md3>
+                        <v-switch
+                            label="{{trans.acc_tab_following}}"
+                            v-model="select_desktop.alert.follow"
+                        ></v-switch>
+                    </v-flex>
+                        
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        Web Push {{trans.notifications}}
+                    </v-flex>
                     <v-flex xs6 sm6 md3>
                         <v-switch
                             label="{{trans.mention}}"

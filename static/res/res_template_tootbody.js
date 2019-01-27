@@ -1,6 +1,85 @@
 /*
 
 */
+const CONS_TEMPLATE_TLCONDITION = `
+<div class="item-content card-content">
+    <v-layout>
+        <v-flex xs4>
+            <v-btn fab dark small color="primary" v-on:click="dialog=!dialog">
+                <v-icon dark>settings</v-icon>
+            </v-btn>
+            <v-btn fab  small color="white">
+                <v-icon dark>clear</v-icon>
+            </v-btn>
+        </v-flex>
+        <v-flex xs8>
+            
+        </v-flex>
+
+    </v-layout>
+    <v-dialog
+        v-model="dialog"
+        max-width="500px" persistent
+        transition="dialog-transition"
+    >
+        <v-card>
+            <v-card-text v-if="condition">
+                <v-layout row wrap>
+                    <!-- list option -->
+                    <v-flex xs12 v-if="condition.type == 'list'">
+                        <b>{{translation.acc_tab_list}}</b>
+                        <select v-model="sel_listtype">
+                            <option v-for="(item,index) in condition.lists" v-bind:key="index" v-bind:value="item.value" v-bind:selected=item.selected>{{ item.text }}</option>
+                        </select>
+                    </v-flex>
+                    <!-- common options -->
+                    <v-flex xs12>
+                        <v-text-field :label="translation.filter_condition" v-model="sel_filtertext"
+                        ></v-text-field>
+                        <p>{{translation.msg_filter_condition}}</p>
+                    </v-flex>
+                    <v-flex xs6>
+                        <b>{{translation.sel_sharescope}}</b>
+                        <v-radio-group v-model="sel_tlshare">
+                            <template v-for="item in condition.tlshare_options">
+                                <v-radio :label="item.text" :value="item.value" :checked="item.selected"></v-radio>
+                            </template>
+                        </v-radio-group>
+                    </v-flex>
+                    <v-flex xs6>
+                        <b>{{translation.sel_toottype}}</b>
+                        <template v-for="item in condition.tlview_options">
+                            <v-checkbox :label="item.text" hide-details v-model="sel_tltype" :value="item.value"></v-checkbox>
+                        </template>
+                    </v-flex>
+                    <!--<v-flex xs6>
+                        <select id="sel_tlshare" v-model="selshare_current">
+                            <template v-for="item in condition.tlshare_options">
+                                <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                            </template>
+                        </select>
+                    </v-flex>
+                    <v-flex xs6>
+                        <select id="sel_tltype" v-model="seltype_current">
+                            <template v-for="item in condition.tlshare_options">
+                                <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                            </template>
+                        </select> 
+                    </v-flex>
+                    -->
+                </v-layout>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{translation.cons_cancel}}</v-btn>
+                <v-btn flat small color="primary" v-on:click="onclick_close(true)">{{translation.cons_apply}}</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</div>
+`;
+
+
 const CONS_TEMPLATE_TOOTBODY = `
 <div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-bind:style="toote.cardtypeSize" v-if="'body' in toote">
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
@@ -252,14 +331,14 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div>
         <!-----reply input box-->
         <div class="toot_comment root_reply"> 
-            <reply-inputbox
+            <reply-inputbox ref="replyinput"
                 v-bind:popuping="popuping"
                 v-bind:id="toote.id"
                 v-bind:selaccounts="[]"
                 v-bind:visibility="isshow_replyinput"
                 v-bind:translation="translation"
                 v-bind:globalinfo="globalinfo"
-                v-bind:replydata="generateReplyObject(toote)"
+                v-bind:replydata="reply_data"
                 v-bind:first_sharescope="toote.body.visibility"
                 v-on:replied="onreplied_post"
             ></reply-inputbox>

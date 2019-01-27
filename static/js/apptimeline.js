@@ -6,45 +6,37 @@ var thisform = {
 
 function barancerTimelineType(type,id) {
     if (type == "home") {
-        vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
+        //vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
         vue_timeline.home.statuses.splice(0,vue_timeline.home.statuses.length);
         vue_timeline.home.loadTimeline(type,{
             api : {},
-            app : {
-                tlshare : vue_timeline.home.selshare_current,
-                exclude_reply : true,
-            }
+            app : vue_timeline.home.currentOption.app
         });
     }else if (type == "list") {
-        vue_timeline.list.info.tltype = id;
+        vue_timeline.list.tlcond.listtype = id;
         vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
         vue_timeline.list.loadTimeline(type,{
             api : {},
             app : {
-                listid : vue_timeline.list.sellisttype_current,
-                tlshare : vue_timeline.list.selshare_current,
+                listid : id,
+                tlshare : vue_timeline.list.tlcond.tlshare,
+                tltype : vue_timeline.list.tlcond.tltype,
                 exclude_reply : true,
             }
         });
     }else if (type == "local") {
-        vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
+        //vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
         vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
         vue_timeline.local.loadTimeline(type,{
             api : {},
-            app : {
-                tlshare : vue_timeline.local.selshare_current,
-                exclude_reply : true,
-            }
+            app : vue_timeline.home.currentOption.app
         });
     }else if (type == "public") {
-        vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
+        //vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
         vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
         vue_timeline.public.loadTimeline(type,{
             api : {},
-            app : {
-                tlshare : vue_timeline.public.selshare_current,
-                exclude_reply : true,
-            }
+            app : vue_timeline.home.currentOption.app
         });
     }
 }
@@ -113,78 +105,43 @@ document.addEventListener('DOMContentLoaded', function() {
             mixins : [vue_mixin_for_timeline],
         
             data : {
-                /*is_asyncing : false,
-                selshare_current : "tt_all",
-                seltype_current : "tt_all",
-                info : {
-                    maxid : "",
-                    sinceid : "",
-                    is_nomax : false,
-                    is_nosince : false, 
-                    tltype : "tt_all"
-                },
-                translations : {},
-                globalInfo : {
-                    staticpath : MYAPP.appinfo.staticPath
-                },
-                statuses : [],*/
                 domgrid : {},
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
+
+                tlcond : null,
 
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+
+                
             },
             mounted() {
-
+                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    //this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : sel,
-                            tltype : this.seltype_current,
-                        }
-                    };*/
                     this.statuses.splice(0,this.statuses.length);
 
                     this.loadTimeline("home",this.forWatch_selshare(val));
                 },400),
                 seltype_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    //this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : this.selshare_current,
-                            tltype : sel,
-                        }
-                    };
-                    if (val == "tt_media") {
-                        opt.app["only_media"] = true;
-                    }*/
                     this.statuses.splice(0,this.statuses.length);
                     this.loadTimeline("home",this.forWatch_seltype(val));
                 },400)
             },
             methods : {
-                loadTimeline : loadTimelineCommon
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                loadTimeline : loadTimelineCommon,
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("home",opt);
+                    }
+                }
             }
         }),
         "list" : new Vue({
@@ -198,6 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
 
+                tlcond : null,
+
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
@@ -205,7 +164,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
             },
             mounted() {
-
+                this.tlcond = new GTimelineCondition();
+                this.tlcond.type = "list";
             },
             watch : {
                 sellisttype_current : _.debounce(function(val){
@@ -240,23 +200,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     var opt = {api:{},app:{}};
                     MYAPP.sns.getLists(opt)
                     .then(result=>{
-                        this.sel_listtype.splice(0,this.sel_listtype.length);
-                        this.sel_listtype.push({
+                        this.tlcond.lists.splice(0,this.tlcond.lists.length);
+                        this.tlcond.lists.push({
                             text : "--",
                             value : "0",
                             selected : true
                         });
                         for (var i = 0; i < result.data.length; i++) {
-                            this.sel_listtype.push({
+                            this.tlcond.lists.push({
                                 text : result.data[i].title,
                                 value : result.data[i].id,
                                 selected : false
                             });
                         }
-                        this.sellisttype_current = this.sel_listtype[0].value;
-                        this.$nextTick(function () {
-                            ID("sel_listtype").value = this.sel_listtype[0].value;
-                            M.FormSelect.init(ID("sel_listtype"), {
+                        //this.sellisttype_current = this.sel_listtype[0].value;
+                        this.tlcond.listype = this.tlcond.lists[0].value;
+                        this.$nextTick( () => {
+                            //this.tlcond.listtype = this.tlcond.lists[0].value;
+                            M.FormSelect.init(Qs("select"), {
                                 dropdownOptions : {
                                     constrainWidth : false
                                 }
@@ -264,7 +225,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         });
                     });
+                },
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        opt.app["listid"] = param.listtype;
+                        this.loadTimeline("list",opt);
+                    }
                 }
+
             }
         }),
         "local" : new Vue({
@@ -272,76 +242,39 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             mixins : [vue_mixin_for_timeline],
             data : {
-                /*is_asyncing : false,
-                selshare_current : "tt_all",
-                seltype_current : "tt_all",
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
-                info : {
-                    maxid : "",
-                    sinceid : "",
-                    is_nomax : false,
-                    is_nosince : false, 
-                    tltype : "tt_all"
-                },
-                translations : {},
-                globalInfo : {
-                    staticpath : MYAPP.appinfo.staticPath
-                },
-                statuses : [],*/
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
+
+                tlcond : null,
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                
             },
+            mounted() {
+                this.tlcond = new GTimelineCondition();
+            },
             watch : {
                 selshare_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    //var sel = e.target.selectedOptions[0].value;
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : sel,
-                            tltype : this.seltype_current,
-                        }
-                    };*/
                     this.statuses.splice(0,this.statuses.length);
                     this.loadTimeline("local",this.forWatch_selshare(val));
                 },400),
                 seltype_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    //var sel = e.target.selectedOptions[0].value;
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : this.selshare_current,
-                            tltype : sel,
-                        }
-                    };
-                    if (val == "tt_media") {
-                        opt.api["only_media"] = true;
-                    }*/
                     this.statuses.splice(0,this.statuses.length);
                     this.loadTimeline("local",this.forWatch_seltype(val));
                 },400)
             },
             methods : {
-                loadTimeline : loadTimelineCommon
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                loadTimeline : loadTimelineCommon,
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("local",opt);
+                    }
+                }
+
             }
         }),
         "public" : new Vue({
@@ -349,76 +282,39 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             mixins : [vue_mixin_for_timeline],
             data : {
-                /*is_asyncing : false,
-                selshare_current : "tt_all",
-                seltype_current : "tt_all",
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
-                info : {
-                    maxid : "",
-                    sinceid : "",
-                    is_nomax : false,
-                    is_nosince : false, 
-                    tltype : "tt_all"
-                },
-                translations : {},
-                globalInfo : {
-                    staticpath : MYAPP.appinfo.staticPath
-                },
-                statuses : [],*/
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
+
+                tlcond : null,
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                
             },
+            mounted() {
+                this.tlcond = new GTimelineCondition();
+            },
             watch : {
                 selshare_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    //var sel = e.target.selectedOptions[0].value;
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : sel,
-                            tltype : this.seltype_current,
-                        }
-                    };*/
                     this.statuses.splice(0,this.statuses.length);
                     this.loadTimeline("public",this.forWatch_selshare(val));
                 },400),
                 seltype_current : _.debounce(function(val) {
-                    /*console.log(val);
-                    //var sel = e.target.selectedOptions[0].value;
-                    var sel = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.info.tltype = sel;
-                    var opt = {
-                        api : {
-                            exclude_replies : true
-                        },
-                        app : {
-                            tlshare : this.selshare_current,
-                            tltype : sel,
-                        }
-                    };
-                    if (val == "tt_media") {
-                        opt.api["only_media"] = true;
-                    }*/
                     this.statuses.splice(0,this.statuses.length);
                     this.loadTimeline("public",this.forWatch_seltype(val));
                 },400)
             },
             methods : {
-                loadTimeline : loadTimelineCommon
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                loadTimeline : loadTimelineCommon,
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("public",opt);
+                    }
+                }
+
             }
         })
 
@@ -439,8 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
                 //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
                     vue_timeline.home.statuses.splice(0,vue_timeline.home.statuses.length);
+                    /*vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
                     vue_timeline.home.loadTimeline("home",{
                         api : {
                             exclude_replies : true,
@@ -450,8 +346,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             tltype : vue_timeline.home.seltype_current,
                             exclude_reply : true,
                         }
-                    });
+                    });*/
+                    
                 //}
+                var opt = vue_timeline.home.forWatch_allcondition(vue_timeline.home.tlcond.getReturn());
+                vue_timeline.home.loadTimeline("home",opt);
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                 notifAccount.account.streams.list.stop();
                 notifAccount.account.streams.local.stop();
@@ -459,11 +358,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             }else if (e.id == "tl_list") {
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                if (vue_timeline.list.sel_listtype.length > 0) {
-                    vue_timeline.list.info.tltype = vue_timeline.list.seltype_current;
+                if (vue_timeline.list.tlcond.lists.length > 0) {
                     vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
-                    if (vue_timeline.list.sellisttype_current != "0") {
-                        vue_timeline.list.loadTimeline("list",{
+                    //vue_timeline.list.info.tltype = vue_timeline.list.tlcond.listtype;
+                    if (vue_timeline.list.tlcond.listtype != "0") {
+                        /*vue_timeline.list.loadTimeline("list",{
                             api : {
                             },
                             app : {
@@ -472,7 +371,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 tltype : vue_timeline.local.seltype_current,
                                 exclude_reply : true,
                             }
-                        });
+                        });*/
+                        var opt = vue_timeline.list.forWatch_allcondition(vue_timeline.list.tlcond.getReturn());
+                        vue_timeline.list.loadTimeline("list",opt);
                         notifAccount.account.streams.list.setQuery("list="+vue_timeline.list.sellisttype_current);
                         notifAccount.account.streams.list.start();
                     }
@@ -485,8 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
                 //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
                     vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
+                    /*vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
                     vue_timeline.local.loadTimeline("local",{
                         api : {
                             local : true
@@ -496,8 +397,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             tltype : vue_timeline.local.seltype_current,
                             exclude_reply : true,
                         }
-                    });
+                    });*/
                 //}
+                var opt = vue_timeline.local.forWatch_allcondition(vue_timeline.local.tlcond.getReturn());
+                opt.api["local"] = true;
+                vue_timeline.local.loadTimeline("local",opt);
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                 notifAccount.account.streams.list.stop();
                 notifAccount.account.streams.local.start();
@@ -508,8 +412,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
                 //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
                     vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
+                    /*vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
                     vue_timeline.public.loadTimeline("public",{
                         api : {
                             local : false
@@ -519,8 +423,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             tltype : vue_timeline.public.seltype_current,
                             exclude_reply : true,
                         }
-                    });
+                    });*/
                 //}
+                var opt = vue_timeline.public.forWatch_allcondition(vue_timeline.public.tlcond.getReturn());
+                vue_timeline.public.loadTimeline("public",opt);
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                 notifAccount.account.streams.list.stop();
                 notifAccount.account.streams.local.stop();

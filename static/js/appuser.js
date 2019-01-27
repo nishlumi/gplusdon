@@ -586,11 +586,16 @@ document.addEventListener('DOMContentLoaded', function() {
             data : {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
+                tlcond : null,
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+            },
+            mounted() {
+                this.tlcond = new GTimelineCondition();
+
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -626,8 +631,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.translations = Object.assign({},curLocale.messages);            
                 },
                 loadTimeline : loadTimelineCommon,
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                    }
+                }
             }
         }),
         "following" : new Vue({
@@ -717,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
                 if ((vue_user.tootes.info.maxid == "") && (vue_user.tootes.info.sinceid == "")) {
-                    vue_user.tootes.info.tltype = ID("sel_tltype").selectedOptions[0].value;
+                    /*vue_user.tootes.info.tltype = ID("sel_tltype").selectedOptions[0].value;
                     vue_user.tootes.statuses.splice(0,vue_user.tootes.statuses.length);
                     vue_user.tootes.loadTimeline(vue_user.tootes.id,{
                         api : {
@@ -728,7 +738,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             is_nosince : false,    
                             tltype : vue_user.tootes.info.tltype
                         }
-                    });
+                    });*/
+                    var opt = vue_user.tootes.forWatch_allcondition(vue_user.tootes.tlcond.getReturn());
+                    vue_user.tootes.loadTimeline(vue_user.tootes.id,opt);
                 }
             }else if (e.id == "tt_follow") {
                 var et = ID("tt_follow");

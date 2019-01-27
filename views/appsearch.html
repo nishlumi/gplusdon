@@ -39,7 +39,7 @@
         <div id="s_toot" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
-                    <div class="card-content">
+                    <!--<div class="card-content">
                         <div class="row">
                             <div class="input-field col s6">
                                 <select id="sel_tlshare_local" v-model="selshare_current">
@@ -57,7 +57,13 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
+                    <timeline-condition
+                        :translation="translations"
+                        :condition="tlcond"
+                        v-on:saveclose="onsaveclose"
+                    ></timeline-condition>
+
                 </div>
                 <timeline-toot 
                     v-bind:translation="translations"

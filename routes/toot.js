@@ -6,7 +6,7 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/new', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('win_toot', {
         sysinfo: ucommon.sysinfo,
         transjs: trans,

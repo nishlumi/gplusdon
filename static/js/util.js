@@ -124,11 +124,12 @@ function DEBUGLOG() {
 function setupLocale(params){
 	var a = document.querySelectorAll("script");
 	var b = [];
-	a.forEach(e => {
+	for (var i = 0; i < a.length; i++) {
+		var e = a[i];
 		if (e.src.indexOf("/dist/vue.min.js") > -1) {
 			b.push(e);
 		}
-	});
+	}
 	if (b.length > 0) {
 		appEnvironment = "h";
 	}
@@ -164,8 +165,8 @@ function setupLocale(params){
 		});
 		return def;
 	}
-	//URL引数から lng=* を取得
-	var p_lng = (params["lng"] ? params["lng"] : "");
+	//URL引数から hl=* を取得
+	var p_lng = (params["hl"] ? params["hl"] : "");
 	
 	var arr = String(navigator.language).split("-");
 	var curloc = arr[0];
@@ -811,7 +812,7 @@ var MUtility = {
 		var params = search.split("&");
 		var ret = {};
         for (var i = 0; i < params.length; i++) {
-			var item = params[i].splice("=","");
+			var item = params[i].split("=");
 			ret[item[0]] = item[1];
 		}
 		return ret;
@@ -890,6 +891,52 @@ var MUtility = {
 		a.href = url;
 		var tmp = a.hostname;
 		return tmp;
+	},
+	get_translated_typename : function (type) {
+		if (type == "reblog"){
+			return _T(`${type}_${MYAPP.session.config.application.showMode}`);
+		}else if (type == "favourite") {
+			return _T(`${type}_${MYAPP.session.config.application.showMode}`);
+		}else if (type == "follow") {
+			return _T("acc_tab_following");
+		}else if (type == "mention") {
+			return _T(type);
+		}else{
+			return "Unknown";
+		}
+	},
+	get_title_eachtype : function (data) {
+		var ret = "";
+		var type = data.type;
+		if (type == "reblog"){
+			ret = _T(`${type}_${MYAPP.session.config.application.showMode}`) + ":" + _T("msg_notification_line",[data.account[0].display_name]);
+			//_T(`${type}_${MYAPP.session.config.application.showMode}`);
+		}else if (type == "favourite") {
+			ret =  _T(`${type}_${MYAPP.session.config.application.showMode}`) + ":" + _T("msg_notification_line",[data.account[0].display_name]);
+		}else if (type == "follow") {
+			ret =  _T("acc_tab_following") + ":" + _T("msg_notification_line",[data.account[0].display_name]);
+		}else if (type == "mention") {
+			ret =  _T(type) + ":" + _T("msg_notification_line",[data.account[0].display_name]);
+		}else{
+			ret =  "";
+		}
+		return ret;
+	},
+	get_body_eachtype : function (data) {
+		var ret = "";
+		var type = data.type;
+		if (type == "reblog"){
+			ret = data.status.content;
+		}else if (type == "favourite") {
+			ret =  data.status.content;
+		}else if (type == "follow") {
+			ret =  "";
+		}else if (type == "mention") {
+			ret =  data.status.content;
+		}else{
+			ret =  "";
+		}
+		return ret;
 	},
 	/**
 	 * 

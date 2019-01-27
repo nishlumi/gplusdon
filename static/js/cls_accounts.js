@@ -23,6 +23,7 @@ class Account {
         this.direct = null;
         this.directlst = [];    //---{id:""}
         this.notifications = [];
+        this.others = {};
     }
     dispose() {
         if (this.stream) this.stream.stop();
@@ -46,6 +47,7 @@ class Account {
             rawdata : this.rawdata,
             notifications : this.notifications,
             directlst : this.directlst,
+            others : this.others,
         };
     }
     getRawdata() {
@@ -57,7 +59,8 @@ class Account {
             this.instance,
             JSON.stringify(this.rawdata),
             JSON.stringify(this.notifications),
-            JSON.stringify(this.directlst)
+            JSON.stringify(this.directlst),
+            JSON.stringify(this.others)
         ].join("\t");
     }
     load(data) {
@@ -80,6 +83,8 @@ class Account {
         });
         this.notifications = data["notifications"] || [];
         this.directlst = data["directlst"] || [];
+
+        this.others = data["others"] || {};
         
         this.stream = new Gpstream("user",this,null,null);
         //this.stream.start();
@@ -305,8 +310,8 @@ class AccountManager {
         console.log(i);
         if (i > -1) {
             var old = this.items[i].instance;
-            var delac = this.items.splice(i, 1);
-            delac.dispose();
+            this.items[i].dispose();
+            this.items.splice(i, 1);
             var ishit = 0;
             //---check if same instance exists
             for (var j = 0; j < this.items.length; j++) {
@@ -412,6 +417,29 @@ class AccountManager {
                     this.items.splice(values.index,1);
                 }
             }*/
+            if (gpGLD.is_authorize) {
+                //---save to google drive
+                //---count config file in google drive
+                gpGLD.loadFromFolder()
+                .then(files=>{
+                    var ret = null;
+                    for (var i = 0; i < files.length; i++) {
+                        ret = files[i];
+                    }
+                    return ret;
+                })
+                .then(file=>{
+                    if (file) {
+                        var tmparr = [];
+                        for (var i = 0; i < this.items.length; i++) {
+                            tmparr.push(this.items[i].getRaw());
+                        }
+                        //---overwrite existing config file (because it already exists at here!!) 
+                        gpGLD.updateFile(file.id,JSON.stringify(tmparr));
+                    }
+                });
+
+            }
             return this.items;
         });
     }

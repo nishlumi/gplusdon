@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html >
     <HEAD>
+        {% if request.host  == 'gplusdon.net' %}
+        {% include 'jslib_gglanal.html' %}
+        {% endif %}
+        
         <title>G+Don - new toot</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width,initial-scale=1">

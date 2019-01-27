@@ -1,10 +1,12 @@
+
+
 /**===========================================================================
  * App main class
  =============================================================================*/
 class Gplusdon {
     constructor() {
         var hidinfo = ID("hid_appinfo").value.split(",");
-        const cstappinfo = {
+        var cstappinfo = {
             name: hidinfo[1],
             firstPath : "",
             staticPath : ID("hid_staticpath").value,
@@ -36,7 +38,10 @@ class Gplusdon {
         this.session.load(true);
         this._sns = new Gpsns();
 
-        setupLocale({});
+        var locquery = MUtility.generate_searchQuery(location.search)
+        this.session.status.urlquery = location.search;
+        this.session.status.urlqueryObject = locquery;
+        setupLocale(locquery);
         this.forms = {};
         
         this.commonvue = {
@@ -218,7 +223,7 @@ class Gplusdon {
                         //vue_search.tootes.statuses = result.data.statuses;
                         vue_search.accounts.accounts.splice(0,vue_search.accounts.accounts.length);
                         vue_search.accounts.load_accounts(result.data.accounts,{api:{},app:{}});
-                        vue_search.accounts.tootes.statuses(0,vue_search.tootes.statuses.length);
+                        vue_search.tootes.statuses.splice(0,vue_search.tootes.statuses.length);
                         vue_search.tootes.loadTimeline(result.data.statuses,{
                             api:{},
                             app:{
@@ -229,8 +234,8 @@ class Gplusdon {
                 }
                 if (Q(".dmsg_body")) {
                     vue_direct.account = tmpac;
-                    vue_direct.selaccounts.splice(0,vue_direct.selaccounts.length);
-                    vue_direct.selaccounts.push(`${vue_direct.account.idname}@${vue_direct.account.instance}`);
+                    //vue_direct.selaccounts.splice(0,vue_direct.selaccounts.length);
+                    //vue_direct.selaccounts.push(`${vue_direct.account.idname}@${vue_direct.account.instance}`);
 
                     vue_direct.contacts.splice(0,vue_direct.contacts.length);
                     vue_direct.load_for_contact();
@@ -295,9 +300,11 @@ class Gplusdon {
     showBottomCtrl(flag) {
         if (flag) {
             ID("btn_post_toote").classList.remove("common_ui_off");
+            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
             ID("bottomnav").classList.remove("common_ui_off");
         }else{
             ID("btn_post_toote").classList.add("common_ui_off");
+            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
             ID("bottomnav").classList.add("common_ui_off");
         }
     }
@@ -370,7 +377,7 @@ class Gplusdon {
             text = text.substr(0,text.length-1);
         }
 
-        let mentionReg = new RegExp("(?:\@[a-zA-Z0-9]+\@[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*|@[a-zA-Z0-9]+)","g");
+        var mentionReg = new RegExp("(?:\@[a-zA-Z0-9]+\@[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*|@[a-zA-Z0-9]+)","g");
         var resultMentions = text.match(mentionReg);
         if (resultMentions) {
             for (var i = 0; i < resultMentions.length; i++) {
@@ -383,7 +390,7 @@ class Gplusdon {
         //console.log(`text=[${text}]`,resultMentions);
 
         //---geo tag ( geo:35.3939,139.3939?z=5&n=%39%49%96 )
-        let geoReg = new RegExp("(?:geo:[a-zA-Z0-9.,?=&$%\(\)//]+)");
+        var geoReg = new RegExp("(?:geo:[a-zA-Z0-9.,?=&$%\(\)//]+)");
         var tmpgeo = text.match(geoReg);
         var resultGeo = {
             enabled : false,
@@ -515,7 +522,7 @@ class Gplusdon {
     executePost(content,options){
         var def = new Promise((resolve,reject)=>{
             //---check an error
-            let convScope = {
+            var convScope = {
                 "tt_public" : "public",
                 "tt_tlonly" : "unlisted",
                 "tt_private" : "private",

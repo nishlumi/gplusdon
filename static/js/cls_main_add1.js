@@ -73,7 +73,10 @@ function defineForMainPage(app) {
 
                 }
                 MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
-            }
+            },
+            onclick_menulink : function (url) {
+                location.href = url;
+            },
         }
     });
     /*app.commonvue["leftmenu"] = new Vue({
@@ -214,19 +217,19 @@ function defineForMainPage(app) {
                 if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
                 //parentCommonSearch();
                 if (ID("area_instance")) {
-                    vue_instances.search.onsubmit_search(ID("inp_search").value);
+                    vue_instances.search.onsubmit_search(this.findtext);
                 }
                 if (ID("area_connections")) {
-                    vue_connections.search.load_search(ID("inp_search").value,{
+                    vue_connections.search.load_search(this.findtext,{
                         api : {},
                         app : {}
                     });                
                 }
                 if (ID("area_timeline")) {
-                    location.href = `/s/${ID("inp_search").value}`;
+                    location.href = `/s/${this.findtext}`;
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${ID("inp_search").value}`;
+                    location.href = `/s/${this.findtext}`;
                 }
             },
             onclick_searchClear: function(e) {
@@ -553,7 +556,7 @@ function defineForMainPage(app) {
              */
             merge_notification(data) {
                 var ret = false;
-                let cons_statusable = ["reblog","favourite","mention"];
+                var cons_statusable = ["reblog","favourite","mention"];
                 //---reblog, favourite, mention
                 if (cons_statusable.indexOf(data.type) > -1) {
                     for (var i = 0; i < this.currentAccount.notifications.length; i++) {
@@ -930,36 +933,50 @@ function defineForMainPage(app) {
         }*/
         console.log(Qs(".nav-wrapper .navcol-left, .navcol-right"));
         var es = Qs(".nav-wrapper .navcol-left, .navcol-right");
+        var scrollOpt = {
+            duration: 300,
+            offset: 0,
+            easing: "linear"
+        };
         for (var i = 0; i < es.length; i++) {
             var elem = es[i];
             elem.addEventListener("click",function(e){
+                var elemName = "";
                 //---/index
                 if (Q(".view_area")) {
-                    Q(".view_area").scroll({top:0, behavior:"smooth"});
+                    //Q(".view_area").scroll({top:0, behavior:"smooth"});
+                    elemName = ".view_area";
                 }
                 //---/accounts/:instance/:idname
                 //---/users/:instance/:idname
                 if (Q(".account_body")) {
-                    Q(".account_body").scroll({top:0, behavior:"smooth"});
+                    //Q(".account_body").scroll({top:0, behavior:"smooth"});
+                    elemName = ".account_body";
                 }
                 //---/connections
                 if (ID("following")) {
-                    ID("following").scroll({top:0, behavior:"smooth"});
+                    //ID("following").scroll({top:0, behavior:"smooth"});
+                    elemName = "#following";
                 }
                 if (ID("follower")) {
-                    ID("follower").scroll({top:0, behavior:"smooth"});
+                    //ID("follower").scroll({top:0, behavior:"smooth"});
+                    elemName = "#follower";
                 }
     
                 //---/tl
                 if (Q(".timeline_body")) {
                     if (Q(".timelinebody")) {
-                        Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        //Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        elemName = ".tab-content.active";
                     }
                 }
                 //---/notifications
                 if (Q(".notifcation_body")) {
-                    ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
+                    //ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
+                    elemName = ".notifcation_body";
                 }
+                //MYAPP.commonvue.nav_btnbar.$vuetify.goTo(Q(elemName),scrollOpt);
+                Q(elemName).scroll({top:0});
                 e.stopPropagation();
             },false);
         }

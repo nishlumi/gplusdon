@@ -76,6 +76,11 @@ Vue.component("timeline-toot", {
 			isshow_replyinput : false,
 			reply_to_id : "",
 			mention_to_id : "",
+			reply_data : {
+				reply_to_id : "",
+				reply_account : null,
+				selectaccount : "",
+			},
 			
 			//---share scope box and mention box data
             sharescopes : [
@@ -116,7 +121,7 @@ Vue.component("timeline-toot", {
             }
 		},
 		isBoostable : function () {
-			let boostable = [
+			var boostable = [
 				"private", "direct"
 			];
 			if (boostable.indexOf(this.toote.body.visibility) > -1) {
@@ -194,6 +199,8 @@ Vue.component("timeline-toot", {
 		}*/
 		jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 		$("time.timeago").timeago();
+
+		
 	},
 	updated(){
 		if (this.isfirst) {
@@ -372,6 +379,10 @@ Vue.component("timeline-toot", {
 		},
 		onclick_ttbtn_reply: function (e) {
 			//console.log(e);
+			//---set up data for reply
+			this.reply_data = this.generateReplyObject(this.toote);
+
+			//---set up view layout for reply
 			var target = e.target.parentElement.parentElement.nextElementSibling;
 			var rootParent = e.target.parentElement.parentElement.parentElement;
 
@@ -630,9 +641,13 @@ Vue.component("timeline-toot", {
 			var des = this.toote.descendants[index];
 			this.reply_to_id = des.body.id;
 			this.mention_to_id = des.account.id;
+			this.reply_data.reply_to_id = des.body.id;
+			this.reply_data.reply_account = des.account;
+			this.replyinput.select_mention();
+
 			var editor = CKEDITOR.instances[this.popuping + "replyinput_"+this.toote.body.id];
-			editor.editable().editor.insertText("@"+des.account.acct);
-			this.status_text = "@"+des.account.acct; 
+			//editor.editable().editor.insertText("@"+des.account.acct);
+			//this.status_text = "@"+des.account.acct; 
 		},
 		onclick_fav_to_reply: function (e) {
 			var tgt = e.target;
@@ -1312,4 +1327,114 @@ Vue.component("dashboard-gadget", {
 		}
 
     }
+});
+
+
+//===----------------------------------------------------------------------===
+//  Component: timeline-condition
+//===----------------------------------------------------------------------===
+class GTimelineCondition {
+	constructor() {
+		//---instead of static variable / constant
+		this.tlshare_options = {
+			"all" : {text : _T("sel_ttall"),              type: "share", value: "tt_all", selected:true},
+			"public" :	{text : _T("sel_tlpublic"), type: "share", value: "tt_public", avatar : "public", selected:false},
+			"tlonly" : {text : _T("sel_tlonly"),   type: "share", value: "tt_tlolny", avatar : "lock_open", selected:false},
+			"private" : {text : _T("sel_private"),  type: "share", value: "tt_private",avatar : "lock",  selected:false},
+		};
+		this.tlview_options =  {
+			//"all" : {text : "---",           type: "type", value: "tv_all", selected:true},
+			"media" : {text : _T("sel_media"), type: "type", value: "tv_media", selected:false},
+			"exclude_bst" : {text : _T("sel_exclude_share_"+MYAPP.session.config.application.showMode), 
+				type: "type", value: "tv_exclude_bst", selected:false
+			},
+		};
+
+		//---normal properties.
+		this.type = "normal";	//normal, list, search
+
+		this.share = this.tlshare_options.public.value;
+		this.view = [];
+		this.listtype = "0";
+		this.lists = [];
+		this.filter = {
+			users : [],
+			instances : [],
+			text : "",
+		};
+	}
+	static TLSHARE_TYPE() {
+		return {
+			"all" : {text : _T("sel_ttall"),              type: "share", value: "tt_all", selected:true},
+			"public" :	{text : _T("sel_tlpublic"), type: "share", value: "tt_public", selected:false},
+			"tlonly" : {text : _T("sel_tlonly"),   type: "share", value: "tt_tlolny", selected:false},
+			"private" : {text : _T("sel_private"),  type: "share", value: "tt_private", selected:false},
+		};
+	}
+	static TLVIEW_TYPE() {
+		return {
+			//"all" : {text : "---",           type: "type", value: "tv_all", selected:true},
+			"media" : {text : _T("sel_media"), type: "type", value: "tv_media", selected:false},
+			"exclude_bst" : {text : _T("sel_exclude_share_"+MYAPP.session.config.application.showMode), 
+				type: "type", value: "tv_exclude_bst", selected:false
+			},
+		};
+	}
+	getReturn(){
+		return {
+			status : true,
+			tlshare : this.share,
+			tltype : this.view,
+			listtype : this.listtype,
+			filtertext : this.filter.text
+		};
+	}
+}
+Vue.component("timeline-condition", {
+	template: CONS_TEMPLATE_TLCONDITION,
+	mixins : [],
+	props: {
+		translation : Object,
+		condition : {
+			type : GTimelineCondition,
+			default : null
+		}
+	},
+	data(){
+		return {
+			dialog : false,
+
+			sel_tlshare : "tt_all",
+			sel_tltype : ["tv_all"],
+			sel_listtype : "",
+			sel_filtertext : ""
+		};
+	},
+	mounted() {
+		M.FormSelect.init(Qs("select"), {
+			dropdownOptions : {
+				constrainWidth : false
+			}
+		});
+		if (this.condition) {
+			this.sel_listtype = this.condition.listtype;
+		}
+	},
+	methods : {
+		onclick_close : function (flag) {
+			var ret = {
+				status : true,
+				tlshare : this.sel_tlshare,
+				tltype : this.sel_tltype,
+				listtype : this.sel_listtype,
+				filtertext : this.sel_filtertext
+			};
+			//---cancel is status only
+			if (!flag) {
+				ret = {status:false};
+			}
+			this.$emit("saveclose",ret);
+			this.dialog = false;
+		}
+	}
 });

@@ -246,7 +246,7 @@ var MastodonAPI = function (config) {
             this.setConfig("stream_"+streamType,es);
         },
         closeStream : function (streamType) {
-        	let es = this.getConfig("stream_"+streamType);
+        	var es = this.getConfig("stream_"+streamType);
         	if (es && (es.readyState === 1)) {
         		es.close();
         	}
@@ -315,7 +315,7 @@ var MastodonAPI = function (config) {
             this.setConfig("stream_"+streamType,xmlHttpRequest);
         },
         closellstream : function (streamType) {
-        	let es = this.getConfig("stream_"+streamType);
+        	var es = this.getConfig("stream_"+streamType);
         	if (es) {
         		es.abort();
         	}

@@ -5,48 +5,7 @@ var thisform = {
 };
 
 function barancerTimelineType(type,id) {
-    if (type == "home") {
-        vue_search.home.info.tltype = vue_search.home.seltype_current;
-        vue_search.home.statuses.splice(0,vue_search.home.statuses.length);
-        vue_search.home.loadTimeline(type,{
-            api : {},
-            app : {
-                tlshare : vue_search.home.selshare_current,
-                exclude_reply : true,
-            }
-        });
-    }else if (type == "list") {
-        vue_search.list.info.tltype = id;
-        vue_search.list.statuses.splice(0,vue_search.list.statuses.length);
-        vue_search.list.loadTimeline(type,{
-            api : {},
-            app : {
-                listid : vue_search.list.sellisttype_current,
-                tlshare : vue_search.list.selshare_current,
-                exclude_reply : true,
-            }
-        });
-    }else if (type == "local") {
-        vue_search.local.info.tltype = vue_search.local.seltype_current;
-        vue_search.local.statuses.splice(0,vue_search.local.statuses.length);
-        vue_search.local.loadTimeline(type,{
-            api : {},
-            app : {
-                tlshare : vue_search.local.selshare_current,
-                exclude_reply : true,
-            }
-        });
-    }else if (type == "public") {
-        vue_search.public.info.tltype = vue_search.public.seltype_current;
-        vue_search.public.statuses.splice(0,vue_search.public.statuses.length);
-        vue_search.public.loadTimeline(type,{
-            api : {},
-            app : {
-                tlshare : vue_search.public.selshare_current,
-                exclude_reply : true,
-            }
-        });
-    }
+    
 }
 
 function loadTimeline(data,options){
@@ -233,11 +192,15 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             mixins : [vue_mixin_for_timeline],
             data : {
+                translations : {},
                 sel_listtype : [],
                 sellisttype_current : "",
 
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
+
+                tlcond : null,
+
 
             },
             created : function() {
@@ -246,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
             },
             mounted() {
+                this.tlcond = new GTimelineCondition();
 
             },
             watch : {
@@ -276,30 +240,13 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             methods : {
                 loadTimeline : loadTimeline,
-                loadListNames : function(){
-                    var opt = {api:{},app:{}};
-                    MYAPP.sns.getLists(opt)
-                    .then(result=>{
-                        this.sel_listtype.splice(0,this.sel_listtype.length);
-                        for (var i = 0; i < result.data.length; i++) {
-                            this.sel_listtype.push({
-                                text : result.data[i].title,
-                                value : result.data[i].id,
-                                selected : (i == 0 ? true : false)
-                            });
-                        }
-                        this.sellisttype_current = this.sel_listtype[0].value;
-                        this.$nextTick(function () {
-                            ID("sel_listtype").value = this.sel_listtype[0].value;
-                            M.FormSelect.init(ID("sel_listtype"), {
-                                dropdownOptions : {
-                                    constrainWidth : false
-                                }
-                            });
-
-                        });
-                    });
-                }
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("local",opt);
+                    }
+                },
             }
         }),
     };

@@ -71,6 +71,7 @@ const CONS_TEMPLATE_DASHBOARD_GADGET = `
         :toolbtn="input.tootIB.btns"
         :accounts="input.accounts"
         :selaccounts="input.selaccounts"
+        :tags="input.tags"
         v-on:close="onclick_close"
         v-on:send="onclick_send"
     ></toot-inputbox>

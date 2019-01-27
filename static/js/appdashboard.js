@@ -65,7 +65,7 @@ class GItem {
         this.datalist = [];
         this.input = {
             
-            eid : "dvnew",
+            eid : "dvgad",
             tootIB : {
                 visibility : "",
                 first_scope : "public",
@@ -84,6 +84,7 @@ class GItem {
             //---account box data
             selaccounts : [],
             accounts : [],
+            tags : [],
         };
     }
 }

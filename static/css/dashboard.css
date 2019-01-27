@@ -39,4 +39,5 @@
     background-origin: content-box;
     box-sizing: border-box;
     cursor: pointer;
+    z-index : 1;
 }

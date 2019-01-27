@@ -72,7 +72,7 @@ const CONS_TEMPLATE_USERPOPUP = `
                 </div>
             </template>
             <template v-else>
-                <div class="col s8">
+                <div class="col s9">
                     <!--<a href="#" class="waves-effect waves-red" v-if="relationship.followed_by === false" v-bind:title="translation.to_unfollow"><i class="material-icons red-text">person_add</i></a>
                     <a href="#" class="waves-effect waves-red" v-if="relationship.followed_by" v-bind:title="translation.to_follow"><i class="material-icons red-text">person_outline</i></a>
                     -->
@@ -85,7 +85,7 @@ const CONS_TEMPLATE_USERPOPUP = `
                         </label>
                     </div>
                 </div>
-                <div class="col s4">
+                <div class="col s3">
                     <i v-if="account.locked === true" class="material-icons">lock</i>
                 </div>
             </template>

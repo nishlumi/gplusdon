@@ -3,6 +3,10 @@
 <!DOCTYPE html>
 <html >
     <HEAD>
+        {% if request.host  == 'gplusdon.net' %}
+        {% include 'jslib_gglanal.html' %}
+        {% endif %}
+        
         <title>G+Don {% block eachtitle %}{% endblock %}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -334,8 +338,8 @@
     <script src="/static/res/res_template_userpop.js"></script>
     <script src="/static/res/res_template_replyinput.js"></script>
     <script src="/static/res/res_template_tootgallery-cal.js"></script>
-    <script src="/static/res/res_template_db_gadget.js"></script>
     <script src="/static/res/res_template_inputbox.js"></script>
+    <script src="/static/res/res_template_db_gadget.js"></script>
 
 
     <script src="/static/js/cls_ck_inputbox.js"></script>
@@ -343,6 +347,7 @@
     <script src="/static/js/util.js"></script>
     <script src="/static/js/mixins_vue.js"></script>
     <script src="/static/js/cls_vue.js"></script>
+    <script src="/static/js/cls_vue2.js"></script>
     <script src="/static/js/cls_accounts.js"></script>
     <script src="/static/js/cls_sns.js"></script>
     <script src="/static/js/cls_session.js"></script>

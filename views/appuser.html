@@ -42,8 +42,9 @@
                 
             </div>-->
         </div>
-        <div class="user-action-btns col2 elevation-2" v-if="stat.followed_by">
-            <span>{? showRelationshpText() ?}</span>
+        <div class="user-action-btns col2 elevation-2">
+            <v-icon v-if="rawdata.locked">lock</v-icon>
+            <span v-if="stat.followed_by">{? showRelationshpText() ?}</span>
         </div>
         <div class="user-action-btns col3 elevation-2">
             <v-layout row wrap>
@@ -151,28 +152,29 @@
         <div id="tt_public" class="col s12 tabcontent">
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card  post_card_base post_card_top" >
-                    <div class="card-content">
-                    <div class="row">
-                        <div class="input-field col s6">
-                            <select id="sel_tlshare" v-model="selshare_current">
-                                <template v-for="item in sel_tlshare">
-                                    <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                </template>
-                            </select>
+                    <!--<div class="card-content">
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <select id="sel_tlshare" v-model="selshare_current">
+                                    <template v-for="item in sel_tlshare">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="input-field col s6">
+                                <select id="sel_tltype" v-model="seltype_current">
+                                    <template v-for="item in sel_tltype">
+                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
+                                    </template>
+                                </select>
+                            </div>
                         </div>
-                        <div class="input-field col s6">
-                            <select id="sel_tltype" v-model="seltype_current">
-                                <!--<option value="tt_all" selected>----</option>
-                                <option value="tt_reply">{{trans.sel_replyonly}}</option>
-                                <option value="tt_media">{{trans.sel_media}}</option>
-                                -->
-                                <template v-for="item in sel_tltype">
-                                    <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                </template>
-                            </select>
-                        </div>
-                    </div>
-                    </div>
+                    </div>-->
+                    <timeline-condition
+                        :translation="translations"
+                        :condition="tlcond"
+                        v-on:saveclose="onsaveclose"
+                    ></timeline-condition>
                 </div>
                 <timeline-toot 
                     v-bind:translation="translations"

@@ -19,7 +19,7 @@ var menuStatus = {
 /* GET users listing. */
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appaccounts', {
         sysinfo: ucommon.sysinfo,
         transjs: trans,
@@ -29,7 +29,7 @@ router.get('/', function (req, res) {
 });
 router.get('/:instance/:id', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appaccount', {
         sysinfo: ucommon.sysinfo,
         transjs: trans,

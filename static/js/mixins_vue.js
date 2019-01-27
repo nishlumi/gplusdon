@@ -79,7 +79,7 @@ var vue_mixin_for_timeline = {
 					is_nomax : false,
 					is_nosince : false,
 					tlshare : "",
-					tltype : "",
+					tltype : [],
 					exclude_reply : true,
 
 				}
@@ -159,7 +159,7 @@ var vue_mixin_for_timeline = {
 					tlid = "home";
                 }else if (this.$el.id == "tl_list") {
 					tlid = "list";
-					pastOptions.app["listid"] = this.sellisttype_current;
+					pastOptions.app["listid"] = this.currentOption.app.listid;
                 }else if (this.$el.id == "tl_local") {
 					tlid = "local";
 					pastOptions.api["local"] = true;
@@ -172,8 +172,8 @@ var vue_mixin_for_timeline = {
 					pastOptions.api["local"] = true;
 				}
 				pastOptions.api.max_id = this.info.maxid;
-				pastOptions.app.tlshare = this.selshare_current;
-				pastOptions.app.tltype = this.seltype_current;
+				//pastOptions.app.tlshare = this.selshare_current;
+				//pastOptions.app.tltype = this.seltype_current;
 				console.log("timeline ID=",tlid,JSON.stringify(this.info));
 				this.loadTimeline(tlid,{
 					api : pastOptions.api,
@@ -205,7 +205,7 @@ var vue_mixin_for_timeline = {
 					tlid = "home";
                 }else if (this.$el.id == "tl_list") {
 					tlid = "list";
-                    futureOptions.app["listid"] = this.sellisttype_current;
+                    futureOptions.app["listid"] = this.currentOption.app.listid;
                 }else if (this.$el.id == "tl_local") {
 					tlid = "local";
 					futureOptions.api["local"] = true;
@@ -218,8 +218,8 @@ var vue_mixin_for_timeline = {
 					futureOptions.api["local"] = true;
 				}
 				futureOptions.api.since_id = this.info.sinceid;
-				futureOptions.app.tlshare = this.selshare_current;
-				futureOptions.app.tltype = this.seltype_current;
+				//futureOptions.app.tlshare = this.selshare_current;
+				//futureOptions.app.tltype = this.seltype_current;
 				this.loadTimeline(tlid,{
 					api : futureOptions.api,
 					app : futureOptions.app
@@ -637,16 +637,28 @@ var vue_mixin_for_timeline = {
 			this.is_asyncing = false;
 			this.$nextTick(() =>{
 				for (var s = 0; s < this.statuses.length; s++) {
-					if (this.statuses[s].geo.enabled) {
+					var onest = this.statuses[s];
+					if (onest.geo.enabled) {
 						var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 							OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 							Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
-							latlng = L.latLng(this.statuses[s].geo.location[0].lat, this.statuses[s].geo.location[0].lng);
+							latlng = L.latLng(onest.geo.location[0].lat, onest.geo.location[0].lng);
 	
-						var geomap = L.map(this.$children[s].$el.querySelector('.here_map'), {center: latlng, dragging : false, zoom: this.statuses[s].geo.location[0].zoom,layers: [Osm]});
+						//---$children is Vue.component
+						//   But, $children[0] is parent of the array timeline-toot
+						//   So, [1] is real start.
+						var oneelem = this.$children[s+1];
+						var geomap = L.map(
+							oneelem.$el.querySelector('.here_map'), {
+								center: latlng, 
+								dragging : true, 
+								zoom: onest.geo.location[0].zoom,
+								layers: [Osm]
+							}
+						);
 	
-						for (var i = 0; i < this.statuses[s].geo.location.length; i++) {
-							var ll = this.statuses[s].geo.location[i];
+						for (var i = 0; i < onest.geo.location.length; i++) {
+							var ll = onest.geo.location[i];
 							var marker = L.marker({lat:ll.lat,lng:ll.lng}).addTo(geomap);
 							marker.on("click",(ev)=>{
 								//ev.sourceTarget.remove();
@@ -698,19 +710,19 @@ var vue_mixin_for_timeline = {
 			} 
 
 			//---additional option
-			if (options.app.tltype == "tt_media") {
-				ret =  gstatus.medias.length > 0 ? true : false;
-			} else if (options.app.tltype == "tt_exclude_bst") {
-				ret = (gstatus.reblogOriginal != null) ? false : true;
-			} else if (options.app.tltype == "tt_all") {
-				ret =  true;
-			} else if (options.app.only_media) {
-				ret = gstatus.medias.length > 0 ? true : false;
-			} 
-			
 			if (options.app.exclude_reply) {
 				ret = (data.in_reply_to_id == null) ? true : false;
 			}
+			if (options.app.tltype.indexOf("tv_media") > -1) {
+				ret =  gstatus.medias.length > 0 ? true : false;
+			}
+			if (options.app.tltype.indexOf("tv_exclude_bst") > -1) {
+				ret = (gstatus.reblogOriginal != null) ? false : true;
+			}
+			if (options.app.only_media) {
+				ret = gstatus.medias.length > 0 ? true : false;
+			} 
+			
 
 			return ret;
 		},
@@ -726,6 +738,23 @@ var vue_mixin_for_timeline = {
 				}
 			}
 			return null;
+		},
+		forWatch_allcondition : function (cond) {
+			this.statuses.splice(0,this.statuses.length);
+			//---this option is forcely.
+			this.currentOption.api["exclude_replies"] = true;
+
+			//---these options are optional.
+			this.currentOption.app["tlshare"] = cond.tlshare;
+			this.currentOption.app["tltype"] = cond.tltype;
+			
+			//---its exists in real Mastodon API.
+			if (cond.tltype.indexOf("tv_media") > -1) {
+				this.currentOption.api["only_media"] = true;
+			}else{
+				delete this.currentOption.api["only_media"];
+			}
+			return this.currentOption;
 		},
 		forWatch_selshare : function (val) {
 			this.statuses.splice(0,this.statuses.length);
@@ -852,7 +881,7 @@ var vue_mixin_for_inputtoot = {
 			
 			//---tag box data
 			seltags : [],
-			tags: [],
+			//tags: [],
 			
 			//---media
 			selmedias : [],
@@ -895,7 +924,7 @@ var vue_mixin_for_inputtoot = {
 		selmentions : function(val) {
 			var mentions;
 			if (this.screentype == "direct") {
-				mentions = this.calc_mentionLength([val]).join(" ");
+				mentions = this.calc_mentionLength(val).join(" ");
 			}else{
 				mentions = this.calc_mentionLength(val).join(" ");
 			}
@@ -968,7 +997,12 @@ var vue_mixin_for_inputtoot = {
 		//CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 		//this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
 
+		this.$nextTick(()=>{
 
+			
+		});
+
+	
 	},
 	methods : {
 		autocomplete_mention_func : CK_dataFeed_mention,
@@ -1032,7 +1066,59 @@ var vue_mixin_for_inputtoot = {
 				+ mentions.join(" ").length + tags.length + this.geouris.join(" ").length;
 		},
 		generate_geouri : function (item) {
-			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${item.Name}`;
+			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${encodeURI(item.Name)}`;
+		},
+		generate_marker : function(lat, lng, zoom) {
+			var marker = L.marker({lat:lat,lng:lng},{icon:redIcon}).addTo(this.geomap);
+			marker.on("click",(ev)=>{
+				//ev.sourceTarget.remove();
+				//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}`;
+			});
+			marker.bindPopup(`${lat},${lng}`);
+			this.geoitems.push(marker);
+			this.geo.locos.push({
+				"Geometry" : {
+					"Coordinates" : `${lng},${lat}`,
+					"latlng" : {
+						"lat" : lat,
+						"lng" : lng,
+					},
+					"zoom" : zoom
+				},
+				"Property" : {
+					"Address" : ""
+				},
+				"Name" : `(${lat}/${lng})`
+			});
+
+			//---arround location
+			loadGeoLoco(lat,lng)
+			.then(result=>{
+				//---set near location marker
+				
+				for (var i = 0; i < result.Feature.length; i++) {
+					var pos = result.Feature[i].Geometry.Coordinates.split(",");
+
+					result.Feature[i].Geometry["latlng"] = {
+						lat : pos[1],
+						lng : pos[0]
+					};
+					result.Feature[i].Geometry["zoom"] = zoom;
+					this.geo.locos.push(result.Feature[i]);
+					
+
+					var marker = L.marker({lat:pos[1],lng:pos[0]}).addTo(this.geomap);
+					marker.on("click",(ev)=>{
+						//ev.sourceTarget.remove();
+						//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
+					});
+					marker.bindPopup(result.Feature[i].Name);
+					this.geoitems.push(marker);
+				}
+			})
+			.catch(error=>{
+
+			});
 		},
 		//---event handler---------------------------------------------
 		onchange_inputcontent : function (e) {
@@ -1178,58 +1264,7 @@ var vue_mixin_for_inputtoot = {
 				this.geotext = "";
 				return;
 			}
-			var generate_marker = (lat, lng, zoom) => {
-				var marker = L.marker({lat:lat,lng:lng},{icon:redIcon}).addTo(this.geomap);
-				marker.on("click",(ev)=>{
-					//ev.sourceTarget.remove();
-					//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}`;
-				});
-				marker.bindPopup(`${lat},${lng}`);
-				this.geoitems.push(marker);
-				this.geo.locos.push({
-					"Geometry" : {
-						"Coordinates" : `${lng},${lat}`,
-						"latlng" : {
-							"lat" : lat,
-							"lng" : lng,
-						},
-						"zoom" : zoom
-					},
-					"Property" : {
-						"Address" : ""
-					},
-					"Name" : `(${lat}/${lng})`
-				});
-
-				//---arround location
-				loadGeoLoco(lat,lng)
-				.then(result=>{
-					//---set near location marker
-					
-					for (var i = 0; i < result.Feature.length; i++) {
-						var pos = result.Feature[i].Geometry.Coordinates.split(",");
-
-						result.Feature[i].Geometry["latlng"] = {
-							lat : pos[1],
-							lng : pos[0]
-						};
-						result.Feature[i].Geometry["zoom"] = zoom;
-						this.geo.locos.push(result.Feature[i]);
-						
-
-						var marker = L.marker({lat:pos[1],lng:pos[0]}).addTo(this.geomap);
-						marker.on("click",(ev)=>{
-							//ev.sourceTarget.remove();
-							//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
-						});
-						marker.bindPopup(result.Feature[i].Name);
-						this.geoitems.push(marker);
-					}
-				})
-				.catch(error=>{
-
-				});
-			}
+			
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(
 					(pos)=>{
@@ -1244,35 +1279,37 @@ var vue_mixin_for_inputtoot = {
 
 						console.log(pos);
 						this.$nextTick(()=>{
-							var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+							if ((this.geomap) && ("setView" in this.geomap)) {
+								var latlng = L.latLng(this.geo.lat, this.geo.lng);
+								this.geomap.setView(latlng);
+							}else{
+								var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 								OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 								Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
 								latlng = L.latLng(this.geo.lat, this.geo.lng);
 
-							if (!this.geomap) {
 								this.geomap = L.map(this.$el.querySelector('.here_map'), {center: latlng, dragging : true, zoom: 18,layers: [Osm]});
+								console.log("geomap=",this.geomap);
+								//---re-calculate location mark
+								this.geomap.on("click",(e)=>{
+									console.log(e);
+									this.geo.locos.splice(0,this.geo.locos.length);
+									for (var i = 0; i < this.geoitems.length; i++) {
+										this.geomap.removeControl(this.geoitems[i]);
+									}
+									
+
+									this.geo.lat = e.latlng.lat;
+									this.geo.lng = e.latlng.lng;
+									this.generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
+								});
+
 							}
-
-							//---re-calculate location mark
-							this.geomap.on("click",(e)=>{
-								console.log(e);
-								this.geo.locos.splice(0,this.geo.locos.length);
-								for (var i = 0; i < this.geoitems.length; i++) {
-									this.geomap.removeControl(this.geoitems[i]);
-								}
-								
-
-								this.geo.lat = e.latlng.lat;
-								this.geo.lng = e.latlng.lng;
-								generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
-							});
+							//if (!this.geomap) {
+							//	this.geomap = L.map(this.$el.querySelector('.here_map'), {center: latlng, dragging : true, zoom: 18,layers: [Osm]});
+							//}
 							this.geo.zoom = this.geomap.getZoom();
-							
-
-							generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
-
-							
- 
+							this.generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom); 
 						});
 					},
 					(error)=>{
@@ -1414,38 +1451,38 @@ var vue_mixin_for_inputtoot = {
 			.then(result=>{
 				var pros = [];
 				//var rootdef = new Promise((rootresolve, rootreject)=>{
-					console.log("result=",result);
-					//---loop for loaded medias
-					for (var i = 0; i < result.length; i++) {
-						var re = result[i];
-						//---loop for selected accounts
-						for (var f = 0; f < this.selaccounts.length; f++) {
-							var hitac = this.getTextAccount2Object(f);
-							if (!hitac) continue;
-							//console.log("hitac=",hitac);
-							MYAPP.sns.setAccount(hitac);
+				console.log("result=",result);
+				//---loop for loaded medias
+				for (var i = 0; i < result.length; i++) {
+					var re = result[i];
+					//---loop for selected accounts
+					for (var f = 0; f < this.selaccounts.length; f++) {
+						var hitac = this.getTextAccount2Object(f);
+						if (!hitac) continue;
+						//console.log("hitac=",hitac);
+						MYAPP.sns.setAccount(hitac);
 
-							var opt = {
-								filename : re.data.name
-							};
-							//---upload a media each account
-							//=====future: image from canvas, clipboard, etc...
-							var imgdata = re.src.split(";");
-							imgdata[0] = imgdata[0].replace("data:","");
-							var base64img = atob(imgdata[1].split(",")[1]);
-							var buffer = new Uint8Array(base64img.length);
-							for (var b = 0; b < base64img.length; b++) {
-								buffer[b] = base64img.charCodeAt(b);
-							}
-							var fl = new Blob([buffer.buffer],{type:imgdata[0]});
-							//console.log(fl,imgdata);
-							//=====================================
-							var fdef = MYAPP.uploadMedia(hitac,fl,opt);
-							//console.log("fdef=",fdef);
-							pros.push(fdef);
+						var opt = {
+							filename : re.data.name
+						};
+						//---upload a media each account
+						//=====future: image from canvas, clipboard, etc...
+						var imgdata = re.src.split(";");
+						imgdata[0] = imgdata[0].replace("data:","");
+						var base64img = atob(imgdata[1].split(",")[1]);
+						var buffer = new Uint8Array(base64img.length);
+						for (var b = 0; b < base64img.length; b++) {
+							buffer[b] = base64img.charCodeAt(b);
 						}
+						var fl = new Blob([buffer.buffer],{type:imgdata[0]});
+						//console.log(fl,imgdata);
+						//=====================================
+						var fdef = MYAPP.uploadMedia(hitac,fl,opt);
+						//console.log("fdef=",fdef);
+						pros.push(fdef);
 					}
-					return Promise.all(pros);
+				}
+				return Promise.all(pros);
 					//rootresolve(Promise.all(pros)
 					//.then(vals=>{
 					//	console.log("vals after vals=",vals);
@@ -1486,6 +1523,7 @@ var vue_mixin_for_inputtoot = {
 			})
 			.catch(err=>{
 				console.log(err);
+				btnflags.loading
 			})
 			.finally( () => {
 				MYAPP.sns.setAccount(backupAC);
@@ -1641,7 +1679,7 @@ var vue_mixin_for_notification = {
 		 */
 		merge_notification(account,data) {
 			var ret = false;
-			let cons_statusable = ["reblog","favourite","mention"];
+			var cons_statusable = ["reblog","favourite","mention"];
 			//---reblog, favourite, mention
 			if (cons_statusable.indexOf(data.type) > -1) {
 				for (var i = 0; i < account.notifications.length; i++) {

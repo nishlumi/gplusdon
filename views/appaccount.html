@@ -93,7 +93,7 @@
         <div id="tt_public" class="col s12 tabcontent">
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
-                    <div class="card-content">
+                    <!--<div class="card-content">
                     <div class="row">
                         <div class="input-field col s6">
                             <select id="sel_tlshare" v-model="selshare_current">
@@ -104,19 +104,18 @@
                         </div>
                         <div class="input-field col s6">
                             <select id="sel_tltype" v-model="seltype_current">
-                                <!--<option value="tt_all" selected>----</option>
-                                <option value="tt_public">{{trans.sel_tlpublic}}</option>
-                                <option value="tt_tlonly">{{trans.sel_tlonly}}</option>
-                                <option value="tt_private">{{trans.sel_private}}</option>
-                                <option value="tt_media">{{trans.sel_media}}</option>
-                                -->
                                 <template v-for="item in sel_tltype">
                                     <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
                                 </template>
                             </select>
                         </div>
                     </div>
-                    </div>
+                    </div>-->
+                    <timeline-condition
+                        :translation="translations"
+                        :condition="tlcond"
+                        v-on:saveclose="onsaveclose"
+                    ></timeline-condition>
                 </div>
                 <timeline-toot 
                     v-bind:translation="translations"

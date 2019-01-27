@@ -18,6 +18,8 @@ class Gpsession {
                     idname : ""
                 },
                 currentLocation : "",
+                urlquery : "",
+                urlqueryObject : null,
             },
             config : {
                 application : {
@@ -34,6 +36,13 @@ class Gpsession {
                 action : {
                     confirmBefore : true,
                     image_everyNsfw : false,
+                    add_nsfw_force_instance : false,
+                    nsfw_force_instances : [],
+                    enable_nsfw_time : false,
+                    force_nsfw_time : {
+                        begin : null,
+                        end : null
+                    },
                     popupNewtoot_always : false,
                     close_aftertoot : false,
                     tags : [],

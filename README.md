@@ -5,11 +5,11 @@ G+Don は Mastodon のためのウェブアプリです。
 
 ## As user
 
-**[こちら]()**
+**[こちら](https://gplusdon.net)**
 
 もしドメインにアクセス出来ない場合、次をご利用ください。
 
-**[あるいはここ]()**
+**[あるいはここ](https://gplusdon.azurewebsites.net)**
 
 
 説明書はGoogle ドキュメントで用意してあります。
@@ -56,25 +56,8 @@ G+Don は Mastodon のためのウェブアプリです。
 
 iOS 対応できない！(テスト端末：iPhone 7 plus, iOS 12.1.2(16C101) )
 
- * iOS, Chrome(Safari), Vue.js & Vuetify がまったく機能しない。Vueがピクリとも動いていない。
-iOSでvueのためにはes5が必要という噂を聞いて試すも意味なし。
+→ 2019/01/27 解決。
 
-https://github.com/es-shims/es5-shim
-
- * clickイベントが効かないと話を聞き試すも（そもそもcursor:pointerはそれ以前にしている、document, bodyにclickなんぞ設定していない、というかvueのv-on:click等でやっているため数多くの記事に相当する問題から外れている）効果なし。
-
-https://www.terakoya.work/ios-iphone-safari-click-none-howto/
-
- * Vueの本来の作法にはずれている＆import文が必要と思い参考にするも、意味なし。
-
-https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/import
-
-https://vuetifyjs.com/ja/getting-started/quick-start
-
-　PC、Androidでは素直に動作するHTML, javascript, その他関連ライブラリが動かない独特な挙動をするiOS & Chrome(実態はSafari? 上っ面だけの偽Chrome)　に対応するくらいなら、それ以外の環境で存分に使ってもらうための開発を続けたほうが五千万倍マシと乱暴ではあるが感じる。
-
-　iOSユーザーという超膨大な人的価値を泣く泣く除外することになるが、しばらくiOS環境は無視したほうが精神的に健全に生活＆開発＆運用できるだろうと判断した次第である。
-
-　Safariには腸煮えくり返りそうである。
+　知り合いから譲ってもらったMacbook proにてMacのSafariとiPhoneのSafariでデバッグして原因判明、解決に至った。
 
 

@@ -244,6 +244,11 @@ label.button_spoiler input:checked ~ p.toote_main {
 .initial-presentation-item {
     height : 6rem;
 }
+.menu_onepanel {
+    height: 64px;
+    padding-left: 0;
+    padding-top: 0;
+}
 /*====================================================
   top UI
 =====================================================*/
@@ -256,7 +261,8 @@ label.button_spoiler input:checked ~ p.toote_main {
 	z-index : 10;
 }
 #mainpanel {
-    height : calc(100% - 64px);
+    height: calc(100% - 64px);
+    margin-top: calc(64px - 64px);
 }
 .brand-title {
     font-size : 2.1rem;
@@ -317,7 +323,10 @@ div.collection a i.material-icons {
     font-size : 20px;
     margin-top : 1.2rem;
 }
-.maincol_menu.active * {
+.menulst_row {
+    font-weight: 200;
+}
+.maincol_menu.active *, .menulst_row.active * {
     color : red !important;
 }
 
@@ -1084,7 +1093,7 @@ div.account_body .tabs li.indicator {
     height : 6rem;
     width : 100%;
     position : absolute;
-    bottom : 5rem;
+    bottom : 6rem;
 }
 .user-grid-item .card .card-action {
     position : absolute;

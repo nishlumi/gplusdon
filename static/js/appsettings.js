@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_settings").classList.add("active");
     //ID("sm_settings").classList.add("active");
-    MYAPP.showBottomCtrl(true);
+    MYAPP.showBottomCtrl(false);
 
 
     MYAPP.setupCommonElement();
@@ -41,6 +41,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 type_action : {
                     confirmBefore : true,
                     image_everyNsfw : false,
+                    add_nsfw_force_instance : false,
+                    nsfw_force_instances : [],
+                    enable_nsfw_time : false,
+                    force_nsfw_time : {
+                        begin : null,
+                        end : null
+                    },
                     popupNewtoot_always : false,
                     close_aftertoot : false,
                     tags : [],
@@ -59,6 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 //translation : {},
                 selected : {},
                 selected_base : {},
+
+                times : {
+                    begin : {
+                        modal : false,
+                    },
+                    end : {
+                        modal : false,
+                    }
+                },
 
                 is_gdrive_authorize : false,
                 is_sync_confirm : false,

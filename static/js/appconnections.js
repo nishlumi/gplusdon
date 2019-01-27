@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data() {
                 return {
                     is_asyncing : false,
-                    cardtype : "selectable",
+                    cardtype : "normal",
                     info : {
                         maxid : "",
                         sinceid : "",
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data() {
                 return {
                     is_asyncing : false,
-                    cardtype : "selectable",
+                    cardtype : "normal",
                     info : {
                         maxid : "",
                         sinceid : "",
@@ -450,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         {text:"---",value:"0"}
                     ],
                     selectedAccount : [],
+                    sheet : false,
                 }
             },
             mounted() {
@@ -503,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(e);
                     //this.sheet = !this.sheet;
 
-                    if (this.sheet === true) {
+                    if (e.checked) {
                         var ishit = this.selectedAccount.filter(elem=>{
                             if (e.userid == elem.userid) {
                                 return true;
@@ -518,6 +519,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 this.selectedAccount.splice(i,1);
                             }
                         };
+                    }
+                    if (this.selectedAccount.length > 0) {
+                        this.sheet = true;
+                    }else{
+                        this.sheet = false;
                     }
                 },
                 oncreate_list : function (e) {
@@ -583,7 +589,27 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         });
                     });
+                },
+                /**
+                 * register the user to selected list
+                 * @param {Event} e 
+                 */
+                onremove_fromlist : function(e) {
+                    if (this.current_list == "0") return;
+                    var msg = _T("msg_del_to_list2");
+                    appConfirm(msg,()=>{
+                        var ids = [];
+                        for (var i = 0; i < this.selectedAccount.length; i++) {
+                            ids.push(this.selectedAccount[i].userid);
+                        }
+                        MYAPP.sns.removeMemberFromList(this.current_list,ids)
+                        .then(result=>{
+                            
+                            this.sheet = false;
+                        });
+                    });
                 }
+
             }
         }),
         "frequest" : new Vue({
@@ -863,6 +889,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 MUtility.returnPathToList(MYAPP.session.status.currentLocation);
             }
             var targetpath = "";
+            //---common func
+            vue_connections.list.sheet = false;
+            vue_connections.following.sheet = false;
+            //---each
             if (e.id == "finder") {
                 vue_connections.suggestion.accounts.splice(0,vue_connections.suggestion.accounts.length);
                 vue_connections.suggestion.load_suggestion({api:{},app:{}});

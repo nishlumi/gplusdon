@@ -7,7 +7,7 @@
 <div id="area_connections" class="connections_body">
     <div class="row">
         <div class="col s12">
-            <ul id="tabbar" class="tabs tabs-fixed-width" v-cloak>
+            <ul id="tabbar" class="tabs tabs-fixed-width"  v-cloak>
                 <li class="tab col s2"><a href="#finder" class="{{tabstates.finder}}" >{{ trans.con_tab_search }}</a></li>
                 <li class="tab col s2"><a href="#list" class="{{tabstates.list}}" >{{ trans.list }}</a></li>
                 <li class="tab col s3"><a href="#frequest" class="{{tabstates.frequest}}" >{{ trans.con_tab_followrequest }} ({? followRequest_count ?})</a></li>
@@ -98,7 +98,7 @@
                 <v-flex xs12 v-on:scroll="onscroll_tab">
                     <div class="user-grid sizing">
                         <div class="user-grid-item" v-for="selected in accounts" v-bind:key="selected.id">
-                            <user-popupcard
+                            <user-popupcard ref="userpop"
                                 v-bind:cardtype="cardtype"
                                 v-bind:translation="translations"
                                 v-bind:account="selected"
@@ -110,6 +110,21 @@
                     </div>
                 </v-flex>
             </v-layout>
+            <v-bottom-sheet v-model="sheet" hide-overlay inset>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-flex xs1>
+                                <v-btn flat icon color="red" v-on:click="onremove_fromlist">
+                                    <v-icon>delete</v-icon>
+                                </v-btn>
+                            </v-flex>
+                            
+                        </v-layout>
+                    </v-card-text>    
+                </v-card>
+                
+            </v-bottom-sheet>
         </div>
         <div id="frequest" class="col s12 tab-content {{tabstates.frequest}}" v-on:scroll="onscroll_tab">
             <div class="user-grid sizing">

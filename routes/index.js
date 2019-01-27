@@ -28,7 +28,7 @@ function clearStatus() {
 /* GET home page. */
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     
     menuStatus.start = "active";
     res.render('appinitial', {
@@ -42,7 +42,7 @@ router.get('/', function (req, res) {
 
 router.get('/dashboard', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     
     res.render('appdashboard', {
@@ -55,7 +55,7 @@ router.get('/dashboard', function (req, res) {
 });
 router.get('/test', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     menuStatus.dashboard = "active";
     res.render('appmain', {
@@ -77,7 +77,7 @@ router.get('/redirect', function (req, res) {
 });
 router.get('/notifications', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     menuStatus.notifications = "active";
     res.render('appnotifications', {
@@ -91,7 +91,7 @@ router.get('/notifications', function (req, res) {
 
 router.get('/settings', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     menuStatus.settings = "active";
     res.render('appsettings', {
@@ -104,7 +104,7 @@ router.get('/settings', function (req, res) {
 });
 router.get('/s/:findtext', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     res.render('appsearch', {
         sysinfo: ucommon.sysinfo,
@@ -117,7 +117,7 @@ router.get('/s/:findtext', function (req, res) {
 });
 router.get('/terms', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     clearStatus();
     res.render('terms', {
         sysinfo: ucommon.sysinfo,

@@ -21,7 +21,7 @@ var menuStatus = {
 /* GET users listing. */
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appusers', {
         sysinfo: ucommon.sysinfo,
         transjs: trans,
@@ -31,7 +31,7 @@ router.get('/', function (req, res) {
 });
 router.get('/:instance/:id', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     var api = cls_mstdn.loadAPI(req.params.instance);
     var userdata = {};
     /*api.getUser(req.params.instance, req.params.id)
@@ -53,7 +53,7 @@ router.get('/:instance/:id', function (req, res) {
 });
 router.get('/:instance/:id/:page', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appuser', {
         sysinfo: ucommon.sysinfo,
         instance: req.params.instance,
@@ -66,7 +66,7 @@ router.get('/:instance/:id/:page', function (req, res) {
 });
 router.get('/:instance/:id/toots/:tootid', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     var api = cls_mstdn.loadAPI();
 
     var userdata = {};

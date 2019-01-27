@@ -27,6 +27,10 @@ Vue.component("toot-inputbox", {
 				send : true
 			}
 		},
+		tags : {
+			type : Array,
+			default : null
+		}
 		//account_info : Object,
     },
     data() {
@@ -51,7 +55,7 @@ Vue.component("toot-inputbox", {
             },
             //---tag box data
             seltags : [],
-            tags: [],
+            //tags: [],
         };
 	},
 	watch: {
@@ -165,6 +169,28 @@ Vue.component("toot-inputbox", {
 	},
 	Updated() {
 		if (this.isfirst) {
+
+
+			var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+			latlng = L.latLng(34.3939, 134.3939);
+
+			this.geomap = L.map(this.$el.querySelector('.here_map'), {center: latlng, dragging : true, zoom: 18,layers: [Osm]});
+			console.log("geomap=",this.geomap);
+			//---re-calculate location mark
+			this.geomap.on("click",(e)=>{
+				console.log(e);
+				this.geo.locos.splice(0,this.geo.locos.length);
+				for (var i = 0; i < this.geoitems.length; i++) {
+					this.geomap.removeControl(this.geoitems[i]);
+				}
+				
+
+				this.geo.lat = e.latlng.lat;
+				this.geo.lng = e.latlng.lng;
+				generate_marker(this.geo.lat,this.geo.lng,this.geo.zoom);
+			});
 			this.isfirst = false;
 		}
 	},
@@ -291,7 +317,10 @@ Vue.component("reply-inputbox", {
 		 * @param {Object} reply_account user object to reply
 		 * @param {String} selectaccount account data to use as sender
 		 */
-		replydata : Object
+		replydata : {
+			type : Object,
+			default : null
+		}
 	},
 	data() {
 		return {
@@ -323,14 +352,16 @@ Vue.component("reply-inputbox", {
 	},
 	mounted(){
 		//---each initialize
-		this.selaccounts.push(this.replydata.selectaccount);
-		this.reply_to_id = this.replydata.reply_to_id;
+		if (this.replydata) {
+			this.selaccounts.push(this.replydata.selectaccount);
+			this.reply_to_id = this.replydata.reply_to_id;
+			if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
+		}
 		//this.mention_to_id = this.replydata.mention_to_id;
 
 		//this.ckeditor.on("keydown",this.onkeydown_inputcontent);
 		//this.ckeditor.on("dragstart",this.ondragover_inputcontent);
 		//this.ckeditor.on("change",this.onchange_inputcontent);
-		this.selmentions.push("@"+this.replydata.reply_account.acct);
 
 		var tmpscope = "tt_"+this.first_sharescope;
 		if (this.first_sharescope == "unlisted") {
@@ -351,6 +382,23 @@ Vue.component("reply-inputbox", {
 	beforeUpdate() {
 		if (this.isfirst) {
 			//---setup CKeditor
+
+			//this.isfirst = false;
+		}
+	},
+	updated() {
+		this.reply_to_id = this.replydata.reply_to_id;
+		this.selmentions.splice(0,this.selmentions.length);
+		if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
+		if (this.isfirst) {
+			/*CKEDITOR.disableAutoInline = true;
+			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+			//console.log("popuping=",this.popuping + 'replyinput_'+this.id);
+			//console.log(ID(this.popuping + 'replyinput_'+this.id));
+			this.ckeditor = CKEDITOR.inline( this.popuping + 'replyinput_'+this.id, CK_INPUT_TOOTBOX);
+			*/
+
+
 			CKEDITOR.disableAutoInline = true;
 			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 			var elemid = this.movingElementID('replyinput_');
@@ -377,17 +425,6 @@ Vue.component("reply-inputbox", {
 			this.isfirst = false;
 		}
 	},
-	updated() {
-		/*if (this.isfirst) {
-			CKEDITOR.disableAutoInline = true;
-			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-			//console.log("popuping=",this.popuping + 'replyinput_'+this.id);
-			//console.log(ID(this.popuping + 'replyinput_'+this.id));
-			this.ckeditor = CKEDITOR.inline( this.popuping + 'replyinput_'+this.id, CK_INPUT_TOOTBOX);
-	
-			this.isfirst = false;
-		}*/
-	},
 	computed : {
 
 	},
@@ -403,6 +440,11 @@ Vue.component("reply-inputbox", {
 			this.selsharescope.text = item.text;
 			this.selsharescope.value = item.value;
 			this.selsharescope.avatar = item.avatar;
+		},
+		select_mention: function (mention) {
+			this.selmentions.splice(0,this.selmentions.length);
+			if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
+			this.calc_fulltext(this.status_text);
 		},
 		autocomplete_mention_func : CK_dataFeed_mention,
 		//---event handler-------------------------------------
@@ -425,7 +467,7 @@ Vue.component("reply-inputbox", {
 				this.medias.splice(0,this.medias.length);
 				this.switch_NSFW = false;
 				this.seltags.splice(0,this.seltags.length);
-				this.tags.splice(0,this.tags.length);
+				//this.tags.splice(0,this.tags.length);
 				this.strlength = 0;
 			});
 

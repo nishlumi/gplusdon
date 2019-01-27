@@ -20,7 +20,7 @@ var menuStatus = {
 /* GET users listing. */
 router.get('/', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appinstances', {
         sysinfo: ucommon.sysinfo,
         init_instance : "",
@@ -31,7 +31,7 @@ router.get('/', function (req, res) {
 });
 router.get('/:instance', function (req, res) {
     var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(lan);
+    var trans = ucommon.load_translation(req,lan);
     res.render('appinstances', {
         sysinfo: ucommon.sysinfo,
         init_instance: req.params.instance,

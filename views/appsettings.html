@@ -66,6 +66,9 @@
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_app.skip_startpage" label="{{trans.app_lab_skip_startpage}}"></v-checkbox>
                             </v-flex>
+                            <v-flex xs12 sm12 md6>
+                                
+                            </v-flex>
                             <v-flex xs12 sm12 md6 lg6>
                                 <v-btn large color="red" v-on:click="onclick_uninstall_btn">{{trans.lab_uninstall_btn}}</v-btn>
                                 <v-btn large color="yellow" v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
@@ -123,11 +126,58 @@
                     <v-card-text>
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6>
-                                <v-checkbox v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
-                                <v-checkbox v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}"></v-checkbox>
-                                <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
-                                <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
-                                <v-checkbox v-model="type_action.noclear_tag" label="{{trans.act_lab_noclear_tag}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}" v-bind:disabled="type_action.add_nsfw_force_instance"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.add_nsfw_force_instance" label="{{trans.act_lab_add_nsfw_force_instance}}" v-bind:disabled="type_action.image_everyNsfw"></v-checkbox>
+                                <v-textarea v-model="type_action.nsfw_force_instances" label="{{trans.tbl_acc_col3}}"
+                                    outline box rows="5" height="10rem" hide-details
+                                    v-bind:disabled="type_action.image_everyNsfw"
+                                ></v-textarea>
+                                <v-layout>
+                                    <v-flex xs4>
+                                        <v-checkbox hide-details v-model="type_action.enable_nsfw_time" label="{{trans.act_lab_force_nsfw_time}}" v-bind:disabled="type_action.image_everyNsfw"></v-checkbox>
+                                    </v-flex>
+                                    <v-flex xs3>
+                                        <v-dialog ref="begindlg"
+                                            v-model="times.begin.modal" :return-value.sync="type_action.force_nsfw_time.begin"
+                                            lazy full-width width="290px"
+                                        >
+                                            <v-text-field slot="activator" readonly v-bind:disabled="type_action.image_everyNsfw"
+                                                v-model="type_action.force_nsfw_time.begin"
+                                                label="Start" prepend-icon="access_time"
+                                            ></v-text-field>
+                                            <v-time-picker
+                                                v-if="times.begin.modal"
+                                                v-model="type_action.force_nsfw_time.begin"
+                                                full-width
+                                            >
+                                                <v-spacer></v-spacer>
+                                                <v-btn flat color="primary" @click="times.begin.modal = false">{{trans.cons_cancel}}</v-btn>
+                                                <v-btn flat color="primary" @click="$refs.begindlg.save(type_action.force_nsfw_time.begin)">OK</v-btn>
+                                            </v-time-picker>
+                                        </v-dialog>
+                                    </v-flex>
+                                    <v-flex xs3>
+                                        <v-dialog ref="enddlg"
+                                            v-model="times.end.modal" :return-value.sync="type_action.force_nsfw_time.end"
+                                            lazy full-width width="290px"
+                                        >
+                                            <v-text-field slot="activator" readonly v-bind:disabled="type_action.image_everyNsfw"
+                                                v-model="type_action.force_nsfw_time.end"
+                                                label="End" prepend-icon="access_time"
+                                            ></v-text-field>
+                                            <v-time-picker
+                                                v-if="times.end.modal"
+                                                v-model="type_action.force_nsfw_time.end"
+                                                full-width
+                                            >
+                                                <v-spacer></v-spacer>
+                                                <v-btn flat color="primary" @click="times.end.modal = false">{{trans.cons_cancel}}</v-btn>
+                                                <v-btn flat color="primary" @click="$refs.enddlg.save(type_action.force_nsfw_time.end)">OK</v-btn>
+                                            </v-time-picker>
+                                        </v-dialog>
+                                    </v-flex>
+                                </v-layout>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-container fluid grid-list-md>
@@ -149,6 +199,11 @@
                                     </v-layout>
                                     
                                 </v-container>
+                            </v-flex>
+                            <v-flex xs12 sm12 md6>
+                                <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
+                                <v-checkbox v-model="type_action.noclear_tag" label="{{trans.act_lab_noclear_tag}}"></v-checkbox>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.open_url_after_remove_account" label="{{trans.act_lab_open_url_after_remove_account}}"></v-checkbox>

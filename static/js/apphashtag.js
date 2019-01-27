@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
                 tagname : "",
+                tlcond : null,
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
@@ -120,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
             },
             mounted() {
-
+                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -134,9 +135,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },400)
             },
             methods : {
-                loadTimeline : loadTimelineCommon
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                loadTimeline : loadTimelineCommon,
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                    }
+                }
             }
         }),
         "taglocal" : new Vue({
@@ -148,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
                 tagname : "",
+                tlcond : null,
+
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
@@ -155,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
             },
             mounted() {
-
+                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -169,9 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },400)
             },
             methods : {
-                loadTimeline : loadTimelineCommon
-                //filterToot : checkFilteringToot,
-                //getParentToot : getParentToot
+                loadTimeline : loadTimelineCommon,
+                onsaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                    }
+                }
             }
         }),
     };

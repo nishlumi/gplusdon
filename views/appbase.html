@@ -3,6 +3,11 @@
 <!DOCTYPE html>
 <html >
     <HEAD>
+        {% if request.host  == 'gplusdon.net' %}
+        {% include 'jslib_gglanal.html' %}
+        {% endif %}
+        <script src="/static/lib/polyfill.min.js"></script>
+
         <title>G+Don {% block eachtitle %}{% endblock %}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -31,13 +36,13 @@
         <link href="/static/lib/selectize/selectize.css" rel="stylesheet" >
         -->
         
-        <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user.css" >
+        <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user2.css" >
         <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
         <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
         <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
 
-        <link href="/static/css/vuetify.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
 
         <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" >
         <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
@@ -69,11 +74,18 @@
                             </div>
                             <div id="frm_search"  class="col l4 hide-on-med-and-down">
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
-                                    <div id="box_search" class="input-field col s12" style="padding:2px 0 2px 0;">
+                                    <!--<div id="box_search" class="input-field col s12" style="padding:2px 0 2px 0;">
                                         <input id="inp_search" type="search" v-bind:value="findtext" class="navsearch grey lighten-3 black-text" style="margin:5px;border-radius:10px;" placeholder="search any">
                                         <label class="label-icon" for="search"><i class="material-icons black-text">search</i></label>
                                         <i class="material-icons black-text" v-on:click="onclick_searchClear">close</i>
-                                    </div>
+                                    </div>-->
+                                    <v-text-field v-model="findtext"
+                                        flat clearable
+                                        hide-details
+                                        prepend-icon="search"
+                                        label="Search"
+                                        class="hidden-sm-and-down"
+                                    ></v-text-field>
                                 </form>
                             </div>
                             <div id="nav_btnbar" class="navcol-right col s6 m3 l3">
@@ -141,19 +153,13 @@
                         </div>
                         <div id="leftmenu_main" class="collection">
                             <!--<a href="#" class="red collection-item  maincol_button  waves-effect waves-light btn"><i class="material-icons white-text">edit</i><span class="white-text">Toot</span></a>-->
+                            <!--
                             <template v-if="applogined">
                                 <a id="lm_dashboard" href="/" class="collection-item maincol_menu tooltipped {{menustat.dashboard}}" data-tooltip="{{trans.dashboard}}"><i class="material-icons">dashboard</i><span v-if="menu_text">{{trans.dashboard}}</span></a>
                                 <a id="lm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}} tooltipped" data-tooltip="{{trans.timeline}}"><i class="material-icons">view_day</i><span v-if="menu_text">{{trans.timeline}}</span></a>
-                                    <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
-                                    <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
-                                    -->
                                 <a id="lm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}} tooltipped" data-tooltip="{{trans.accounts}}"><i class="material-icons">person</i><span v-if="menu_text">{{trans.accounts}}</span></a>
                                 <a id="lm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}} tooltipped" data-tooltip="{{trans.connections}}"><i class="material-icons">people</i><span v-if="menu_text">{{trans.connections}}</span></a>
                                 <a id="lm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}} tooltipped"  data-tooltip="{{trans.direct_message}}"><i class="material-icons">email</i><span v-if="menu_text">{{trans.direct_message}}</span></a>
-                                <!--<a id="lm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}} tooltipped"  data-tooltip="{{trans.favourites}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a>
-                                <a id="lm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}} tooltipped"  data-tooltip="{{trans.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a>-->
                                 <a id="lm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}} tooltipped" data-tooltip="{{trans.instances}}"><i class="material-icons">business</i><span v-if="menu_text">{{trans.instances}}</span></a>
                                 <a id="lm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}} tooltipped" data-tooltip="{{trans.notifications}}"><i class="material-icons">notifications</i><span v-if="menu_text">{{trans.notifications}}</span></a>    
                                 <a id="lm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}} tooltipped" data-tooltip="{{trans.settings}}"><i class="material-icons">settings</i><span v-if="menu_text">{{trans.settings}}</span></a>    
@@ -163,6 +169,8 @@
                                 <a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.start_app}}</span></a>
                             </template>
                             <a id="lm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span v-if="menu_text">{{trans.help}}</span></a>
+                            -->
+                            {% include "appbase_menu.html" %}
                         </div>
                     </div>
                     <div  id="maincol_rightmain" class="inherited_body_range col s12 m12 l9">
@@ -218,17 +226,10 @@
                 <li><a id="sm_dashboard" href="/" class="collection-item maincol_menu {{menustat.dashboard}}"><i class="material-icons">dashboard</i><span>{{trans.dashboard}}</span></a></li>
                 <li>
                     <a id="sm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}}"><i class="material-icons">view_day</i><span>{{trans.timeline}}</span></a>
-                        <!--<a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">home</i><span>{{trans.home}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">list</i><span>{{trans.list}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.local}}</span></a>
-                        <a href="#" class="collection-item maincol_menu menu_sub common_ui_off"><i class="material-icons">view_day</i><span>{{trans.public}}</span></a>
-                        -->
                 </li>
                 <li><a id="sm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}}"><i class="material-icons">person</i><span>{{trans.accounts}}</span></a></li>
                 <li><a id="sm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}}"><i class="material-icons">people</i><span>{{trans.connections}}</span></a></li>
                 <li><a id="sm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}}"><i class="material-icons">email</i><span>{{trans.direct_message}}</span></a></li>
-                <!--<li><a id="sm_favourites" href="#" class="collection-item maincol_menu {{menustat.favourite}}"><i class="material-icons">star</i><span>{{trans.favourites}}</span></a></li>
-                <li><a id="sm_lists" href="#" class="collection-item maincol_menu {{menustat.lists}}"><i class="material-icons">list</i><span>{{trans.lists}}</span></a></li>-->
                 <li><a id="sm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}}"><i class="material-icons">business</i><span>{{trans.instances}}</span></a></li>
                 <li><a id="sm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}}"><i class="material-icons">notifications</i><span>{{trans.notifications}}</span></a></li>
                 <li><a id="sm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}}"><i class="material-icons">settings</i><span>{{trans.settings}}</span></a></li>
@@ -311,6 +312,7 @@
                         :toolbtn="tootIB.btns"
                         :accounts="accounts"
                         :selaccounts="selaccounts"
+                        :tags="tags"
                         v-on:close="onclick_close"
                         v-on:send="onclick_send"
                         ></toot-inputbox>
@@ -337,14 +339,11 @@
 
 
         
-        <script src="/static/lib/polyfill.min.js"></script>
         <script src="/static/lib/cookies.js"></script>
         <script src="/static/lib/jquery.min.js"></script>
         <script src="/static/lib/lodash.min.js"></script>
         {% include "jslib_vue.html" %}
         <script src="/static/lib/vue-carousel.min.js"></script>
-        <!--<script src="/static/lib/vue-metal-grid/index.js" type='module'></script>
-        <script src="/static/lib/element-resize-detector.min.js"></script>-->
         
         <script src="/static/lib/materialize/js/materialize.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>

@@ -80,10 +80,17 @@ var ucommon = {
         gdaky: sysconst.gdrive.web.api_key,
         gdid: sysconst.gdrive.web.client_id
     },
-    load_translation: function (locales) {
+    load_translation: function (request,locales) {
         var ret = "";
-        for (var i = 0; i < locales.length; i++) {
-            var lo = locales[i];
+        var tmp = ["ja"]; //default languages
+        if (locales) tmp = locales;
+        if (request.query) {
+            if ("hl" in request.query) {
+                tmp = [request.query.hl];
+            }
+        }
+        for (var i = 0; i < tmp.length; i++) {
+            var lo = tmp[i];
             var lofile = path.join(__user_dirname, `/static/strings/${lo}.json`);
             if (fs.existsSync(lofile)) {
                 ret = fs.readFileSync(lofile, "utf-8");

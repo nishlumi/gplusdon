@@ -1,12 +1,12 @@
 var MYAPP;
 var vue_accounts;
 
-function btn_reg_account_clicked(e) {
-    console.log(ID("txt_add_instance").value);
-    MYAPP.acman.addInstance(ID("txt_add_instance").value);
+function btn_reg_account_clicked(text) {
+    console.log(text);
+    MYAPP.acman.addInstance(text);
 }
 function onsubmit_addinstance(e) {
-    btn_reg_account_clicked(e);
+    btn_reg_account_clicked(this.inputinstance);
 }
 function ondelete_account(e) {
     var selected = [];
@@ -35,7 +35,7 @@ function ondelete_account(e) {
         }else{
             //---initialize app (because of accounts not found)
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(null);
-            MYAPP.commonvue.leftmenu.applogined = false;
+            //MYAPP.commonvue.leftmenu.applogined = false;
             MYAPP.commonvue.sidebar.applogined = false;
             //MYAPP.commonvue.nav_search.applogined = false;
             MYAPP.commonvue.nav_search.applogined = false;
@@ -144,8 +144,17 @@ document.addEventListener('DOMContentLoaded', function() {
         delimiters : ["{?", "?}"],
         data : {
             is_bottomsheet : false,
+            inputinstance : "",
             accounts : [], //account: Object, selected : Boolean
             accounts_config : [], //idname, instance, is_notification
+            select_desktop : {
+                alert : {
+                    mention : false,
+                    follow : false,
+                    reblog : false,
+                    favourite : false
+                }
+            },
             select_subscription : {
                 account : null,
                 alert : {
@@ -199,8 +208,15 @@ document.addEventListener('DOMContentLoaded', function() {
             ondelete_account : ondelete_account,
             onclick_pushsub : function(account) {
                 var mainfunc = ()=>{
-                    console.log(JSON.original(account));
+                    console.log((account));
                     var bkup = MYAPP.sns._accounts;
+
+                    if (account.others["alert"]) {
+                        for (var obj in this.select_desktop.alert) {
+                            this.select_desktop.alert[obj] = account.others.alert[obj];
+                        }
+                    }
+
                     MYAPP.sns.setAccount(account);
                     MYAPP.sns.getPushSubscription({})
                     .then(result=>{
@@ -253,7 +269,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log("after updatePushSubscription=",result);
                 })
                 .finally(()=>{
+                    var account = this.select_subscription.account;
+                    if (!("alert" in account.others)) {
+                        account.others["alert"] = {};
+                    }
+                    for (var obj in this.select_desktop.alert) {
+                        account.others.alert[obj] = this.select_desktop.alert[obj];
+                    }
                     MYAPP.sns.setAccount(bkup);
+                    MYAPP.acman.checkVerify();
                     alertify.message(`${this.select_subscription.account.acct}:${_T("msg_save_pushsub")}`);
                 });
             }

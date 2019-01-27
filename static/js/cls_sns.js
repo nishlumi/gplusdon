@@ -1471,9 +1471,6 @@ class Gpsns {
         if (!("replies_count" in this.body)) { //---sample: pawoo.net, etc
             this.body["replies_count"] = -1;
         }
-        if (MYAPP.session.config.action.image_everyNsfw === true) {
-            this.body.sensitive = true;
-        }
 
         //---main toot account setup
         this.account["instance"] = MUtility.getInstanceFromAccount("uri" in this.account ? this.account.uri : this.account.url);
@@ -1537,6 +1534,27 @@ class Gpsns {
                             size : `${img.width}x${img.height}`
                         }
                     };
+                }
+            }
+        }
+        if (MYAPP.session.config.action.image_everyNsfw === true) {
+            this.body.sensitive = true;
+        }
+        //---option: add nsfw, if specified instance
+        if (MYAPP.session.config.action.add_nsfw_force_instance === true) {
+            if (MYAPP.session.config.action.nsfw_force_instances.indexOf(this.account.instance) > -1) {
+                //---option: if enable nsfw time range ?
+                if (MYAPP.session.config.action.enable_nsfw_time === true) {
+                    var bdate = MYAPP.session.config.action.force_nsfw_time.begin + ":00";
+                    var edate = MYAPP.session.config.action.force_nsfw_time.end + ":00";
+                    bdate = parseInt(bdate.replace(/:/g,""));
+                    edate = parseInt(edate.replace(/:/g,""));
+                    var local = parseInt(this.body.created_at.toLocaleTimeString().replace(/:/g,""));
+                    if ((bdate <= local) && (local <= edate)) {
+                        this.body.sensitive = true;
+                    }
+                }else{
+                    this.body.sensitive = true;
                 }
             }
         }
