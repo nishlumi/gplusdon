@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html >
+<html lang="{{ lang }}">
     <HEAD>
         {% if request.host  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
@@ -302,6 +302,7 @@
             
                 <v-dialog v-model="dialog" class="white" persistent v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
             <!--% include  "onetoote.html"  %}-->
+                    <v-card>
                     <toot-inputbox  ref="inputbox"
                         :id="eid"
                         :visibility="tootIB.visibility"
@@ -311,11 +312,12 @@
                         :popuping="tootIB.popuping"
                         :toolbtn="tootIB.btns"
                         :accounts="accounts"
-                        :selaccounts="selaccounts"
+                        :initialaccounts="selaccounts"
                         :tags="tags"
                         v-on:close="onclick_close"
                         v-on:send="onclick_send"
                         ></toot-inputbox>
+                    </v-card>
                 </v-dialog>
             
         </div>

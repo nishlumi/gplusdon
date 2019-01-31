@@ -13,7 +13,9 @@ class Gplusdon {
             author: hidinfo[2],
             version: hidinfo[3],
             config : {
-                limit_search_instance : 50
+                limit_search_instance : 50,
+                toot_max_character : 500,
+                toot_warning_number : 490,
             }
         };
         this.appinfo = cstappinfo;
@@ -338,7 +340,7 @@ class Gplusdon {
             for (var e in ins.emoji.data) {
                 len_emoji++;
             }
-            this.commonvue.inputtoot.emojis_title.instances.push({
+            this.commonvue.emojisheet.emojis_title.instances.push({
                 type : "inst",
                 text : obj,
                 group : _T("instances"),

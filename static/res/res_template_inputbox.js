@@ -39,7 +39,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
         </v-tooltip>
         <v-tooltip bottom>
             <v-btn icon slot="activator" v-bind:class="btnflags.mood" v-if="toolbtn.emoji" v-on:click="onclick_moodbtn"><v-icon>mood</v-icon></v-btn>
-            <span>{{translation.toolbtn_addimage}}</span>  
+            <span>{{translation.toolbtn_addemoji}}</span>  
         </v-tooltip>
         <v-tooltip bottom>
             <v-btn icon slot="activator" dark color="red" v-if="toolbtn.send" v-on:click="onclick_send" v-bind:disabled="btnflags.send_disabled"><v-icon>send</v-icon></v-btn>
@@ -58,7 +58,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 background-color="grey lighten-5"
                                 name="account-box"
                                 append-icon=""
-                                counter="2"
+                                :counter="max_account"
                                 v-bind:rules="account_rules"
                                 item-text="display_name" item-value="acct" 
                                 multiple required

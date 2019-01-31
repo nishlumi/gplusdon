@@ -480,7 +480,7 @@ function defineForTootPage(app) {
         generate_charListEnum();
         for (var i = 0; i < charlistEnum.length; i++) {
             var ch = charlistEnum[i];
-            this.commonvue.inputtoot.emojis_title.utf8.push(ch);
+            this.commonvue.emojisheet.emojis_title.utf8.push(ch);
         }
         
         
@@ -488,7 +488,7 @@ function defineForTootPage(app) {
 
     app["generateSelectedCharList"] = function (sel){
 		var chararea = document.getElementById("chararea");
-		var rec = MYAPP.commonvue.inputtoot.emojis_title.utf8[sel];
+		var rec = MYAPP.commonvue.emojisheet.emojis_title.utf8[sel];
 		if (!rec) return;
 		var chcnt = chararea.childElementCount;
 		for (var i = chcnt-1; i >= 0; i--) {
@@ -520,28 +520,44 @@ function defineForTootPage(app) {
 
                 MYAPP.commonvue.inputtoot.status_text = before + a + after;
                 */
-                MYAPP.commonvue.inputtoot.ckeditor.editable().insertText(a);
+                //MYAPP.commonvue.inputtoot.ckeditor.editable().insertText(a);
+                MYAPP.commonvue.inputtoot.$refs.inputbox.insertText(a);
                 
 			}
 			chararea.appendChild(btn);
-			ln++;
-			if ((ln == 4) || (ln == 8)){
-				var span = document.createElement("span");
-				span.style.width = "1rem";
-				span.innerHTML = " ";
-				chararea.appendChild(span);
-			}
-			if (ln == 12) {
-				//cont += "<br/>";
-				var br = document.createElement("br");
-				chararea.appendChild(br);
-				ln = 0;
-			}
+            ln++;
+            if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.smAndDown) {
+                if ((ln == 4)){
+                    var span = document.createElement("span");
+                    span.style.width = "1rem";
+                    span.innerHTML = " ";
+                    chararea.appendChild(span);
+                }
+                if (ln == 8) {
+                    //cont += "<br/>";
+                    var br = document.createElement("br");
+                    chararea.appendChild(br);
+                    ln = 0;
+                }
+            }else{
+                if ((ln == 4) || (ln == 8)){
+                    var span = document.createElement("span");
+                    span.style.width = "1rem";
+                    span.innerHTML = " ";
+                    chararea.appendChild(span);
+                }
+                if (ln == 12) {
+                    //cont += "<br/>";
+                    var br = document.createElement("br");
+                    chararea.appendChild(br);
+                    ln = 0;
+                }
+            }
 		}
     };
     app["generateSelectedCharList_Instance"] = function (sel){
         var chararea = document.getElementById("chararea");
-        var seltext = MYAPP.commonvue.inputtoot.emojis_title.instances[sel].text;
+        var seltext = MYAPP.commonvue.emojisheet.emojis_title.instances[sel].text;
         var rec = MYAPP.acman.instances[seltext].emoji.data;
         if (!rec) return;
 		var chcnt = chararea.childElementCount;
@@ -576,21 +592,37 @@ function defineForTootPage(app) {
                     var after = text.substr(insertpos,text.length);
 
                     MYAPP.commonvue.inputtoot.status_text = `${before}:${a}:${after}`;*/
-                    MYAPP.commonvue.inputtoot.ckeditor.editable().insertText(`:${a}:`);
+                    MYAPP.commonvue.inputtoot.$refs.inputbox.ckeditor.editable().insertText(`:${a}:`);
+                    MYAPP.commonvue.inputtoot.$refs.inputbox.insertText(`:${a}:`);
                 }
                 chararea.appendChild(btn);
                 ln++;
-                if ((ln == 4) || (ln == 8)){
-                    var span = document.createElement("span");
-                    span.style.width = "1rem";
-                    span.innerHTML = " ";
-                    chararea.appendChild(span);
-                }
-                if (ln == 12) {
-                    //cont += "<br/>";
-                    var br = document.createElement("br");
-                    chararea.appendChild(br);
-                    ln = 0;
+                if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.smAndDown) {
+                    if ((ln == 4)){
+                        var span = document.createElement("span");
+                        span.style.width = "1rem";
+                        span.innerHTML = " ";
+                        chararea.appendChild(span);
+                    }
+                    if (ln == 8) {
+                        //cont += "<br/>";
+                        var br = document.createElement("br");
+                        chararea.appendChild(br);
+                        ln = 0;
+                    }
+                }else{
+                    if ((ln == 4) || (ln == 8)){
+                        var span = document.createElement("span");
+                        span.style.width = "1rem";
+                        span.innerHTML = " ";
+                        chararea.appendChild(span);
+                    }
+                    if (ln == 12) {
+                        //cont += "<br/>";
+                        var br = document.createElement("br");
+                        chararea.appendChild(br);
+                        ln = 0;
+                    }
                 }
             }
         }

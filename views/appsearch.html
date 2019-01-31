@@ -37,6 +37,13 @@
             </v-list>
         </div>
         <div id="s_toot" class="col s12 tab-content" v-on:scroll="onscroll_timeline">
+            <div class="pending_above_area" v-if="pending.above.is == true">
+                <v-layout row wrap >
+                    <v-flex xs2 offset-xs6>
+                        <v-btn round color="red" dark v-on:click="onclick_show_pending">{? _T("msg_pending",[pending.above.statuses.length]) ?}</v-btn>
+                    </v-flex>    
+                </v-layout>
+            </div>
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
                     <!--<div class="card-content">
@@ -74,6 +81,16 @@
                     v-on:replied_post="onreplied_children(status,index)"
                 ></timeline-toot>
             </div>
+            <div class="pending_below_area" v-if="statuses.length < 10">
+                <v-layout row wrap >
+                    <v-flex xs2 offset-xs6>
+                        <v-btn fab dark small color="red" v-on:click="onclick_load_below">
+                            <v-icon>expand_more</v-icon>
+                        </v-btn>
+                    </v-flex>    
+                </v-layout>
+            </div>
+
         </div>
     </div>
 

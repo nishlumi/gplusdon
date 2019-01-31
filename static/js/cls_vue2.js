@@ -39,9 +39,14 @@ Vue.component("toot-inputbox", {
 			show_openInNew : false,
 
 			//---account box data
+			max_account : 2,
             account_rules : [
                 v => {
-                    return v.length <= 4 || _T("post_error_msg03")
+					var flag = (v.length <= this.max_account);
+
+					this.btnflags.send_disabled = !flag;
+
+                    return flag || _T("post_error_msg03",[this.max_account])
                 },
 			],
 			mainlink : {
@@ -239,10 +244,12 @@ Vue.component("toot-inputbox", {
 			if (index >= 0) this.selmentions.splice(index, 1);
 		},
 		chip_user_name : function (data) {
-			var dispname = MUtility.replaceEmoji(data.display_name,data.instance,data.emojis,12)
-			if (dispname.length > 11) {
+			var dispname = data.display_name;
+			/*if (dispname.length > 11) {
 				dispname = dispname.substr(0,10) + "...";
 			}
+			dispname = MUtility.replaceEmoji(dispname,data.instance,data.emojis,12)
+			*/
 			var ret = dispname + "@" + data.instance;
 			return ret;
 		},
@@ -251,6 +258,8 @@ Vue.component("toot-inputbox", {
 			appConfirm(msg,()=>{
 				this.status_text = "";
 				this.mainlink.exists = false;
+
+				this.selaccounts.splice(0,this.selaccounts.length);
 				this.ckeditor.editable().setText("");
 				this.selmentions.splice(0,this.selmentions.length);
 				if (!MYAPP.session.config.action.noclear_tag) {
@@ -261,6 +270,7 @@ Vue.component("toot-inputbox", {
 				this.switch_NSFW = false;
 				this.is_geo = false;
 
+				MYAPP.commonvue.emojisheet.is_sheet = false;
 				if (this.otherwindow) {
 					window.close();
 				}else{
@@ -290,7 +300,7 @@ Vue.component("toot-inputbox", {
 		},
 		onclick_moodbtn : function (e) {
 			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
-			MYAPP.commonvue.emoji_sheet.is_sheet = !MYAPP.commonvue.emoji_sheet.is_sheet;
+			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
 		},
 
     }
@@ -446,6 +456,10 @@ Vue.component("reply-inputbox", {
 			if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
 			this.calc_fulltext(this.status_text);
 		},
+		select_sender_account : function (e) {
+			this.selaccounts.splice(0,this.selaccounts.length);
+			this.selaccounts.push(this.replydata.selectaccount);
+		},
 		autocomplete_mention_func : CK_dataFeed_mention,
 		//---event handler-------------------------------------
 		onfocus_dv_inputcontent: function (e) {
@@ -474,6 +488,7 @@ Vue.component("reply-inputbox", {
 		},
 		onclick_btn_reply_post : function (e) {
 			var pros = [];
+			this.select_sender_account();
 			for (var i = 0; i < this.selaccounts.length; i++) {
 				var account = this.getTextAccount2Object(i);
 				console.log(account);

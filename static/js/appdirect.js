@@ -717,6 +717,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.seltags.splice(0,this.seltags.length);
                     this.selmedias.splice(0,this.selmedias.length);
     
+                    //---get lastest conversation
+                    this.loadTimeline(this.show_user,{
+                        api : {
+                            limit : 40,
+                            since_id : this.msginfo.sinceid,
+                        },
+                        app : {
+                            is_nomax : true,
+                            is_nosince : false,
+                        }
+                    });
     
                     if (!this.fullscreen) {
                         this.dialog = false;
@@ -743,6 +754,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 //console.log(e.target.scrollHeight+","+e.target.offsetHeight+" - "+e.target.clientHeight+"="+sa + " : " + e.target.scrollTop);
                 var fnlsa = sa - Math.round(e.target.scrollTop);
                 if (fnlsa < 10) {
+                    //---get past toot conversation
+                    this.loadTimeline(this.show_user,{
+                        api : {
+                            limit : 40,
+                            since_id : this.msginfo.sinceid,
+                        },
+                        app : {
+                            is_nomax : true,
+                            is_nosince : false,
+                        }
+                    });
                 }
                 if (e.target.scrollTop == 0) {
                     //---get past toot conversation

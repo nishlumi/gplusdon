@@ -4,7 +4,7 @@
 const CONS_TEMPLATE_TLCONDITION = `
 <div class="item-content card-content">
     <v-layout>
-        <v-flex xs4>
+        <v-flex xs5>
             <v-btn fab dark small color="primary" v-on:click="dialog=!dialog">
                 <v-icon dark>settings</v-icon>
             </v-btn>
@@ -12,7 +12,7 @@ const CONS_TEMPLATE_TLCONDITION = `
                 <v-icon dark>clear</v-icon>
             </v-btn>
         </v-flex>
-        <v-flex xs8>
+        <v-flex xs7>
             
         </v-flex>
 
@@ -34,9 +34,11 @@ const CONS_TEMPLATE_TLCONDITION = `
                     </v-flex>
                     <!-- common options -->
                     <v-flex xs12>
-                        <v-text-field :label="translation.filter_condition" v-model="sel_filtertext"
+                        <v-text-field :label="translation.filter_condition" v-model="condition.filter.text"
                         ></v-text-field>
-                        <p>{{translation.msg_filter_condition}}</p>
+                        <p>{{translation.msg_filter_condition1}}<br>
+                            {{translation.msg_filter_condition2}}
+                        </p>
                     </v-flex>
                     <v-flex xs6>
                         <b>{{translation.sel_sharescope}}</b>

@@ -81,7 +81,7 @@ var vue_mixin_for_timeline = {
 					tlshare : "",
 					tltype : [],
 					exclude_reply : true,
-
+					filter : []
 				}
 			},
 			info : {
@@ -101,6 +101,19 @@ var vue_mixin_for_timeline = {
 				width_2 : false,
 				width_3 : false,
 			},
+			pending : {
+				above : {
+					is : false,
+					waiting : false,
+					statuses : [],
+				},
+				below : {
+					is : false,
+					waiting : false,
+					statuses : [],
+				}
+			},
+			/*
 			grid_conf : {
 				columnWidth : 200,
 				duration : 100,
@@ -110,6 +123,7 @@ var vue_mixin_for_timeline = {
 				width: 0,
 			},
 			grid : {} //wrapperSize.width <= 768 ? '100%' : grid_conf.columnWidth
+			*/
 		}
 	},
 	created() {
@@ -150,6 +164,9 @@ var vue_mixin_for_timeline = {
                         tltype : this.currentOption.app.tltype,
                         exclude_reply : true,
 					}	
+				}
+				if ("filter" in this.currentOption.app) {
+					pastOptions.app["filter"] = this.currentOption.app.filter;
 				}
 				for (var obj in this.currentOption.api) {
 					pastOptions.api[obj] = this.currentOption.api[obj];
@@ -194,7 +211,10 @@ var vue_mixin_for_timeline = {
                         tltype : this.currentOption.app.tltype,
                         exclude_reply : true,
                     }
-                }
+				}
+				if ("filter" in this.currentOption.app) {
+					futureOptions.app["filter"] = this.currentOption.app.filter;
+				}
 				for (var obj in this.currentOption.api) {
 					futureOptions.api[obj] = this.currentOption.api[obj];
 				}
@@ -225,10 +245,25 @@ var vue_mixin_for_timeline = {
 					app : futureOptions.app
 				});
 				this.is_scrolltop = true;
+				this.pending.above.waiting = false;
+				this.pending.above.is = false;
             }else{
 				this.is_scrolltop = false;
+				//---pending new toot 
+				if (e.target.scrollTop > MYAPP.session.config.notification.tell_newtoot_scroll) {
+					if (MYAPP.session.config.notification.tell_newtoot) {
+						this.pending.above.waiting = !this.is_scrolltop;
+						/*if (this.pending.above.waiting) {
+							for (var s = 0; s < this.statuses.length; s++) {
+								this.$set(this.statuses[s].cardtypeSize,"border-top","");
+							}
+							this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
+						}*/
+					}
+				}
+				MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+				
 			}
-			MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
 
         },
 		onreplied_children : function (status,index) {
@@ -319,7 +354,98 @@ var vue_mixin_for_timeline = {
 				this.statuses.splice(target,1);
 			}
 		},
+		onclick_show_pending : function (e) {
+			var b = [];
+			b = b.concat(this.pending.above.statuses);
+			
+			if (this.pending.above.waiting) {
+				for (var s = 0; s < this.statuses.length; s++) {
+					this.$set(this.statuses[s].cardtypeSize,"border-top","");
+				}
+				this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
+			}
+
+			this.currentOption.app.is_nomax = true;
+			this.currentOption.app.is_nosince = false;
+
+			this.generate_toot_detail({
+				data: b,
+				paging : {
+					prev : this.pending.above.statuses[0].id
+				}
+			},{
+				api : {
+					exclude_replies : true,
+					since_id : "",
+				},
+				app : this.currentOption.app
+			});
+			//---finish get update from stream, remove old loaded tootes
+			if (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+				while (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+					this.statuses.pop();
+				}
+			}
+
+			//---post scripts
+			this.clearPending();
+
+			Q(".tab-content.active").scroll({top:0,behavior: "instant"});
+		},
+		onclick_load_below : function (e) {
+			//---SAME AS page max scroll down
+			console.log("scroll down max");
+			var pastOptions = {
+				api : {
+					exclude_replies : true,
+					max_id : "",
+				},
+				app : {
+					is_nomax : false,
+					is_nosince : true,
+					tlshare : this.currentOption.app.tlshare,
+					tltype : this.currentOption.app.tltype,
+					exclude_reply : true,
+				}	
+			}
+			if ("filter" in this.currentOption.app) {
+				pastOptions.app["filter"] = this.currentOption.app.filter;
+			}
+			for (var obj in this.currentOption.api) {
+				pastOptions.api[obj] = this.currentOption.api[obj];
+			}
+			//var atab = Q(".tab .active");
+			if (this.$el.id == "tl_home") {
+				tlid = "home";
+			}else if (this.$el.id == "tl_list") {
+				tlid = "list";
+				pastOptions.app["listid"] = this.currentOption.app.listid;
+			}else if (this.$el.id == "tl_local") {
+				tlid = "local";
+				pastOptions.api["local"] = true;
+			}else if (this.$el.id == "tl_public") {
+				tlid = "public";
+			}else if (this.$el.id == "tl_tag") {
+				tlid = `tag/${this.tagname}`;
+			}else if (this.$el.id == "tl_taglocal") {
+				tlid = `tag/${this.tagname}`;
+				pastOptions.api["local"] = true;
+			}
+			pastOptions.api.max_id = this.info.maxid;
+			//pastOptions.app.tlshare = this.selshare_current;
+			//pastOptions.app.tltype = this.seltype_current;
+			console.log("timeline ID=",tlid,JSON.stringify(this.info));
+			this.loadTimeline(tlid,{
+				api : pastOptions.api,
+				app : pastOptions.app
+			});
+		},
 		//---some function----------------------------------------------
+		clearPending : function() {
+			this.pending.above.statuses.splice(0,this.pending.above.statuses.length);
+			this.pending.above.waiting = false;
+			this.pending.above.is = false;
+		},
 		checkExistToot : function (id) {
 			var hit = false;
 			for (var i = 0; i < this.statuses.length; i++) {
@@ -330,6 +456,11 @@ var vue_mixin_for_timeline = {
 			}
 			return hit;
 		},
+		/**
+		 * To generate Gpstatus from Raw status json of Mastodon
+		 * @param {JSON} rawdata Status array from Mastodon
+		 * @param {JSON} options My app's option object included (api, app)
+		 */
 		generate_toot_detail: function (rawdata, options) {
 			var data = rawdata.data;
 			var paging = rawdata.paging;
@@ -349,7 +480,13 @@ var vue_mixin_for_timeline = {
 				if (this.checkExistToot(data[i].id)) continue;
 
 				var st = new Gpstatus(data[i],18);
-				var flag = this.filterToot(st, options);
+				var flag = this.filterToot("filter", st, options);
+				if (flag) {
+					flag = this.filterToot("share", st, options);
+					if (flag) {
+						flag = this.filterToot("additional", st, options);
+					}
+				}
 				//console.log(options.app.tltype);
 				if (flag) {
 					//console.log(data[i].id, data[i].visibility, data[i].media_attachments.length);
@@ -686,42 +823,96 @@ var vue_mixin_for_timeline = {
 
 		/**
 		 * to check a toot to show in timeline
+		 * @param {String} priority priority type (filter -> share-> additional)
 		 * @param {GStatus} gstatus 
 		 * @param {Object} options 
 		 * @return {Boolean} wheather the toot is OK ?
 		 */
-		filterToot: function (gstatus, options) {
+		filterToot: function (priority, gstatus, options) {
 			var data = gstatus.body;
 			var ret = true;
 			//---share range
-			if (options.app.tlshare == "tt_public") {
-				ret = data.visibility == "public" ? true : false;
-			} else if (options.app.tlshare == "tt_tlonly") {
-				ret =  data.visibility == "unlisted" ? true : false;
-			} else if (options.app.tlshare == "tt_private") {
-				ret =  data.visibility == "private" ? true : false;
-			} else if (data.visibility == "direct") {
-				console.log(data.visibility,"include_dmsg_tl",MYAPP.session.config.notification.include_dmsg_tl);
-				if (MYAPP.session.config.notification.include_dmsg_tl) {
-					ret = true;
-				}else{
-					ret = false;
+			if (priority == "share") {
+				if (options.app.tlshare == "tt_public") {
+					ret = data.visibility == "public" ? true : false;
+				} else if (options.app.tlshare == "tt_tlonly") {
+					ret =  data.visibility == "unlisted" ? true : false;
+				} else if (options.app.tlshare == "tt_private") {
+					ret =  data.visibility == "private" ? true : false;
+				} else if (data.visibility == "direct") {
+					console.log(data.visibility,"include_dmsg_tl",MYAPP.session.config.notification.include_dmsg_tl);
+					if (MYAPP.session.config.notification.include_dmsg_tl) {
+						ret = true;
+					}else{
+						ret = false;
+					}
+				} 
+			}else if (priority == "additional") {
+				//---additional option
+				if (options.app.exclude_reply) {
+					ret = (data.in_reply_to_id == null) ? true : false;
 				}
-			} 
-
-			//---additional option
-			if (options.app.exclude_reply) {
-				ret = (data.in_reply_to_id == null) ? true : false;
+				if (options.app.tltype.indexOf("tv_media") > -1) {
+					ret =  gstatus.medias.length > 0 ? true : false;
+				}
+				if (options.app.tltype.indexOf("tv_exclude_bst") > -1) {
+					ret = (gstatus.reblogOriginal != null) ? false : true;
+				}
+				if (options.app.only_media) {
+					ret = gstatus.medias.length > 0 ? true : false;
+				}
+			}else if (priority == "filter") {
+				if (("filter" in options.app) && (options.app.filter !== undefined)) {
+					var hitcount = 0, hitmax = options.app.filter.filter((e)=>{return (e.operator == "=");});
+					for (var i = 0; i < options.app.filter.length; i++) {
+						var fil = options.app.filter[i];
+						if (fil.type == "instance") {
+							if (fil.operator == "=") {
+								if (fil.data.indexOf(gstatus.account.instance) > -1) {
+									hitcount++;
+								}
+							}else{
+								if (fil.data.indexOf(gstatus.account.instance) == -1) {
+									hitcount++;
+								}
+							}
+						}else if (fil.type == "user") {
+							if (fil.operator == "=") {
+								if (fil.data.indexOf(gstatus.account.username) > -1) {
+									hitcount++;
+								}
+							}else{
+								if (fil.data.indexOf(gstatus.account.username) == -1) {
+									hitcount++;
+								}
+							}
+						}else if (fil.type == "text") {
+							if (fil.operator == "=") {
+								for (var a = 0; a < fil.data.length; a++) {
+									if (data.content.indexOf(fil.data[a]) > -1) {
+										hitcount++;
+										break;
+									}
+								}
+							}else{
+								for (var a = 0; a < fil.data.length; a++) {
+									if (data.content.indexOf(fil.data[a]) == -1) {
+										hitcount++;
+										break;
+									}
+								}
+							}
+						}
+					}
+					if (options.app.filter.length > 0) {
+						if (hitcount >= options.app.filter.length) {
+							ret = true;
+						}else{
+							ret = false;
+						}
+					}
+				}
 			}
-			if (options.app.tltype.indexOf("tv_media") > -1) {
-				ret =  gstatus.medias.length > 0 ? true : false;
-			}
-			if (options.app.tltype.indexOf("tv_exclude_bst") > -1) {
-				ret = (gstatus.reblogOriginal != null) ? false : true;
-			}
-			if (options.app.only_media) {
-				ret = gstatus.medias.length > 0 ? true : false;
-			} 
 			
 
 			return ret;
@@ -747,6 +938,7 @@ var vue_mixin_for_timeline = {
 			//---these options are optional.
 			this.currentOption.app["tlshare"] = cond.tlshare;
 			this.currentOption.app["tltype"] = cond.tltype;
+			this.currentOption.app["filter"] = cond.filter;
 			
 			//---its exists in real Mastodon API.
 			if (cond.tltype.indexOf("tv_media") > -1) {
@@ -821,7 +1013,7 @@ var vue_mixin_for_inputtoot = {
 			type: Array,
 			default: null
 		},
-		selaccounts : {
+		initialaccounts : {
 			type : Array,
 			default : null
 		}
@@ -841,7 +1033,7 @@ var vue_mixin_for_inputtoot = {
 
 
 			//---account box data
-			//selaccounts : [],
+			selaccounts : [],
 
 			//---share scope box and mention box data
 			sharescopes : [
@@ -921,6 +1113,31 @@ var vue_mixin_for_inputtoot = {
 		}
 	},
 	watch : {
+		selaccounts : function (val) {
+			console.log(val);
+			MYAPP.session.status.toot_max_character = MYAPP.appinfo.config.toot_max_character;
+			MYAPP.session.status.toot_warning_number = MYAPP.appinfo.config.toot_warning_number;
+			for (var i = 0; i < val.length; i++) {
+				var v = val[i];
+				for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
+					var lim = MYAPP.session.config.notification.toot_limit_instance[st];
+					if (v.indexOf(lim.instance) > -1) {
+						MYAPP.session.status.toot_max_character = lim.limit;
+						MYAPP.session.status.toot_warning_number = lim.limit - 10;
+					}
+				}
+			}
+
+			//---re check
+			this.calc_fulltext(this.status_text);
+			//---warning near limit.
+			if (this.strlength > MYAPP.session.status.toot_warning_number) {
+				this.strlength_class["red-text"] = true;
+			}else{
+				this.strlength_class["red-text"] = false;
+			}
+			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+		},
 		selmentions : function(val) {
 			var mentions;
 			if (this.screentype == "direct") {
@@ -950,44 +1167,23 @@ var vue_mixin_for_inputtoot = {
 			this.calc_fulltext(this.status_text);
 
 			//---warning near limit.
-			if (this.strlength > 490) {
+			if (this.strlength > MYAPP.session.status.toot_warning_number) {
 				this.strlength_class["red-text"] = true;
 			}else{
 				this.strlength_class["red-text"] = false;
 			}
-			this.btnflags.send_disabled = (this.strlength > 500);
+			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 		},
 		status_text : function(val) {
-			/*var cont = MYAPP.extractTootInfo(val);
-			var textWithoutMentions = cont.text;
-			var mentions = [];
-			if (this.selmentions.length > 0) {
-				mentions = MYAPP.calcMentionLength(this.selmentions);
-			}
-			if (cont.mentions) {
-				for (var i = 0; i < cont.mentions.length; i++) {
-					textWithoutMentions = textWithoutMentions.replace(cont.mentions[i],"");
-				}
-				mentions = mentions.concat(MYAPP.calcMentionLength(cont.mentions));
-				//console.log("text=",textWithoutMentions,"mentions=",mentions);
-			}
-
-			var tags = this.seltags.join(" ");
-
-
-			//console.log(textWithoutMentions,mentions,tags);
-			this.strlength = twttr.txt.getUnicodeTextLength(textWithoutMentions)
-				+ mentions.join(" ").length + tags.length + this.geotext.length;
-			*/
 
 			this.calc_fulltext(val);
 			//---warning near limit.
-			if (this.strlength > 490) {
+			if (this.strlength > MYAPP.session.status.toot_warning_number) {
 				this.strlength_class["red-text"] = true;
 			}else{
 				this.strlength_class["red-text"] = false;
 			}
-			this.btnflags.send_disabled = (this.strlength > 500);
+			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 		},
 
 	},
@@ -1119,6 +1315,13 @@ var vue_mixin_for_inputtoot = {
 			.catch(error=>{
 
 			});
+		},
+		set_selectaccount : function (e) {
+			this.selaccounts.push(this.initialaccounts[0]);
+		},
+		insertText : function (text) {
+			this.ckeditor.editable().insertText(text);
+			this.status_text = this.ckeditor.editable().getText();
 		},
 		//---event handler---------------------------------------------
 		onchange_inputcontent : function (e) {

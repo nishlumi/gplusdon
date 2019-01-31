@@ -1,7 +1,7 @@
 {% extends "appbase.html" %}
 
 {% block eachtitle %}
- - Settings
+ - {{trans.settings}}
 {% endblock %}
 {% block content %}
 <div id="area_settings" class="setting_body">
@@ -219,13 +219,33 @@
                     <v-card-text>
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6>
-                                <v-checkbox v-model="type_notification.enable_browser_notification" label="{{trans.ntf_lab_enable_browser_notification}}"></v-checkbox>
-                            </v-flex>
-                            <v-flex xs12 sm12 md6>
+                                <v-checkbox hide-details v-model="type_notification.enable_browser_notification" label="{{trans.ntf_lab_enable_browser_notification}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_notification.tell_newtoot" label="{{trans.ntf_msg_tell_newtoot}}"></v-checkbox>
                                 <v-checkbox v-model="type_notification.include_dmsg_tl" label="{{trans.ntf_lab_include_dmsg_tl}}"></v-checkbox>
                                 <span>{{trans.ntf_help_include_dmsg_tl}}</span>
                             </v-flex>
-    
+                            <v-flex xs12 sm12 md6>
+                                <v-container fluid grid-list-md>
+                                    <v-layout row wrap>
+                                        <v-flex xs10>
+                                            <v-textarea
+                                                outline box
+                                                rows="5"
+                                                height="10rem"
+                                                label="{{trans.ntf_lab_toot_limit_instance}}"
+                                                v-model="temp_toot_limit"
+                                            ></v-textarea>
+                                            <p>{{trans.ntf_msg_toot_limit_instance2}}</p>
+                                        </v-flex>
+                                        <v-flex xs2>
+                                            <v-btn fab dark small color="red" v-on:click="onclick_savetootlimit">
+                                                <v-icon dark>save</v-icon>
+                                            </v-btn>
+                                        </v-flex>
+                                    </v-layout>
+                                    
+                                </v-container>                                
+                            </v-flex>
                         </v-layout>
                     </v-card-text>
                 </v-card>                

@@ -381,6 +381,7 @@ Vue.component("timeline-toot", {
 			//console.log(e);
 			//---set up data for reply
 			this.reply_data = this.generateReplyObject(this.toote);
+			//this.replyinput.select_sender_account();
 
 			//---set up view layout for reply
 			var target = e.target.parentElement.parentElement.nextElementSibling;
@@ -643,7 +644,8 @@ Vue.component("timeline-toot", {
 			this.mention_to_id = des.account.id;
 			this.reply_data.reply_to_id = des.body.id;
 			this.reply_data.reply_account = des.account;
-			this.replyinput.select_mention();
+			this.$refs.replyinput.select_mention();
+			this.$refs.replyinput.select_sender_account();
 
 			var editor = CKEDITOR.instances[this.popuping + "replyinput_"+this.toote.body.id];
 			//editor.editable().editor.insertText("@"+des.account.acct);
@@ -911,11 +913,13 @@ Vue.component("timeline-toot", {
 		 * @param {Event} e event object
 		 */
 		onreplied_post : function (e) {
+			/*
 			this.first_comment_stat.mini = true;
 			this.first_comment_stat.close = false;
 			this.comment_stat.mini = true;
 			this.comment_stat.close = false;
 			this.comment_stat.open = false;
+			*/
 			this.toote.body.replies_count++;
 			//this.$el.querySelector("div.template_reply_box").classList.toggle("common_ui_off");
 			this.$emit('replied_post');
@@ -1358,8 +1362,7 @@ class GTimelineCondition {
 		this.listtype = "0";
 		this.lists = [];
 		this.filter = {
-			users : [],
-			instances : [],
+			data : [],
 			text : "",
 		};
 	}
@@ -1386,7 +1389,8 @@ class GTimelineCondition {
 			tlshare : this.share,
 			tltype : this.view,
 			listtype : this.listtype,
-			filtertext : this.filter.text
+			filtertext : this.filter.text,
+			filter : this.filter.data,
 		};
 	}
 }
@@ -1422,13 +1426,72 @@ Vue.component("timeline-condition", {
 	},
 	methods : {
 		onclick_close : function (flag) {
+			//---analyze filter
+			var fobj = [];
+			var genOR = function (t) {
+				return t.split(",");
+			}
+			var fs = this.condition.filter.text.split(/\s/);
+			for (var i = 0; i < fs.length; i++) {
+				var ftext = fs[i];
+				
+				if (ftext.indexOf("@@") == 0) {
+					var arr = genOR(ftext.replace("@@",""));
+					//------Or condition
+					fobj.push({
+						type : "instance",
+						operator : "=",
+						data : arr
+					});
+				}else if (ftext.indexOf("@") == 0) {
+					var arr = genOR(ftext.replace("@",""));
+					fobj.push({
+						type : "user",
+						operator : "=",
+						data : arr
+					});
+				}else if (ftext.indexOf("!@@") == 0) {
+					var arr = genOR(ftext.replace("!@@",""));
+					//------Or condition
+					fobj.push({
+						type : "instance",
+						operator : "!",
+						data : arr
+					});
+				}else if (ftext.indexOf("!@") == 0) {
+					var arr = genOR(ftext.replace("!@",""));
+					fobj.push({
+						type : "user",
+						operator : "!",
+						data : arr
+					});
+				}else if (ftext.indexOf("!") == 0) {
+					var arr = genOR(ftext.replace("!",""));
+					fobj.push({
+						type : "text",
+						operator : "!",
+						data : arr
+					});
+				}else{
+					var arr = genOR(ftext);
+					fobj.push({
+						type : "text",
+						operator : "=",
+						data : arr
+					});
+				}
+			}
+
 			var ret = {
 				status : true,
 				tlshare : this.sel_tlshare,
 				tltype : this.sel_tltype,
 				listtype : this.sel_listtype,
-				filtertext : this.sel_filtertext
+				filtertext : this.condition.filter.text,
+				filter : fobj
 			};
+
+
 			//---cancel is status only
 			if (!flag) {
 				ret = {status:false};

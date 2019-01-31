@@ -47,6 +47,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
                     </v-flex>
                     <v-flex x6 offset-xs5>
                         <div class="">
+                            <v-spacer></v-spacer>
                             <a class="btn_reply_cancel waves-effect waves-red btn-flat" 
                                 v-on:click="onclick_btn_reply_cancel"
                             >{{ translation.cons_cancel }}</a>  
@@ -108,17 +109,20 @@ const CONS_TEMPLATE_REPLYINPUT = `
             </v-container>
         </v-flex>
     </v-layout>
-    <div class="dv_inputoperation common_ui_off">
-        <div class="row">
+    <div class="dv_inputoperation common_ui_off" title="ato de kesu">
+        <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>
+        <v-spacer></v-spacer>
+        <a class="btn_reply_cancel waves-effect waves-red btn-flat" v-on:click="onclick_btn_reply_cancel">{{ translation.cons_cancel }}</a>  
+        <a class="btn_reply_post waves-effect waves-red btn-flat">{{ translation.cons_reply }}</a>  
+        <!--<div class="row">
             <div class="col s2">
-                <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
+                  
             </div>
         
             <div class="col s4 offset-s6">  
-                <a class="btn_reply_cancel waves-effect waves-red btn-flat" v-on:click="onclick_btn_reply_cancel">{{ translation.cons_cancel }}</a>  
-                <a class="btn_reply_post waves-effect waves-red btn-flat">{{ translation.cons_reply }}</a>  
+                
             </div>  
-        </div>
+        </div>-->
     </div>
     
 </div>

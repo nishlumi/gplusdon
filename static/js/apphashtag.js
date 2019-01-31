@@ -199,6 +199,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(e.id);
             ID("area_timeline").scroll({top:0});
             ID("hid_timelinetype").value = e.id.replace("tl_","");
+            //---common
+            vue_timeline.tag.clearPending();
+            vue_timeline.taglocal.clearPending();
+
+            //---each
             if (e.id == "tl_tag") {
                 var et = ID("area_timeline");
                 var sa = et.scrollHeight - et.clientHeight;

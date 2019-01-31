@@ -126,6 +126,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 full_display_name : function() {
                     return MUtility.replaceEmoji(this.display_name,this.instance,this.rawdata.emojis,24);
                 },
+            },
+            methods : {
+                onclick_editor : function(e) {
+                    vue_user.editor.dialog = true;
+                }
             }
 
         }),
@@ -167,8 +172,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 //   the workarround for this.
                 
             },
+            computed: {
+            },
             methods : {
                 loadPinnedToot : loadPinnedToot,
+                fieldicon : function (val) {
+                    return val.indexOf(":") >= 0 ? val.split(":")[0] : "comment";
+                },
+                fieldname : function (val) {
+                    return val.indexOf(":") >= 0 ? val.split(":")[1] : val;
+                }
             }
 
         }),
@@ -246,6 +259,69 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             methods : {
                 load_favourites : load_favourites,
+            }
+        }),
+        "editor" : new Vue({
+            el : "#editdlg",
+            delimiters : ["{?","?}"],
+            data : {
+                cons : {
+                    note : 160,
+                    field_name : 255,
+                    field_value : 255
+                },
+                translations : null,
+                dialog : false,
+                isfull : false,
+                user : null,
+                bkup : null,
+                toggle_field : 1,
+                toggle_extension : false,
+                note : "",
+                field_name : "",
+                field_value : "",
+                extensions : [],
+                css : {
+                    note : {
+                        "red--text" : false
+                    },
+                    field_value : {
+                        "red--text" : false
+                    }
+                }
+                
+            },
+            watch: {
+                toggle_field : function (val,old) {
+                    console.log(val,old);
+                    this.field_name = this.user.rawdata.fields[val].name;
+                    var tmp = GEN("div");
+                    tmp.innerHTML = this.user.rawdata.fields[val].value;
+                    this.field_value = tmp.textContent;
+                },
+                note : function (val) {
+                    if (val.length > this.cons.note) {
+                        this.css.note["red--text"] = true;
+                        return false;
+                    }else{
+                        this.css.note["red--text"] = false;
+                        return true;
+                    }
+                },
+                field_value : function (val) {
+                    if (val.length > this.cons.field_value) {
+                        this.css.field_value["red--text"] = true;
+                        return false;
+                    }else{
+                        this.css.field_value["red--text"] = false;
+                        return true;
+                    }
+                }
+            },
+            methods : {
+                onclick_close : function (e) {
+                    this.dialog = false;
+                }
             }
         })
     };
@@ -425,12 +501,43 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.userview.instance = tmpac.instance;
         vue_user.userview.rawdata = tmpac.rawdata;
 
+        vue_user.editor.user = tmpac;
+        vue_user.editor.bkup = Object.assign({},tmpac);
+        var tmp = GEN("div");
+        tmp.innerHTML = tmpac.rawdata.note;
+        vue_user.editor.note = tmp.textContent;
+        vue_user.editor.toggle_field = 0;
+
         vue_user.basicinfo.note = tmpac.rawdata.note;
-        vue_user.basicinfo.fields = vue_user.basicinfo.fields.concat(tmpac.rawdata.fields);
+        var flds = tmpac.rawdata.fields;
+        var retflds = [];
+        //---analyze and get extra fields
+        for (var i = 0; i < flds.length; i++) {
+            var f = flds[i];
+            if (f.name.indexOf("#more") > -1) {
+                var tmp = GEN("div");
+                tmp.innerHTML = f.value;
+                console.log(tmp.textContent);
+                var cnt = JSON.parse(tmp.textContent);
+                for (var obj in cnt) {
+                    retflds.push({
+                        name : obj,
+                        value : cnt[obj]
+                    });
+                }
+            }else{
+                retflds.push({
+                    name : f.name,
+                    value : f.value
+                });
+            }
+        }
+        vue_user.basicinfo.fields = retflds;
         vue_user.basicinfo.translations = Object.assign({},curLocale.messages);
        
         vue_user.tabbar.translations = vue_user.basicinfo.translations;
         vue_user.tootes.translations = vue_user.basicinfo.translations;
+        vue_user.editor.translations = vue_user.basicinfo.translations;
         vue_user.fav.translations = vue_user.basicinfo.translations;
 
         var elem = document.querySelector("#tbl_acc tbody");

@@ -1,7 +1,7 @@
 const request = require("request-promise");
 const Mastodon = require("mastodon-api");
 //import Mastodon from '../node_modules/mastodon-api/lib/mastodon';
-const SERVER_TOKEN = "c84d803cc6eacb9d0dad2282ce32157db543332275a162f1835c32e099200fa9";
+const SERVER_TOKEN = "";
 
 class MastodonServer {
     constructor(instance) {

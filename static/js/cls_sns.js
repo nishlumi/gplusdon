@@ -1562,6 +1562,7 @@ class Gpsns {
         //---card css style class setup
         this.cardtypeSize = {
             "grid-row-end" : "span ",
+            "border-top" : ""
         }
 
         this.shareColor = {

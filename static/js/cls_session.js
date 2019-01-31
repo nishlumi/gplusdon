@@ -20,6 +20,8 @@ class Gpsession {
                 currentLocation : "",
                 urlquery : "",
                 urlqueryObject : null,
+                toot_max_character : 500,
+                toot_warning_number : 490,
             },
             config : {
                 application : {
@@ -52,6 +54,9 @@ class Gpsession {
                 notification : {
                     enable_browser_notification : true,
                     include_dmsg_tl : false,
+                    tell_newtoot : false,
+                    tell_newtoot_scroll : 300,
+                    toot_limit_instance : [],
                 }
             },
             gadgets : []

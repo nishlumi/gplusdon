@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{ lang }}">
 
 <head>
     {% if request.host  == 'gplusdon.net' %}
@@ -58,7 +58,7 @@
                         {{ sysinfo.fullname }}
                     </div>
                     <div>
-                        それは、とあるSNSの約束の地...<br>
+                        {{ trans.msg_ini_subtitle }}<br>
                     </div>
                 </div>
                 </v-card-title>
@@ -68,57 +68,55 @@
                 <v-layout row wrap>
                     <v-flex xs12 subheading>
                         <p>
-                            　{{sysinfo.fullname}} は
-                            <a href="https://joinmastodon.org/" target="_blank" rel="noopener"><strong class="indigo-text text-darken-4">Mastodon</strong></a>
-                            のためのウェブアプリです。<br>
-                            　マテリアルデザインを効果的に使ったデザインと機能性で、MastodonをまるでとあるSNS風に楽しく使うことができます。
+                            {{ trans.msg_ini_heading1 }} <br>
+                            {{ trans.msg_ini_heading2 }}
                         </p>
                     </v-flex>
                 </v-layout>
                 <v-layout>
                     <v-flex xs12 sm10 offset-sm1>
                         <v-layout row wrap>
-                            <v-flex xs3>
+                            <v-flex xs4>
                                 <a href="#isgpuser">
                                     <v-card>
-                                        <v-card-text class="blue-grey lighten-5 menu_onepanel">
-                                            G+Donユーザー
-                                        </v-card-text>
-                                    </v-card>
-                                </a>
-                            </v-flex>
-                            <v-flex xs3>
-                                <a href="#ismstdnuser">
-                                    <v-card>
                                         <v-card-text class="blue menu_onepanel">
-                                            マストドンユーザー
+                                            {{trans.lab_ini_menu_isuser}}
                                         </v-card-text>
                                     </v-card>
                                 </a>
                             </v-flex>
-                            <v-flex xs3>
+                            <v-flex xs4>
+                                <a href="#beuser">
+                                    <v-card>
+                                        <v-card-text class="yellow menu_onepanel">
+                                            {{trans.lab_ini_menu_beuser}}
+                                        </v-card-text>
+                                    </v-card>
+                                </a>
+                            </v-flex>
+                            <v-flex xs4>
                                 <a href="#notuser">
                                     <v-card>
                                         <v-card-text class="red menu_onepanel">
-                                            マストドンも初めての方
+                                            {{trans.lab_ini_menu_notuser}}
                                         </v-card-text>
                                     </v-card>
                                 </a>
                             </v-flex>
-                            <v-flex xs3>
+                            <v-flex xs6>
                                 <a href="#feature">
                                     <v-card>
-                                        <v-card-text class="yellow menu_onepanel">
-                                            特徴
+                                        <v-card-text class="blue-grey lighten-5 menu_onepanel">
+                                            {{trans.lab_ini_menu_feature}}
                                         </v-card-text>
                                     </v-card>
                                 </a>
                             </v-flex>
-                            <v-flex xs3>
+                            <v-flex xs6>
                                 <a href="#presentvideo">
                                     <v-card>
-                                        <v-card-text class="yellow menu_onepanel">
-                                            紹介動画
+                                        <v-card-text class="blue-grey lighten-5 menu_onepanel">
+                                            {{trans.lab_ini_menu_presentation}}
                                         </v-card-text>
                                     </v-card>
                                 </a>
@@ -132,7 +130,7 @@
                     <v-flex xs12 sm12 md6>
                         <v-layout row wrap >
                             <v-flex xs12 headline>
-                                <span id="isgpuser" class="grey--text text--darken-4">G+Donをすでに利用している方</span>
+                                <span id="isgpuser" class="grey--text text--darken-4 eachtype_usertitle">{{trans.msg_ini_isuser_title}}</span>
                             </v-flex>
                             <v-flex xs12>
                                 <a href="/tl">
@@ -144,7 +142,7 @@
                                 
                             </v-flex>
                             <v-flex xs12>
-                                Google Drive からアカウントを復元 <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
+                                {{trans.msg_ini_from_gdrive}} <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
                             </v-flex>
                             <v-flex xs12>
                                 <a href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" style="font-size:2.1rem;">
@@ -154,7 +152,7 @@
                                     <span class="subheading">Help</span>
                                 </a>
                                 <p class="ml-2">
-                                    (*) ブックマーク（お気に入り）はタイムラインやダッシュボードで行っていただくと便利です。<br>
+                                    (*) {{trans.msg_ini_isuser_note1}}<br>
                                     <br>
                                 </p>
                             </v-flex>
@@ -163,17 +161,17 @@
                     <v-flex xs12 sm12 md6>
                         <v-layout row wrap >
                             <v-flex xs12 headline>
-                                <span id="ismstdnuser" class="blue--text text--darken-4">Mastodonアカウントをお持ちの方</span>
+                                <span id="ismstdnuser" class="blue--text text--darken-4 eachtype_usertitle">{{trans.msg_ini_beuser_title}}</span>
                             </v-flex>
                             <v-flex xs12 body-2>
-                                　利用するにはどこかのMastodonインスタンスにユーザー登録している必要があります。
+                                　{{trans.msg_ini_beuser_note1}}
                             </v-flex>
                             <v-flex xs12>
                                 <v-form v-on:submit.prevent="btn_reg_account_clicked">
                                     <v-layout row wrap>
                                         <v-flex xs9>
                                             <v-text-field
-                                                label="接続したいインスタンス名を入力してください。"
+                                                label="{{trans.msg_ini_beuser_note2}}"
                                                 v-model="initial_instance"
                                             ></v-text-field>
                                         </v-flex>
@@ -184,8 +182,8 @@
                                         </v-flex>
                                         <v-flex xs12>
                                             <p class="ml-2">
-                                                (*) 接続先のMastodonインスタンスにてログインをしてください。ログイン後、本アプリに戻ることができます。<br>
-                                                (*) いくつかのMastodonインスタンスは外部アプリの許可をしていませんのでご注意ください。
+                                                (*) {{trans.msg_ini_beuser_note3}}<br>
+                                                (*) {{trans.msg_ini_beuser_note4}}
                                             </p>
                                         </v-flex>
                                     </v-layout>
@@ -199,7 +197,7 @@
                     <v-flex xs12>
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6 offset-md3 headline>
-                                <span id="notuser" class="red--text">まだMastodonアカウントを持っていない方</span>
+                                <span id="notuser" class="red--text eachtype_usertitle">{{trans.msg_ini_notuser_title}}</span>
                             </v-flex>
                         </v-layout>
                         <v-layout row wrap>
@@ -209,9 +207,10 @@
                                 </a>
                                 <p class="subheading">
                                     
-                                    ↑こちらのサイトで探しましょう！！
+                                    {{trans.msg_ini_notuser_note1}}
                                     <br>
-                                    <a href="/instances">G+Don instance ページ</a>でも検索できます！
+                                    {{trans.msg_ini_notuser_note2}}
+                                    <a href="/instances">G+Don instance page</a>
                                 </p>
                             </v-flex>
                         </v-layout>
@@ -222,7 +221,7 @@
             
             <v-layout row wrap>
                 <v-flex xs12 headline>
-                    <h5 id="feature">特徴</h5>
+                    <h5 id="feature">{{trans.lab_ini_menu_feature}}</h5>
                 </v-flex>
                 <v-flex xs12>
                     <v-layout row wrap>
@@ -230,7 +229,7 @@
                             <v-card>
                                 <v-card-title primary-title >
                                     <v-icon color="red">done_outline</v-icon>
-                                    <h5 class="subheading">複数アカウント＆複数インスタンス対応！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature1_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -240,7 +239,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                    Mastodonのユーザーアカウントを複数お持ちの方必見！当アプリでわかりやすく管理できます！
+                                    {{trans.msg_ini_feature1_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -248,7 +247,7 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">done_outline</v-icon>
-                                    <h5 class="subheading">テキスト＆メディア（画像・動画）が見やすい！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature2_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -258,7 +257,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                        Mastodonのデフォルト表示ではせせこましく感じた長文、メディアがゆったり見られます。
+                                        {{trans.msg_ini_feature2_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -266,7 +265,7 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">done_outline</v-icon>
-                                    <h5 class="subheading">タイムラインは一本道じゃない！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature3_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -276,7 +275,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                    Twitterのように上から下に一本道で流れるだけではなく、インスタグラムを始めとしたSNSのようにいくつもの投稿が画面狭しと飛び込んできます！
+                                    {{trans.msg_ini_feature3_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -284,7 +283,7 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">done_outline</v-icon>
-                                    <h5 class="subheading">PC、タブレット、スマートフォンに対応！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature4_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -294,7 +293,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                    ウェブブラウザで利用できるので、どんな環境でも利用していただけます。（オススメはタブレット以上の大画面です）
+                                    {{trans.msg_ini_feature4_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -302,7 +301,7 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">done_outline</v-icon>
-                                    <h5 class="subheading">あるSNSからの移行はきっとスムーズ！？</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature5_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -312,7 +311,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                    使いやすかったとあるSNSをリスペクトしているので、そのSNSを利用していた方々にとってはすんなり移行していただけます。
+                                    {{trans.msg_ini_feature5_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -320,7 +319,7 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">block</v-icon>
-                                    <h5 class="subheading">新たなSNSというわけではない！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature6_title}}</h5>
                                 </v-card-title>
                                 <v-img
                                     contain
@@ -330,7 +329,7 @@
                                     
                                 </v-img>
                                 <v-card-text class="initial-presentation-item">
-                                    {{sysinfo.fullname}} は新しいSNSではありません。あくまでもMastodonあっての{{sysinfo.fullname}}です。しかし<b>Mastodonに新しい使い方を提起</b>します！
+                                    {{trans.msg_ini_feature6_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -338,10 +337,10 @@
                             <v-card>
                                 <v-card-title primary-title>
                                     <v-icon color="red">done_all</v-icon>
-                                    <h5 class="subheading">もちろん無料！</h5>
+                                    <h5 class="subheading">{{trans.msg_ini_feature7_title}}</h5>
                                 </v-card-title>
                                 <v-card-text class="initial-presentation-item">
-                                    {{sysinfo.fullname}} の利用条件はMastodonに準じているため、開発陣に不慮の事態がない限りはずっと無料です！
+                                    {{trans.msg_ini_feature7_body}}
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -350,12 +349,13 @@
             </v-layout>
             <v-layout row wrap>
                 <v-flex xs12 headline>
-                    <h5 id="presentvideo">紹介動画</h5>
+                    <h5 id="presentvideo">{{trans.lab_ini_menu_presentation}}</h5>
                 </v-flex>
                 <v-flex xs12>
-                    <v-layout row wrap>
+                    <v-layout row wrap class="common_ui_off">
                         <v-flex xs12 sm12 md5 offset-md1>
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/4Aeq_2PG2Ms" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            
                         </v-flex>
                         <v-flex xs12 sm12 md6>
                             <v-list>
@@ -401,11 +401,11 @@
             </div>
             <v-spacer></v-spacer>
             <div>
-                推奨環境：<b>PC:</b>Chrome, Opera, Vivaldi, Firefox, <b>Android:</b>Chrome, Opera,  <b>iOS,Mac:</b> Chrome, Safari,
+                {{trans.lab_ini_environment}} <b>PC:</b>Chrome, Opera, Vivaldi, Firefox, <b>Android:</b>Chrome, Opera,  <b>iOS,Mac:</b> Chrome, Safari,
             </div>
             <v-spacer></v-spacer>
             <div>
-                <span>2018-2019 Copyright <span id="about_author">{{ ainfos.author }}</span>. </span>
+                <span>2018-2019 Copyright <span id="about_author">{{ sysinfo.author }}</span>. </span>
             </div>
             <div>
                 <a href="#img_brand">

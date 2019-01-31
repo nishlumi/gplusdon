@@ -1,63 +1,96 @@
 <template v-if="applogined">
     <v-list dense>
-        <v-list-tile v-on:click="onclick_menulink('/dashboard')">
-            <v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
-            <v-list-tile-content>
-                <v-list-tile-title class="menulst_row {{menustat.dashboard}}"><span class="title">{{trans.dashboard}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/tl')">
-            <v-list-tile-action><v-icon>view_day</v-icon></v-list-tile-action>
-            <v-list-tile-content>
-                <v-list-tile-title class="menulst_row {{menustat.timeline}}"><span class="title">{{trans.timeline}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/accounts')">
-            <v-list-tile-action><v-icon>person</v-icon></v-list-tile-action>
-            <v-list-tile-content class="menulst_row {{menustat.accounts}}">
-                <v-list-tile-title><span class="title">{{trans.accounts}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/connections')">
-            <v-list-tile-action><v-icon>people</v-icon></v-list-tile-action>
-            <v-list-tile-content class="menulst_row {{menustat.connections}}">
-                <v-list-tile-title><span class="title">{{trans.connections}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/instances')">
-            <v-list-tile-action><v-icon>business</v-icon></v-list-tile-action>
-            <v-list-tile-content class="menulst_row {{menustat.instances}}">
-                <v-list-tile-title><span class="title">{{trans.instances}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/notifications')">
-            <v-list-tile-action><v-icon>notifications</v-icon></v-list-tile-action>
-            <v-list-tile-content class="menulst_row {{menustat.notifications}}">
-                <v-list-tile-title><span class="title">{{trans.notifications}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/settings')">
-            <v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
-            <v-list-tile-content class="menulst_row {{menustat.settings}}">
-                <v-list-tile-title><span class="title">{{trans.settings}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile v-on:click="onclick_menulink('/')">
-            <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
-            <v-list-tile-content>
-                <v-list-tile-title><span class="title">{{trans.startpage}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/dashboard')" v-ripple>
+                <v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.dashboard}}">
+                    <v-list-tile-title>
+                        <span class="menulst_row title">{{trans.dashboard}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+        
+            <span>{{trans.dashboard}}</span>
+        </v-tooltip>
+
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/tl')" v-ripple>
+                <v-list-tile-action><v-icon>view_day</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.timeline}}">
+                    <v-list-tile-title>
+                        <span class="menulst_row title">{{trans.timeline}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.timeline}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/accounts')" v-ripple>
+                <v-list-tile-action><v-icon>person</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.accounts}}">
+                    <v-list-tile-title>
+                        <span class="menulst_row title">{{trans.accounts}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.accounts}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/connections')" v-ripple>
+                <v-list-tile-action><v-icon>people</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.connections}}">
+                    <v-list-tile-title><span class="menulst_row title">{{trans.connections}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.connections}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/instances')" v-ripple>
+                <v-list-tile-action><v-icon>business</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.instances}}">
+                    <v-list-tile-title><span class="menulst_row title">{{trans.instances}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.instances}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/notifications')" v-ripple>
+                <v-list-tile-action><v-icon>notifications</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.notifications}}">
+                    <v-list-tile-title><span class="menulst_row title">{{trans.notifications}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.notifications}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/settings')" v-ripple>
+                <v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.settings}}">
+                    <v-list-tile-title><span class="menulst_row title">{{trans.settings}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.settings}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/')" v-ripple>
+                <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title><span class="menulst_row title">{{trans.startpage}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.startpage}}</span>
+        </v-tooltip>
+                                                            
     </v-list>
 </template>
 <template v-else>
     <v-list dense>
-        <v-list-tile v-on:click="onclick_menulink('/')">
-            <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
-            <v-list-tile-content>
-                <v-list-tile-title><span class="title">{{trans.start_app}}</span></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/')" v-ripple>
+                <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title><span class="menulst_row title">{{trans.start_app}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.start_app}}</span>
+        </v-tooltip>
     </v-list>
 </template>
-<a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
+<a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i></a>

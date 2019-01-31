@@ -469,7 +469,7 @@ class AccountManager {
                     });
             } else {
                 var fdata = AppStorage.get(this.setting.NAME, null);
-                if (fdata) {
+                if (fdata || (fdata.length > 0)) {
                     var promises = [];
                     var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
                     if (emojitest) {

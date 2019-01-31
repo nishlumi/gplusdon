@@ -150,31 +150,48 @@ class Gpstream {
     }
     _start_update(data){
         if (this._targetObject) {
-            this._targetObject.generate_toot_detail({
-                    data:[data],
-                    paging : {
-                        prev : data.id
-                    }
-                },{
-                api : {
-                    exclude_replies : true,
-                    since_id : "",
-                },
-                app : {
-                    is_nomax : true,
-                    is_nosince : false,
-                    tlshare : "",
-                    tltype : "",
-                    exclude_reply : true,
-                }
-            });
-            //---finish get update from stream, remove old loaded tootes
-            if (this._targetObject.is_scrolltop) {
-                if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                    while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                        this._targetObject.statuses.pop();
+            if (this._targetObject.pending.above.waiting) {
+                this._targetObject.pending.above.statuses.push(data);
+                this._targetObject.pending.above.is = true;
+            }else{
+                this._targetObject.currentOption.app.is_nomax = true;
+                this._targetObject.currentOption.app.is_nosince = false;
+                /*
+                {
+                    api : {
+                        exclude_replies : true,
+                        since_id : "",
+                    },
+                    app : {
+                        is_nomax : true,
+                        is_nosince : false,
+                        tlshare : "",
+                        tltype : "",
+                        exclude_reply : true,
                     }
                 }
+                */
+                this._targetObject.generate_toot_detail({
+                        data:[data],
+                        paging : {
+                            prev : data.id
+                        }
+                    },{
+                        api : {
+                            exclude_replies : true,
+                            since_id : "",
+                        },
+                        app : this._targetObject.currentOption.app
+                    });
+                //---finish get update from stream, remove old loaded tootes
+                if (this._targetObject.is_scrolltop) {
+                    if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                        while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                            this._targetObject.statuses.pop();
+                        }
+                    }
+                }
+
             }
         }else if (this._targetDirect) {
             var meacct = this._targetDirect.account.rawdata.url;
@@ -202,6 +219,16 @@ class Gpstream {
     }
     _start_delete(data) {
         if (this._targetObject) {
+            if (this._targetObject.pending.above.waiting) {
+                
+                var arr = this._targetObject.pending.above.statuses;
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].id == data) {
+                        this._targetObject.pending.above.statuses.splice(i,1);
+                    }
+                }
+                this._targetObject.pending.above.is = (this._targetObject.pending.above.statuses.length > 0);
+            }
             var arr = this._targetObject.statuses;
             for (var i = 0; i < arr.length; i++) {
                 if (arr[i].id == data) {

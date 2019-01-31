@@ -1,7 +1,7 @@
 {% extends "appbase.html" %}
 
 {% block eachtitle %}
- - Account
+ - {{trans.accounts}}
 {% endblock %}
 {% block content %}
 <div id="area_account" class="account_body">
@@ -9,7 +9,7 @@
         <div class="background">
         <img id="us_header" v-bind:src="header" alt="">
         </div>
-        <div class="user-textinfo z-depth-2">
+        <div class="user-textinfo z-depth-2" v-if="rawdata">
             <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
                 <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
                 <div style="display:inline-block">
@@ -21,7 +21,7 @@
         <div class="user-action-btns col_ac1 elevation-2">
             <v-layout>
                 <v-flex xs1>
-                    <v-btn flat icon>
+                    <v-btn flat icon v-on:click="onclick_editor">
                         <v-icon>edit</v-icon>
                     </v-btn>
                 </v-flex>
@@ -71,15 +71,26 @@
             </ul>
         </div>
         <!-- tab content -->
-        <div id="basicinfo" class="col s12 tabcontent">
+        <div id="basicinfo" class="col s12 tabcontent" v-cloak>
             <p id="us_description" class="flow-text" v-html="note.replace('<p>','').replace('</p>','')" v-cloak></p>
-            <ul id="tbl_fields" class="collection" v-cloak>
+            <v-list>
+                <v-list-tile avatar v-for="fld in fields">
+                    <v-list-tile-avatar>
+                        <v-icon>{? fieldicon(fld.name) ?}</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                        <v-list-tile-title v-html='fieldname(fld.name)'></v-list-tile-title>
+                        <v-list-tile-sub-title v-html="fld.value"></v-list-tile-sub-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+            <!--<ul id="tbl_fields" class="collection" >
                 <li class="collection-item avatar" v-for="fld in fields">
                     <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
                     <span class="title">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[1] : fld.name ?}</span>
                     <p v-html="fld.value"></p>
                 </li>
-            </ul>
+            </ul>-->
             <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <timeline-toot 
@@ -91,6 +102,13 @@
             </div>
         </div>
         <div id="tt_public" class="col s12 tabcontent">
+            <div class="pending_above_area" v-if="pending.above.is == true">
+                <v-layout row wrap >
+                    <v-flex xs2 offset-xs4>
+                        <v-btn round color="red" dark v-on:click="onclick_show_pending">{? _T("msg_pending",[pending.above.statuses.length]) ?}</v-btn>
+                    </v-flex>    
+                </v-layout>
+            </div>
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
                     <!--<div class="card-content">
@@ -137,8 +155,14 @@
                     v-bind:ancestors="status.ancestors",
                     v-bind:descendants="status.descendants"
             -->
-            <div id="tt_public_loading" class="progress timelineload common_ui_off">
-                    <div class="indeterminate"></div>
+            <div class="pending_below_area" v-if="statuses.length < 10">
+                <v-layout row wrap >
+                    <v-flex xs2 offset-xs4>
+                        <v-btn fab dark small color="red" v-on:click="onclick_load_below">
+                            <v-icon>expand_more</v-icon>
+                        </v-btn>
+                    </v-flex>    
+                </v-layout>
             </div>
         </div>
         <!--<div id="tt_tlonly" class="col s12 tabcontent">
@@ -148,6 +172,13 @@
 
         </div>-->
         <div id="tt_fav" class="col s12 tabcontent">
+            <div class="pending_above_area" v-if="pending.above.is == true">
+                <v-layout row wrap >
+                    <v-flex xs2 offset-xs4>
+                        <v-btn round color="red" dark v-on:click="onclick_show_pending">{? _T("msg_pending",[pending.above.statuses.length]) ?}</v-btn>
+                    </v-flex>    
+                </v-layout>
+            </div>
             <div class="timelinebody post_card_grid post_card_grid_cellsetting">
                 <timeline-toot 
                     v-bind:translation="translations"
@@ -162,6 +193,100 @@
         <!--<div id="tt_list" class="col s12 tabcontent">
 
         </div>-->
+    </div>
+    <div id="editdlg">
+        <v-dialog v-model="dialog"
+            persistent scrollable :fullscreen="$vuetify.breakpoint.smAndDown"
+            max-width="600px"
+            transition="dialog-transition"
+        >
+            <v-card v-if="user">
+                <v-card-text>
+                    <v-layout row wrap>
+                        <v-flex xs6 sm6 md3>
+                            <span>{{ trans.lab_avatar }}</span>
+                            <img :src="user.rawdata.avatar" width="128" height="128">
+                            <input type="file" id="hid_avatarfile" placeholder="{{trans.lab_avatar}}">
+                        </v-flex>
+                        <v-flex xs6 sm6 md5>
+                            <span>{{ trans.lab_header}}</span>
+                            <v-img :src="user.rawdata.header" aspect-radio="1"></v-img>
+                            <input type="file" id="hid_headerfile" placeholder="{{trans.lab_header}}">
+                        </v-flex>
+                    </v-layout>
+                    <v-layout row wrap>
+                        <v-flex xs12 sm12 md5>
+                            <v-text-field label="{{trans.lab_username}}" readonly v-model="user.rawdata.username"></v-text-field>                            
+                        </v-flex>
+                        <v-flex xs12 sm12 md6 offset-md1>
+                            <v-text-field label="{{trans.lab_display_name}}" v-model="user.rawdata.display_name"></v-text-field>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-textarea v-model="note" label="{{trans.lab_note}}"
+                                outline box rows="5" height="10rem" hide-details
+                            ></v-textarea>
+                            <p v-bind:class="css.note">{? note.length + "/" + cons.note ?}</p>
+                        </v-flex>
+                    </v-layout>
+                    <v-layout row wrap>
+                        <v-flex xs12>
+                            <p>{{trans.lab_field}}</p>
+                            <v-btn-toggle mandatory v-model="toggle_field">
+                                <v-btn flat v-for="(fld,index) in user.rawdata.fields" :value="index">
+                                    {{trans.lab_field}}{? (index+1) ?}
+                                </v-btn>
+                            </v-btn-toggle>
+                        </v-flex>
+                        <v-flex xs5>
+                            <v-text-field label="{{trans.lab_field_name}}" :counter="cons.field_name" v-model="field_name"></v-text-field>
+                        </v-flex>
+                        <v-flex xs5 offset-xs1>
+                            <v-checkbox hide-details v-model="toggle_extension" label="{{trans.lab_extension}}"></v-checkbox>
+                        </v-flex>
+                        <v-flex xs12>
+                            <template v-if="toggle_extension">
+                                <div>
+                                    <v-layout>
+                                        <v-flex xs12>
+                                            <v-btn-toggle mandatory v-model="toggle_field">
+                                                <v-btn flat v-for="(fld,index) in user.rawdata.fields" :value="index">
+                                                    {{trans.lab_field}}{? (index+1) ?}
+                                                </v-btn>
+                                            </v-btn-toggle>
+                                            <v-btn flat icon color=red">
+                                                <v-icon>add</v-icon>
+                                            </v-btn>
+                                        </v-flex>
+                                        <v-flex xs4>
+                                            <v-text-field label="{{trans.lab_field_name}}" v-model="extension.field_name"></v-text-field>
+                                        </v-flex>
+                                        <v-flex xs7 offset-xs1>
+                                            
+                                        </v-flex>
+                                    </v-layout>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <v-textarea v-model="field_value" label="{{trans.lab_field_value}}"
+                                    outline box rows="5" height="10rem" hide-details 
+                                ></v-textarea>
+                                <p v-bind:class="css.field_value">{? field_value.length + "/" + cons.field_value ?}</p>
+                            </template>
+                        </v-flex>
+                    </v-layout>
+                    <v-layout row wrap>
+                        <v-flex xs12>
+                            <v-checkbox hide-details v-model="user.rawdata.locked" label="{{trans.lab_locked}}"></v-checkbox>
+                        </v-flex>
+                    </v-layout>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{trans.cons_cancel}}</v-btn>
+                    <v-btn flat small color="primary" v-on:click="onclick_close(true)">{{trans.cons_apply}}</v-btn>    
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </div>
 <input type="hidden" id="hid_instance" value="{{instance}}" />

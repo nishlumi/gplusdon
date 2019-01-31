@@ -57,8 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 type_notification : {
                     enable_browser_notification : true,
                     include_dmsg_tl : false,
+                    tell_newtoot : false,
+                    tell_newtoot_scroll : 300,
+                    toot_limit_instance : [],
                 },
                 temp_tags : "",
+                temp_toot_limit : "",
                 resulturis : [],
                 randomInstance : [],
                 is_selected : false,
@@ -138,13 +142,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (var obj in MYAPP.session.config.action) {
                     this.type_action[obj] = MYAPP.session.config.action[obj];
                 }
-                if (this.type_action.tags.length > -1) {
+                for (var obj in MYAPP.session.config.notification) {
+                    this.type_notification[obj] = MYAPP.session.config.notification[obj];
+                }
+                if (this.type_action.tags.length > 0) {
                     var tmp = [];
                     for (var i = 0; i < this.type_action.tags.length; i++) {
                         var tag = this.type_action.tags[i];
                         tmp.push(tag.text);
                     }
                     this.temp_tags = tmp.join("\n");
+                }
+                if (this.type_notification.toot_limit_instance.length > 0) {
+                    var tmp = [];
+                    for (var i = 0; i < this.type_notification.toot_limit_instance.length; i++) {
+                        var lim = this.type_notification.toot_limit_instance[i];
+                        tmp.push(lim.instance + " " + lim.limit);
+                    }
+                    this.temp_toot_limit = tmp.join("\n");
                 }
                 console.log("type_action=",MYAPP.session.config.action,this.type_action);
             },
@@ -158,6 +173,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 this.type_action.tags = tagarr;
+            },
+            onclick_savetootlimit : function (e) {
+                var arr = this.temp_toot_limit.split("\n");
+                var tagarr = [];
+                for (var i = 0; i < arr.length; i++) {
+                    var ln = arr[i].split(" ");
+                    if (isNaN(parseInt(ln[1]))) {
+                        appAlert(_T("ntf_msg_toot_limit_instance1"));
+                        return;
+                    }
+                    tagarr.push({
+                        instance : ln[0],
+                        limit : Number(ln[1]),
+                    });
+                }
+                this.type_notification.toot_limit_instance.splice(0,this.type_notification.toot_limit_instance);
+                for (var i = 0; i < tagarr.length; i++) {
+                    this.type_notification.toot_limit_instance.push(tagarr[i]);
+                }
             },
             onclick_uninstall_btn : function (e) {
                 var msg = _T("msg_uninstall_local");

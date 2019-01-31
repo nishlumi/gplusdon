@@ -297,9 +297,9 @@ function generate_charListEnum() {
 		{ type : "pict", text: _T('CombiningDiacriticalMarksSupplement'), group: _T("Pictogram"), start: 0x1DC0, end: 0x1DFF },
 		{ type : "pict", text: _T('SpacingModifierLetters'), group: _T("Pictogram"), start: 0x02B0, end: 0x02FF },
 		{ type : "pict", text: _T('OpticalCharacterRecognition'), group: _T("Pictogram"), start: 0x2440, end: 0x245F },
-		{ type : "pict", text: _T("Weather, landscape, and sky symbols"), group: _T("Pictogram"), start: 0x1F300, end: 0x1F3FF},
-		{ type : "pict", text: _T("Animal, body, and communications"), group: _T("Pictogram"), start: 0x1F400, end: 0x1F4FF},
-		{ type : "pict", text: _T("UI, Tool, and Miscellaneous etc"), group: _T("Pictogram"), start: 0x1F500, end: 0x1F5FF},
+		{ type : "pict", text: _T("Emoji1"), group: _T("Pictogram"), start: 0x1F300, end: 0x1F3FF},
+		{ type : "pict", text: _T("Emoji2"), group: _T("Pictogram"), start: 0x1F400, end: 0x1F4FF},
+		{ type : "pict", text: _T("Emoji3"), group: _T("Pictogram"), start: 0x1F500, end: 0x1F5FF},
 		//---for Language
 		{ type : "lett", text: _T('BasicLatin'), group: _T("Letter"), start: 0x1E00, end: 0x1EFF },
 		{ type : "lett", text: _T('PhoneticExtentions'), group: _T("Letter"), start: 0x1D00, end: 0x1D8F },

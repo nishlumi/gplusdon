@@ -874,7 +874,49 @@ function defineForMainPage(app) {
                 utf8 : [],
                 instances : []
             },
+            emoji_seltitle : [
+                {"id" : "pict", "text" : "UTF-8" + _T("Pictogram") },
+                {"id" : "lett", "text" : "UTF-8" + _T("Letter") },
+                {"id" : "inst", "text" : _T("tbl_acc_col3")}
+            ],
+            emoji_subtitle : [],
+            sel_seltitle : "",
+            sel_selsubtitle : "",
 
+        },
+        watch : {
+            sel_seltitle : function (val) {
+                this.emoji_subtitle.splice(0,this.emoji_subtitle.length);
+                if ((val == "pict") || (val == "lett")) {
+                    for (var i = 0; i < this.emojis_title.utf8.length; i++) {
+                        var ch = this.emojis_title.utf8[i];
+                        var idi = i;
+                        if (val == "lett") {
+                            idi = i + 28;
+                        }
+                        if (ch.type == val) {
+                            this.emoji_subtitle.push({
+                                text : ch.text,
+                                id : idi
+                            });
+                        }
+                    }
+                }else{
+                    for (var i = 0; i < this.emojis_title.instances.length; i++) {
+                        var ch = this.emojis_title.instances[i];
+                        if (ch.type == val) {
+                            this.emoji_subtitle.push({
+                                text : ch.text,
+                                id : i
+                            });
+                        }
+                    }
+                }
+            },
+            sel_selsubtitle : function(val) {
+                //var arr = val.split("-");
+                this.onclick_keymaplistitem(val,this.sel_seltitle);
+            }
         },
         methods : {
             onclick_keymaplistitem : function (index,type) {
@@ -976,7 +1018,7 @@ function defineForMainPage(app) {
                     elemName = ".notifcation_body";
                 }
                 //MYAPP.commonvue.nav_btnbar.$vuetify.goTo(Q(elemName),scrollOpt);
-                Q(elemName).scroll({top:0});
+                Q(elemName).scroll({top:0,behavior: "smooth"});
                 e.stopPropagation();
             },false);
         }
@@ -1083,6 +1125,7 @@ function defineForMainPage(app) {
             var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
             MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
             MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
+            MYAPP.commonvue.inputtoot.$refs.inputbox.set_selectaccount();
             if (e.shiftKey) {
                 MYAPP.commonvue.inputtoot.onclick_openInNew();
                 return;
