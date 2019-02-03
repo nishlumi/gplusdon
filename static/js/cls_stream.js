@@ -128,10 +128,10 @@ class Gpstream {
         data.account["instance"] = MUtility.getInstanceFromAccount(data.account.url);
         data.account = [data.account];
         if (data.type != "follow") {
-            var div = GEN("div");
-            div.innerHTML = data.status.content;
-            data.status["html"] = data.status.content;
-            data.status.content = div.textContent;
+            //var div = GEN("div");
+            //div.innerHTML = data.status.content;
+            //data.status["html"] = data.status.content;
+            //data.status.content = div.textContent;
         }
 
         //---notification popup
@@ -156,8 +156,12 @@ class Gpstream {
         }
         if ("alert" in this._targetAccount.others) {
             if (data.type in this._targetAccount.others.alert) {
+                var text = MUtility.get_body_eachtype(data);
+                var div = GEN("div");
+                div.innerHTML = text;
+
                 Push.create(MUtility.get_title_eachtype(data),{
-                    body : MUtility.get_body_eachtype(data),
+                    body : div.textContent,
                     icon : "/static/images/app_icon.png",
                     timeout : 4000,
                     onClick: function () {

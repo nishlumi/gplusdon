@@ -123,7 +123,7 @@
                                         </span>-->
                                         <b v-html="get_display_name_html(item.account)"></b>
                                     </v-list-tile-title>
-                                    <v-list-tile-sub-title>{? "status" in item ? item.status.content.substr(0,100) : "" ?}</v-list-tile-sub-title>
+                                    <v-list-tile-sub-title>{? generate_oneline_content(item) ?}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                                 <v-list-tile-action>
                                     <v-btn flat icon v-on:click.stop="onclick_notif_linebtn(index)">

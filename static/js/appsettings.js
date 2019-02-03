@@ -207,6 +207,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(registration => {
                     registration.unregister();
                 });
+                caches.keys().then(function(keys) {
+                    var promises = [];
+                    // clear all cache
+                    keys.forEach(function(cacheName) {
+                        if (cacheName) {
+                            promises.push(caches.delete(cacheName));
+                        }
+                    });
+                });
             },
             onclick_authorize_drive_btn : function (e) {
                 MUtility.loadingON();

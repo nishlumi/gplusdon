@@ -1967,6 +1967,16 @@ var vue_mixin_for_notification = {
 			}
 			return ret;
 		},
+		generate_oneline_content : function (item) {
+			var ret = "";
+			if ("status" in item) {
+				var a = GEN("div");
+				a.innerHTML = item.status.content;
+				var tmptext = a.textContent;
+				ret = tmptext.substr(0,100);
+			}
+			return ret;
+		},
 		//---event handler--------------------------
 		/**
 		 * 

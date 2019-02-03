@@ -618,6 +618,16 @@ function defineForMainPage(app) {
                 }
                 return ret;
             },
+            generate_oneline_content : function (item) {
+                var ret = "";
+                if ("status" in item) {
+                    var a = GEN("div");
+                    a.innerHTML = item.status.content;
+                    var tmptext = a.textContent;
+                    ret = tmptext.substr(0,100);
+                }
+                return ret;
+            },    
             //---event handler--------------------------
             onclick_ov_notif_overlay : function (e) {
                 ID("ov_notif").classList.toggle("common_ui_off");
@@ -754,8 +764,8 @@ function defineForMainPage(app) {
         },
 
         methods : {
-            onclick_accounts : function () {
-                MYAPP.commonvue.cur_sel_account.onclick_current_selaccount();
+            onclick_accounts : function (e) {
+                MYAPP.commonvue.cur_sel_account.onclick_current_selaccount(e);
             },
             onclick_btn : function (id) {
                 location.href = `/${this.idpath[id]}`;
