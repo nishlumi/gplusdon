@@ -376,6 +376,11 @@ div.toot_card_base.g30 {
     overflow : auto;
     -webkit-overflow-scrolling: touch;
 }
+.toot_content_geo .viewer_mv_map {
+    width : 100%;
+    height : 350px;
+
+}
 
 /*=== toot with link  ===*/
 .toot_card_base .toot_content_link {

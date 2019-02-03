@@ -13,6 +13,7 @@ class Gpstream {
         this._targetDirect = null;
         this._targetPageNotification = null;
         this._targetAccount = {
+            idname : account.idname,
             acct : account.acct,
             api : account.api,
             others : account.others,
@@ -20,6 +21,12 @@ class Gpstream {
             notifications : account.notifications
         };
         this._type = streamType;
+        this.isme = false;
+        this.filter = {
+            enabled : false,
+            username : "",
+            instance : "",
+        };
         this._query = "";
         this.status = {
             action : "stop"      //start, moving, stop
@@ -46,6 +53,20 @@ class Gpstream {
     }
     setQuery(q) {
         this._query = q;
+    }
+    /**
+     * filtering specified user
+     * @param {Account} user user account
+     */
+    setFilter(user) {
+        this.filter.enabled = true;
+        this.filter.username = user.username;
+        this.filter.instance = user.instance;
+    }
+    clearFilter() {
+        this.filter.enabled = false;
+        this.filter.username = "";
+        this.filter.instance = "";
     }
     start() {
         var mainbody = (result)=>{
@@ -150,48 +171,72 @@ class Gpstream {
     }
     _start_update(data){
         if (this._targetObject) {
-            if (this._targetObject.pending.above.waiting) {
-                this._targetObject.pending.above.statuses.push(data);
-                this._targetObject.pending.above.is = true;
-            }else{
-                this._targetObject.currentOption.app.is_nomax = true;
-                this._targetObject.currentOption.app.is_nosince = false;
-                /*
-                {
-                    api : {
-                        exclude_replies : true,
-                        since_id : "",
-                    },
-                    app : {
-                        is_nomax : true,
-                        is_nosince : false,
-                        tlshare : "",
-                        tltype : "",
-                        exclude_reply : true,
-                    }
+            var isOK = true;
+            if (this.isme) {
+                var inst = MUtility.getInstanceFromAccount("uri" in data.account ? data.account.uri : data.account.url);
+                if ((this._targetAccount.idname == data.account.username) &&
+                    (this._targetAccount.instance == inst)
+                ) {
+                    isOK = true;
+                }else{
+                    isOK = false;
                 }
-                */
-                this._targetObject.generate_toot_detail({
-                        data:[data],
-                        paging : {
-                            prev : data.id
-                        }
-                    },{
+            }
+            if (this.filter.enabled) {
+                var inst = MUtility.getInstanceFromAccount("uri" in data.account ? data.account.uri : data.account.url);
+                if ((data.account.username == this.filter.username) &&
+                    (inst == this.filter.instance)
+                ) {
+                    isOK = true;
+                }else{
+                    isOK = false;
+                }
+            }
+
+            if (isOK) {
+                if (this._targetObject.pending.above.waiting) {
+                    this._targetObject.pending.above.statuses.push(data);
+                    this._targetObject.pending.above.is = true;
+                }else{
+                    this._targetObject.currentOption.app.is_nomax = true;
+                    this._targetObject.currentOption.app.is_nosince = false;
+                    /*
+                    {
                         api : {
                             exclude_replies : true,
                             since_id : "",
                         },
-                        app : this._targetObject.currentOption.app
-                    });
-                //---finish get update from stream, remove old loaded tootes
-                if (this._targetObject.is_scrolltop) {
-                    if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                        while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                            this._targetObject.statuses.pop();
+                        app : {
+                            is_nomax : true,
+                            is_nosince : false,
+                            tlshare : "",
+                            tltype : "",
+                            exclude_reply : true,
                         }
                     }
-                }
-
+                    */
+                    this._targetObject.generate_toot_detail({
+                            data:[data],
+                            paging : {
+                                prev : data.id
+                            }
+                        },{
+                            api : {
+                                exclude_replies : true,
+                                since_id : "",
+                            },
+                            app : this._targetObject.currentOption.app
+                        });
+                    //---finish get update from stream, remove old loaded tootes
+                    if (this._targetObject.is_scrolltop) {
+                        if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                            while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                                this._targetObject.statuses.pop();
+                            }
+                        }
+                    }
+    
+                }    
             }
         }else if (this._targetDirect) {
             var meacct = this._targetDirect.account.rawdata.url;
@@ -219,25 +264,29 @@ class Gpstream {
     }
     _start_delete(data) {
         if (this._targetObject) {
-            if (this._targetObject.pending.above.waiting) {
-                
-                var arr = this._targetObject.pending.above.statuses;
+            var isOK = true;
+
+            if (isOK) {
+                if (this._targetObject.pending.above.waiting) {
+                    
+                    var arr = this._targetObject.pending.above.statuses;
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].id == data) {
+                            this._targetObject.pending.above.statuses.splice(i,1);
+                        }
+                    }
+                    this._targetObject.pending.above.is = (this._targetObject.pending.above.statuses.length > 0);
+                }
+                var arr = this._targetObject.statuses;
                 for (var i = 0; i < arr.length; i++) {
                     if (arr[i].id == data) {
-                        this._targetObject.pending.above.statuses.splice(i,1);
+                        this._targetObject.statuses.splice(i,1);
+                        this._targetObject.info.sinceid = this._targetObject.statuses[0].id;
+                        this._targetObject.info.is_nosince = false;
+                        this._targetObject.info.is_nomax = true;
+                        this.logger(`delete toot <${data}>`);
+                        break;
                     }
-                }
-                this._targetObject.pending.above.is = (this._targetObject.pending.above.statuses.length > 0);
-            }
-            var arr = this._targetObject.statuses;
-            for (var i = 0; i < arr.length; i++) {
-                if (arr[i].id == data) {
-                    this._targetObject.statuses.splice(i,1);
-                    this._targetObject.info.sinceid = this._targetObject.statuses[0].id;
-                    this._targetObject.info.is_nosince = false;
-                    this._targetObject.info.is_nomax = true;
-                    this.logger(`delete toot <${data}>`);
-                    break;
                 }
             }
         }else if (this._targetDirect) {

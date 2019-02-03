@@ -3,8 +3,8 @@
  * necessary **1st** include
  =============================================================================*/
 function defineForMainPage(app) {
-    /*app.commonvue["navibar"] = new Vue({
-        el : "#navibar",
+    app.commonvue["navibar"] = new Vue({
+        el : "#frm_navleft",
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -12,13 +12,26 @@ function defineForMainPage(app) {
             show_notif_badge : false,
             notif_badge_count : 0,
 
+        },
+        methods: {
+            onclick_sidenavbtn : function (e) {
+                MYAPP.commonvue.sidebar.drawer = !MYAPP.commonvue.sidebar.drawer;
+            }
+        },
+    });
+    app.commonvue["appdialog"] = new Vue({
+        el : "#appverdlg",
+        delimiters : ["{?", "?}"],
+        data : {
+            isappdialog : false,
         }
-    });*/
+    });
     app.commonvue["cur_sel_account"] = new Vue({
         el : "#maincol_leftmenu",
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
+            isappdialog : false,
             account : {},
             whole_notification : false,
             css : {
@@ -60,6 +73,11 @@ function defineForMainPage(app) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
             onclick_current_selaccount : function(e) {
+                if (e.shiftKey) {
+                    var url =`/accounts/${this.account.instance}/${this.account.idname}`;
+                    location.href = url;
+                    return;
+                }
                 if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
                     if (this.$vuetify.breakpoint.xs) {
                         MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
@@ -77,6 +95,10 @@ function defineForMainPage(app) {
             onclick_menulink : function (url) {
                 location.href = url;
             },
+            onclick_menulink2 : function () {
+                MYAPP.forms.sidenav.close();
+                MYAPP.commonvue.appdialog.isappdialog = true;
+            },
         }
     });
     /*app.commonvue["leftmenu"] = new Vue({
@@ -91,6 +113,7 @@ function defineForMainPage(app) {
         el : "#slide-out",
         delimiters : ["{?", "?}"],
         data : {
+            drawer : false,
             applogined : false,
             account : {},   //---This app's Account
             whole_notification : false,
@@ -117,7 +140,15 @@ function defineForMainPage(app) {
 
                 }
                 MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
-            }
+            },
+            onclick_menulink : function (url) {
+                location.href = url;
+            },
+
+            onclick_menulink2 : function () {
+                MYAPP.forms.sidenav.close();
+                MYAPP.commonvue.appdialog.isappdialog = true;
+            },
         }
     });
     app.commonvue["nav_sel_account"] = new Vue({
@@ -143,8 +174,8 @@ function defineForMainPage(app) {
         },
         methods: {
             setCurrentAccount : function(ac) {
-                var display_name = ac.display_name;
-                var instance = ac.instance;
+                //var display_name = ac.display_name;
+                //var instance = ac.instance;
                 //ID("cursel_avatar").src = ac.rawdata.avatar;
                 //ID("cursel_display_name").textContent = display_name + "@" + instance;
                 //ID("cursel_avatar").setAttribute("data-tooltip",display_name + "@" + instance);
@@ -729,14 +760,17 @@ function defineForMainPage(app) {
                 stat_following : _T("stat_following"),
                 stat_follower : _T("stat_follower")
             },
-            selected : {},   //---Mastodon's Account
-            relationship : {},
+            selected : null,   //---Mastodon's Account
+            relationship : null,
             globalInfo : {
                 firstPath : ""
             },
         },
         methods : {
-            
+            onmouseleave_card : function(e){
+                ID("ov_user").classList.add("common_ui_off");
+                ID("ov_user").classList.remove("scale-up-tl");
+            }
         }
     });
     app.commonvue["tootecard"] = new Vue({
@@ -750,7 +784,7 @@ function defineForMainPage(app) {
             activewidth : "50%",
             
             translations : curLocale.messages,
-            status : {},
+            status : null,
             popuping : "ov_",
             comment_viewstyle : {
                 close : false,
@@ -931,6 +965,62 @@ function defineForMainPage(app) {
 
         }
     });
+    /*
+    app.commonvue["mapviewer"] = new Vue({
+        el : "#mapviewer",
+        delimiters : ["{?", "?}"],
+        data : {
+            dialog : false,
+            toote : null,
+            geomap : null,
+            isfirst : true,
+        },
+        mounted() {
+            var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+            Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+            latlng = L.latLng(35.6811, 139.7671);
+
+            this.geomap = L.map("mv_map", {
+                center: latlng, dragging : true, zoom: 18,layers: [Osm]});
+            console.log("geomap=",this.geomap);
+            
+            //---re-calculate location mark
+
+            
+        },
+        Updated() {
+            if (this.isfirst) {
+                this.isfirst = false;
+            }
+        },
+        methods : {
+            set_data : function (item) {
+                this.toote = item;
+
+                var locs = this.toote.geo.location;
+                for (var i = 0; i < locs.length; i++) {
+                    var loc = locs[i];
+                    var marker = L.marker({lat:loc.lat,lng:loc.lng},{icon:redIcon}).addTo(this.geomap);
+                    marker.on("click",(ev)=>{
+                        //ev.sourceTarget.remove();
+                        //this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}`;
+                    });
+                    marker.bindPopup(`${loc.lat},${loc.lng}`);
+                }
+            },
+            onclick_selloco : function (item) {
+                if (this.geomap) {
+                    this.geomap.setView({ lat:item.lat, lng: item.lng });
+                }
+            },
+            onclick_close : function () {
+                this.dialog = false;
+            }
+    
+        }
+    });*/
+
 
     app["setupMainPageElement"] = function() {
         //------------------------------------------------
@@ -1018,7 +1108,9 @@ function defineForMainPage(app) {
                     elemName = ".notifcation_body";
                 }
                 //MYAPP.commonvue.nav_btnbar.$vuetify.goTo(Q(elemName),scrollOpt);
-                Q(elemName).scroll({top:0,behavior: "smooth"});
+                if (elemName != "") {
+                    Q(elemName).scroll({top:0,behavior: "smooth"});
+                }
                 e.stopPropagation();
             },false);
         }
@@ -1038,14 +1130,7 @@ function defineForMainPage(app) {
         //------------------------------------------------
         //  overlay and dialog
     
-        ///ID("nav_sel_account").value = this.session.status.selectedAccount.idname + "," +  this.session.status.selectedAccount.instance;
-        ///var instances = M.FormSelect.init(ID("nav_sel_account"), {});
-        /*ID("nav_sel_account").addEventListener("change",function(e){
-            console.log(this, this.selectedOptions[0].value);
-            var v = this.selectedOptions[0].value.split(",");
-            var ac = MYAPP.selectAccount({"idname":v[0], "instance":v[1]});
-            //MYAPP.sns.setAccount(ac);
-        });*/
+        
         var elems = document.querySelectorAll('.modal');
         var instances = M.Modal.init(elems, {
         });
@@ -1053,65 +1138,17 @@ function defineForMainPage(app) {
     
     
         //---toote popup for detail
-        /*
-        Q(".onetoote_overlay").addEventListener("click",function(e){
-            var q = Q(".onetoote_area *");
-            if (q.querySelector(".card-image .carousel")) {
-                q.querySelector(".card-image .carousel").classList.toggle("fullsize");
-                q.querySelector(".card-image .carousel").style.height = "";
-            }
-            var thistoot = MYAPP.session.status.pickupObjectToot;
-            var toot_comment = q.querySelector(".toot_comment");
-			if (toot_comment) {
-                if (thistoot.comment_stat.close) {
-
-                }else{
-                    thistoot.comment_stat.full =  false;
-                    thistoot.comment_stat.mini =  true;
-                    thistoot.comment_stat.open =  false;
-                    q.querySelector(".toot_comment .collection").classList.toggle("sizing");
-                }
-            }
-			//thistoot.toot_body_stat["sizing-max"] = !thistoot.toot_body_stat["sizing-max"];
-			//thistoot.toot_body_stat["sizing-fullmax"] = !thistoot.toot_body_stat["sizing-fullmax"];
-
-
-            //var toot_comment = q.querySelector(".toot_comment");
-            //toot_comment.classList.toggle("mini");
-            //toot_comment.classList.remove("open");
-            //toot_comment.classList.remove("full");
-
-            q.querySelector(".toot_comment .collection").classList.toggle("sizing");
-            if (MYAPP.session.status.pickupDir == "next") {
-                MYAPP.session.status.pickupToote.parentElement.insertBefore(q,MYAPP.session.status.pickupToote);
-            }else if (MYAPP.session.status.pickupDir == "prev") {
-                MYAPP.session.status.pickupToote.parentElement.appendChild(q);
-            }
-            Q(".onetoote_screen").classList.toggle("common_ui_off");
-            //Q(".onetoote_area").classList.toggle("common_ui_off");
-            MYAPP.session.status.pickupToote = null;
-            MYAPP.session.status.pickupDir = "next";
-
-			//---change URL
-			if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
-				MUtility.returnPathToList(MYAPP.session.status.currentLocation);
-			}
-            
-        },false);
-        Q(".onetoote_area").addEventListener("click",function(e){
-            e.stopPropagation();
-        });
-        */
+        
     
         //---user popup card
         ID("ov_user").addEventListener("mouseleave",function(e){
             ID("ov_user").classList.add("common_ui_off");
             ID("ov_user").classList.remove("scale-up-tl");
         });
-        Q("#ov_user > div").addEventListener("mouseleave",function(e){
+        /*Q("#ov_user > div").addEventListener("mouseleave",function(e){
             ID("ov_user").classList.add("common_ui_off");
             ID("ov_user").classList.remove("scale-up-tl");
-        });
+        });*/
         var elems = document.querySelectorAll('.tooltipped');
         var instances = M.Tooltip.init(elems, {
             enterDelay : 500

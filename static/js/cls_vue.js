@@ -102,7 +102,9 @@ Vue.component("timeline-toot", {
 				max_id : "",
 				since_id : "",
 			},
-			reaction_accounts : []
+			reaction_accounts : [],
+
+			geomap : "",
 		};
     },
     watch:  {
@@ -167,10 +169,11 @@ Vue.component("timeline-toot", {
 			this.comment_list_area_stat.default = this.comment_list_area_viewstyle.default;
 		}
 		
+		
 	},
 	mounted(){
 		//console.log("created html=",this.toote.body.html)
-		if ("body" in this.toote) {
+		if (this.toote) {
 			var pcnt = this.toote.body.html.match(/<p/g) || [];
 			var brcnt = this.toote.body.html.match(/<br/g) || [];
 			var fnlcnt = pcnt.length + brcnt.length;
@@ -186,7 +189,15 @@ Vue.component("timeline-toot", {
 			}else{
 				this.toot_body_stat["sizing-max"] = true;
 			}
+
+			
+			if (this.toote.geo.enabled) {  //
+				//this.initialize_geomap();
+				this.get_mapurl(this.toote.geo.location[0],0);
+			}
+			
 		}
+		
 		//console.log(this.$el);
 		/*var es = this.$el.querySelectorAll(".carousel");
 		console.log(es.length);
@@ -203,8 +214,8 @@ Vue.component("timeline-toot", {
 		
 	},
 	updated(){
-		if (this.isfirst) {
-			if (this.toote.descendants.length > 0) {
+		if (this.toote.descendants.length > 0) {
+			if (this.isfirst) {
 				this.comment_stat.mini = true;
 				this.comment_stat.close = false;
 				this.first_comment_stat.mini = true;
@@ -218,6 +229,7 @@ Vue.component("timeline-toot", {
 					this.isshow_replyinput = true;
 				}
 			}
+			
 			this.isfirst = false;
 		}
 		if (this.comment_list_area_viewstyle) {
@@ -247,7 +259,41 @@ Vue.component("timeline-toot", {
 		reblog_reaction_msg : function() {
 			return _T("msg_reaction_bst_"+MYAPP.session.config.application.showMode);
 		},
+		get_mapurl : function (location,index) {
+			this.geomap =  MUtility.getStaticMap(location,MYAPP.session.config.application.map_type,index);
+		},
+		initialize_geomap : function () {
+			var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+			latlng = L.latLng(this.toote.geo.location[0].lat, this.toote.geo.location[0].lng);
 
+			//---$children is Vue.component
+			//   But, $children[0] is parent of the array timeline-toot
+			//   So, [1] is real start.
+			var oneelem = this.$el;
+			//oneelem.querySelector('.here_map')
+			var geomap = L.map(
+				ID("heremap"+this.toote.id), {
+					center: latlng, 
+					dragging : true, 
+					zoom: this.toote.geo.location[0].zoom,
+					layers: [Osm]
+				}
+			);
+			this.geomap = geomap;
+			this.curLocation = null;
+
+			for (var i = 0; i < this.toote.geo.location.length; i++) {
+				var ll = this.toote.geo.location[i];
+				var marker = L.marker({lat:ll.lat,lng:ll.lng}).addTo(geomap);
+				marker.on("click",(ev)=>{
+					//ev.sourceTarget.remove();
+					//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
+				});
+				marker.bindPopup(ll.name);
+			}
+		},
 		//---event handler----------------------------------------
 		onclick_toot_ancestor : function (e) {
 			var ans = this.toote.ancestors[this.toote.ancestors.length-1];
@@ -923,7 +969,20 @@ Vue.component("timeline-toot", {
 			this.toote.body.replies_count++;
 			//this.$el.querySelector("div.template_reply_box").classList.toggle("common_ui_off");
 			this.$emit('replied_post');
-		}
+		},
+		onclick_selloco : function (item,index) {
+			//this.geomap.setView({ lat:item.lat, lng: item.lng });
+			this.geomap = MUtility.getStaticMap(item,MYAPP.session.config.application.map_type,index);
+			this.curLocation = item;
+		},
+		onclick_map : function (e) {
+			//MYAPP.commonvue.mapviewer.set_data(this.toote);
+			//MYAPP.commonvue.mapviewer.dialog = true;
+			if (this.curLocation) {
+				var url = `https://www.openstreetmap.org/#map=${this.curLocation.zoom}/${this.curLocation.lat}/${this.curLocation.lng}`;
+				window.open(url,"_blank");
+			}
+		},
 	}
 });
 //===----------------------------------------------------------------------===
@@ -1357,7 +1416,7 @@ class GTimelineCondition {
 		//---normal properties.
 		this.type = "normal";	//normal, list, search
 
-		this.share = this.tlshare_options.public.value;
+		this.share = this.tlshare_options.all.value;
 		this.view = [];
 		this.listtype = "0";
 		this.lists = [];

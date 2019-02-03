@@ -327,6 +327,10 @@ class AccountManager {
             return false;
         }
     }
+    uninstall(){
+        localStorage.removeItem(this.setting.NAME);
+        localStorage.removeItem(this.setting.INSTANCEEMOJI);
+    }
     /**
      * save Account data (Account to JSON)
      * 
@@ -391,24 +395,7 @@ class AccountManager {
             });
             pros.push(def);
 
-            /*acc.api.get("accounts/verify_credentials")
-            .then((data) => {
-                console.log("verify data=>",data);
-                acc.id = data.id;
-                acc.idname = data.username;
-                acc.display_name = data.display_name;
-                acc.rawdata = data;
-                var aci = this.getIndex({"idname":acc.idname, "instance":acc.instance});
-                this.set({"idname":acc.idname, "instance":acc.instance},acc);
-                this.save();
-            }, function (xhr) {
-                alertify.error("load error:" + this.items[i].idname);
-                this.items[i].status = "err";
-                this.backupItems[i].status = "err";
-                //---if error, remove current session user data (NO permanent!!)
-                this.items.splice(i,1);
-                console.log(xhr);
-            });*/
+            
         }
         return Promise.all(pros)
         .then(values=>{
@@ -469,7 +456,7 @@ class AccountManager {
                     });
             } else {
                 var fdata = AppStorage.get(this.setting.NAME, null);
-                if (fdata || (fdata.length > 0)) {
+                if (fdata && (fdata.length > 0)) {
                     var promises = [];
                     var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
                     if (emojitest) {
@@ -477,7 +464,7 @@ class AccountManager {
                         for (var i = 0; i < fdata.length; i++) {
                             var ac = new Account();
                             ac.load(fdata[i]);
-                            console.log("ac.api=",ac.api,values[ac.instance]);
+                            //console.log("ac.api=",ac.api,values[ac.instance]);
                             ac.api.setConfig("stream_url",values[ac.instance].info.urls.streaming_api);
                             if (location.pathname != "/toot/new") {
                                 ac.stream.start();
@@ -485,7 +472,7 @@ class AccountManager {
                             }
                             this.items.push(ac);
                             this.backupItems.push(ac);
-                            console.log(ac.instance);
+                            //console.log(ac.instance);
                         }
                         /*for (var iv = 0; iv < values.length; iv++) {
                             this.instances[values[iv].instance] = {
@@ -500,7 +487,7 @@ class AccountManager {
                             ac.load(fdata[i]);
                             this.items.push(ac);
                             this.backupItems.push(ac);
-                            console.log(ac.instance);
+                            //console.log(ac.instance);
                             
                             //var pro = MYAPP.sns.getInstanceEmoji(ac.instance);
                             //promises.push(pro);
@@ -536,7 +523,7 @@ class AccountManager {
                         //resolve(this.items);
                         Promise.all(promises)
                         .then(values => {
-                            console.log("values=",values);
+                            //console.log("values=",values);
                             /*for (var iv = 0; iv < values.length; iv++) {
                                 this.instances[values[iv].instance] = {
                                     emoji : values[iv]

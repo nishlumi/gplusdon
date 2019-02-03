@@ -892,6 +892,23 @@ var MUtility = {
 		var tmp = a.hostname;
 		return tmp;
 	},
+	getEscapeHTML : function (html) {
+		var tmp = GEN("div");
+        tmp.innerHTML = html.replace(/invisible/g,"");
+		tmp.style.whiteSpace = "pre-wrap";
+		
+		var frag = document.createDocumentFragment();
+        frag.append(tmp);
+        var tmparea = ID("temporary_area");
+        tmparea.appendChild(frag);
+
+        var text = tmparea.innerText;
+        var contentText = tmp.textContent;
+        if (text.endsWith("\n")) {
+            text = text.substr(0,text.length-1);
+		}
+		return text;
+	},
 	get_translated_typename : function (type) {
 		if (type == "reblog"){
 			return _T(`${type}_${MYAPP.session.config.application.showMode}`);
@@ -937,6 +954,34 @@ var MUtility = {
 			ret =  "";
 		}
 		return ret;
+	},
+	getStaticMap(location,type,index) {
+		var w = "400";
+		var h = "250";
+		var url = "";
+		if (type == "yahoo") {
+			url = `https://map.yahooapis.jp/map/V1/static?appid=${MYAPP.siteinfo.yh}&pin${index}=${location.lat},${location.lng},${location.name}&z=${location.zoom}&width=${w}&height=${h}`;
+		}else if (type == "mapbox") {
+			var size = `${w}x${h}`;
+			var pincolor = "FF0000";
+			url = `https://api.mapbox.com/styles/v1/kemikampo/cjrngm87t0wk52smpyoh14s1u/static/pin-s-${index}+${pincolor}(${location.lng},${location.lat})/${location.lng},${location.lat},${location.zoom}.0,0,0/${size}?access_token=${MYAPP.siteinfo.mab}`;
+		}
+		return url;
+
+	},
+	geoyolp : function (location) {
+		var w = "400";
+		var h = "250";
+		var url = `https://map.yahooapis.jp/map/V1/static?appid=${MYAPP.siteinfo.yh}&pin1=${location.lat},${location.lng},${location.name}&z=${location.zoom}&width=${w}&height=${h}`;
+		return url;
+	},
+	geomapbox : function (location) {
+		var w = "400";
+		var h = "250";
+		var size = `${w}x${h}`;
+		var pincolor = "FF0000";
+		var url = `https://api.mapbox.com/styles/v1/kemikampo/cjrngm87t0wk52smpyoh14s1u/static/pin-s-1+${pincolor}(${location.lng},${location.lat})/${location.lng},${location.lat},${location.zoom}.0,0,0/${size}?access_token=${MYAPP.siteinfo.mab}`;
+		return url;
 	},
 	/**
 	 * 

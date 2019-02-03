@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     timeline_viewcount : "20",
                     gallery_type : "slide",
                     skip_startpage : false,
+                    map_type : "yahoo",
                 },
                 type_action : {
                     confirmBefore : true,
@@ -421,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.session.status.currentLocation = location.pathname;
 
     }, function (flag) {
-        /*appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+        /*appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
         });*/

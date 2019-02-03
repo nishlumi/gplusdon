@@ -41,6 +41,11 @@ function loadUserInfo_body(result) {
     vue_user.following.setData(result.data);
     vue_user.follower.accounts.splice(0,vue_user.follower.accounts.length);
     vue_user.follower.setData(result.data);
+
+    //---stream showing user only
+    vue_user.userview.currentAccount.stream.setTargetTimeline(vue_user.tootes);
+    vue_user.userview.currentAccount.stream.setFilter(result.data);
+
     MYAPP.setGeneralTitle(result.data.display_name);
 
 
@@ -279,7 +284,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         "red-text" : false,
                         "black-text" : true
                     }
-                }
+                },
+                currentAccount : null,
             },
             computed : {
                 full_acct : function (){
@@ -635,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var param = e;
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                        this.loadTimeline(this.id,opt);
                     }
                 }
             }
@@ -952,7 +958,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elem.appendChild(generate_account_row(MYAPP.acman.items[i]));
         }*/
         //---account load
-        MYAPP.selectAccount(ac);
+        vue_user.userview.currentAccount = MYAPP.selectAccount(ac);
         MYAPP.afterLoadAccounts(data);
 
         //---rapidly open and show toot data
@@ -981,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         
     }, function (flag) {
-        appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+        appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
         });

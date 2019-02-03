@@ -16,6 +16,7 @@
                     <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
                     <span id="us_idname_instance" class="white-text email" v-cloak>{? full_acct ?}</span>
                 </div>
+                <v-icon v-if="rawdata.locked">lock</v-icon>
             </a>
         </div>
         <div class="user-action-btns col1 elevation-2">
@@ -43,7 +44,7 @@
             </div>-->
         </div>
         <div class="user-action-btns col2 elevation-2">
-            <v-icon v-if="rawdata.locked">lock</v-icon>
+            
             <span v-if="stat.followed_by">{? showRelationshpText() ?}</span>
         </div>
         <div class="user-action-btns col3 elevation-2">
@@ -187,7 +188,7 @@
             -->
             <div class="pending_below_area" v-if="statuses.length < 10">
                 <v-layout row wrap >
-                    <v-flex xs2 offset-xs4>
+                    <v-flex xs2 offset-xs6>
                         <v-btn fab dark small color="red" v-on:click="onclick_load_below">
                             <v-icon>expand_more</v-icon>
                         </v-btn>

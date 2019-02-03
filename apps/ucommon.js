@@ -63,7 +63,29 @@ async function getGeolocation(request,param) {
             resolve(body);
         });
 
-        
+    });
+    return def;
+}
+
+async function getDirectoryMastodon(request, param) {
+    var def = new Promise((resolve, reject) => {
+        var ishit = false;
+        for (var i = 0; i < CON_ACCEPT_HOSTS.length; i++) {
+            if (request.headers.referer.indexOf(CON_ACCEPT_HOSTS[i]) > -1) {
+                ishit = true;
+                break;
+            }
+        }
+        //console.log("ishit=",ishit);
+        if (!ishit) reject("");
+
+        web(url, (error, response, body) => {
+            //console.log("web.get=", error, response, body);
+            const dom = new JSDOM(body);
+            var info = dom.window.document.head;
+
+            resolve(info.innerHTML);
+        });
 
     });
     return def;
@@ -76,6 +98,8 @@ var ucommon = {
         author: sysconst.package_info.author.name,
         advisor: [],
         version: sysconst.package_info.version,
+        yh_id: sysconst.yh_id,
+        mab_id: sysconst.mab_id,
         VAPID: sysconst.vap_id(),
         gdaky: sysconst.gdrive.web.api_key,
         gdid: sysconst.gdrive.web.client_id

@@ -21,12 +21,12 @@
         <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        <meta property="og:title" content="G+Don" />
+        <meta property="og:title" content="{{sysinfo.fullname}}" />
         <meta property="og:type" content="website" />
         <meta property="og:description" content="複数アカウント対応、テキスト＆メディアが見やすく楽しいマストドンの新感覚ウェブクライアントです。" />
         <meta property="og:url" content="https://gplusdon.net" />
         <meta property="og:image" content="https://gplusdon.net/static/images/gp_og_image.png"/>
-        <meta property="og:site_name" content="G+Don" />
+        <meta property="og:site_name" content="{{sysinfo.fullname}}" />
 
         <link rel="shortcut icon" href="/static/images/app_icon.png" >
         <link rel="manifest" href="/static/res/manifest.json" >
@@ -64,10 +64,12 @@
                     <div class="nav-wrapper">
 
                         <div class="row">
-                            <div class="navcol-left col s2 m3 l2">
+                            <div id="frm_navleft" class="navcol-left col s2 m3 l2">
                                 <a id="sidenav_btn" href="#" class="sidenav-trigger show-on-medium-and-down"><i class="material-icons black-text">menu</i></a>
+                                    
+                                
                                 <img id="img_brand" class="brand-image hidden-sm-and-down" src="/static/images/app_icon.png" width="48" height="48">
-                                <span class="brand-title black-text hidden-sm-and-down">G+Don</span>
+                                <span class="brand-title black-text hidden-sm-and-down">{{sysinfo.fullname}}</span>
                             </div>
                             <div class="col s4 m6 l3">
                                 <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
@@ -152,26 +154,9 @@
                             </v-card>
                         </div>
                         <div id="leftmenu_main" class="collection">
-                            <!--<a href="#" class="red collection-item  maincol_button  waves-effect waves-light btn"><i class="material-icons white-text">edit</i><span class="white-text">Toot</span></a>-->
-                            <!--
-                            <template v-if="applogined">
-                                <a id="lm_dashboard" href="/" class="collection-item maincol_menu tooltipped {{menustat.dashboard}}" data-tooltip="{{trans.dashboard}}"><i class="material-icons">dashboard</i><span v-if="menu_text">{{trans.dashboard}}</span></a>
-                                <a id="lm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}} tooltipped" data-tooltip="{{trans.timeline}}"><i class="material-icons">view_day</i><span v-if="menu_text">{{trans.timeline}}</span></a>
-                                <a id="lm_accounts" href="/accounts" class="collection-item maincol_menu {{menustat.accounts}} tooltipped" data-tooltip="{{trans.accounts}}"><i class="material-icons">person</i><span v-if="menu_text">{{trans.accounts}}</span></a>
-                                <a id="lm_connections" href="/connections" class="collection-item maincol_menu {{menustat.connections}} tooltipped" data-tooltip="{{trans.connections}}"><i class="material-icons">people</i><span v-if="menu_text">{{trans.connections}}</span></a>
-                                <a id="lm_directmsg" href="/direct" class="collection-item maincol_menu {{menustat.directmsg}} tooltipped"  data-tooltip="{{trans.direct_message}}"><i class="material-icons">email</i><span v-if="menu_text">{{trans.direct_message}}</span></a>
-                                <a id="lm_instances" href="/instances" class="collection-item maincol_menu {{menustat.instances}} tooltipped" data-tooltip="{{trans.instances}}"><i class="material-icons">business</i><span v-if="menu_text">{{trans.instances}}</span></a>
-                                <a id="lm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}} tooltipped" data-tooltip="{{trans.notifications}}"><i class="material-icons">notifications</i><span v-if="menu_text">{{trans.notifications}}</span></a>    
-                                <a id="lm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}} tooltipped" data-tooltip="{{trans.settings}}"><i class="material-icons">settings</i><span v-if="menu_text">{{trans.settings}}</span></a>    
-                                <a id="lm_startpage" href="/" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.startpage}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.startpage}}</span></a>    
-                            </template>
-                            <template v-else>
-                                <a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span v-if="menu_text">{{trans.start_app}}</span></a>
-                            </template>
-                            <a id="lm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span v-if="menu_text">{{trans.help}}</span></a>
-                            -->
                             {% include "appbase_menu.html" %}
                         </div>
+                        
                     </div>
                     <div  id="maincol_rightmain" class="inherited_body_range col s12 m12 l9">
 {% block content %}{% endblock %}
@@ -223,7 +208,8 @@
                         <i class="material-icons whole-notification red-text" v-if="whole_notification">notifications</i>
                     </div>
                 </li>
-                <li><a id="sm_dashboard" href="/" class="collection-item maincol_menu {{menustat.dashboard}}"><i class="material-icons">dashboard</i><span>{{trans.dashboard}}</span></a></li>
+            </template>
+                <!--<li><a id="sm_dashboard" href="/" class="common_ui_off collection-item maincol_menu {{menustat.dashboard}}"><i class="material-icons">dashboard</i><span>{{trans.dashboard}}</span></a></li>
                 <li>
                     <a id="sm_timeline" href="/tl" class="collection-item maincol_menu menu_parent {{menustat.timeline}}"><i class="material-icons">view_day</i><span>{{trans.timeline}}</span></a>
                 </li>
@@ -234,16 +220,22 @@
                 <li><a id="sm_notification" href="/notifications" class="collection-item maincol_menu {{menustat.notifications}}"><i class="material-icons">notifications</i><span>{{trans.notifications}}</span></a></li>
                 <li><a id="sm_settings" href="/settings" class="collection-item maincol_menu {{menustat.settings}}"><i class="material-icons">settings</i><span>{{trans.settings}}</span></a></li>
                 <li><a id="sm_startpage" href="/" class="collection-item maincol_menu"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a></li>
-            </template>
+                -->
+                <li>
+                        {% include "appbase_menu.html" %}
+                </li>
+            <!--
             <template v-else>
                 <li>
                     <img id="img_brand" class="brand-image" src="/static/images/app_icon.png" width="52" height="52">
-                    <h1 class="brand-title black-text">G+don</h1>
+                    <h1 class="brand-title black-text">{{sysinfo.fullname}}</h1>
                     <br>
                 </li>
                 <li><a href="/" class="collection-item maincol_menu {{menustat.start}}"><i class="material-icons">public</i><span>{{trans.start_app}}</span></a></li>
             </template>
-            <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a>
+            <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" class="collection-item maincol_menu tooltipped" data-tooltip="{{trans.help}}"><i class="material-icons">help</i><span>{{trans.help}}</span></a><br>
+            <a id="sm_version" href="#" v-on:click="onclick_menulink2" class="collection-item maincol_menu"><i class="material-icons">check</i><span>Information</span></a>
+            -->
         </ul>
         <div id="ov_toote">
             <v-app>
@@ -330,7 +322,7 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
         <input type="hidden" id="_csrf" value="{{csrfToken}}">
-        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid ] %}
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id ] %}
         <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
         <form id="hid_send" class="common_ui_off" name="hid_send" method="post" action="" target="nodisp">
             <input id="hid_send_mode" name="mode" value="">

@@ -338,6 +338,7 @@ function defineForTootPage(app) {
             onclick_send : function (e) {
                 if (!e.isOK) {
                     appAlert(_T("post_msg02"));
+                    return;
                 }
                 this.dialog = false;
                 if (this.otherwindow) {

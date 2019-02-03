@@ -35,6 +35,7 @@ function ondelete_account(e) {
         }else{
             //---initialize app (because of accounts not found)
             MYAPP.commonvue.nav_sel_account.setCurrentAccount(null);
+            MYAPP.acman.uninstall();
             //MYAPP.commonvue.leftmenu.applogined = false;
             MYAPP.commonvue.sidebar.applogined = false;
             //MYAPP.commonvue.nav_search.applogined = false;
@@ -42,10 +43,14 @@ function ondelete_account(e) {
             MYAPP.commonvue.nav_btnbar.applogined = false;
             MYAPP.commonvue.nav_notification.applogined = false;
             MYAPP.commonvue.nav_sel_account.applogined = false;
+            
         }
         if (MYAPP.session.config.action.open_url_after_remove_account) {
             appAlert(_T("remove_account_mes02",[seli.instance]),function(){
-                window.open(`https://${seli.instance}/oauth/authorized_applications`,target="");
+                window.open(`https://${seli.instance}/oauth/authorized_applications`,target="_blank");
+                if (!MYAPP.commonvue.nav_sel_account.applogined) {
+                    location.href = "/";
+                }
             });
         }
     });
@@ -361,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.selectAccount(ac);
             MYAPP.afterLoadAccounts(data);
         }, function (flag) {
-            appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+            appAlert(_T("msg_notlogin_myapp"), function () {
                 var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
                 window.location.replace(newurl);
             });

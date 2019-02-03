@@ -12,7 +12,7 @@
                 <v-card>
                     <v-card-text>
                         <v-layout row wrap align-center>
-                            <v-flex xs12 sm12 md6 lg6>
+                            <v-flex xs12 sm12 md4>
                                 <v-radio-group 
                                     label="{{trans.app_lab_showmode}}"
                                     v-model="type_app.showMode" 
@@ -23,7 +23,7 @@
                                     <v-radio label="Google+" value="gplus"></v-radio>
                                 </v-radio-group>
                             </v-flex>
-                            <v-flex xs12 sm12 md6 lg6>
+                            <v-flex xs12 sm12 md4>
                                 <v-radio-group 
                                     label="{{trans.app_lab_gallerymode}}"
                                     v-model="type_app.gallery_type" 
@@ -31,6 +31,16 @@
                                 >
                                     <v-radio label="{{trans.app_item_gallery_slide}}" value="slide"></v-radio>
                                     <v-radio label="{{trans.app_item_gallery_grid}}" value="grid"></v-radio>
+                                </v-radio-group>
+                            </v-flex>
+                            <v-flex xs12 sm12 md4>
+                                <v-radio-group 
+                                    label="{{trans.app_lab_mapmode}}"
+                                    v-model="type_app.map_type" 
+                                    column
+                                >
+                                    <v-radio label="Yahoo" value="yahoo"></v-radio>
+                                    <v-radio label="Mapbox(OpenStreetMap)" value="mapbox"></v-radio>
                                 </v-radio-group>
                             </v-flex>
                             <v-flex xs12 sm12 md4 lg4>

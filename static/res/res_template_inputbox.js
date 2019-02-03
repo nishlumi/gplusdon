@@ -59,6 +59,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 name="account-box"
                                 append-icon=""
                                 :counter="max_account"
+                                :messages="account_errmsg"
                                 v-bind:rules="account_rules"
                                 item-text="display_name" item-value="acct" 
                                 multiple required
@@ -179,7 +180,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                             >
                             </v-combobox>
                         </v-flex>
-                        <v-flex xs12 v-if="is_geo">
+                        <v-flex xs12 v-bind:class="css.geo">
                             <v-layout>
                                 <v-flex xs12 sm12 md6>
                                     <div class="toot_content_geo">

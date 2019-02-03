@@ -180,12 +180,51 @@ var MastodonAPI = function (config) {
             });
         },
         patch: function (endpoint) {
-            // for PATCH API calls
+            // for POST API calls
             var args = checkArgs(arguments);
             var postData = args.data;
             var callback = args.callback;
             var callback_fail = args.callback_fail || function() {};
             var url = apiBase + endpoint;
+            var fd = new FormData();
+            
+            for (var obj in postData) {
+                fd.append(obj,postData[obj]);
+            }
+
+            return $.ajax({
+                url: url,
+                type: "PATCH",
+                //data: postData,
+                data : fd,
+                contentType: false,
+                processData: false,
+                headers: addAuthorizationHeader({}, this.config.api_user_token),
+                //success: onAjaxSuccess(url, "POST MEDIA", callback, false),
+                //error: onAjaxError(url, "POST MEDIA", callback_fail)
+            });
+        },
+        patch_credential: function (endpoint) {
+            // for PATCH API calls  only update_credential
+            var args = checkArgs(arguments);
+            var postData = args.data;
+            var callback = args.callback;
+            var callback_fail = args.callback_fail || function() {};
+            var url = apiBase + endpoint;
+            
+            var fd = new FormData();
+            var normaldata = {};
+            
+            var isimage = false;
+            /*for (var obj in postData) {
+                
+                if ((obj == "avatar") || (obj == "header")) {
+                    isimage = true;
+                    fd.append(obj,postData[obj]);
+                }else{
+                    normaldata[obj] = postData[obj];
+                }
+            }*/
 
             return $.ajax({
                 url: url,
@@ -195,6 +234,18 @@ var MastodonAPI = function (config) {
                 success: onAjaxSuccess(url, "PATCH", callback, false),
                 error: onAjaxError(url, "PATCH", callback_fail)
             });
+            /* $.ajax({
+                url: url,
+                type: "PATCH",
+                //data: postData,
+                data : fd,
+                contentType: false,
+                processData: false,
+
+                headers: addAuthorizationHeader({}, this.config.api_user_token),
+                success: onAjaxSuccess(url, "PATCH", callback, false),
+                error: onAjaxError(url, "PATCH", callback_fail)
+            });*/
         },
         delete: function (endpoint, callback) {
             // for DELETE API calls.

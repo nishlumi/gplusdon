@@ -528,6 +528,26 @@ class Gpsns {
         });
         return def;
     }
+    patchCredential(options) {
+        var def = new Promise((resolve, reject)=> {
+            if (options.app.ismedia) {
+                this._accounts.api.patch("accounts/update_credentials",options.api)
+                .then(result=>{
+                    resolve({data: result, options:options});
+                },(xhr,status,err)=>{
+                    reject({xhr:xhr,status:status,options:options});
+                });
+            }else{
+                this._accounts.api.patch_credential("accounts/update_credentials",options.api)
+                .then(result=>{
+                    resolve({data: result, options:options});
+                },(xhr,status,err)=>{
+                    reject({xhr:xhr,status:status,options:options});
+                });
+            }
+        });
+        return def;
+    }
     getUser(userid,instance,options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {

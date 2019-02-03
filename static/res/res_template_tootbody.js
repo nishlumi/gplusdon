@@ -83,7 +83,7 @@ const CONS_TEMPLATE_TLCONDITION = `
 
 
 const CONS_TEMPLATE_TOOTBODY = `
-<div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-bind:style="toote.cardtypeSize" v-if="'body' in toote">
+<div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-if="toote != null" v-bind:style="toote.cardtypeSize"><!-- v-if="'body' in toote"-->
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
         <span v-html="toote.ancestors[toote.ancestors.length-1].visibility" style="float:left;"></span>
@@ -136,7 +136,32 @@ const CONS_TEMPLATE_TOOTBODY = `
     </div>
     <!-----toot with geo-->
     <div class="toot_content_geo" v-if="toote.geo.enabled">
-        <div class="here_map"></div>
+        <v-layout>
+            <!--<v-flex xs12>
+                <img :src="geoyolp(toote.geo.location[0])" width="100%"></img>
+            </v-flex>-->
+            <v-flex xs12 sm12 md7>
+                <!--<template v-if="popuping == 'ov_'">
+                    <div id="heremap_ov" class="here_map"></div>
+                </template>
+                <template v-else>
+                    <div :id="'heremap'+toote.id" class="here_map"></div>
+                </template>-->
+                <img :src="geomap" width="100%" v-on:click="onclick_map"></img>
+            </v-flex>
+            <v-flex xs12 sm12 md5>
+                <div class="toot_content_locos">
+                    <v-list>
+                        <v-list-tile v-for="(item,index) in toote.geo.location" :key="index" v-on:click="onclick_selloco(item,index)">
+                            <v-list-tile-content>
+                                {{item.name}}
+                            </v-list-tile-content>
+                            <v-divider></v-divider>
+                        </v-list-tile>
+                    </v-list>
+                </div>
+            </v-flex>
+        </v-layout>
     </div>
     <!-----toot with link-->
     <div class=" card-link" v-if="toote.mainlink.exists">
@@ -238,6 +263,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             <pre class="toote_main " v-html="reply.body.html"></pre>
                         </details>
                     </div>
+                    
                     <br>
                     <div class="xcarousel xcarousel-slider center" v-if="reply.medias.length > 0"> 
                         <!--<template v-if="reply.body.sensitive">
@@ -412,7 +438,8 @@ const CONS_TEMPLATE_TOOTBODY = `
     </div>
     <input type="hidden" name="tootid" v-bind:value="toote.body.id">
     <input type="hidden" name="userid" v-bind:value="toote.account.id">
-</div>`;
+</div>
+`;
 
 
 const CONS_TEMPLATE_DMSGBODY = `

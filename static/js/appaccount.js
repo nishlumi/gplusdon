@@ -166,6 +166,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 fields : [],
                 translations : {},
                 statuses : [],
+
+                comment_viewstyle : {
+                    close : false,
+                    mini : false,
+                    open : false,
+                    full : true
+                },
+                comment_list_area_viewstyle : {
+                    default : false
+                },
+                content_body_style : {
+                    "sizing-fullmax" : true
+                },
+                datastyle : {
+                    "comment-list" : {
+                        sizing : false
+                    }
+                },
             },
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
@@ -176,6 +194,35 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             methods : {
                 loadPinnedToot : loadPinnedToot,
+                load_setting : function (item) {
+                    this.note = item.rawdata.note;
+                    var flds = item.rawdata.fields;
+                    var retflds = [];
+                    //---analyze and get extra fields
+                    for (var i = 0; i < flds.length; i++) {
+                        var f = flds[i];
+                        if (f.name.indexOf("#more") > -1) {
+                            var tmp = GEN("div");
+                            tmp.innerHTML = f.value;
+                            var tmptxt = tmp.textContent;
+                            tmp.innerHTML = tmptxt;
+                            console.log(tmp.textContent);
+                            var cnt = JSON.parse(tmp.textContent);
+                            for (var obj in cnt) {
+                                retflds.push({
+                                    name : obj,
+                                    value : cnt[obj]
+                                });
+                            }
+                        }else{
+                            retflds.push({
+                                name : f.name,
+                                value : f.value
+                            });
+                        }
+                    }
+                    this.fields = retflds;
+                },
                 fieldicon : function (val) {
                     return val.indexOf(":") >= 0 ? val.split(":")[0] : "comment";
                 },
@@ -230,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var param = e;
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                        this.loadTimeline(opt);
                     }
                 }
             }
@@ -266,38 +313,109 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             data : {
                 cons : {
+                    fields : [1,2,3,4],
+                    extension : [1,2,3],
                     note : 160,
                     field_name : 255,
-                    field_value : 255
+                    field_value : 255,
+                    json_len : 255
+                    
                 },
                 translations : null,
                 dialog : false,
                 isfull : false,
+                isloading : false,
                 user : null,
                 bkup : null,
-                toggle_field : 1,
+                toggle_field : 0,
                 toggle_extension : false,
                 note : "",
                 field_name : "",
                 field_value : "",
-                extensions : [],
+                ext : [
+                    {name : "", value : ""},
+                    {name : "", value : ""},
+                    {name : "", value : ""},
+                ],
+                extdisabled : [
+                    false,false,false
+                ],
+                ext_vallength : 0,
+                saves : {
+                    fields : [{},{},{},{}],
+                    extension : [{},{},{}],
+                    toggle_extension : [false,false,false,false],
+                    fldjson : "",
+                    avatarfile : null,
+                    headerfile : null,
+                },
                 css : {
                     note : {
                         "red--text" : false
                     },
                     field_value : {
                         "red--text" : false
+                    },
+                    extension : {
+                        "red--text" : false
                     }
                 }
                 
             },
+            computed: {
+                oprofile : function (){
+                    var url = `https://${this.user.instance}/settings/profile`;
+                    return url;
+                }
+            },
             watch: {
                 toggle_field : function (val,old) {
+                    //---save old
+                    this.saves.fields[old].name = this.field_name;
+                    if (this.field_name.indexOf("#more") > -1) {
+                        this.saves.fields[old].value = this.saves.fldjson;
+                    }else{
+                        this.saves.fields[old].value = this.field_value;
+                    }
+                    //---turn new
                     console.log(val,old);
-                    this.field_name = this.user.rawdata.fields[val].name;
-                    var tmp = GEN("div");
-                    tmp.innerHTML = this.user.rawdata.fields[val].value;
-                    this.field_value = tmp.textContent;
+                    if (val < this.user.rawdata.fields.length) {
+                        this.field_name = this.user.rawdata.fields[val].name;
+
+                        var tmp = GEN("div");
+                        tmp.innerHTML = this.user.rawdata.fields[val].value;
+                        this.field_value = tmp.textContent;
+                        if (this.field_name.indexOf("#more") > -1) {
+                            this.saves.toggle_extension[val] = true;
+                            this.saves.fldjson = this.field_value;
+                            var calc = JSON.parse(this.saves.fldjson);
+                            var ei =  0;
+                            for (var obj in calc) {
+                                this.ext[ei].name = obj;
+                                var tmp = GEN("div");
+                                tmp.innerHTML = calc[obj];
+                                this.ext[ei].value = tmp.textContent;
+                                ei++;
+                            }
+                        }else{
+                            
+                        }
+                    }else{
+                        this.field_name = "";
+                        this.field_value = "";
+                    }
+                    //---restore flag for extension
+                    this.toggle_extension = this.saves.toggle_extension[val];
+                },
+                toggle_extension : function (val) {
+                    if (val) {
+                        if (this.field_name.indexOf(this.field_name) < 0) {
+                            this.field_name = this.field_name + "#more";
+                        }
+                    }else{
+                        this.field_name = this.field_name.replace("#more","");
+                    }
+                    this.saves.toggle_extension[this.toggle_field] = this.toggle_extension;
                 },
                 note : function (val) {
                     if (val.length > this.cons.note) {
@@ -308,7 +426,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         return true;
                     }
                 },
+                field_name : function (val) {
+                    this.saves.fields[this.toggle_field]["name"] = val;
+                    if (val.length > this.cons.field_name) {
+                        this.css.field_value["red--text"] = true;
+                        return false;
+                    }else{
+                        this.css.field_value["red--text"] = false;
+                        return true;
+                    }
+                },
                 field_value : function (val) {
+                    this.saves.fields[this.toggle_field]["value"] = val;
                     if (val.length > this.cons.field_value) {
                         this.css.field_value["red--text"] = true;
                         return false;
@@ -316,11 +445,182 @@ document.addEventListener('DOMContentLoaded', function() {
                         this.css.field_value["red--text"] = false;
                         return true;
                     }
+                },
+                ext : {
+                    handler : function (val,old) {
+                        console.log("new",val);
+                        var calc = {};
+                        for (var i = 0; i < val.length; i++) {
+                            this.saves.extension[i].name = val[i].name;
+                            this.saves.extension[i].value = val[i].value;
+                            calc[val[i].name] = val[i].value;
+                            var tmp = JSON.stringify(calc).length;
+                            if (tmp >= this.cons.json_len) {
+                                //this.extreadonly[i] = true;
+                                this.css.extension["red--text"] = true;
+                                if ((i+1) < val.length) {
+                                    for (var j = i+1; j < val.length; j++) {
+                                        this.extdisabled[j] = true;
+                                    }
+                                }
+                            }else{
+                                this.extdisabled[i] = false;
+                                //this.extreadonly[i] = false;
+                                this.css.extension["red--text"] = false;
+                            }
+                        }
+                        this.saves.fldjson = JSON.stringify(calc);
+                        this.ext_vallength = this.saves.fldjson.length;
+                        
+                        console.log(JSON.stringify(calc),JSON.stringify(calc).length);
+                    },
+                    deep : true
                 }
             },
             methods : {
+                load_setting : function (item) {
+                    this.user = JSON.original(item);
+                    for (var i = 0; i < item.rawdata.fields.length; i++) {
+                        this.saves.fields[i].name = item.rawdata.fields[i].name;
+                        this.saves.fields[i].value = item.rawdata.fields[i].value;
+                        if (i == 0) {
+                            this.field_name = item.rawdata.fields[i].name;
+                            this.field_value = item.rawdata.fields[i].value;
+                        }
+                    }
+                    this.bkup = JSON.original(item);
+                    //var tmp = GEN("div");
+                    //tmp.innerHTML = item.rawdata.note;
+                    this.note = MUtility.getEscapeHTML(item.rawdata.note);
+                    //this.toggle_field = 0;
+            
+                },
+                onclick_avatarfilepath : function (e) {
+                    console.log(e);
+
+                    var reader = new FileReader();
+                    reader.onload = ((fle) => {
+                        return (e) => {
+                            var imgsrc = e.target.result;
+                            //console.log("e=",e);
+                            var dat = {
+                                src : imgsrc,
+                                comment : "",
+                                data : fle
+                            };
+                            this.saves.avatarfile = dat;
+                            this.user.rawdata.avatar = imgsrc;
+                        }
+                    })(e.target.files[0]);
+                    reader.readAsDataURL(e.target.files[0]);
+                },
+                onclick_headerfilepath : function (e) {
+                    console.log(e);
+
+                    var reader = new FileReader();
+                    reader.onload = ((fle) => {
+                        return (e) => {
+                            var imgsrc = e.target.result;
+                            //console.log("e=",e);
+                            var dat = {
+                                src : imgsrc,
+                                comment : "",
+                                data : fle
+                            };
+                            this.saves.avatarfile = dat;
+                            this.user.rawdata.header = imgsrc;
+                        }
+                    })(e.target.files[0]);
+                    reader.readAsDataURL(e.target.files[0]);
+                },
                 onclick_close : function (e) {
                     this.dialog = false;
+                },
+                onclick_apply : function (e) {
+                    var formdata = {}, formdata_media = {};
+                    var isimage = false;
+
+                    if (this.user.rawdata.display_name != this.bkup.rawdata.display_name) {
+                        formdata["display_name"] = this.user.rawdata.display_name;
+                    }
+                    var tmp1 = GEN("div");
+                    tmp1.innerHTML = this.bkup.rawdata.note;
+                    if (this.note != tmp1.textContent) {
+                        formdata["note"] = this.note;
+                    }
+                    if (this.user.rawdata.avatar != this.bkup.rawdata.avatar) {
+                        var imgdata = this.saves.avatarfile.src.split(";");
+						imgdata[0] = imgdata[0].replace("data:","");
+						var base64img = atob(imgdata[1].split(",")[1]);
+						var buffer = new Uint8Array(base64img.length);
+						for (var b = 0; b < base64img.length; b++) {
+							buffer[b] = base64img.charCodeAt(b);
+						}
+                        var fl = new Blob([buffer.buffer],{type:imgdata[0]});
+                        
+                        formdata_media["avatar"] = this.saves.avatarfile.data;
+                        isimage = true;
+                    }
+                    if (this.user.rawdata.header != this.bkup.rawdata.header) {
+                        var imgdata = this.saves.headerfile.src.split(";");
+						imgdata[0] = imgdata[0].replace("data:","");
+						var base64img = atob(imgdata[1].split(",")[1]);
+						var buffer = new Uint8Array(base64img.length);
+						for (var b = 0; b < base64img.length; b++) {
+							buffer[b] = base64img.charCodeAt(b);
+						}
+                        var fl = new Blob([buffer.buffer],{type:imgdata[0]});
+                        
+                        formdata_media["header"] = fl;
+                        isimage = true;
+                    }
+                    if (this.user.rawdata.locked != this.bkup.rawdata.locked) {
+                        formdata["locked"] = this.user.rawdata.locked;
+                    }
+
+                    var tmp = [];
+                    formdata["fields_attributes"] = [];
+                    for (var i = 0; i < this.saves.fields.length; i++) {
+                        tmp.push({
+                            name : this.saves.fields[i].name,
+                            value : this.saves.fields[i].value
+                        });
+                    }
+                    formdata["fields_attributes"] = (tmp);
+
+                    var ac = MYAPP.acman.get({
+                        idname : this.user.idname,
+                        instance : this.user.instance
+                    });
+                    var bb = MYAPP.sns._accounts;
+                    MYAPP.sns.setAccount(ac);
+                    this.isloading = true;
+                    MYAPP.sns.patchCredential({
+                        api : formdata,
+                        app : {
+                            ismedia : false
+                        }
+                    })
+                    .then(result=> {
+                        this.dialog = false;
+                        if (isimage) {
+                            return MYAPP.sns.patchCredential({
+                                api : formdata_media,
+                                app : {
+                                    ismedia : true
+                                }
+                            });
+                        }
+                    })
+                    .catch((error)=>{
+
+                    })
+                    .finally(() => {
+                        this.isloading = false;
+                        MYAPP.sns._accounts = bb;
+                        
+                    });
+                    console.log(formdata);
                 }
             }
         })
@@ -483,7 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
-        //MYAPP.acman.checkVerify();
+        MYAPP.acman.checkVerify();
         
         var ac = MYAPP.acman.get({
             "instance":ID("hid_instance").value,
@@ -501,38 +801,18 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.userview.instance = tmpac.instance;
         vue_user.userview.rawdata = tmpac.rawdata;
 
+        /*
         vue_user.editor.user = tmpac;
         vue_user.editor.bkup = Object.assign({},tmpac);
         var tmp = GEN("div");
         tmp.innerHTML = tmpac.rawdata.note;
         vue_user.editor.note = tmp.textContent;
         vue_user.editor.toggle_field = 0;
+        */
 
-        vue_user.basicinfo.note = tmpac.rawdata.note;
-        var flds = tmpac.rawdata.fields;
-        var retflds = [];
-        //---analyze and get extra fields
-        for (var i = 0; i < flds.length; i++) {
-            var f = flds[i];
-            if (f.name.indexOf("#more") > -1) {
-                var tmp = GEN("div");
-                tmp.innerHTML = f.value;
-                console.log(tmp.textContent);
-                var cnt = JSON.parse(tmp.textContent);
-                for (var obj in cnt) {
-                    retflds.push({
-                        name : obj,
-                        value : cnt[obj]
-                    });
-                }
-            }else{
-                retflds.push({
-                    name : f.name,
-                    value : f.value
-                });
-            }
-        }
-        vue_user.basicinfo.fields = retflds;
+       vue_user.basicinfo.load_setting(tmpac);
+       vue_user.editor.load_setting(tmpac);
+
         vue_user.basicinfo.translations = Object.assign({},curLocale.messages);
        
         vue_user.tabbar.translations = vue_user.basicinfo.translations;
@@ -562,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
             app : {}
         });
     }, function (flag) {
-        appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+        appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
         });

@@ -98,10 +98,15 @@
                     v-bind:toote="status"
                     v-bind:key="status.body.id"
                     v-for="status in statuses"
+                    v-bind:popuping="popuping"
+                    v-bind:datastyle="datastyle"
+                    v-bind:comment_viewstyle="comment_viewstyle"
+                    v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
+                    v-bind:content_body_style="content_body_style"
                 ></timeline-toot>
             </div>
         </div>
-        <div id="tt_public" class="col s12 tabcontent">
+        <div id="tt_public" class="col s12 tabcontent" v-cloak>
             <div class="pending_above_area" v-if="pending.above.is == true">
                 <v-layout row wrap >
                     <v-flex xs2 offset-xs4>
@@ -157,7 +162,7 @@
             -->
             <div class="pending_below_area" v-if="statuses.length < 10">
                 <v-layout row wrap >
-                    <v-flex xs2 offset-xs4>
+                    <v-flex xs2 offset-xs6>
                         <v-btn fab dark small color="red" v-on:click="onclick_load_below">
                             <v-icon>expand_more</v-icon>
                         </v-btn>
@@ -171,7 +176,7 @@
         <div id="tt_private" class="col s12 tabcontent">
 
         </div>-->
-        <div id="tt_fav" class="col s12 tabcontent">
+        <div id="tt_fav" class="col s12 tabcontent" v-cloak>
             <div class="pending_above_area" v-if="pending.above.is == true">
                 <v-layout row wrap >
                     <v-flex xs2 offset-xs4>
@@ -198,7 +203,7 @@
         <v-dialog v-model="dialog"
             persistent scrollable :fullscreen="$vuetify.breakpoint.smAndDown"
             max-width="600px"
-            transition="dialog-transition"
+            transition="dialog-transition" v-cloak
         >
             <v-card v-if="user">
                 <v-card-text>
@@ -206,12 +211,12 @@
                         <v-flex xs6 sm6 md3>
                             <span>{{ trans.lab_avatar }}</span>
                             <img :src="user.rawdata.avatar" width="128" height="128">
-                            <input type="file" id="hid_avatarfile" placeholder="{{trans.lab_avatar}}">
+                            <input type="file" id="hid_avatarfile" accept="image/png, image/jpeg" v-on:change="onclick_avatarfilepath" placeholder="{{trans.lab_avatar}}">
                         </v-flex>
                         <v-flex xs6 sm6 md5>
                             <span>{{ trans.lab_header}}</span>
                             <v-img :src="user.rawdata.header" aspect-radio="1"></v-img>
-                            <input type="file" id="hid_headerfile" placeholder="{{trans.lab_header}}">
+                            <input type="file" id="hid_headerfile" accept="image/png, image/jpeg" v-on:change="onclick_headerfilepath" placeholder="{{trans.lab_header}}">
                         </v-flex>
                     </v-layout>
                     <v-layout row wrap>
@@ -232,8 +237,8 @@
                         <v-flex xs12>
                             <p>{{trans.lab_field}}</p>
                             <v-btn-toggle mandatory v-model="toggle_field">
-                                <v-btn flat v-for="(fld,index) in user.rawdata.fields" :value="index">
-                                    {{trans.lab_field}}{? (index+1) ?}
+                                <v-btn flat v-for="(fld,index) in cons.fields" :value="index">
+                                    {{trans.lab_field}}{? (fld) ?}
                                 </v-btn>
                             </v-btn-toggle>
                         </v-flex>
@@ -246,23 +251,20 @@
                         <v-flex xs12>
                             <template v-if="toggle_extension">
                                 <div>
-                                    <v-layout>
+                                    <v-layout row wrap>
                                         <v-flex xs12>
-                                            <v-btn-toggle mandatory v-model="toggle_field">
-                                                <v-btn flat v-for="(fld,index) in user.rawdata.fields" :value="index">
-                                                    {{trans.lab_field}}{? (index+1) ?}
-                                                </v-btn>
-                                            </v-btn-toggle>
-                                            <v-btn flat icon color=red">
-                                                <v-icon>add</v-icon>
-                                            </v-btn>
+                                            <span v-bind:class="css.extension">
+                                                合計文字数： {? ext_vallength ?}
+                                            </span>
                                         </v-flex>
-                                        <v-flex xs4>
-                                            <v-text-field label="{{trans.lab_field_name}}" v-model="extension.field_name"></v-text-field>
-                                        </v-flex>
-                                        <v-flex xs7 offset-xs1>
-                                            
-                                        </v-flex>
+                                        <template v-for="(item,index) in ext">
+                                            <v-flex xs4>
+                                                <v-text-field maxlength="20" counter="20" label="{{trans.lab_field_name}}" v-bind:disabled="extdisabled[index]" v-model="item.name"></v-text-field>
+                                            </v-flex>
+                                            <v-flex xs7 offset-xs1>
+                                                <v-text-field label="{{trans.lab_field_value}}"  v-bind:disabled="extdisabled[index]" v-model="item.value"></v-text-field>
+                                            </v-flex>
+                                        </template>
                                     </v-layout>
                                 </div>
                             </template>
@@ -281,9 +283,16 @@
                     </v-layout>
                 </v-card-text>
                 <v-card-actions>
+                    
+                    <v-tooltip right>
+                        <a :href="oprofile" slot="activator" target="_blank">{{trans.lab_official_profile}}</a>
+                        <span>{{trans.msg_official_profile}}</span>
+                    </v-tooltip>                                            
+                       
                     <v-spacer></v-spacer>
+                    <v-progress-circular v-show="isloading" indeterminate color="red"></v-progress-circular>
                     <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{trans.cons_cancel}}</v-btn>
-                    <v-btn flat small color="primary" v-on:click="onclick_close(true)">{{trans.cons_apply}}</v-btn>    
+                    <v-btn flat small color="primary" v-on:click="onclick_apply(true)">{{trans.cons_apply}}</v-btn>    
                 </v-card-actions>
             </v-card>
         </v-dialog>

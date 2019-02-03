@@ -30,7 +30,9 @@ class Gplusdon {
             ggl : {
                 ak : hidinfo[4],
                 ci : hidinfo[5]
-            }  
+            },
+            yh : hidinfo[6],
+            mab : hidinfo[7]
         };
         
         this.acman = new AccountManager();
@@ -86,6 +88,7 @@ class Gplusdon {
         if ("sidebar" in this.commonvue) this.commonvue.sidebar.applogined = true;
         if ("nav_search" in this.commonvue) this.commonvue.nav_search.applogined = true;
         if ("nav_btnbar" in this.commonvue) this.commonvue.nav_btnbar.applogined = true;
+        if ("navibar" in this.commonvue) this.commonvue.navibar.applogined = true;
 
         if ("nav_notification" in this.commonvue) {
             this.commonvue.nav_notification.applogined = true;
@@ -167,6 +170,10 @@ class Gplusdon {
                     notifAccount.account.streams.tag.setTargetTimeline(vue_timeline.public);
                     notifAccount.account.streams.taglocal.setTargetTimeline(vue_timeline.public);
                 }
+                if (Q("#area_account")) {
+                    notifAccount.account.stream.setTargetTimeline(vue_user.tootes);
+                    notifAccount.account.stream.isme = true;
+                }
                 if (Q("#area_user")) {
                     //---rapidly open and show user data
                     var serverdata = JSON.parse(ID("hid_userdata").value);
@@ -179,6 +186,7 @@ class Gplusdon {
                             app : {}
                         });
                     }
+                    
                 }
                 if (Q(".connections_body")) {
                     var targetpath = "";
@@ -371,6 +379,7 @@ class Gplusdon {
         var frag = document.createDocumentFragment();
         frag.append(tmp);
         var tmparea = ID("temporary_area");
+        tmparea.innerHTML = "";
         tmparea.appendChild(frag);
 
         var text = tmparea.innerText;
@@ -392,7 +401,7 @@ class Gplusdon {
         //console.log(`text=[${text}]`,resultMentions);
 
         //---geo tag ( geo:35.3939,139.3939?z=5&n=%39%49%96 )
-        var geoReg = new RegExp("(?:geo:[a-zA-Z0-9.,?=&$%\(\)//]+)");
+        var geoReg = new RegExp("(?:geo:([a-zA-Z0-9.,?=&$%\(\)//]|[^\x01-\x7E])+)","g");
         var tmpgeo = text.match(geoReg);
         var resultGeo = {
             enabled : false,
@@ -420,7 +429,7 @@ class Gplusdon {
                     fnlgeo.lat = arr2[0];
                     fnlgeo.lng = arr2[1];
                     fnlgeo.zoom = asearch["z"];
-                    fnlgeo.name = asearch["n"];
+                    fnlgeo.name = decodeURIComponent(asearch["n"]);
                     
                     resultGeo.location.push(fnlgeo);
                     resultGeo.enabled = true;
@@ -449,12 +458,6 @@ class Gplusdon {
     checkPostBefore(content,options) {
         var len = twttr.txt.getUnicodeTextLength(content);
 
-        if (len > 500) {
-            return {
-                cd : "pst01",
-                msg : "over 500 chars"
-            };
-        }
         if (len <= 0) {
             return {
                 cd : "pst02",
@@ -574,7 +577,8 @@ class Gplusdon {
             })
             .catch(error=>{
                 alertify.error(`${options.account.acct}:${_T("post_msg02")}`);
-                console.log(error);
+                console.log("err=",error);
+                reject({error:error,flag:false});
             })
             .finally(()=>{
                 MYAPP.sns.setAccount(backupac);

@@ -34,6 +34,7 @@ class Gpsession {
                     show_menutext : true,
                     gallery_type : "slide", //slide, grid
                     skip_startpage : false,
+                    map_type : "yahoo",
                 },
                 action : {
                     confirmBefore : true,

@@ -1,5 +1,5 @@
 const CONS_TEMPLATE_USERPOPUP = `
-<div class="card white ">
+<div class="card white " v-if="account">
     <div class="card-image">
         <div class="background">
             <v-img v-bind:src="account.header"></v-img>

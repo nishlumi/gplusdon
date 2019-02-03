@@ -277,3 +277,71 @@
         </v-card>
     </v-bottom-sheet>
 </div>
+<div id="appverdlg">
+    <v-dialog
+        v-model="isappdialog"
+        transition="dialog-transition"
+        max-width="320px" 
+    >
+        <v-card>
+            <v-img src="/static/images/gp_og_image.png" width="320px" aspect-ratio="1.7"></v-img>
+            <v-card-title primary-title>
+                <div>
+                    <div class="mb-2">
+                        {{trans.msg_ini_subtitle}}<br>
+                        {{trans.msg_ini_heading1}}
+
+                    </div>
+                    <div>
+                        {{trans.lab_version}}: {{sysinfo.version}}<br>
+                        {{trans.lab_author}}: {{sysinfo.author}}<br>
+                        {{trans.lab_advisor}}: 
+                        <ul>
+                            {% for  item in sysinfo.advisor %}
+                            <li>{{item}}</li>
+                            {% endfor %}
+                        </ul>
+                        
+                    </div>
+                </div>
+            </v-card-title>
+        </v-card>
+    </v-dialog>
+</div>
+<div id="mapviewer">
+    <v-dialog v-model="dialog"
+         :fullscreen="$vuetify.breakpoint.smAndDown"
+        width="800px"
+        transition="dialog-transition" 
+    >
+        <v-toolbar>
+            <v-btn icon  @click="onclick_close" >
+                <v-icon>close</v-icon>
+            </v-btn>
+        </v-toolbar>
+        <v-card>
+
+            <v-card-text>
+                <div class="toot_content_geo">
+                    <v-layout row wrap>
+                        <v-flex xs12 sm12 md6>
+                            <div id="mv_map" class="viewer_mv_map"></div>
+                        </v-flex>
+                        <v-flex xs12 sm12 md6>
+                            <div class="toot_content_locos">
+                                <v-list  v-if="toote">
+                                    <v-list-tile v-for="(item,index) in toote.geo.location" :key="index" v-on:click="onclick_selloco(item)">
+                                        <v-list-tile-content>
+                                            {? item.name ?}
+                                        </v-list-tile-content>
+                                        <v-divider></v-divider>
+                                    </v-list-tile>
+                                </v-list>
+                            </div>
+                        </v-flex>
+                    </v-layout>
+                </div>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+</div>

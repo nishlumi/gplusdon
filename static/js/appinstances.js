@@ -333,7 +333,9 @@ document.addEventListener('DOMContentLoaded', function() {
     ID("area_instance").addEventListener("scroll",function(e){
         //console.log(e);
         var sa = e.target.scrollHeight - e.target.clientHeight;
-        if (e.target.scrollTop == sa) {
+        var fnlsa = sa - Math.round(e.target.scrollTop);
+
+        if (fnlsa < 10) {
             //---page max scroll down
             console.log("scroll down max");
         }

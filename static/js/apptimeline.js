@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         MYAPP.commonvue.bottomnav.activeBtn = 1;
     }, function (flag) {
-        appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
+        appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
         });

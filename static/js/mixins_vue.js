@@ -775,6 +775,7 @@ var vue_mixin_for_timeline = {
 			this.$nextTick(() =>{
 				for (var s = 0; s < this.statuses.length; s++) {
 					var onest = this.statuses[s];
+					/*
 					if (onest.geo.enabled) {
 						var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 							OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -793,6 +794,7 @@ var vue_mixin_for_timeline = {
 								layers: [Osm]
 							}
 						);
+
 	
 						for (var i = 0; i < onest.geo.location.length; i++) {
 							var ll = onest.geo.location[i];
@@ -804,6 +806,7 @@ var vue_mixin_for_timeline = {
 							marker.bindPopup(ll.name);
 						}
 					}
+					*/
 				}
 				
 				return;
@@ -1109,25 +1112,36 @@ var vue_mixin_for_inputtoot = {
 				zoom : 1,
 				locos : []
 			},
+			css : {
+				geo : {
+					common_ui_off : true
+				}
+			}
 
 		}
 	},
 	watch : {
 		selaccounts : function (val) {
-			console.log(val);
+			//console.log(val);
 			MYAPP.session.status.toot_max_character = MYAPP.appinfo.config.toot_max_character;
 			MYAPP.session.status.toot_warning_number = MYAPP.appinfo.config.toot_warning_number;
+			var tmparr = [];
 			for (var i = 0; i < val.length; i++) {
 				var v = val[i];
 				for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
 					var lim = MYAPP.session.config.notification.toot_limit_instance[st];
 					if (v.indexOf(lim.instance) > -1) {
-						MYAPP.session.status.toot_max_character = lim.limit;
-						MYAPP.session.status.toot_warning_number = lim.limit - 10;
+						//---always overwrite a more max count
+						if (MYAPP.session.status.toot_max_character < lim.limit) {
+							MYAPP.session.status.toot_max_character = lim.limit;
+							MYAPP.session.status.toot_warning_number = lim.limit - 10;
+							tmparr.push(lim.limit);
+						}
+					}else{
+						tmparr.push(MYAPP.appinfo.config.toot_max_character);
 					}
 				}
 			}
-
 			//---re check
 			this.calc_fulltext(this.status_text);
 			//---warning near limit.
@@ -1137,6 +1151,15 @@ var vue_mixin_for_inputtoot = {
 				this.strlength_class["red-text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+
+			this.account_errmsg = "";
+			if (val.length > 1) {
+				if (tmparr[0] != tmparr[1]) {
+					this.account_errmsg = _T("msg_limit_max1");
+					this.btnflags.send_disabled = true;
+				}
+			}
+
 		},
 		selmentions : function(val) {
 			var mentions;
@@ -1172,6 +1195,9 @@ var vue_mixin_for_inputtoot = {
 			}else{
 				this.strlength_class["red-text"] = false;
 			}
+			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+		},
+		strlength: function (val) {
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 		},
 		status_text : function(val) {
@@ -1234,7 +1260,8 @@ var vue_mixin_for_inputtoot = {
 				content += "\n" + tags.join(" ");
 			}
 			if (this.geouris.length > 0) {
-				content += this.geouris.join(" ") + " ";
+				content += "\n";
+				content += this.geouris.join("\n") + " ";
 			}
 			
 			return content;
@@ -1262,7 +1289,8 @@ var vue_mixin_for_inputtoot = {
 				+ mentions.join(" ").length + tags.length + this.geouris.join(" ").length;
 		},
 		generate_geouri : function (item) {
-			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${encodeURI(item.Name)}`;
+			var name = item.Name.replace(/\s/g,"");
+			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${(name)}`;
 		},
 		generate_marker : function(lat, lng, zoom) {
 			var marker = L.marker({lat:lat,lng:lng},{icon:redIcon}).addTo(this.geomap);
@@ -1459,6 +1487,7 @@ var vue_mixin_for_inputtoot = {
 		onclick_addgeo : function (e) {
 			if (this.is_geo) {
 				this.is_geo = false;
+				this.css.geo.common_ui_off = true;
 				this.geo.lat = 0;
 				this.geo.lng = 0;
 				this.geo.zoom = 1;
@@ -1472,6 +1501,7 @@ var vue_mixin_for_inputtoot = {
 				navigator.geolocation.getCurrentPosition(
 					(pos)=>{
 						this.is_geo = true;
+						this.css.geo.common_ui_off = false;
 						this.geo.lat = pos.coords.latitude; //35.62481; //
 						this.geo.lng = pos.coords.longitude; //140.05563; //
 
@@ -1544,7 +1574,31 @@ var vue_mixin_for_inputtoot = {
 					for (var m = 0; m < this.medias.length; m++) {
 						mediaids.push(this.medias[m][account.acct].id);
 					}
-					var pr = MYAPP.executePost(this.joinStatusContent(),{
+					var text = this.joinStatusContent();
+					//---check text limit
+					if (MYAPP.session.status.toot_max_character >  MYAPP.appinfo.config.toot_max_character) {
+						var ishit = null;
+						for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
+							var lim = MYAPP.session.config.notification.toot_limit_instance[st];
+							if (account.instance == lim.instance) {
+								ishit = lim;
+								break;
+							}
+						}
+						if (ishit) {
+							//---trim custom limit
+							if (text.length > ishit.limit) {
+								text = text.substr(0,ishit.limit);
+							}
+						}else{
+							//---trim default mastodon limit
+							if (text.length > MYAPP.appinfo.config.toot_max_character) {
+								text = text.substr(0,MYAPP.appinfo.config.toot_max_character);
+							}
+						}
+	
+					}
+					var pr = MYAPP.executePost(text,{
 						"account" : account,
 						"scope" : this.selsharescope,
 						"media" : mediaids,
@@ -1564,6 +1618,7 @@ var vue_mixin_for_inputtoot = {
 						this.seltags.splice(0,this.seltags.length);
 					}
 					this.selmedias.splice(0,this.selmedias.length);
+					this.selaccounts.splice(0,this.selaccounts.length);
 					this.medias.splice(0,this.medias.length);
 					this.switch_NSFW = false;
 
@@ -1726,7 +1781,7 @@ var vue_mixin_for_inputtoot = {
 			})
 			.catch(err=>{
 				console.log(err);
-				btnflags.loading
+				btnflags.loading = false;
 			})
 			.finally( () => {
 				MYAPP.sns.setAccount(backupAC);

@@ -40,6 +40,7 @@ Vue.component("toot-inputbox", {
 
 			//---account box data
 			max_account : 2,
+			account_errmsg : "",
             account_rules : [
                 v => {
 					var flag = (v.length <= this.max_account);
@@ -167,6 +168,7 @@ Vue.component("toot-inputbox", {
 				}
 			}).on('pasteText',  (ev, data) => {
 				console.log("text: " + data.text);
+				this.status_text = data.text;
 			});
 		
 
@@ -430,6 +432,7 @@ Vue.component("reply-inputbox", {
 				}
 			}).on('pasteText',  (ev, data) => {
 				console.log("text: " + data.text);
+				this.status_text = data.text;
 			});
 
 			this.isfirst = false;
