@@ -181,7 +181,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                             </v-combobox>
                         </v-flex>
                         <v-flex xs12 v-bind:class="css.geo">
-                            <v-layout>
+                            <v-layout row wrap>
                                 <v-flex xs12 sm12 md6>
                                     <div class="toot_content_geo">
                                         <input type="hidden" name="geo_lat" v-bind:value="geo.lat"/>

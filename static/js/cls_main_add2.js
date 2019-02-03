@@ -4,6 +4,7 @@
  =============================================================================*/
 //---input toot modal dialog
 function defineForTootPage(app) {
+
     app.commonvue["inputtoot"] = new Vue({
         el : "#ov_inputtoot",
         delimiters : ["{?", "?}"],
@@ -436,7 +437,76 @@ function defineForTootPage(app) {
                 }
                 var ret = dispname + "@" + data.instance;
                 return ret;
+            },
+            onclick_menulink : function (url) {
+                location.href = url;
+            },
+        }
+    });
+    app.commonvue["emojisheet"] = new Vue({
+        el : ".emoji-view",
+        delimiters : ["{?", "?}"],
+        data : {
+            is_sheet : false,
+            emojis_title : {
+                utf8 : [],
+                instances : []
+            },
+            emoji_seltitle : [
+                {"id" : "pict", "text" : "UTF-8" + _T("Pictogram") },
+                {"id" : "lett", "text" : "UTF-8" + _T("Letter") },
+                {"id" : "inst", "text" : _T("tbl_acc_col3")}
+            ],
+            emoji_subtitle : [],
+            sel_seltitle : "",
+            sel_selsubtitle : "",
+
+        },
+        watch : {
+            sel_seltitle : function (val) {
+                this.emoji_subtitle.splice(0,this.emoji_subtitle.length);
+                if ((val == "pict") || (val == "lett")) {
+                    for (var i = 0; i < this.emojis_title.utf8.length; i++) {
+                        var ch = this.emojis_title.utf8[i];
+                        var idi = i;
+                        if (val == "lett") {
+                            idi = i + 28;
+                        }
+                        if (ch.type == val) {
+                            this.emoji_subtitle.push({
+                                text : ch.text,
+                                id : idi
+                            });
+                        }
+                    }
+                }else{
+                    for (var i = 0; i < this.emojis_title.instances.length; i++) {
+                        var ch = this.emojis_title.instances[i];
+                        if (ch.type == val) {
+                            this.emoji_subtitle.push({
+                                text : ch.text,
+                                id : i
+                            });
+                        }
+                    }
+                }
+            },
+            sel_selsubtitle : function(val) {
+                //var arr = val.split("-");
+                this.onclick_keymaplistitem(val,this.sel_seltitle);
             }
+        },
+        methods : {
+            onclick_keymaplistitem : function (index,type) {
+                if (type == "pict") {
+                    MYAPP.generateSelectedCharList(index);
+                }else if (type == "lett") {
+                    MYAPP.generateSelectedCharList(index+28);
+                }else if (type == "inst") {
+                    MYAPP.generateSelectedCharList_Instance(index);
+                }
+            },
+
         }
     });
 

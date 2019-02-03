@@ -43,9 +43,9 @@
                 
             </div>-->
         </div>
-        <div class="user-action-btns col2 elevation-2">
+        <div class="user-action-btns col2 elevation-2" v-if="stat.followed_by">
             
-            <span v-if="stat.followed_by">{? showRelationshpText() ?}</span>
+            <span >{? showRelationshpText() ?}</span>
         </div>
         <div class="user-action-btns col3 elevation-2">
             <v-layout row wrap>
@@ -129,9 +129,9 @@
             </ul>
         </div>
         <!-- tab content -->
-        <div id="basicinfo" class="col s12 tabcontent">
+        <div id="basicinfo" class="col s12 tabcontent" v-cloak>
             <p id="us_description" class="flow-text" v-html="note.replace('<p>','').replace('</p>','')" v-cloak></p>
-            <ul id="tbl_fields" class="collection" v-cloak>
+            <ul id="tbl_fields" class="collection" >
                 <li class="collection-item avatar" v-for="fld in fields">
                     <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
                     <span class="title">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[1] : fld.name ?}</span>
@@ -150,7 +150,7 @@
                 ></timeline-toot>
             </div>
         </div>
-        <div id="tt_public" class="col s12 tabcontent">
+        <div id="tt_public" class="col s12 tabcontent" v-cloak>
             <div class="pending_above_area" v-if="pending.above.is == true">
                 <v-layout row wrap >
                     <v-flex xs2 offset-xs4>
@@ -202,7 +202,7 @@
         <div id="tt_private" class="col s12 tabcontent">
 
         </div>-->
-        <div id="tt_follow" class="col s12 tabcontent">
+        <div id="tt_follow" class="col s12 tabcontent" v-cloak>
             <h3 v-if="is_vanished === true" v-cloak>{{ trans.msg_connection_vanish }}</h3>
             <div class="user-grid sizing">
                 <div class="user-grid-item" v-for="selected in accounts">
@@ -216,7 +216,7 @@
                 </div>
             </div>
         </div>
-        <div id="tt_follower" class="col s12 tabcontent">
+        <div id="tt_follower" class="col s12 tabcontent" v-cloak>
             <h3 v-if="is_vanished === true" v-cloak>{{ trans.msg_connection_vanish }}</h3>
             <div class="user-grid sizing">
                 <div class="user-grid-item" v-for="selected in accounts">

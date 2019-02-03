@@ -26,6 +26,7 @@ function defineForMainPage(app) {
             isappdialog : false,
         }
     });
+
     app.commonvue["cur_sel_account"] = new Vue({
         el : "#maincol_leftmenu",
         delimiters : ["{?", "?}"],
@@ -631,10 +632,35 @@ function defineForMainPage(app) {
                         path = MUtility.generate_userpagepath(this.saveitem.account[0]);
                         location.href = path;
                     }else{
-        
+                        this.status = null;
                         var d = new Gpstatus(this.saveitem.status,16);
                         this.status = d;
-                        this.boarding++;
+                        
+                        MYAPP.sns.getConversation(d.body.id, d.id, "")
+						.then((condata) => {
+                            var context = condata.data;
+                            for (var a = 0; a < context.ancestors.length; a++) {
+                                var ance = context.ancestors[a];
+                                var gcls = new Gpstatus(ance,14);
+                    
+                                context.ancestors[a] = gcls;
+                    
+                            }
+                            for (var a = 0; a < context.descendants.length; a++) {
+                                var desce = context.descendants[a];
+                                var gcls = new Gpstatus(desce,14);
+                    
+                                context.descendants[a] = gcls;
+                            }
+                            this.status.ancestors = context.ancestors;
+                            this.status.descendants = context.descendants;
+                        })
+                        .finally((a)=>{
+                            this.$nextTick(()=>{
+                                this.boarding++;
+                            });
+                        });
+
                     }
                 }
             },
@@ -776,6 +802,8 @@ function defineForMainPage(app) {
     app.commonvue["tootecard"] = new Vue({
         el : "#ov_toote",
         delimiters : ["{?", "?}"],
+        mixins : [vue_mixin_for_timeline],
+
         data : {
             is_overlaying : false,
 
@@ -897,72 +925,6 @@ function defineForMainPage(app) {
         },
         methods : {
             
-        }
-    });
-    app.commonvue["emojisheet"] = new Vue({
-        el : ".emoji-view",
-        delimiters : ["{?", "?}"],
-        data : {
-            is_sheet : false,
-            emojis_title : {
-                utf8 : [],
-                instances : []
-            },
-            emoji_seltitle : [
-                {"id" : "pict", "text" : "UTF-8" + _T("Pictogram") },
-                {"id" : "lett", "text" : "UTF-8" + _T("Letter") },
-                {"id" : "inst", "text" : _T("tbl_acc_col3")}
-            ],
-            emoji_subtitle : [],
-            sel_seltitle : "",
-            sel_selsubtitle : "",
-
-        },
-        watch : {
-            sel_seltitle : function (val) {
-                this.emoji_subtitle.splice(0,this.emoji_subtitle.length);
-                if ((val == "pict") || (val == "lett")) {
-                    for (var i = 0; i < this.emojis_title.utf8.length; i++) {
-                        var ch = this.emojis_title.utf8[i];
-                        var idi = i;
-                        if (val == "lett") {
-                            idi = i + 28;
-                        }
-                        if (ch.type == val) {
-                            this.emoji_subtitle.push({
-                                text : ch.text,
-                                id : idi
-                            });
-                        }
-                    }
-                }else{
-                    for (var i = 0; i < this.emojis_title.instances.length; i++) {
-                        var ch = this.emojis_title.instances[i];
-                        if (ch.type == val) {
-                            this.emoji_subtitle.push({
-                                text : ch.text,
-                                id : i
-                            });
-                        }
-                    }
-                }
-            },
-            sel_selsubtitle : function(val) {
-                //var arr = val.split("-");
-                this.onclick_keymaplistitem(val,this.sel_seltitle);
-            }
-        },
-        methods : {
-            onclick_keymaplistitem : function (index,type) {
-                if (type == "pict") {
-                    MYAPP.generateSelectedCharList(index);
-                }else if (type == "lett") {
-                    MYAPP.generateSelectedCharList(index+28);
-                }else if (type == "inst") {
-                    MYAPP.generateSelectedCharList_Instance(index);
-                }
-            },
-
         }
     });
     /*

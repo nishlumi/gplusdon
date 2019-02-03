@@ -37,33 +37,115 @@
 
     </HEAD>
     <body style="overflow:auto;">
-        <div id="ov_inputtoot" class="dmy_inputtoot" v-if="accounts.length > 0" v-cloak>
-            <v-app id="inspire">
-                <v-card width="100%" height="100%">
-            <!--% include  "onetoote.html"  %}-->
-                
-                <toot-inputbox
-                    :id="eid"
-                    :visibility="tootIB.visibility"
-                    :translation="translation"
-                    :globalinfo="globalinfo"
-                    :first_sharescope="tootIB.first_scope"
-                    :popuping="tootIB.popuping"
-                    :toolbtn="tootIB.btns"
-                    :accounts="accounts"
-                    :selaccounts="selaccounts"
-                    v-on:close="onclick_close"
-                    v-on:send="onclick_send"
-                ></toot-inputbox>
-            </v-card>
-            </v-app>
-        </div>
+        
+            <div id="ov_inputtoot" class="dmy_inputtoot" >
+                <v-app id="inspire" v-cloak>
+                    <template v-if="accounts.length > 0">
+                        <v-card width="100%" height="100%">
+                    <!--% include  "onetoote.html"  %}-->
+                        
+                            <toot-inputbox
+                                :id="eid"
+                                :visibility="tootIB.visibility"
+                                :translation="translation"
+                                :globalinfo="globalinfo"
+                                :first_sharescope="tootIB.first_scope"
+                                :popuping="tootIB.popuping"
+                                :toolbtn="tootIB.btns"
+                                :accounts="accounts"
+                                :selaccounts="selaccounts"
+                                v-on:close="onclick_close"
+                                v-on:send="onclick_send"
+                            ></toot-inputbox>
+                        </v-card>
+                    </template>
+                    <template v-else>
+                        <v-card>
+                            <div style="height:15rem;">
+                                <img src="/static/images/gp_initial_01.jpg"
+                                    class="initial-img-background"
+                                >
+                            </div>
+                            <v-card-title primary-title class="title-panel">
+                                <div>
+                                    <div class="initial-brand-title mb-0 ">
+                                        <img id="img_brand" src="/static/images/app_icon.png" width="52" height="52">
+                                        {{ sysinfo.fullname }}
+                                    </div>
+                                    <div>
+                                        <b>{{ trans.msg_ini_subtitle }}</b><br>
+                                    </div>
+                                </div>
+                            </v-card-title>
+                            <v-card-text>
+                                <v-layout wrap>
+                                    <v-flex xs12>
+                                        <b class="headline">
+                                            {{trans.msg_notlogin_myapp}}
+                                        </b>
+                                    </v-flex>
+                                    <v-flex xs12 sm12 md3>
+                                        <v-card>
+                                            <v-card-text primary-title>
+                                                <div>
+                                                    <div class="mb-2">
+                                                        {{trans.msg_ini_subtitle}}<br>
+                                                        {{trans.msg_ini_heading1}}
+                                
+                                                    </div>
+                                                    <div>
+                                                        {{trans.lab_version}}: {{sysinfo.version}}<br>
+                                                        {{trans.lab_author}}: {{sysinfo.author}}<br>
+                                                        {{trans.lab_advisor}}: 
+                                                        <ul>
+                                                            {% for  item in sysinfo.advisor %}
+                                                            <li>{{item}}</li>
+                                                            {% endfor %}
+                                                        </ul><br>
+                                                        <a href="https://github.com/nishlumi/gplusdon" target="_blank" rel="noopener">github</a>
+                                                    </div>
+                                                </div>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-flex>
+                                    <v-flex xs12 sm12 md9>
+                                        
+                                        <v-list dense>
+                                            <v-tooltip right>
+                                                <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/')" v-ripple>
+                                                    <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+                                                    <v-list-tile-content>
+                                                        <v-list-tile-title><span class="menulst_row title">{{trans.start_app}}</span></v-list-tile-title>
+                                                    </v-list-tile-content>
+                                                </v-list-tile>
+                                                <span>{{trans.btn_login}}</span>
+                                            </v-tooltip>
+                                            <v-tooltip right>
+                                                <v-list-tile slot="activator"  class="menulst_tile"  >
+                                                    <v-list-tile-action><v-icon>help</v-icon></v-list-tile-action>
+                                                    <v-list-tile-content>
+                                                        <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank"><span>{{trans.help}}</span></a>
+                                                    </v-list-tile-content>
+                                                </v-list-tile>
+                                                <span>{{trans.help}}</span>
+                                            </v-tooltip>
+                                        </v-list>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card-text>
+                        </v-card>
+                        
+                    </template>
+    
+                </v-app>
+            </div>
+            {% include  "onedialog2.html"  %}
 
         <div id="temporary_area"></div>
 
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
-        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id  ] %}
         <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
 
         <script src="/static/lib/polyfill.min.js"></script>

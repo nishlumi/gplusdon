@@ -259,6 +259,8 @@
                             v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
                             v-bind:content_body_style="content_body_style"
                             v-bind:globalinfo="globalInfo"
+                            v-on:replied_post="onreplied_children(status,index)"
+                            v-on:delete_toot="ondelete_toot_children"        
                         ></timeline-toot>
                     </v-card-text>
                 </v-card>
@@ -314,6 +316,7 @@
             
         </div>
         {% include  "onedialog.html"  %}
+        {% include  "onedialog2.html"  %}
         
         <div id="temporary_area"></div>
 

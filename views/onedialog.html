@@ -138,7 +138,7 @@
             </v-window-item>
             <v-window-item >
                 <div class="notiflist_card">
-                    <template v-if="status != null">
+                    <!--<template v-if="status != null">-->
                         <timeline-toot 
                             v-bind:translation="translations"
                             v-bind:toote="status"
@@ -148,8 +148,11 @@
                             v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
                             v-bind:content_body_style="content_body_style"
                             v-bind:globalinfo="globalInfo"
+                            v-on:replied_post="onreplied_children(status,index)"
+                            v-on:delete_toot="ondelete_toot_children"        
+
                         ></timeline-toot>
-                    </template>
+                    <!--</template>-->
                 </div>
             </v-window-item>
         </v-window>
@@ -209,105 +212,37 @@
         </v-card>
     </v-dialog>
 </div>
-<div class="emoji-view">
-    <v-bottom-sheet v-model="is_sheet"  class="white"
-        hide-overlay persistent  inset
-    >
-        <v-card>
-            <v-layout row wrap >
-                <v-flex xs12 sm5 md3 style="overflow:auto;padding:1rem;">
-                    
-                    <!--<details>
-                        <summary class="list_summary">UTF-8 {{ trans.Pictogram }} </summary>
-                        <v-list two-line full-width>
-                            <template v-for="(item, index) in emojis_title.utf8">
-                                <v-list-tile v-if="item.type == 'pict'" :key="index"  v-on:click="onclick_keymaplistitem(index,'pict')">
-                                    <v-list-tile-content>
-                                        <v-list-tile-title v-html="item.text"></v-list-tile-title>
-                                        <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                            </template>
-                        </v-list>
-                    </details>
-                    <details>
-                        <summary class="list_summary">UTF-8 {{ trans.Letter }}</summary>
-                        <v-list two-line full-width>
-                            <template v-for="(item, index) in emojis_title.utf8">
-                                <v-list-tile v-if="item.type == 'lett'" :key="index"  v-on:click="onclick_keymaplistitem(index,'lett')">
-                                    <v-list-tile-content>
-                                        <v-list-tile-title v-html="item.text"></v-list-tile-title>
-                                        <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                            </template>
-                        </v-list>
-                    </details>
-
-                    <details>
-                        <summary class="list_summary">{{ trans.tbl_acc_col3 }}</summary>
-                        <v-list two-line full-width>
-                            <v-list-tile  :key="index" v-for="(item, index) in emojis_title.instances" v-on:click="onclick_keymaplistitem(index,'inst')">
-                                <v-list-tile-content>
-                                    <v-list-tile-title v-html="item.text"></v-list-tile-title>
-                                    <v-list-tile-sub-title v-html="item.group"></v-list-tile-sub-title>
-                                </v-list-tile-content>
-                            </v-list-tile>
-                        </v-list>
-                    </details>-->
-                    
-                    <v-select
-                        :items="emoji_seltitle" v-model="sel_seltitle"
-                        box
-                        item-text="text" item-value="id"
-                    ></v-select>
-
-                    <v-select
-                        :items="emoji_subtitle" v-model="sel_selsubtitle"
-                        box
-                        item-text="text" item-value="id"
-                    ></v-select>
-                </v-flex>
-                <v-flex xs12 sm7 md9>
-                    <v-card flat>
-                        <div id="chararea"></div>    
-                    </v-card>
-                </v-flex>
-            </v-layout>
-        </v-card>
-    </v-bottom-sheet>
-</div>
 <div id="appverdlg">
-    <v-dialog
-        v-model="isappdialog"
-        transition="dialog-transition"
-        max-width="320px" 
-    >
-        <v-card>
-            <v-img src="/static/images/gp_og_image.png" width="320px" aspect-ratio="1.7"></v-img>
-            <v-card-title primary-title>
-                <div>
-                    <div class="mb-2">
-                        {{trans.msg_ini_subtitle}}<br>
-                        {{trans.msg_ini_heading1}}
-
-                    </div>
+        <v-dialog
+            v-model="isappdialog"
+            transition="dialog-transition"
+            max-width="320px" 
+        >
+            <v-card>
+                <v-img src="/static/images/gp_og_image.png" width="320px" aspect-ratio="1.7"></v-img>
+                <v-card-title primary-title>
                     <div>
-                        {{trans.lab_version}}: {{sysinfo.version}}<br>
-                        {{trans.lab_author}}: {{sysinfo.author}}<br>
-                        {{trans.lab_advisor}}: 
-                        <ul>
-                            {% for  item in sysinfo.advisor %}
-                            <li>{{item}}</li>
-                            {% endfor %}
-                        </ul>
-                        
+                        <div class="mb-2">
+                            {{trans.msg_ini_subtitle}}<br>
+                            {{trans.msg_ini_heading1}}
+    
+                        </div>
+                        <div>
+                            {{trans.lab_version}}: {{sysinfo.version}}<br>
+                            {{trans.lab_author}}: {{sysinfo.author}}<br>
+                            {{trans.lab_advisor}}: 
+                            <ul>
+                                {% for  item in sysinfo.advisor %}
+                                <li>{{item}}</li>
+                                {% endfor %}
+                            </ul><br>
+                            <a href="https://github.com/nishlumi/gplusdon" target="_blank" rel="noopener">github</a>
+                        </div>
                     </div>
-                </div>
-            </v-card-title>
-        </v-card>
-    </v-dialog>
-</div>
+                </v-card-title>
+            </v-card>
+        </v-dialog>
+    </div>
 <div id="mapviewer">
     <v-dialog v-model="dialog"
          :fullscreen="$vuetify.breakpoint.smAndDown"

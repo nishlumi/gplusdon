@@ -1044,16 +1044,15 @@ var MUtility = {
 		tt.ancestors = context.ancestors;
 		tt.descendants = context.descendants;
 
+		MYAPP.commonvue.tootecard.status = null;
 		MYAPP.commonvue.tootecard.status = tt;
 		MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
 
 
 		//---change each states
 		MYAPP.commonvue.tootecard.sizing_window();
-
-		MYAPP.commonvue.tootecard.$nextTick(function(){
-			MYAPP.commonvue.tootecard.is_overlaying = true;
-		})
+		MYAPP.commonvue.tootecard.is_overlaying = true;
+		
 		
 
 	}
@@ -1061,28 +1060,6 @@ var MUtility = {
 var gevts;
 function test_oran() {
 	var token = "";
-	/*var mst = new MastodonAPI({
-		instance: "https://oransns.com",
-		api_user_token: token,
-	});
-	mst.setConfig("stream_url",`wss://${token}@oransns.com`);
-	mst.stream("user",function(e){
-		console.log("oransns.com: server sents event=",e);
-	},function(e) {
-		console.log("EventSource failed.",e);
-	});*/
-	
-	/*
-	var url = "https://oransns.com/api/v1/streaming/user?access_token=";
-	gevts = new EventSource(url, { withCredentials: false } ); 
-	gevts.onmessage  = function (e) {
-		console.log("oransns.com: server sents event=",e.data);
-
-	}
-	gevts.onerror = function(e) {
-		console.log("EventSource failed.",e);
-	};
-	*/
 
 	var xmlHttpRequest=new XMLHttpRequest();
 	var lastResponse="";
@@ -1120,50 +1097,4 @@ function test_oran() {
 	xmlHttpRequest.open("GET","https://oransns.com/api/v1/streaming/user");
 	xmlHttpRequest.setRequestHeader("Authorization",`Bearer ${token}`);
 	xmlHttpRequest.send(null);
-}
-function testsend(isget) {
-	var path = "https://script.google.com/macros/s/AKfycbyGDXR5ju8n9bbiaJ0iap_86wJAGqmQvoWqOKxXu-A/dev";
-	if (isget) {
-		ID("hid_send_mode").value = "load";
-		ID("hid_send").action = path;
-		ID("hid_send").method = "get";
-		ID("hid_send").addEventListener("submit",function (e) {
-			
-			$.ajax({
-				url : path + "?mode=load",
-				method : "GET",
-			})
-			.then(result=>{
-				console.log("get success:",result);
-			});
-			e.preventDefault();
-			
-		},false);
-		document.hid_send.submit();
-
-	}else{
-		var testdata = {
-			mode : "save",
-			data : JSON.stringify(MYAPP.acman.items[0])
-		};
-		ID("hid_send_mode").value = testdata.mode;
-		ID("hid_send_data").value = testdata.data;
-		ID("hid_send").action = path;
-		ID("hid_send").method = "post";
-		ID("hid_send").addEventListener("submit",function (e) {
-			
-			$.ajax({
-				url : path,
-				method : "POST",
-				data : testdata
-			})
-			.then(result=>{
-				console.log("post success:",result);
-			});
-			e.preventDefault();
-			
-		},false);
-		document.hid_send.submit();
-
-	}
 }

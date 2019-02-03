@@ -380,7 +380,7 @@ div.collection a i.material-icons {
         /*top : 0px;
         left : 0px;
         height : 300px;*/
-        width : 450px;
+        width : 480px;
         min-height : 52px;
         max-height : 480px;
         overflow : hidden;
@@ -1398,6 +1398,11 @@ div.dragover_indicate {
 	border-radius : 0;
 	background-color : #454545;
 	color : #FFFFFF;
+}
+
+.nologin_layout {
+    width : 320px;
+    height : 190px;
 }
 
 /*====================================================

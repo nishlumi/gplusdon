@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.commonvue.inputtoot.otherwindow = true;
         MYAPP.commonvue.inputtoot.translation = curLocale.messages;
 
+        console.log(location.search);
+
         /*var issave = localStorage.getItem(MYAPP.commonvue.inputtoot.CNS_SAVENAME);
         if (issave) {
             var js = JSON.parse(issave);
@@ -54,10 +56,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         
     }, function (flag) {
-        appAlert("Mastodonインスタンスのアカウントが存在しません。最初にログインしてください。", function () {
-            var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/start";
+        /*appAlert(_T("msg_notlogin_myapp"), function () {
+            var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
-        });
+        });*/
     });
     location.hash = "";
 })();
