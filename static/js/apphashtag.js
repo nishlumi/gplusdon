@@ -7,30 +7,18 @@ var thisform = {
 function barancerTimelineType(type,id) {
     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
     if (type == "taglocal") {
-        vue_timeline.taglocal.info.tltype = vue_timeline.taglocal.seltype_current;
         vue_timeline.taglocal.statuses.splice(0,vue_timeline.taglocal.statuses.length);
-        vue_timeline.taglocal.loadTimeline(`tag/${id}`,{
-            api : {
-                local : true
-            },
-            app : {
-                tlshare : vue_timeline.tag.selshare_current,
-                exclude_reply : true,
-            }
-        });
+        var opt = vue_timeline.taglocal.forWatch_allcondition(vue_timeline.taglocal.tlcond.getReturn());
+        vue_timeline.taglocal.loadTimeline(`tag/${vue_timeline.taglocal.tagname}`,opt);
+
         notifAccount.account.streams.taglocal.setQuery("tag="+vue_timeline.taglocal.tagname);
         notifAccount.account.streams.taglocal.start();
 
     }else if (type == "tag") {
-        vue_timeline.tag.info.tltype = vue_timeline.tag.seltype_current;
         vue_timeline.tag.statuses.splice(0,vue_timeline.tag.statuses.length);
-        vue_timeline.tag.loadTimeline(`tag/${id}`,{
-            api : {},
-            app : {
-                tlshare : vue_timeline.tag.selshare_current,
-                exclude_reply : true,
-            }
-        });
+        var opt = vue_timeline.tag.forWatch_allcondition(vue_timeline.tag.tlcond.getReturn());
+        vue_timeline.tag.loadTimeline(`tag/${vue_timeline.tag.tagname}`,opt);
+
         notifAccount.account.streams.tag.setQuery("tag="+vue_timeline.tag.tagname);
         notifAccount.account.streams.tag.start();
 
@@ -208,43 +196,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 var et = ID("area_timeline");
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
-                //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.tag.info.tltype = vue_timeline.tag.seltype_current;
-                    vue_timeline.tag.statuses.splice(0,vue_timeline.tag.statuses.length);
-                    vue_timeline.tag.loadTimeline(`tag/${vue_timeline.tag.tagname}`,{
-                        api : {
-                            exclude_replies : true,
-                        },
-                        app : {
-                            tlshare : vue_timeline.tag.selshare_current,
-                            tltype : vue_timeline.tag.seltype_current,
-                            exclude_reply : true,
-                        }
-                    });
-                //}
+                //vue_timeline.tag.info.tltype = vue_timeline.tag.seltype_current;
+                vue_timeline.tag.statuses.splice(0,vue_timeline.tag.statuses.length);
+                var opt = vue_timeline.tag.forWatch_allcondition(vue_timeline.tag.tlcond.getReturn());
+                vue_timeline.tag.loadTimeline(`tag/${vue_timeline.tag.tagname}`,opt);
+
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                notifAccount.account.streams.taglocal.setQuery("tag="+vue_timeline.tag.tagname);
+                notifAccount.account.streams.tag.setQuery("tag="+vue_timeline.tag.tagname);
                 notifAccount.account.streams.tag.start();
                 notifAccount.account.streams.taglocal.stop();
             }else if (e.id == "tl_taglocal") {
                 var et = ID("area_timeline");
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
-                //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.taglocal.info.tltype = vue_timeline.taglocal.seltype_current;
-                    vue_timeline.taglocal.statuses.splice(0,vue_timeline.taglocal.statuses.length);
-                    vue_timeline.taglocal.loadTimeline(`tag/${vue_timeline.taglocal.tagname}`,{
-                        api : {
-                            exclude_replies : true,
-                            local : true,
-                        },
-                        app : {
-                            tlshare : vue_timeline.taglocal.selshare_current,
-                            tltype : vue_timeline.taglocal.seltype_current,
-                            exclude_reply : true,
-                        }
-                    });
-                //}
+                //vue_timeline.taglocal.info.tltype = vue_timeline.taglocal.seltype_current;
+                vue_timeline.taglocal.statuses.splice(0,vue_timeline.taglocal.statuses.length);
+                var opt = vue_timeline.taglocal.forWatch_allcondition(vue_timeline.taglocal.tlcond.getReturn());
+                vue_timeline.taglocal.loadTimeline(`tag/${vue_timeline.taglocal.tagname}`,opt);
+
                 var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                 notifAccount.account.streams.taglocal.setQuery("tag="+vue_timeline.taglocal.tagname);
                 notifAccount.account.streams.taglocal.start();

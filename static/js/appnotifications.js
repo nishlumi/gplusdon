@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_notifications = new Vue({
         el : "#notifcationview",
         delimiters : ["{?","?}"],
-        mixins : [vue_mixin_for_notification],
+        mixins : [vue_mixin_for_notification,vue_mixin_for_timeline],
         data() {
             return {
                 is_asyncing : false,

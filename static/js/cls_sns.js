@@ -1485,7 +1485,7 @@ class Gpsns {
         this.body["spoilered"] = this.body.spoiler_text != "" ? true : false;
         this.body["diff_created_at"] = translate_created_at;
         this.medias = this.body.media_attachments;
-        this.body.media_attachments = null;
+        //this.body.media_attachments = null;
         //this.body["visibility"] = curLocale.messages["tt_"+this.body.visibility];
         //---append if not existed property
         if (!("replies_count" in this.body)) { //---sample: pawoo.net, etc

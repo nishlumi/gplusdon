@@ -105,6 +105,12 @@ Vue.component("timeline-toot", {
 			reaction_accounts : [],
 
 			geomap : "",
+
+			//---request each updates
+			isupdate_request : {
+				reply : false
+			},
+
 		};
     },
     watch:  {
@@ -214,29 +220,36 @@ Vue.component("timeline-toot", {
 		
 	},
 	updated(){
-		if (this.toote.descendants.length > 0) {
-			if (this.isfirst) {
-				this.comment_stat.mini = true;
-				this.comment_stat.close = false;
-				this.first_comment_stat.mini = true;
-				this.first_comment_stat.close = false;
+		if ("descendants" in this.toote) {
+			if (this.toote.descendants.length > 0) {
+				if (this.isfirst) {
+					this.comment_stat.mini = true;
+					this.comment_stat.close = false;
+					this.first_comment_stat.mini = true;
+					this.first_comment_stat.close = false;
 
-				if (this.comment_viewstyle) {
-					for (var obj in this.comment_stat) {
-						this.comment_stat[obj] = this.comment_viewstyle[obj];
-						this.first_comment_stat[obj] = this.comment_viewstyle[obj];
+					if (this.comment_viewstyle) {
+						for (var obj in this.comment_stat) {
+							this.comment_stat[obj] = this.comment_viewstyle[obj];
+							this.first_comment_stat[obj] = this.comment_viewstyle[obj];
+						}
+						this.isshow_replyinput = true;
 					}
-					this.isshow_replyinput = true;
 				}
+				
+				this.isfirst = false;
 			}
-			
-			this.isfirst = false;
 		}
 		if (this.comment_list_area_viewstyle) {
 			this.comment_list_area_stat.default = this.comment_list_area_viewstyle.default;
 		}
 		if (this.content_body_style) {
 			this.toot_body_stat["sizing-fullmax"] = true;
+		}
+
+		if (this.isupdate_request.reply) {
+			this.apply_childReplyInput();
+			this.isupdate_request.reply = false;
 		}
 	},
 	methods: {
@@ -252,6 +265,19 @@ Vue.component("timeline-toot", {
 				selectaccount : `${selac.idname}@${selac.instance}`
 			};
 			return data;
+		},
+		set_replydata : function () {
+			this.reply_data = this.generateReplyObject(this.toote);
+		},
+		apply_childReplyInput : function () {
+			this.$refs.replyinput.select_mention();
+			this.$refs.replyinput.select_sender_account();
+			this.apply_initialReplyInputCounter();
+		},
+		apply_initialReplyInputCounter : function () {
+			if (this.$refs.replyinput) {
+				this.$refs.replyinput.calc_fulltext("");
+			}
 		},
 		favourite_reaction_msg : function() {
 			return _T("msg_reaction_fav_"+MYAPP.session.config.application.showMode);
@@ -312,25 +338,14 @@ Vue.component("timeline-toot", {
 			targetpath = `/users/${changeuri}`;
 			MUtility.enterFullpath(targetpath);
 		},
+		/**
+		 * To show toot as fullscreen view
+		 * @param {Event} e Event object
+		 */
         onclick_tt_datetime: function (e) {
 			console.log(e);
-			/*if (MYAPP.commonvue.tootecard.is_overlaying === true) {
-				MYAPP.commonvue.tootecard.is_overlaying = false;
-				return;
-			}*/
-			/*var target = e.target.parentElement.parentElement.parentElement.parentElement;
-			if (target.parentElement.classList.contains("onetoote_area")) {
-				return;
-			}*/
-			//---save insertion point element for clicking target element
-			/*MYAPP.session.status.pickupToote = target.nextElementSibling;
-			MYAPP.session.status.pickupDir = "next";
-			if (!target.nextElementSibling) {
-				MYAPP.session.status.pickupToote = target.previousElementSibling;
-				MYAPP.session.status.pickupDir = "prev";
-			}
-			MYAPP.session.status.pickupObjectToot = this;
-			*/
+
+			
 			if (this.issinglewindow) return;
 
 			//======old: the element moving mode
@@ -342,33 +357,17 @@ Vue.component("timeline-toot", {
 			MYAPP.commonvue.tootecard.status = this.toote;
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
 
+			this.reply_data = this.generateReplyObject(this.toote);
+			MYAPP.commonvue.tootecard.$nextTick(()=>{
+				MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
+				MYAPP.commonvue.tootecard.$refs.tootview.apply_childReplyInput();
+			});
 
 			//---change each states
 			///Q("div.onetoote_screen").classList.toggle("common_ui_off");
 			MYAPP.commonvue.tootecard.sizing_window();
 			MYAPP.commonvue.tootecard.is_overlaying = true;
 
-            //return;
-			//dest.classList.toggle("common_ui_off");
-			//console.log(target.querySelector(".toot_comment"));
-			//this.toot_body_stat["sizing-max"] = !this.toot_body_stat["sizing-max"];
-			//this.toot_body_stat["sizing-fullmax"] = !this.toot_body_stat["sizing-fullmax"];
-
-			//---setup media
-			/*if (target.querySelector(".card-image .carousel")) {
-				target.querySelector(".card-image .carousel").classList.toggle("fullsize");
-			}*/
-			//---setup comment
-			/*var toot_comment = target.querySelector(".toot_comment");
-			if (toot_comment) {
-				//toot_comment.classList.toggle("full");
-				//toot_comment.classList.remove("open");
-                //toot_comment.classList.remove("mini");
-                this.comment_stat.full =  true;
-                this.comment_stat.mini =  false;
-                this.comment_stat.open =  false;
-				target.querySelector(".toot_comment .collection").classList.toggle("sizing");
-			}*/
 			//---change URL
 			if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
 				MUtility.returnPathToList(MYAPP.session.status.currentLocation);
@@ -423,11 +422,16 @@ Vue.component("timeline-toot", {
 			target.classList.remove("is-veal");
 			target.classList.add("un-veal");
 		},
+		/**
+		 * Open comment area of the toot, and set up reply data
+		 * @param {Event} e event object
+		 */
 		onclick_ttbtn_reply: function (e) {
 			//console.log(e);
 			//---set up data for reply
 			this.reply_data = this.generateReplyObject(this.toote);
 			//this.replyinput.select_sender_account();
+			//this.call_replySetup();
 
 			//---set up view layout for reply
 			var target = e.target.parentElement.parentElement.nextElementSibling;
@@ -690,8 +694,7 @@ Vue.component("timeline-toot", {
 			this.mention_to_id = des.account.id;
 			this.reply_data.reply_to_id = des.body.id;
 			this.reply_data.reply_account = des.account;
-			this.$refs.replyinput.select_mention();
-			this.$refs.replyinput.select_sender_account();
+			this.apply_childReplyInput();
 
 			var editor = CKEDITOR.instances[this.popuping + "replyinput_"+this.toote.body.id];
 			//editor.editable().editor.insertText("@"+des.account.acct);

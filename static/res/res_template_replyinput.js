@@ -45,7 +45,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
                     <v-flex xs2>
                         <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
                     </v-flex>
-                    <v-flex x6 offset-xs5>
+                    <v-flex x3 offset-xs7>
                         <div class="">
                             <v-spacer></v-spacer>
                             <a class="btn_reply_cancel waves-effect waves-red btn-flat" 

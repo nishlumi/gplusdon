@@ -122,7 +122,7 @@ function load_following(options) {
             MUtility.loadingOFF();
             return;
         }
-        vue_connections.tabbar.following_count = result.data.length;
+        //vue_connections.tabbar.following_count = result.data.length;
 
         return result;
     })
@@ -198,7 +198,7 @@ function load_follower(options){
             MUtility.loadingOFF();
             return;
         }
-        vue_connections.tabbar.follower_count = result.data.length;
+        //vue_connections.tabbar.follower_count = result.data.length;
         
         return result;
     })
@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     appConfirm(msg,()=>{
                         MYAPP.sns.setFollowRequest(e.user.id,e.answer)
                         .then(result=>{
-                            var u = this.getAlreadyAccount(e.user.id);
+                            var u = this.getAlreadyAccount(e.user);
                             this.accounts.splice(u.index,1);
                         });
                     });

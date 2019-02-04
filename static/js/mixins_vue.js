@@ -36,8 +36,10 @@ var vue_mixin_for_account = {
 
 			var ids = [];
 			for (var i = 0; i < acdata.length; i++) {
-				ids.push(acdata[i].id);
-				this.accounts.push(acdata[i]);
+				if (!this.getAlreadyAccount(acdata[i])) {
+					ids.push(acdata[i].id);
+					this.accounts.push(acdata[i]);
+				}
 			}
 			/*MYAPP.sns.getRelationship(ids)
 			.then((result) => {
@@ -52,9 +54,9 @@ var vue_mixin_for_account = {
 			});
 			*/
 		},
-		getAlreadyAccount(id) {
+		getAlreadyAccount(ac) {
 			for (var i = 0; i < this.accounts.length; i++) {
-				if (id == this.accounts[i].id) {
+				if (ac.id == this.accounts[i].id) {
 					return { index: i, data: this.accounts[i] };
 				}
 			}
@@ -521,47 +523,11 @@ var vue_mixin_for_timeline = {
 							var tt = this.getParentToot(condata.parentID);
 							//console.log(condata.index, tt);
 							if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
-								/*var tmptt = Object.assign({}, tt.data, {
-									ancestors : condata[0].ancestors,
-									descendants : condata[0].descendants
-								});*/
-								/*var check_mediameta = function (toot) {
-									for (var i = 0; i < toot.media_attachments.length; i++) {
-										var data = toot.media_attachments[i];
-										if (data.meta == null) {
-											var img = GEN("img");
-											img.src = data.preview_url;
-											var asp = img.width / img.height;
-											if (img.height > img.width) {
-												asp = img.height / img.width;
-											}
-											data.meta = {
-												small: {
-													aspect: asp,
-													width: img.width,
-													height: img.height,
-													size: `${img.width}x${img.height}`
-												}
-											};
-										}
-									}
-									return toot;
-								}*/
+								
 								//console.log("ancester & descendants=", condata.data);
 								for (var a = 0; a < condata.data.ancestors.length; a++) {
 									var ance = condata.data.ancestors[a];
 									var gcls = new Gpstatus(ance,14);
-
-									/*var tmpan = MYAPP.extractTootInfo(ance.content);
-									var inst = MUtility.getInstanceFromAccount(ance.account.url);
-									var tmpname = ance.account.display_name == "" ? ance.account.username : ance.account.display_name;
-									ance.account.display_name = MUtility.replaceEmoji(tmpname,inst,ance.account.emojis,14);
-									
-									ance.created_at = new Date(ance.created_at);
-
-									ance["html"] = MUtility.replaceEmoji(ance.content,inst,ance.emojis,14);
-									ance.content = tmpan.text;
-									ance = check_mediameta(ance);*/
 
 									condata.data.ancestors[a] = gcls;
 
@@ -569,18 +535,6 @@ var vue_mixin_for_timeline = {
 								for (var a = 0; a < condata.data.descendants.length; a++) {
 									var desce = condata.data.descendants[a];
 									var gcls = new Gpstatus(desce,14);
-
-									/*var tmpan = MYAPP.extractTootInfo(desce.content);
-									var inst = MUtility.getInstanceFromAccount(desce.account.url);
-									var tmpname = desce.account.display_name == "" ? desce.account.username : desce.account.display_name;
-									desce.account.display_name = MUtility.replaceEmoji(tmpname,inst,desce.account.emojis,14);
-
-									desce.created_at = new Date(desce.created_at);
-
-									desce["html"] = MUtility.replaceEmoji(desce.content,inst,desce.emojis,14);
-									desce.content = tmpan.text;
-									desce = check_mediameta(desce);
-									*/
 
 									condata.data.descendants[a] = gcls;
 								}
@@ -592,10 +546,8 @@ var vue_mixin_for_timeline = {
 								this.$set(this.statuses[tt.index], "ancestors", condata.data.ancestors);
 								this.$set(this.statuses[tt.index], "descendants", condata.data.descendants);
 								this.statuses[tt.index].body.replies_count = condata.data.descendants.length;
-								//vue_user.tootes.statuses[index].ancestors = condata.ancestors;
-								//vue_user.tootes.statuses[index].descendants = condata.descendants;
-								this.$nextTick(function () {
-									return;
+								/*this.$nextTick(function () {
+									
 									console.log(this.$el);
 									var es = this.$el.querySelectorAll(".carousel");
 									console.log(es.length);
@@ -608,7 +560,8 @@ var vue_mixin_for_timeline = {
 									}
 									jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 									$("time.timeago").timeago();
-								});
+									
+								});*/
 							}
 						});
 					}
@@ -618,6 +571,7 @@ var vue_mixin_for_timeline = {
 						var targeturl = st.urls[0];
 						//console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
 						//---get GPHT
+						//====> Iam, denove mi ekzameos...
 						/*loadGPHT(st.url[0],data[i].id)
 						.then((result)=>{
 
@@ -683,17 +637,7 @@ var vue_mixin_for_timeline = {
 											if ("pixiv_cards" in tt.data.body) {
 												result.data["og:image"] = tt.data.body.pixiv_cards[0].image_url;
 												resolve(result);
-											} /*else {
-												var a = GEN("a");
-												var url = tt.data.body.uri.replace("users", "api");
-												url = url.replace(tt.data.account.username, "v1");
-
-												MYAPP.sns.originalGet(`${url}/card`, {})
-												.then(result_card => {
-													result.data["og:image"] = result_card.image;
-													resolve(result);
-												});
-											}*/
+											} 
 										} else {
 											resolve(result);
 										}
@@ -1006,7 +950,15 @@ var vue_mixin_for_timeline = {
             }else if (MYAPP.session.config.application.timeline_view == "3") {
                 this.timeline_gridstyle.width_3 = true;
             }
-		}
+		},
+		/**
+		 * call function of set up reply data (for from parent object)
+		*/
+		call_replySetup() {
+			//---generateReplyObject() exists in Vue.component("timeline-toot")
+			this.reply_data = this.$refs.tootview.generateReplyObject(this.toote);
+		},
+
 	}
 };
 //----------------------------------------------------------------------
@@ -1358,6 +1310,7 @@ var vue_mixin_for_inputtoot = {
 		},
 		onkeydown_inputcontent : function (e) {
 			if ((e.keyCode == 13) && (e.ctrlKey || e.metaKey)) {
+				this.onclick_send(e);
 				console.log("enter pos!");
 			}
 		},
@@ -1907,7 +1860,7 @@ var vue_mixin_for_notification = {
 			MYAPP.acman.save();
 		},
 		/**
-		 * 
+		 * push or unshift a notification data in account.notifications 
 		 * @param {AccountNotification} account target account
 		 * @param {Notification[]} datas notifications to insert
 		 * @param {Object} options options for API and APP
@@ -1979,7 +1932,7 @@ var vue_mixin_for_notification = {
 		},
 		//---event handler--------------------------
 		/**
-		 * 
+		 * click event of notification line
 		 * @param {AccountNotification} account target account
 		 * @param {Number} index index of AccountNotification.notifications
 		 */
@@ -1992,7 +1945,16 @@ var vue_mixin_for_notification = {
 				var d = new Gpstatus(this.saveitem.status,16);
 				this.status = d;
 
+				//MYAPP.commonvue.tootecard.call_replySetup();
+				//MYAPP.commonvue.tootecard.reply_data = MYAPP.commonvue.tootecard.$refs.tootview.generateReplyObject(this.status);
+				//MYAPP.commonvue.tootecard.$refs.tootview.isupdate_request.reply = true;
 				MYAPP.commonvue.tootecard.status = this.status;
+				//MYAPP.commonvue.tootecard.$refs.tootview.toote = this.status;
+				MYAPP.commonvue.tootecard.$nextTick(()=>{
+					MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
+					MYAPP.commonvue.tootecard.$refs.tootview.apply_initialReplyInputCounter();
+				});
+				
 				MYAPP.commonvue.tootecard.sizing_window();
 				MYAPP.commonvue.tootecard.is_overlaying = true;
 				//---change URL

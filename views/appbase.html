@@ -239,7 +239,7 @@
         </ul>
         <div id="ov_toote">
             <v-app>
-            <v-dialog v-model="is_overlaying" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+            <v-dialog v-model="is_overlaying" :hide-overlay="false" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
                 <v-card>
                     <v-card-title class="onetoote_cardtitle">
                         <v-btn icon  @click="onclick_close" >
@@ -250,7 +250,7 @@
                         </v-btn>
                     </v-card-title>
                     <v-card-text class="onetoote_cardtext overflow-y">
-                        <timeline-toot 
+                        <timeline-toot ref="tootview"
                             v-bind:translation="translations"
                             v-bind:toote="status"
                             v-bind:popuping="popuping"
@@ -317,7 +317,7 @@
         </div>
         {% include  "onedialog.html"  %}
         {% include  "onedialog2.html"  %}
-        
+
         <div id="temporary_area"></div>
 
         <!-- Current language: {{ lang }} -->

@@ -393,6 +393,7 @@ div.collection a i.material-icons {
     overflow-x : hidden;
     overflow-y : auto;
     -webkit-overflow-scrolling: touch;
+    width : 100%;
     height:calc(480px - 52px);
 }
 .notif_avatar_mark {
@@ -1315,16 +1316,19 @@ div.instances_body .card .card-content.card-account-content p {
     border : none;
 }
 .onetoot_inputcontent, .dmy_inputtoot .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent {
-	background-color: #EFEFEF;
+	background-color: rgb(241, 241, 241);
 	font-size : 1.2rem;
     color : #000000;
     overflow : auto;
     -webkit-overflow-scrolling: touch;
 	width : 100%;
-    height : calc(1.5rem * 5);
+    height : calc(1.7rem * 5);
     border-bottom : 0.1rem solid #C7C7C7;
     margin-bottom : 0.5rem;
     outline : none;
+}
+.onetoot_inputcontent, .dmy_inputtoot:focus .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent:focus {
+    border-bottom : 0.1rem solid #FF3434;
 }
 .onetoot_inputcontent p, .dmy_inputtoot .onetoot_inputcontent p, .template_reply_box .onetoot_inputcontent p {
     margin-bottom : 1px !important;    

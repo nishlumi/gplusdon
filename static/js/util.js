@@ -34,7 +34,7 @@ const SNSPROP = {
 	}
 };
 const LONGPOLLING_INSTANCE = [
-	"oransns.com"
+	
 ];
 var LeafIcon;;
 var redIcon;
@@ -1000,12 +1000,13 @@ var MUtility = {
 		}
 		for (var r = 0; r < re.length; r++) {
 			var rstr = re[r];
+			var ori_rstr = rstr.replace(/\:/g,"");
 			//---from emojis of toot
 			if (emojis) {
 				for (var i = 0; i < emojis.length; i++) {
 					var emo = emojis[i];
 					//console.log("emoji loop=",r,rstr,emo.shortcode,(rstr.indexOf(emo.shortcode) > -1));
-					if (rstr.indexOf(emo.shortcode) > -1) {
+					if (ori_rstr == emo.shortcode) {
 						var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
 						text = text.replace(rstr,img);
 						break;
@@ -1013,7 +1014,6 @@ var MUtility = {
 				}
 			}
 			//---from emojis of instance
-			var ori_rstr = rstr.replace(/\:/g,"");
 			if (ori_rstr in instemojis.data) {
 				var emo = instemojis.data[ori_rstr];
 				var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;

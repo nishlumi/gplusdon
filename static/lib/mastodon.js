@@ -296,6 +296,38 @@ var MastodonAPI = function (config) {
             }
             this.setConfig("stream_"+streamType,es);
         },
+        stream_noauth: function (streamType, onData, onError) {
+            // Event Stream Support
+            // websocket streaming is undocumented. i had to reverse engineer the fucking web client.
+            // streamType is either
+            // user for your local home TL and notifications
+            // public for your federated TL
+            // public:local for your home TL
+            // hashtag&tag=fuckdonaldtrump for the stream of #fuckdonaldtrump
+            // callback gets called whenever new data ist recieved
+            // callback { event: (eventtype), payload: {mastodon object as described in the api docs} }
+            // eventtype could be notification (=notification) or update (= new toot in TL)
+            var wss = this.getConfig("stream_url");
+            if (wss) {
+            	wss += "/api/v1/";
+            }else{
+            	wss = "wss://" + apiBase.substr(8);
+            }
+            var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
+                + "streaming?stream=" + streamType);
+            var listener = function (event) {
+                console.log("Got Data from Stream " + streamType);
+                event = JSON.parse(event.data);
+                event.payload = JSON.parse(event.payload);
+                onData(event);
+            };
+            es.onmessage = listener;
+            es.onclose = function (e) {
+            	console.log("wss closed:",e);
+            	onError(e);
+            }
+            this.setConfig("stream_"+streamType,es);
+        },
         closeStream : function (streamType) {
         	var es = this.getConfig("stream_"+streamType);
         	if (es && (es.readyState === 1)) {

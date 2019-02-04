@@ -645,7 +645,13 @@ function defineForMainPage(app) {
                         this.status = null;
                         var d = new Gpstatus(this.saveitem.status,16);
                         this.status = d;
-                        
+                        this.$refs.tootview.toote = this.status;
+                        this.$refs.tootview.set_replydata();
+                        this.$nextTick(()=>{
+                            this.$refs.tootview.apply_childReplyInput();
+            
+                        });
+        
                         MYAPP.sns.getConversation(d.body.id, d.id, "")
 						.then((condata) => {
                             var context = condata.data;
@@ -848,7 +854,7 @@ function defineForMainPage(app) {
         watch : {
             is_overlaying : function (val) {
                 if (!val) {
-                    this.status = {};
+                    //this.status = {};
 
                     //---change URL
                     if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
@@ -1074,6 +1080,12 @@ function defineForMainPage(app) {
                         elemName = ".tab-content.active";
                     }
                 }
+                if (Q(".hashtag_body")) {
+                    if (Q(".timelinebody")) {
+                        //Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        elemName = ".tab-content.active";
+                    }
+                }
                 //---/notifications
                 if (Q(".notifcation_body")) {
                     //ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
@@ -1147,6 +1159,9 @@ function defineForMainPage(app) {
             MYAPP.commonvue.inputtoot.sizing_window();
 
             MYAPP.commonvue.inputtoot.dialog = true;
+            MYAPP.commonvue.inputtoot.$nextTick(()=>{
+                Q(".onetoot_inputcontent").focus();
+            });
             
             
         });

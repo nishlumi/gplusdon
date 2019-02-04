@@ -104,7 +104,7 @@
                 </v-layout>
             </v-card-actions>
         </v-card>
-        <v-window v-model="boarding">
+        <v-window v-model="boarding" style="width:100%;height:100%;">
             <v-window-item >
                 <v-card class="notiflist_card">
                     <v-list two-line>
@@ -136,10 +136,10 @@
                     </v-list>
                 </v-card>
             </v-window-item>
-            <v-window-item >
+            <v-window-item style="width:100%;height:100%;">
                 <div class="notiflist_card">
                     <!--<template v-if="status != null">-->
-                        <timeline-toot 
+                        <timeline-toot ref="tootview"
                             v-bind:translation="translations"
                             v-bind:toote="status"
                             v-bind:popuping="popuping"

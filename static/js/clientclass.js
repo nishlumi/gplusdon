@@ -167,8 +167,8 @@ class Gplusdon {
                 
                 }
                 if (Q(".hashtag_body")) {
-                    notifAccount.account.streams.tag.setTargetTimeline(vue_timeline.public);
-                    notifAccount.account.streams.taglocal.setTargetTimeline(vue_timeline.public);
+                    notifAccount.account.streams.tag.setTargetTimeline(vue_timeline.tag);
+                    notifAccount.account.streams.taglocal.setTargetTimeline(vue_timeline.taglocal);
                 }
                 if (Q("#area_account")) {
                     notifAccount.account.stream.setTargetTimeline(vue_user.tootes);

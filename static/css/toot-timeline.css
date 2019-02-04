@@ -49,9 +49,9 @@
 div.toot_timeline_grid {
     display : grid;
     gap:  2rem;
-    grid-template-rows: minmax(3rem,auto);
+    grid-template-rows: minmax(2rem,auto);
     grid-auto-flow: dense;
-    grid-auto-rows : minmax(3rem,auto);
+    grid-auto-rows : minmax(2rem,auto);
     width : 100%;
     height : -moz-fit-content;
     height : fit-content;
@@ -132,7 +132,7 @@ div.toot_card_base {
     break-inside: avoid;
     page-break-inside: avoid;
     -webkit-column-break-inside: avoid;
-    margin-top: 3%;
+    margin-top: 1rem;
     border-radius: 3px;
 }
 .onetoote_area div.toot_card_base {
@@ -406,8 +406,7 @@ div.toot_card_base.g30 {
     right : 0;
     height : -moz-fit-content;
     height : fit-content;
-    width : -moz-fit-content;
-    width : fit-content;
+    width : 30%;
     border-radius: 0 0 0 5px;
 }
 .card-link .link-title.only {
