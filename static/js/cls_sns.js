@@ -849,10 +849,10 @@ class Gpsns {
                     data[i].account["instance"] = MUtility.getInstanceFromAccount(data[i].account.url);
                     data[i].account = [data[i].account];
                     if (data[i].type != "follow") {
-                    var div = GEN("div");
-                        div.innerHTML = data[i].status.content;
-                        data[i].status["html"] = data[i].status.content;
-                        data[i].status.content = div.textContent;
+                        //var div = GEN("div");
+                        //div.innerHTML = data[i].status.content;
+                        //data[i].status["html"] = data[i].status.content;
+                        //data[i].status.content = div.textContent;
                     }
                 }
                 
