@@ -581,8 +581,8 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 }
 .reply_input_count {
     position : absolute;
-    bottom : 5rem;
-    right : 4rem;
+    bottom : 1rem;
+    right : 2rem;
 }
 
 

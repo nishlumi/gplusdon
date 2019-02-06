@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_accounts").classList.add("active");
     //ID("sm_accounts").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
 

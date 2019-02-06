@@ -18,21 +18,27 @@ var menuStatus = {
 };
 /* GET users listing. */
 router.get('/', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('appaccounts', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
     });
 });
 router.get('/:instance/:id', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('appaccount', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus,
         instance: req.params.instance,

@@ -21,6 +21,8 @@ class Gplusdon {
         this.appinfo = cstappinfo;
 
         this.siteinfo = {
+            cke : "_gp_logined",
+            srv_inst : "mastodon.cloud",
             key: "",
             secret: "",
             token: "",
@@ -36,6 +38,10 @@ class Gplusdon {
         };
         
         this.acman = new AccountManager();
+
+        //---for no login user (call no-auth API)
+        this.server_account = new Account();
+        this.is_serveronly = false;
 
         this.session = new Gpsession();
         //---if session data from before page, load it.
@@ -307,14 +313,21 @@ class Gplusdon {
         //popup_ovuser.open();
         //}
     }
-    showBottomCtrl(flag) {
+    showPostCtrl(flag) {
         if (flag) {
             ID("btn_post_toote").classList.remove("common_ui_off");
-            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
-            ID("bottomnav").classList.remove("common_ui_off");
         }else{
             ID("btn_post_toote").classList.add("common_ui_off");
-            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
+        }
+    }
+    showBottomCtrl(flag) {
+        if (flag) {
+            //ID("btn_post_toote").classList.remove("common_ui_off");
+            //if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
+            ID("bottomnav").classList.remove("common_ui_off");
+        }else{
+            //ID("btn_post_toote").classList.add("common_ui_off");
+            //if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
             ID("bottomnav").classList.add("common_ui_off");
         }
     }
@@ -625,5 +638,20 @@ class Gplusdon {
         var openpath = srvurl+"toot/new";
         var features = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=yes,width=640,height=500"
         window.open(openpath,"_blank",features);
+    }
+    createTempAccount (instance) {
+        var def = new Promise((resolve,reject)=>{
+            this.server_account.instance = instance;
+            this.sns.getInstanceInfo(instance)
+            .then(result=>{
+                this.server_account.api = new MastodonAPI({
+                    instance: this.server_account.getBaseURL()
+                });
+                this.server_account.token["stream_url"] = result.urls.streaming_api;
+                this.server_account.api.setConfig("stream_url",this.server_account.token["stream_url"]);
+                resolve(this.server_account);
+            });
+        });
+        return def;
     }
 }

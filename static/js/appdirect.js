@@ -381,7 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_timeline").classList.add("active");
     //ID("sm_timeline").classList.add("active");
-    
+    MYAPP.showPostCtrl(false);
+    MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();
 });

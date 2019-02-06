@@ -111,14 +111,14 @@ span.badge {
     margin-right : 2rem;
     margin-top : 16px;
 }
-.notifmenu .userrectangle {
+/*.notifmenu .userrectangle {
     position: absolute;
     width: 40px;
     height: 40px;
     overflow: hidden;
     display: inline-block;
     vertical-align: middle;
-}
+}*/
 .userrectangle.basic40 {
     width: 40px;
     height: 40px;
@@ -370,7 +370,7 @@ div.collection a i.material-icons {
     height : 300px;*/
     width : 100%;
     min-height : 52px;
-    max-height : 480px;
+    height : 500px;
     overflow : hidden;
     z-index : 989;
 }
@@ -382,19 +382,27 @@ div.collection a i.material-icons {
         height : 300px;*/
         width : 480px;
         min-height : 52px;
-        max-height : 480px;
+        height : 500px;
         overflow : hidden;
         z-index : 989;
     }
 }
 
-
+.notifmenu .vwinsizing {
+    width : 100%;
+    height : calc(100% - 52px);
+    overflow-y : auto;
+}
+.notifmenu .v-window__container {
+    width : 100%;
+    height : 100%;
+}
 .notifmenu .notiflist_card {
     overflow-x : hidden;
-    overflow-y : auto;
+    /*overflow-y : auto;*/
     -webkit-overflow-scrolling: touch;
     width : 100%;
-    height:calc(480px - 52px);
+    height:calc(500px - 52px);
 }
 .notif_avatar_mark {
     position: absolute;
@@ -877,6 +885,7 @@ div.account_body .user-view .background {
     width : 100%;
     height : -moz-fit-content;
     height: fit-content;
+    /*height : 120px;*/
 }
 div.account_body .user-view .background img {
     width : 100%;
@@ -969,6 +978,13 @@ div.account_body .user-view .email {
     left: 2%;
     height: 64px;
     
+}
+.user-action-btns.inaccurate {
+    position: absolute;
+    top : 130px;
+    color : white;
+    height: 40px;
+
 }
 div.account_body .tabs .tab a {
     color : #F44336 !important;

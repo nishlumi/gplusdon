@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_settings").classList.add("active");
     //ID("sm_settings").classList.add("active");
-    MYAPP.showBottomCtrl(false);
+    MYAPP.showPostCtrl(true);
+    MYAPP.showBottomCtrl(true);
 
 
     MYAPP.setupCommonElement();

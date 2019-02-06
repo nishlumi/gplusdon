@@ -83,21 +83,26 @@ class Gpsns {
  */
     getToots(userid,options) {
         var def = new Promise((resolve,reject)=>{
-            if (this._accounts == null) {
-                reject(false);
-                return;
+            var retdef;
+            var targetid = userid == "me" ? this._accounts.id : userid;
+            if ("noauth" in options.app) {
+                retdef = MYAPP.server_account.api.get_noauth(`accounts/${targetid}/statuses`,options.api);
+            }else{
+                if (this._accounts == null) {
+                    reject(false);
+                    return;
+                }
+
+                /*
+                Get Accounts Statuses
+                the order following:
+                    1, pinned statuses
+                    2, normal statuses (any options)
+                */
+                retdef = this._accounts.api.get(`accounts/${targetid}/statuses`,options.api);
             }
 
-            /*
-              Get Accounts Statuses
-              the order following:
-                1, pinned statuses
-                2, normal statuses (any options)
-             */
-            var targetid = userid == "me" ? this._accounts.id : userid;
-
-            this._accounts.api.get(`accounts/${targetid}/statuses`,options.api)
-            .then((data,status,xhr)=>{
+            retdef.then((data,status,xhr)=>{
                 console.log(`accounts/${targetid}/statuses`,data, options);
                 var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
                 for (var i = 0; i < data.length; i++) {
@@ -115,12 +120,7 @@ class Gpsns {
     }
     getTimeline(type,options) {
         var def = new Promise((resolve,reject)=>{
-            if (this._accounts == null) {
-                reject(false);
-                return;
-            }
-            //var targetid = userid == "me" ? this._accounts.id : userid;
-
+            var retdef;
             var endpoint = "";
             if (type == "local") {
                 endpoint = `timelines/public`;
@@ -129,10 +129,19 @@ class Gpsns {
             }else{
                 endpoint = `timelines/${type}`;
             }
-            //console.log(endpoint);
+            if ("noauth" in options.app) {
+                retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
+            }else{
+                if (this._accounts == null) {
+                    reject(false);
+                    return;
+                }
+                //var targetid = userid == "me" ? this._accounts.id : userid;
 
-            this._accounts.api.get(endpoint,options.api)
-            .then((data,status,xhr)=>{
+                //console.log(endpoint);
+                retdef = this._accounts.api.get(endpoint,options.api);
+            }
+            retdef.then((data,status,xhr)=>{
                 console.log(endpoint,data,xhr.getAllResponseHeaders());
                 var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
                 for (var i = 0; i < data.length; i++) {
@@ -1670,7 +1679,7 @@ class Gpsns {
         qa = tmp.querySelectorAll("p a.hashtag");
         for (var i = 0; i < qa.length; i++) {
             var href = qa[i].href;
-            var fnlhref = `/tl/${qa[i].pathname}`;
+            var fnlhref = `/tl${qa[i].pathname}`;
             qa[i].href = fnlhref;
         }
 

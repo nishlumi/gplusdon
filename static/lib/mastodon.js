@@ -122,6 +122,30 @@ var MastodonAPI = function (config) {
                 error: onAjaxError(url, "GET", callback_fail)
             });
         },
+        get_noauth: function (endpoint) {
+            // for GET API calls
+            // can be called with two or three parameters
+            // endpoint, callback
+            // or
+            // endpoint, queryData, callback
+            // where queryData is an object { paramname1: "paramvalue1", paramname2: paramvalue2 }
+
+            var args = checkArgs(arguments);
+            var queryData = args.data;
+            var callback = args.callback;
+        	var callback_fail = args.callback_fail || function() {};
+            var url = apiBase + endpoint;
+
+            // ajax function
+            return $.ajax({
+                url: url,
+                type: "GET",
+                data: queryData,
+                //headers: addAuthorizationHeader({}, this.config.api_user_token),
+                success: onAjaxSuccess(url, "GET", callback, false),
+                error: onAjaxError(url, "GET", callback_fail)
+            });
+        },
         post: function (endpoint) {
             // for POST API calls
             var args = checkArgs(arguments);
@@ -314,7 +338,7 @@ var MastodonAPI = function (config) {
             	wss = "wss://" + apiBase.substr(8);
             }
             var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
-                + "streaming?stream=" + streamType);
+                + "streaming/?stream=" + streamType);
             var listener = function (event) {
                 console.log("Got Data from Stream " + streamType);
                 event = JSON.parse(event.data);

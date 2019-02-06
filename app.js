@@ -13,6 +13,7 @@ var packagejson = require('./package.json');
 
 var session = require("express-session");
 var csurf = require('csurf');
+var frameguard = require('frameguard')
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -58,13 +59,19 @@ app.use("/pwabuilder-sw-register.js", express.static(path.join(__dirname, 'pwabu
 app.use("/pwabuilder-sw.js", express.static(path.join(__dirname, 'pwabuilder-sw.js')));
 
 // set up i18n
-app.use(i18n({
+/*app.use(i18n({
     // available locale
     siteLangs: ['ja', 'en'],
     defaultLang: 'ja',
     // dictionary file path
     translationsPath: path.join(__dirname, "/static/strings"),
     textsVarName : "trans"
+}));*/
+
+// Allow from a specific host:
+app.use(frameguard({
+    action: 'allow-from',
+    domain: 'https://google.com'
 }));
 
 

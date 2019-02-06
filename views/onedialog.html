@@ -136,16 +136,18 @@
                     </v-list>
                 </v-card>
             </v-window-item>
-            <v-window-item style="width:100%;height:100%;">
-                <div class="notiflist_card">
-                    <!--<template v-if="status != null">-->
+            <v-window-item class="vwinsizing">
+                <div class="notiflist_card toot_timeline_grid">
+                    <!--<template v-if="status != null">
+                            v-bind:datastyle="datastyle"
+                            v-bind:comment_viewstyle="comment_viewstyle"
+                            v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
+
+                        -->
                         <timeline-toot ref="tootview"
                             v-bind:translation="translations"
                             v-bind:toote="status"
                             v-bind:popuping="popuping"
-                            v-bind:datastyle="datastyle"
-                            v-bind:comment_viewstyle="comment_viewstyle"
-                            v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
                             v-bind:content_body_style="content_body_style"
                             v-bind:globalinfo="globalInfo"
                             v-on:replied_post="onreplied_children(status,index)"

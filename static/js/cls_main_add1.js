@@ -311,7 +311,7 @@ function defineForMainPage(app) {
                     }*/
                 }
                 ID("ov_notif").classList.toggle("common_ui_off");
-                ID("ov_notif_menu").classList.toggle("scale-up-tr");        
+                //ID("ov_notif_menu").classList.toggle("scale-up-tr");        
                 MYAPP.commonvue.nav_notification.dialog = !MYAPP.commonvue.nav_notification.dialog;
             },
             onclick_search : function (e) {
@@ -389,9 +389,9 @@ function defineForMainPage(app) {
             popuping : "ov_",
             comment_viewstyle : {
                 close : false,
-                mini : false,
+                mini : true,
                 open : false,
-                full : true
+                full : false
             },
             comment_list_area_viewstyle : {
 				default : false
@@ -408,6 +408,8 @@ function defineForMainPage(app) {
 				staticpath : ""
 			},
             users : [],
+
+            tlcond : null,
 
             cons_savename : "gp_sv_notif"
         },
@@ -643,16 +645,22 @@ function defineForMainPage(app) {
                         location.href = path;
                     }else{
                         this.status = null;
-                        var d = new Gpstatus(this.saveitem.status,16);
-                        this.status = d;
-                        this.$refs.tootview.toote = this.status;
-                        this.$refs.tootview.set_replydata();
-                        this.$nextTick(()=>{
-                            this.$refs.tootview.apply_childReplyInput();
-            
-                        });
+                        //var d = new Gpstatus(this.saveitem.status,16);
+                        //this.status = d;
+                        this.statuses.splice(0,this.statuses.length);
+                        this.currentOption.app.tlshare = "tt_all";
+                        this.currentOption.app.exclude_reply = false;
+                        var tmpsta = this.generate_toot_detail({
+                            data : [this.saveitem.status],
+                            paging : {prev:"",next:""}
+                        },this.currentOption);
+                        //this.$refs.tootview.toote = this.status;
+                        //this.$refs.tootview.set_replydata(this.status);
+                        //this.$nextTick(()=>{
+                        //    this.$refs.tootview.apply_childReplyInput(); 
+                        //});
         
-                        MYAPP.sns.getConversation(d.body.id, d.id, "")
+                        /*MYAPP.sns.getConversation(d.body.id, d.id, "")
 						.then((condata) => {
                             var context = condata.data;
                             for (var a = 0; a < context.ancestors.length; a++) {
@@ -673,10 +681,13 @@ function defineForMainPage(app) {
                         })
                         .finally((a)=>{
                             this.$nextTick(()=>{
-                                this.boarding++;
+                                
                             });
+                        });*/
+                        tmpsta.then(result=>{
+                            this.status = result[0];
+                            this.boarding++;
                         });
-
                     }
                 }
             },

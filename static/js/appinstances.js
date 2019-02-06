@@ -278,6 +278,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_instances").classList.add("active");
     //ID("sm_instances").classList.add("active");
+    MYAPP.showPostCtrl(false);
+    MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();
 });

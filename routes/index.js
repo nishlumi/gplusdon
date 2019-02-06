@@ -1,6 +1,7 @@
 'use strict';
 var express = require('express');
 const fs = require("fs");
+var cls_mstdn = require("../apps/cls_mstdn");
 
 var ucommon = require('../apps/ucommon');
 var router = express.Router();
@@ -27,13 +28,18 @@ function clearStatus() {
 }
 /* GET home page. */
 router.get('/', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    /*var lan = req.acceptsLanguages();
+    var trans = ucommon.load_translation(req, lan);
+    var js = JSON.parse(trans);
+    ucommon.sysinfo.oginfo.description = js.appDescription;*/
+    var info = ucommon.analyze_locale(req);
     
     menuStatus.start = "active";
     res.render('appinitial', {
-        sysinfo : ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang : info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus,
         postarr: [1, 2, 3, 4, 5, 6]
@@ -41,26 +47,32 @@ router.get('/', function (req, res) {
 });
 
 router.get('/dashboard', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     
     res.render('appdashboard', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
     });
 });
 router.get('/test', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     menuStatus.dashboard = "active";
     res.render('appmain', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
@@ -71,18 +83,22 @@ router.get('/redirect', function (req, res) {
     //var trans = ucommon.load_translation(lan);
     res.render('redirect', {
         sysinfo: ucommon.sysinfo,
+        lang: info.lang,
         //transjs: trans
 
     });
 });
 router.get('/notifications', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     menuStatus.notifications = "active";
     res.render('appnotifications', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
@@ -90,25 +106,31 @@ router.get('/notifications', function (req, res) {
 });
 
 router.get('/settings', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     menuStatus.settings = "active";
     res.render('appsettings', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
     });
 });
 router.get('/s/:findtext', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     res.render('appsearch', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         findtext : req.params.findtext,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
@@ -116,12 +138,15 @@ router.get('/s/:findtext', function (req, res) {
     });
 });
 router.get('/terms', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     clearStatus();
     res.render('terms', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans : info.realtrans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 
@@ -152,7 +177,16 @@ router.get('/srv/geolocation', function (req, res) {
         res.send(result);
     });
 });
-
+router.get('/srv/accounts/:instance/:id', function (req, res) {
+    var api = cls_mstdn.loadAPImaster();
+    cls_mstdn.getUser(api, req.params.instance, req.params.id)
+        .then(result => {
+            res.send(result);
+        });
+    
+        
+    
+});
 
 
 module.exports = router;

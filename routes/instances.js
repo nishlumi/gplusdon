@@ -19,23 +19,29 @@ var menuStatus = {
 
 /* GET users listing. */
 router.get('/', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('appinstances', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         init_instance : "",
-        transjs: trans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
     });
 });
 router.get('/:instance', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('appinstances', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         init_instance: req.params.instance,
-        transjs: trans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
     });

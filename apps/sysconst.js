@@ -4,15 +4,18 @@ var sysconst = {
     server_token: function () {
         return "";
     },
+    server_mastodon_cloud: function () {
+        return "";
+    },
     vap_id: function () {
         return "BCGiOKTrNfAFmIPybyacC2UcM2y9zJlDCtacpZoX44U4QjkY1HtaLla0leTn5HWXUevOrSFwb3xunrHHffdPaek=";
     },
-    yh_id: "",
-    mab_id: "",
+    yh_id: "-",
+    mab_id: "..",
     package_info: packagejson,
     gdrive: {
         "web": {
-            "api_key": '',
+            "api_key": '-E',
             "client_id": "-.apps.googleusercontent.com",
             "project_id": "gplus-mastodon-webclient",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",

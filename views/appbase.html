@@ -21,12 +21,12 @@
         <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        <meta property="og:title" content="{{sysinfo.fullname}}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:description" content="複数アカウント対応、テキスト＆メディアが見やすく楽しいマストドンの新感覚ウェブクライアントです。" />
-        <meta property="og:url" content="https://gplusdon.net" />
-        <meta property="og:image" content="https://gplusdon.net/static/images/gp_og_image.png"/>
-        <meta property="og:site_name" content="{{sysinfo.fullname}}" />
+        <meta property="og:title" content="{{sysinfo.oginfo.title}}" />
+        <meta property="og:type" content="{{sysinfo.oginfo.type}}" />
+        <meta property="og:description" content="{{sysinfo.oginfo.description}}" />
+        <meta property="og:url" content="{{sysinfo.oginfo.url}}" />
+        <meta property="og:image" content="{{sysinfo.oginfo.image}}"/>
+        <meta property="og:site_name" content="{{sysinfo.oginfo.site_name}}" />
 
         <link rel="shortcut icon" href="/static/images/app_icon.png" >
         <link rel="manifest" href="/static/res/manifest.json" >
@@ -74,14 +74,14 @@
                             <div class="col s4 m6 l3">
                                 <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
                             </div>
-                            <div id="frm_search"  class="col l4 hide-on-med-and-down">
+                            <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
                                     <!--<div id="box_search" class="input-field col s12" style="padding:2px 0 2px 0;">
                                         <input id="inp_search" type="search" v-bind:value="findtext" class="navsearch grey lighten-3 black-text" style="margin:5px;border-radius:10px;" placeholder="search any">
                                         <label class="label-icon" for="search"><i class="material-icons black-text">search</i></label>
                                         <i class="material-icons black-text" v-on:click="onclick_searchClear">close</i>
                                     </div>-->
-                                    <v-text-field v-model="findtext"
+                                    <v-text-field v-model="findtext" v-show="applogined"
                                         flat clearable
                                         hide-details
                                         prepend-icon="search"
@@ -90,8 +90,8 @@
                                     ></v-text-field>
                                 </form>
                             </div>
-                            <div id="nav_btnbar" class="navcol-right col s6 m3 l3">
-                                <ul id="box_navright_btns" class="right">
+                            <div id="nav_btnbar" class="navcol-right col s6 m3 l3" v-cloak>
+                                <ul id="box_navright_btns" class="right" v-show="applogined">
                                     <li><div id="apploading" class="preloader-wrapper common_ui_hidden">
                                             <div class="spinner-layer spinner-red-only">
                                                 <div class="circle-clipper left">

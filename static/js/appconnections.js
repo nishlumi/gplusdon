@@ -335,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //ID("lm_connections").classList.add("active");
     //ID("sm_connections").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
 

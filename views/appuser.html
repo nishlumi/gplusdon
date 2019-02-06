@@ -16,10 +16,14 @@
                     <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
                     <span id="us_idname_instance" class="white-text email" v-cloak>{? full_acct ?}</span>
                 </div>
-                <v-icon v-if="rawdata.locked">lock</v-icon>
+                <v-tooltip bottom>
+                    <v-icon slot="activator" v-if="rawdata.locked">lock</v-icon>
+                    <span>{{trans.msg_locked}}</span>
+                </v-tooltip>
             </a>
         </div>
-        <div class="user-action-btns col1 elevation-2">
+        <div id="lab_inaccurate" class="user-action-btns inaccurate elevation-2 common_ui_off" >{{trans.msg_inaccurate}}</div>
+        <div class="user-action-btns col1 elevation-2" v-if="hide_on_noauth()">
             <v-layout column>
                 <v-flex xs12>
                     
@@ -49,7 +53,7 @@
         </div>
         <div class="user-action-btns col3 elevation-2">
             <v-layout row wrap>
-                <v-flex xs12>
+                <v-flex xs12 v-if="hide_on_noauth()">
                     <!--<v-tooltip bottom>
                         <v-btn flat small icon dark color="white" v-on:click="onclick_mention" slot="activator">
                             <v-icon>alternate_email</v-icon>
@@ -74,7 +78,7 @@
                     
                     <!--<a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_mention" data-position="bottom" data-tooltip="{{trans.to_mention}}"><i class="material-icons">alternate_email</i></a>-->
                 </v-flex>
-                <v-flex xs12>
+                <v-flex xs12 v-if="hide_on_noauth()">
                     <!--<a class="waves-effect waves-red white-text tooltipped" v-on:click="onclick_directmsg" data-position="bottom" data-tooltip="{{trans.to_directmsg}}"><i class="material-icons">email</i></a>-->
                     <v-tooltip bottom>
                         <v-btn flat icon color="white" slot="activator" v-on:click="onclick_directmsg">
@@ -93,7 +97,7 @@
                     </v-tooltip>
                     
                 </v-flex>
-                <v-flex xs12>
+                <v-flex xs12 v-if="hide_on_noauth()">
                     <!--<a class="waves-effect waves-red white-text dropdown-trigger" data-target='dropdown1'><i class="material-icons">more_vert</i></a>
                     -->
                     <v-btn flat icon color="white" class="dropdown-trigger" data-target='dropdown1'>
@@ -235,7 +239,7 @@
 <input type="hidden" id="hid_instance" value="{{instance}}" />
 <input type="hidden" id="hid_uid" value="{{uid}}" />
 <input type="hidden" id="hid_page" value="{{page}}" />
-<input type="hidden" id="hid_id" value="" />
+<input type="hidden" id="hid_id" value="{{realid}}" />
 <input type="hidden" id="hid_userdata" value="{{userdata}}" />
 <input type="hidden" id="hid_onetoote" value="{{onetoote}}" />
 {% endblock %}

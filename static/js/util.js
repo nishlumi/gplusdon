@@ -168,11 +168,11 @@ function setupLocale(params){
 	//URL引数から hl=* を取得
 	var p_lng = (params["hl"] ? params["hl"] : "");
 	
-	var arr = String(navigator.language).split("-");
-	var curloc = arr[0];
+	//var arr = String(navigator.language).split("-");
+	var curloc = document.body.parentElement.lang;
 	if (p_lng == "") {
 		curLocale.name = curloc;
-		curLocale.fullName = navigator.language;
+		curLocale.fullName = curloc;
 	}else{
 		curLocale.name = p_lng;
 		curLocale.fullName = p_lng;
@@ -192,27 +192,6 @@ function setupLocale(params){
 	});
 	return def2;
 
-	var prm = new URLSearchParams();
-	prm.append("srclang",curLocale.name);
-	var req = new Request(ID("hid_staticpath").value + ID("hid_currentlocale").value,{
-		method : "POST",
-		body : prm
-	});
-	var def2 = new Promise((resolve,reject)=>{
-		return fetch(req).then((res)=>{
-			console.log("fetch res=",res);
-			if (res.ok) {
-				return res.json().then((jsdata)=>{
-					console.log("success locale");
-					console.log(jsdata);
-					curLocale.messages = jsdata;
-					resolve(jsdata);
-				});
-			}
-		});
-	
-	});
-	return def2;
 
 }
 function checkBrowser(){
@@ -710,7 +689,8 @@ function checkRange(min,val,max){
  */
 var AppStorage = {
     apptype: "",
-    filename: "gpdn.db",
+	filename: "gpdn.db",
+	islocal : true,
     data: {},
     isEnable: function () {
         if (Windows.Storage.ApplicationData.current.localSettings) {
@@ -724,7 +704,11 @@ var AppStorage = {
         if (curLocale.environment.platform == "windowsapp") {
             a = Windows.Storage.ApplicationData.current.localSettings.values[key];
         } else {
-            a = localStorage.getItem(key);
+			if (this.islocal) {
+				a = localStorage.getItem(key);
+			}else{
+				a = sessionStorage.getItem(key);
+			}
         }
         if (!a) {
             a = defaults;
@@ -738,21 +722,33 @@ var AppStorage = {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values[key] = JSON.stringify(value);
         } else {
-            localStorage.setItem(key, JSON.stringify(value));
+			if (this.islocal) {
+				localStorage.setItem(key, JSON.stringify(value));
+			}else{
+				sessionStorage.setItem(key, JSON.stringify(value));
+			}
         }
     },
     remove: function (key) {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values.remove(key);
         } else {
-            localStorage.removeItem(key);
+			if (this.islocal) {
+				localStorage.removeItem(key);
+			}else{
+				sessionStorage.removeItem(key);
+			}
         }
     },
     clear: function () {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values.clear();
         } else {
-            localStorage.clear();
+			if (this.islocal) {
+				localStorage.clear();
+			}else{
+				sessionStorage.clear();
+			}
         }
     },
     initialize: function (callback) {
@@ -875,6 +871,14 @@ var MUtility = {
 		var retpath;
 		retpath = `/users/${account.instance}/${account.username}`;
 		return retpath;
+	},
+	generate_hashtagpath : function (tag) {
+		var url = `/tl/tags/${encodeURIComponent(tag)}`;
+		return url;
+	},
+	generate_instanceOriginalURL : function (current_account,toote) {
+		var url = `https://${current_account.instance}/web/statuses/${toote.body.id}`;
+		return url;
 	},
 	generate_searchQuery(path) {
 		var a = path.replace("?","");

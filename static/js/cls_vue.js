@@ -220,7 +220,7 @@ Vue.component("timeline-toot", {
 		
 	},
 	updated(){
-		if ("descendants" in this.toote) {
+		if ((this.toote) && ("descendants" in this.toote)) {
 			if (this.toote.descendants.length > 0) {
 				if (this.isfirst) {
 					this.comment_stat.mini = true;
@@ -253,7 +253,10 @@ Vue.component("timeline-toot", {
 		}
 	},
 	methods: {
-        //---some function----------------------------------------
+		//---some function----------------------------------------
+		hide_on_noauth : function () {
+			return !this.globalinfo.is_serveronly;
+		},
 		replyElementId: function (reply) {
 			return this.popuping + "reply_" + reply.id;
 		},
@@ -266,8 +269,9 @@ Vue.component("timeline-toot", {
 			};
 			return data;
 		},
-		set_replydata : function () {
-			this.reply_data = this.generateReplyObject(this.toote);
+		set_replydata : function (paramtoote) {
+			
+			this.reply_data = this.generateReplyObject(paramtoote ? paramtoote : this.toote);
 		},
 		apply_childReplyInput : function () {
 			this.$refs.replyinput.select_mention();
@@ -284,6 +288,12 @@ Vue.component("timeline-toot", {
 		},
 		reblog_reaction_msg : function() {
 			return _T("msg_reaction_bst_"+MYAPP.session.config.application.showMode);
+		},
+		get_instance_original_url : function (toote) {
+			return MUtility.generate_instanceOriginalURL(MYAPP.commonvue.cur_sel_account.account,toote);
+		},
+		get_tagurl : function (tag) {
+			return MUtility.generate_hashtagpath(tag);
 		},
 		get_mapurl : function (location,index) {
 			this.geomap =  MUtility.getStaticMap(location,MYAPP.session.config.application.map_type,index);

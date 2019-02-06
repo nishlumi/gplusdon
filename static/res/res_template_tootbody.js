@@ -192,7 +192,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div> 
     </div>  
 <!-----reaction for the toot-->
-    <div class="toot_content_action toot_action bottom"> 
+    <div class="toot_content_action toot_action bottom" v-if="hide_on_noauth"> 
         <v-tooltip bottom>
             <v-btn icon slot="activator" v-on:click="onclick_ttbtn_reply">
                 <v-icon>reply</v-icon>
@@ -246,7 +246,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </v-dialog> 
     </div> 
 <!-----reply area for the toot-->
-    <div class="toot_comment" v-bind:class="comment_stat">  
+    <div class="toot_comment" v-bind:class="comment_stat">
 <!-----reply commennt list -->
         <div class="comment-list-area" v-bind:class="comment_list_area_stat">
             <ul class="collection comment-list" v-bind:class="elementStyle.commentList"> 
@@ -358,7 +358,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             </ul>
         </div>
         <!-----reply input box-->
-        <div class="toot_comment root_reply"> 
+        <div class="toot_comment root_reply" v-if="hide_on_noauth">
             <reply-inputbox ref="replyinput"
                 v-bind:popuping="popuping"
                 v-bind:id="toote.id"
@@ -424,14 +424,50 @@ const CONS_TEMPLATE_TOOTBODY = `
             <a href="#" class="collection-item">{{ toote.translateText.thisuser_report }}</a>
             </template>
         </div>  -->
-        <dl>  
+        <dl>
+            <dt>{{translation.lab_each_info}}</dt>
+            <dd>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <a :href="get_instance_original_url(toote)" target="_blank">{{translation.lab_instance_original}}}</a>
+                    </v-flex>
+                    <v-flex xs4>
+                            {{translation.lab_original_postdate}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <span>{{toote.body.created_at}}</span>
+                        </v-flex>
+                        <v-flex xs4>
+                            {{translation.lab_language}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <span>{{toote.body.language}}</span>
+                        </v-flex>
+                        <v-flex xs4>
+                            {{translation.lab_source_app}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <template v-if="toote.body.application">
+                                <template v-if="toote.body.application.website != ''">
+                                    <a :href="toote.body.application.website" target="_blank">{{toote.body.application.name}}</a>
+                                </template>
+                                <template v-else>
+                                    <span>{{toote.body.application.name}}</span>
+                                </template>
+                            </template>
+                            <template v-else>
+                                {{translation.lab_unknown}}
+                            </template>
+                        </v-flex>
+                    </v-layout>
+            </dd>
             <dt>{{ translation.mentions }}</dt>  
             <dd>  
             <span class="chip" v-for="men in toote.mentions">{{ men }}</span>  
             </dd>  
             <dt>{{ translation.tags }}</dt>  
-            <dd>  
-            <span class="chip" v-for="tag in toote.tags">{{ tag }}</span>  
+            <dd>
+            <a class="chip" v-for="tag in toote.tags" :href="get_tagurl(tag)">{{ tag }}</a>  
             </dd>  
         </dl>  
         </div>  

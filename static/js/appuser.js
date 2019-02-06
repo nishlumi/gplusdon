@@ -26,10 +26,6 @@ function loadUserInfo_body(result) {
     vue_user.basicinfo.translations = Object.assign({},curLocale.messages);*/
     vue_user.basicinfo.setData(result.data);
     vue_user.basicinfo.statuses.splice(0,vue_user.basicinfo.statuses.length);
-    vue_user.basicinfo.loadPinnedToot(vue_user.basicinfo.id,{
-        api : {}, 
-        app : {}
-    });
 
     vue_user.tabbar.status_count = result.data.statuses_count;
     vue_user.tabbar.following_count = result.data.following_count;
@@ -42,10 +38,19 @@ function loadUserInfo_body(result) {
     vue_user.follower.accounts.splice(0,vue_user.follower.accounts.length);
     vue_user.follower.setData(result.data);
 
-    //---stream showing user only
-    vue_user.userview.currentAccount.stream.setTargetTimeline(vue_user.tootes);
-    vue_user.userview.currentAccount.stream.setFilter(result.data);
+    var apiopt = {
+        api : {}, 
+        app : {}
+    };
+    if (vue_user.userview.is_serveronly) {
+        apiopt.app["noauth"] = true;
+    }else{
+        //---stream showing user only
+        vue_user.userview.currentAccount.stream.setTargetTimeline(vue_user.tootes);
+        vue_user.userview.currentAccount.stream.setFilter(result.data);
+    }
 
+    vue_user.basicinfo.loadPinnedToot(vue_user.basicinfo.id,apiopt);
     MYAPP.setGeneralTitle(result.data.display_name);
 
 
@@ -231,8 +236,8 @@ function load_follower(userid, options){
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
-    MYAPP.showBottomCtrl(true);
-
+    MYAPP.showPostCtrl(false);
+    MYAPP.showBottomCtrl(MYAPP.commonvue.cur_sel_account.applogined);
 
     MYAPP.setupCommonElement();
 });
@@ -258,6 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
             delimiters : ["{?","?}"],
             data : {
                 is_asyncing : false,
+                is_serveronly : false,
                 header : "",
                 avatar : "",
                 display_name : "",
@@ -283,9 +289,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     showing_reblogs : {
                         "red-text" : false,
                         "black-text" : true
+                    },
+                    inaccurate : {
+                        common_ui_off : true,
                     }
                 },
                 currentAccount : null,
+            },
+            Updated() {
+                this.show_inaccurate();
             },
             computed : {
                 full_acct : function (){
@@ -303,9 +315,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     }else{
                         return _T("to_show_share_" + MYAPP.session.data.config.application.showMode);
                     }
-                }
+                },
             },
             methods : {
+                hide_on_noauth : function () {
+                    return !this.is_serveronly;
+                },
+                show_inaccurate : function () {
+                    if (this.is_serveronly) {
+                        ID("lab_inaccurate").classList.remove("common_ui_off");
+                        return true;
+                    }else if (MYAPP.commonvue.cur_sel_account.account.instance != this.instance) {
+                        ID("lab_inaccurate").classList.remove("common_ui_off");
+                        return true;
+                    }else{
+                        return false;
+                    }
+                },
                 getUserDataForNewToot : function () {
                     var targetuser = {
                         avatar : this.rawdata.avatar,
@@ -559,7 +585,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 fields : [],
                 translations : {},
                 globalInfo : {
-                    staticpath : MYAPP.appinfo.staticPath
+                    staticpath : MYAPP.appinfo.staticPath,
+                    is_serveronly : false,
                 },
                 statuses : [],
             },
@@ -746,6 +773,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });*/
                     var opt = vue_user.tootes.forWatch_allcondition(vue_user.tootes.tlcond.getReturn());
+                    if (vue_user.userview.is_serveronly) {
+                        opt.app["noauth"] = true;
+                    }
                     vue_user.tootes.loadTimeline(vue_user.tootes.id,opt);
                 }
             }else if (e.id == "tt_follow") {
@@ -919,6 +949,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 
+    //---set up for no login state (indipendent login)
+    vue_user.following.globalInfo = {
+        firstPath : MYAPP.appinfo.firstPath
+    };
+    vue_user.follower.globalInfo = {
+        firstPath : MYAPP.appinfo.firstPath
+    };
+
+    MYAPP.session.status.currentLocation = `/users/${ID("hid_instance").value}/${ID("hid_uid").value}`; //location.pathname;
+
+    vue_user.tootes.translations = curLocale.messages;
+    vue_user.userview.translations = curLocale.messages;
+
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         //MYAPP.acman.checkVerify();
@@ -930,29 +973,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!ac) ac = data[0];
         //generate_account_info(ac);
         
-        /*var tmpac = new Account();
-        tmpac.load(ac);
-        vue_user.userview.header = tmpac.rawdata.header;
-        vue_user.userview.avatar = tmpac.rawdata.avatar;
-        vue_user.userview.display_name = tmpac.display_name;
-        vue_user.userview.idname = tmpac.idname;
-        vue_user.userview.instance = tmpac.instance;
-
-        vue_user.basicinfo.note = tmpac.rawdata.note;
-        vue_user.basicinfo.fields = vue_user.basicinfo.fields.concat(tmpac.rawdata.fields);
-        vue_user.basicinfo.translations = Object.assign({},curLocale.messages);
-        */
-       vue_user.following.globalInfo = {
-            firstPath : MYAPP.appinfo.firstPath
-        };
-        vue_user.follower.globalInfo = {
-            firstPath : MYAPP.appinfo.firstPath
-        };
-
-        MYAPP.session.status.currentLocation = `/users/${ID("hid_instance").value}/${ID("hid_uid").value}`; //location.pathname;
-
-        vue_user.tootes.translations = Object.assign({},curLocale.messages);
-        vue_user.userview.translations = Object.assign({},curLocale.messages);
         /*var elem = document.querySelector("#tbl_acc tbody");
         for (var i = 0; i < MYAPP.acman.items.length; i++) {
             elem.appendChild(generate_account_row(MYAPP.acman.items[i]));
@@ -987,10 +1007,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         
     }, function (flag) {
-        appAlert(_T("msg_notlogin_myapp"), function () {
+        /*appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
-        });
+        });*/
+        vue_user.userview.is_serveronly = true;
+        vue_user.basicinfo.globalInfo.is_serveronly = true;
+        vue_user.tootes.globalInfo.is_serveronly = true;
+        var serverdata = JSON.parse(ID("hid_userdata").value);
+        console.log(serverdata);
+        if ("acct" in serverdata) {
+            MYAPP.createTempAccount(serverdata.instance)
+            .then(result=>{
+                vue_user.userview.loadUserInfoDirect(serverdata);
+            });
+        }
     });
     location.hash = "";
 })();

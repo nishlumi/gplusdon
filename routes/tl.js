@@ -18,52 +18,64 @@ var menuStatus = {
 };
 /* GET users listing. */
 router.get('/', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('apptimeline', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         "timelinetype": "home",
         timelinetypeid: "",
-        transjs: trans,
         csrfToken: req.csrfToken(),
         onetoote : "",
         menustat: menuStatus
     });
 });
 router.get('/:type', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('apptimeline', {
-        sysinfo : ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         "timelinetype": req.params.type,
         timelinetypeid: "",
-        transjs: trans,
         csrfToken: req.csrfToken(),
         onetoote: "",
         menustat: menuStatus
     });
 });
 router.get('/lists/:type', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('apptimeline', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         "timelinetype": "list",
         timelinetypeid: req.params.type,
-        transjs: trans,
         csrfToken: req.csrfToken(),
         onetoote: "",
         menustat: menuStatus
     });
 });
 router.get('/tags/:type', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('apphashtag', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         "timelinetype": "tags",
         timelinetypeid: req.params.type,
-        transjs: trans,
         csrfToken: req.csrfToken(),
         onetoote: "",
         menustat: menuStatus

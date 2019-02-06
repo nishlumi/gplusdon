@@ -94,7 +94,8 @@ var vue_mixin_for_timeline = {
 			},
 			translations : {},
 			globalInfo : {
-				staticpath : ""
+				staticpath : "",
+				is_serveronly : false,
 			},
 			statuses : [],
 			timeline_gridstyle : {
@@ -115,22 +116,13 @@ var vue_mixin_for_timeline = {
 					statuses : [],
 				}
 			},
-			/*
-			grid_conf : {
-				columnWidth : 200,
-				duration : 100,
-				gutter : 10,
-			},
-			wrapperSize: {
-				width: 0,
-			},
-			grid : {} //wrapperSize.width <= 768 ? '100%' : grid_conf.columnWidth
-			*/
+			is_serveronly : false,
 		}
 	},
 	created() {
 		if (MYAPP) {
 			this.globalInfo.staticpath = MYAPP.appinfo.staticPath;
+			
 		}
 	},
 	mounted() {
@@ -443,6 +435,9 @@ var vue_mixin_for_timeline = {
 			});
 		},
 		//---some function----------------------------------------------
+		hide_on_noauth : function () {
+			return !this.is_serveronly;
+		},
 		clearPending : function() {
 			this.pending.above.statuses.splice(0,this.pending.above.statuses.length);
 			this.pending.above.waiting = false;
@@ -752,20 +747,9 @@ var vue_mixin_for_timeline = {
 					}
 					*/
 				}
-				
-				return;
-				var es = this.$el.querySelectorAll(".carousel");
-				console.log(es.length);
-				for (var i = 0; i < es.length; i++) {
-					M.Carousel.init(es[i], {
-						dist: 0,
-						fullWidth: true,
-						indicators: true
-					});
-				}
-				jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
-				$("time.timeago").timeago();
+
 			});
+			return Promise.resolve(this.statuses);
 		},
 
 		/**

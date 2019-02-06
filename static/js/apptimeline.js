@@ -15,7 +15,10 @@ function barancerTimelineType(type,id) {
     }else if (type == "list") {
         vue_timeline.list.tlcond.listtype = id;
         vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
-        vue_timeline.list.loadTimeline(type,{
+        var opt = vue_timeline.list.forWatch_allcondition(vue_timeline.list.tlcond.getReturn());
+        opt.app.listid = id;
+        vue_timeline.list.loadTimeline(type,opt);
+        /*vue_timeline.list.loadTimeline(type,{
             api : {},
             app : {
                 listid : id,
@@ -23,20 +26,20 @@ function barancerTimelineType(type,id) {
                 tltype : vue_timeline.list.tlcond.tltype,
                 exclude_reply : true,
             }
-        });
+        });*/
     }else if (type == "local") {
         //vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
         vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
         vue_timeline.local.loadTimeline(type,{
             api : {},
-            app : vue_timeline.home.currentOption.app
+            app : vue_timeline.local.currentOption.app
         });
     }else if (type == "public") {
         //vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
         vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
         vue_timeline.public.loadTimeline(type,{
             api : {},
-            app : vue_timeline.home.currentOption.app
+            app : vue_timeline.public.currentOption.app
         });
     }
 }
@@ -78,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_timeline").classList.add("active");
     //ID("sm_timeline").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();

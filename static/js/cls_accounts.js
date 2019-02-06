@@ -6,7 +6,14 @@ class Account {
         this.id = "";
         this.idname = "";
         this.display_name = "";
-        this.token = "";
+        this.token = {
+            "token_type": "",
+            "expires_in": "",
+            "refresh_token": "",
+            "scope": "",
+            "access_token": "",
+            "access_secret": ""
+        };
         this.instance = "";
         this.acct = "";
         this.api = null;
@@ -234,6 +241,7 @@ class AccountManager {
                                     info : result,
                                     instance : result.uri
                                 };
+                                docCookies.setItem(MYAPP.siteinfo.cke,"1");
 
                                 return ({
                                     users : MYAPP.acman.items,
@@ -457,6 +465,9 @@ class AccountManager {
             } else {
                 var fdata = AppStorage.get(this.setting.NAME, null);
                 if (fdata && (fdata.length > 0)) {
+                    if (!docCookies.getItem(MYAPP.siteinfo.cke)) {
+                        docCookies.setItem(MYAPP.siteinfo.cke,"1");
+                    }
                     var promises = [];
                     var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
                     if (emojitest) {
