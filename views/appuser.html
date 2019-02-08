@@ -11,7 +11,7 @@
         </div>
         <div class="user-textinfo z-depth-2">
             <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
-                <img id="us_avatar" class="circle" v-bind:src="avatar" alt="">
+                <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
                 <div style="display:inline-block">
                     <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
                     <span id="us_idname_instance" class="white-text email" v-cloak>{? full_acct ?}</span>
@@ -86,6 +86,16 @@
                         </v-btn>
                         <span>{{trans.to_directmsg}}</span>
                     </v-tooltip>
+                </v-flex>
+                <v-flex xs12>
+                    <!--<a v-bind:href="rss_url" target="_blank" rel="noopener" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>-->
+                    <v-tooltip bottom>
+                        <v-btn flat icon color="white" slot="activator" v-on:click="onclick_any_link()">
+                            <v-icon>business</v-icon>
+                        </v-btn>
+                        <span>{{trans.to_show_their_instance}}</span>
+                    </v-tooltip>
+                    
                 </v-flex>
                 <v-flex xs12>
                     <!--<a v-bind:href="rss_url" target="_blank" rel="noopener" class="waves-effect waves-red white-text tooltipped" data-position="bottom" data-tooltip="{{trans.to_rssfeed}}"><i class="material-icons">rss_feed</i></a>-->

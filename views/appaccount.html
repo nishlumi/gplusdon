@@ -53,6 +53,18 @@
                 <a href="#" class="waves-effect waves-red white-text dropdown-trigger" data-target='dropdown1'><i class="material-icons">more_vert</i></a>
             </div>
         </div>-->
+        <div class="user-action-btns col4 elevation-2">
+            <v-layout row wrap>
+                <v-flex xs12>
+                    <v-tooltip left>
+                        <v-btn flat icon color="white" slot="activator" v-on:click="onclick_copypath">
+                            <v-icon>account_box</v-icon>
+                        </v-btn>
+                        <span>{{trans.to_copy_asuser}}</span>
+                    </v-tooltip>                    
+                </v-flex>
+            </v-layout>
+        </div>
     </div>
     <ul id='dropdown1' class='dropdown-content'>
         <li><a href="#" class="black-text" ><i class="material-icons">volume_off</i>{{trans.to_mute}}</a></li>
@@ -254,7 +266,7 @@
                                     <v-layout row wrap>
                                         <v-flex xs12>
                                             <span v-bind:class="css.extension">
-                                                合計文字数： {? ext_vallength ?}
+                                                {{trans.lab_sumcount}}： {? ext_vallength ?}
                                             </span>
                                         </v-flex>
                                         <template v-for="(item,index) in ext">

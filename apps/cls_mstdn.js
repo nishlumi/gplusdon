@@ -4,6 +4,9 @@ const sysconst = require("./sysconst");
 
 const Mastodon = require("mastodon-api");
 //import Mastodon from '../node_modules/mastodon-api/lib/mastodon';
+const needAuthInstances = [
+    "pawoo.net","qiitadon.com","friends.nico"
+];
 
 class MastodonServer {
     /**
@@ -47,12 +50,17 @@ class MastodonServer {
 
     originalGet(url, options) {
         console.log("url=", url);
-        var res = request.get(url,options);
-        return res;
+        return request.get(url,options.api)
+        .then(result=>{
+            return {
+                data : result,
+                options : options
+            };
+        });
     }
     originalPost(url, options) {
         console.log("url=", url);
-        var res = request.post(url,options);
+        var res = request.post(url,options.api);
         return res;
     }
     getUser(instance, idname) {
@@ -63,8 +71,8 @@ class MastodonServer {
         .then(result => {
             if (result.data.length >= 1) {
                 var data =  result.data[0];
-                var arr = data.url.replace("https://","").split("/");
-                
+                var arr = url.parse(data.url);
+                data["instance"] = arr.hostname;
                 return data;
             } else {
                 return { };
@@ -80,7 +88,7 @@ class MastodonServer {
                 var tmp = url.parse(result.data[i].account.url);
                 result.data[i].account["instance"] = tmp.hostname;
             }
-            return { data: result.data, paging: hlink };
+            return { data: result.data, paging: hlink, userid : userid, options : options };
         });
     }
     
@@ -105,20 +113,39 @@ var cls_mstdn = {
         return api.getUser(instance, idname)
         .then(result1 => {
             console.log("result1=",result1);
-            return api.getToots(result1.id, {limit:1});
+            return api.getToots(result1.id, {
+                api : {limit:1},
+                app : {
+                    copyuser : result1
+                }
+            });
         })
         .then(result2 => {
             console.log("result2=",result2);
             var sta = result2.data[0];
 
-            var realuri = sta.uri.replace("/users", "/api");
-            realuri = realuri.replace(`/${idname}`, "/v1");
-            return api.originalGet(realuri, {});
+            var realuri = sta.url.replace(`/@${idname}`, "/api/v1/statuses");
+            return api.originalGet(realuri, {
+                api : {},
+                app : {
+                    copy_userid : result2.options.app.copyuser.id,
+                    copy_instance : result2.options.app.copyuser.instance
+                }
+            });
         })
         .then(result3 => {
             console.log("result3=",result3);
-            var tt = JSON.parse(result3);
+            var tt = JSON.parse(result3.data);
             tt.account["instance"] = instance;
+            tt.account["copy"] = {
+                id : tt.account.id,
+                instance : instance,
+            };
+            if (needAuthInstances.indexOf(instance) > -1) {
+                //---if request instance is need auth, return the instance with to call API(mastodon.cloud)
+                tt.account.copy.id = result3.options.app.copy_userid;
+                tt.account.copy.instance = api.instance;
+            }
             tt.account["text"] = tt.account.note.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '');
             tt.account["relationship"] = {
                 id : tt.account.id,

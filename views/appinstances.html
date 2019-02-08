@@ -5,28 +5,23 @@
 {% endblock %}
 {% block content %}
 <div id="area_instance" class="container instances_body">
-    <div id="search" class="search-panel">
-        <div class="row search-box white z-depth-1">
-            <!--<form name="search" v-on:submit.prevent="onsubmit_search">
-                <div class="col  s11 m6 offset-m3 input-field red-text">
-                    <input placeholder="{{trans.txt_add_instance}}" id="txt_instance" name="instance_name" type="text" class="validate">
-                    <label for="txt_instance" >{{ trans.txt_add_instance }}</label>
-                </div>
-                <div class="col s1">
-                    <button id="btn_search" class="btn-floating btn waves-effect waves-light red"><i class="material-icons">search</i></button>
-                </div>
-            </form>
-            -->
-            <div class="s12">
-                <details>
+    <div id="search" class="search-panel" v-cloak>
+        <v-layout row wrap class="search-box white elevation-1">
+            <v-flex xs12>
+                <details open>
                     <summary class="list_summary"><strong>{{ trans.msg_now_random }}</strong></summary>
-                    <div class="col s12 chip_box" v-cloak v-if="randomInstance.length > 0">
+                    <div class="col s12 chip_box"  v-if="randomInstance.length > 0">
                         <span class="chip type-random indigo white-text z-depth-1" v-bind:key="item.id" v-on:click="onclick_chip" v-for="item in randomInstance" v-bind:title="item.name" >{? item.name ?}</span>
                     </div>
-                </details>                
+                </details>          
+            </v-flex>
+        </v-layout>
+        <!--<div class="row search-box white elevation-1">
+            <div class="s12">
+                      
             </div>
-        </div>
-        <div class="row search-result white z-depth-1" v-cloak>
+        </div>-->
+        <div class="row search-result white z-depth-1" >
             <details>
                 <summary class="list_summary"><strong>{{ trans.msg_find_result }}</strong></summary>
                 <div class="col s12 chip_box" v-if="resulturis.length > 0">
@@ -34,7 +29,7 @@
                 </div>
             </details>
         </div>
-        <div class="row search-detail "  v-if="is_selected" v-cloak>
+        <div class="row search-detail "  v-if="is_selected" >
             <div class="col s12 m8 l8">
                 <div class="row">
                     <div class="col s12 m12 l12">

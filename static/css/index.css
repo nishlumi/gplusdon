@@ -391,7 +391,7 @@ div.collection a i.material-icons {
 .notifmenu .vwinsizing {
     width : 100%;
     height : calc(100% - 52px);
-    overflow-y : auto;
+    /*overflow-y : auto;*/
 }
 .notifmenu .v-window__container {
     width : 100%;
@@ -971,6 +971,13 @@ div.account_body .user-view .email {
     right :  2%;
     width : 4.5rem;
     height: 17rem;
+}
+.user-action-btns.col4 {
+    position: absolute;
+    bottom: 2rem;
+    right :  2%;
+    width : 4.5rem;
+    height: 6rem;
 }
 .user-action-btns.col_ac1 {
     position: absolute;

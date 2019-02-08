@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = "G+Don-100-20190207-01";
+var CACHE = "G+Don-101-20190209-01";
 var precacheFiles = [
     /* Add an array of files to precache for your app */
     /*"/",
@@ -266,13 +266,15 @@ self.addEventListener("fetch", function(evt) {
                     return response;
                 }
         
-                evt.preloadResponse.then((res) => {
-                    //console.info('preload res', res)
-                    if (res) return res
-              
-                    //console.log('fetch')
-                    return fetch(evt.request)
-                });
+                if (evt.preloadResponse) {
+                    evt.preloadResponse.then((res) => {
+                        //console.info('preload res', res)
+                        if (res) return res
+                
+                        //console.log('fetch')
+                        return fetch(evt.request)
+                    });
+                }
                 // 重要：レスポンスを clone する。レスポンスは Stream で
                 // ブラウザ用とキャッシュ用の2回必要。なので clone して
                 // 2つの Stream があるようにする

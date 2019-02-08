@@ -382,6 +382,10 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-list-tile-title><a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a></v-list-tile-title>
             </v-list-tile>
                 <v-divider></v-divider>
+            <v-list-tile v-on:click="onclick_copytext">
+                <v-list-tile-title>{{translation.thistoot_copy}}</v-list-tile-title>
+            </v-list-tile>
+                <v-divider></v-divider>
             <template v-if="toote.relationship.isme">
                 <v-list-tile v-on:click="onclick_toote_pinn(toote)">
                         <v-list-tile-title>{{ toote.body.pinned ? translation.thistoot_unpinned : translation.thistoot_pinned }}</v-list-tile-title>
@@ -412,7 +416,12 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)">
                     <v-list-tile-title v-html="toote.translateText.thisuser_report"></v-list-tile-title>
                 </v-list-tile>
+                <v-divider></v-divider>
             </template>
+            <v-list-tile v-on:click="onclick_any_link(toote)">
+                <v-list-tile-title>{{ translation.to_show_their_instance }}</v-list-tile-title>
+            </v-list-tile>
+
         </v-list>
         <!--<div class="collection">
             <a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a>  
@@ -429,7 +438,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             <dd>
                 <v-layout row wrap>
                     <v-flex xs12>
-                        <a :href="get_instance_original_url(toote)" target="_blank">{{translation.lab_instance_original}}}</a>
+                        <a :href="get_instance_original_url(toote)" target="_blank">{{translation.lab_instance_original}}</a>
                     </v-flex>
                     <v-flex xs4>
                             {{translation.lab_original_postdate}}

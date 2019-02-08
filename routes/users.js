@@ -33,6 +33,7 @@ router.get('/', function (req, res) {
     });
 });
 router.get('/:instance/:id', function (req, res) {
+        if (req.params.tootid == ucommon.swjs) return;
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(req,lan);
     var info = ucommon.analyze_locale(req);
@@ -102,6 +103,7 @@ router.get('/:instance/:id/:page', function (req, res) {
     });
 });
 router.get('/:instance/:id/toots/:tootid', function (req, res) {
+    //if (req.params.tootid == ucommon.swjs) return;
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(req,lan);
     var info = ucommon.analyze_locale(req);
@@ -109,11 +111,15 @@ router.get('/:instance/:id/toots/:tootid', function (req, res) {
 
     var userdata = {};
     var pro = [];
+    var opt = {
+        api : {},
+        app : {}
+    };
     var targeturl = `https://${req.params.instance}/api/v1/statuses/${req.params.tootid}`;
-    pro.push(api.originalGet(targeturl, {}));
+    pro.push(api.originalGet(targeturl, opt));
 
     targeturl = `https://${req.params.instance}/api/v1/statuses/${req.params.tootid}/context`;
-    pro.push(api.originalGet(targeturl, {}));
+    pro.push(api.originalGet(targeturl, opt));
 
     Promise.all(pro)
     .then(result => {

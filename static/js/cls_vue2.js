@@ -220,7 +220,11 @@ Vue.component("toot-inputbox", {
 			}else{
 				this.isopen_mention = true;
 			}
-		},    
+		},
+		/**
+		 * remove selected account
+		 * @param {String} item 
+		 */
 		remove (item) {
 			var index = -1;
 			for (var i = 0; i < this.selaccounts.length; i++) {
@@ -231,7 +235,16 @@ Vue.component("toot-inputbox", {
 					break;
 				}
 			}
-			if (index >= 0) this.selaccounts.splice(index, 1);
+			if (index >= 0) {
+				for (var i = 0; i < this.medias.length; i++) {
+					for (var name in this.medias[i]) {
+						if (name == item.acct) {
+							delete this.medias[i][name];
+						}
+					}
+				}
+				this.selaccounts.splice(index, 1);
+			}
 		},
 		remove_mention (item) {
 			var index = -1;
@@ -339,6 +352,7 @@ Vue.component("reply-inputbox", {
 			reply_to_id : "",
 			//mention_to_id : "",
 			isfirst : true,
+			wasset_replydata : false,
 			ckeditor : {},
 			btnflags : {
 				send_disabled : false
@@ -399,9 +413,14 @@ Vue.component("reply-inputbox", {
 		}
 	},
 	updated() {
-		this.reply_to_id = this.replydata.reply_to_id;
-		this.selmentions.splice(0,this.selmentions.length);
-		if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
+		if (this.replydata.reply_account) {
+			if (!this.wasset_replydata) {
+				this.reply_to_id = this.replydata.reply_to_id;
+				this.selmentions.splice(0,this.selmentions.length);
+				this.selmentions.push("@"+this.replydata.reply_account.acct);
+				this.wasset_replydata = true;
+			}
+		}
 		if (this.isfirst) {
 			/*CKEDITOR.disableAutoInline = true;
 			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
@@ -462,6 +481,9 @@ Vue.component("reply-inputbox", {
 		select_sender_account : function (e) {
 			this.selaccounts.splice(0,this.selaccounts.length);
 			this.selaccounts.push(this.replydata.selectaccount);
+		},
+		enable_wasReplyInput : function (flag) {
+			this.wasset_replydata = flag;
 		},
 		autocomplete_mention_func : CK_dataFeed_mention,
 		//---event handler-------------------------------------

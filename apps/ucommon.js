@@ -129,6 +129,7 @@ async function getDirectoryMastodon(request, param) {
 }
 
 var ucommon = {
+    swjs : "pwabuilder-sw.js",
     sysinfo: {
         name: sysconst.package_info.name,
         fullname: appEffectiveName,

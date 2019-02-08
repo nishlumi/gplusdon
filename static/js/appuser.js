@@ -38,6 +38,10 @@ function loadUserInfo_body(result) {
     vue_user.follower.accounts.splice(0,vue_user.follower.accounts.length);
     vue_user.follower.setData(result.data);
 
+    //---if request instance is need auth, return the instance with to call API
+    vue_user.basicinfo.id = result.data.copy.id;
+    vue_user.tootes.id = result.data.copy.id;
+    
     var apiopt = {
         api : {}, 
         app : {}
@@ -52,7 +56,7 @@ function loadUserInfo_body(result) {
 
     vue_user.basicinfo.loadPinnedToot(vue_user.basicinfo.id,apiopt);
     MYAPP.setGeneralTitle(result.data.display_name);
-
+    vue_user.userview.show_inaccurate();
 
 }
 function loadUserInfoDirect(data) {
@@ -297,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentAccount : null,
             },
             Updated() {
-                this.show_inaccurate();
+                
             },
             computed : {
                 full_acct : function (){
@@ -423,6 +427,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 onclick_rssfeed : function (url) {
                     window.open(url,"_blank");
+                },
+                onclick_any_link : function () {
+                    var url = `/instances/${this.instance}`;
+                    location.href = url;
                 },
                 onclick_endorse : function (e) {
                     var commentIndex = 0;
@@ -625,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+                this.pagetype = "user";
             },
             mounted() {
                 this.tlcond = new GTimelineCondition();
@@ -1004,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 vue_user[obj].changeTimelineStyle();            
             }
         }
-
+        vue_user.userview.show_inaccurate();
         
     }, function (flag) {
         /*appAlert(_T("msg_notlogin_myapp"), function () {
@@ -1017,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var serverdata = JSON.parse(ID("hid_userdata").value);
         console.log(serverdata);
         if ("acct" in serverdata) {
-            MYAPP.createTempAccount(serverdata.instance)
+            MYAPP.createTempAccount(serverdata.copy.instance)
             .then(result=>{
                 vue_user.userview.loadUserInfoDirect(serverdata);
             });

@@ -86,6 +86,8 @@ var vue_mixin_for_timeline = {
 					filter : []
 				}
 			},
+			id : "",
+			pagetype : "",
 			info : {
 				maxid : "",
 				sinceid : "",
@@ -181,6 +183,12 @@ var vue_mixin_for_timeline = {
 				}else if (this.$el.id == "tl_taglocal") {
 					tlid = `tag/${this.tagname}`;
 					pastOptions.api["local"] = true;
+				}else if (this.$el.id == "tt_public") {
+					if (this.pagetype == "account") {
+						tlid = "me";
+					}else if (this.pagetype == "user") {
+						tlid = this.id;
+					}
 				}
 				pastOptions.api.max_id = this.info.maxid;
 				//pastOptions.app.tlshare = this.selshare_current;
@@ -230,6 +238,12 @@ var vue_mixin_for_timeline = {
 				}else if (this.$el.id == "tl_taglocal") {
 					tlid = `tag/${this.tagname}`;
 					futureOptions.api["local"] = true;
+				}else if (this.$el.id == "tt_public") {
+					if (this.pagetype == "account") {
+						tlid = "me";
+					}else if (this.pagetype == "user") {
+						tlid = this.id;
+					}
 				}
 				futureOptions.api.since_id = this.info.sinceid;
 				//futureOptions.app.tlshare = this.selshare_current;
@@ -1015,7 +1029,35 @@ var vue_mixin_for_inputtoot = {
 			//tags: [],
 			
 			//---media
+			/**
+			 * pysical selected media files
+			 * [
+			 * {
+			 *   src : {DataURL},
+			 *   comemnt : {String},
+			 *   data : {File}
+			 * }, ...
+			 * ]
+			 */
 			selmedias : [],
+			/**
+			 * returned media object from mastodon
+			 * [
+			 *  {
+			 *   "name@instance" : {
+			 * 	   id : "",
+			 *     meta : {},
+			 *     description : "",
+			 *     preview_url : "",
+			 *     remote_url : "",
+			 *     text_url : "",
+			 *     type : "image",
+			 *     url : "",
+			 *    },
+			 *    "name2@instance" : {...},
+			 *  }
+			 * ]
+			 */
             medias : [],
 			switch_NSFW : false,
 			
@@ -1064,6 +1106,7 @@ var vue_mixin_for_inputtoot = {
 			var tmparr = [];
 			for (var i = 0; i < val.length; i++) {
 				var v = val[i];
+				//---check toot text limit
 				for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
 					var lim = MYAPP.session.config.notification.toot_limit_instance[st];
 					if (v.indexOf(lim.instance) > -1) {
@@ -1075,6 +1118,36 @@ var vue_mixin_for_inputtoot = {
 						}
 					}else{
 						tmparr.push(MYAPP.appinfo.config.toot_max_character);
+					}
+				}
+				//---check media
+				for (var m = 0; m < this.medias.length; m++) {
+					var media = this.medias[m];
+					var ishit = false;
+					for (var name in media) {
+						if (v == name) {
+							//---if hited, this account has media.
+							ishit = true;
+							break;
+						}
+					}
+					if (!ishit) {
+						//---this account don't has media.
+						this.btnflags.send_disabled = true;
+						this.btnflags.loading = true;
+						var hitac = this.getTextAccount2Object(i);
+						if (hitac) {
+							var fdef = MYAPP.uploadMedia(hitac,this.selmedias[m].data,{
+								filename : this.selmedias[m].data.name
+							});
+							fdef.then(mediaresult=>{
+								media[v] = mediaresult.data;
+							})
+							.finally(()=>{
+								this.btnflags.send_disabled = false;
+								this.btnflags.loading = false;				
+							});
+						}
 					}
 				}
 			}
@@ -1104,7 +1177,7 @@ var vue_mixin_for_inputtoot = {
 			}else{
 				mentions = this.calc_mentionLength(val).join(" ");
 			}
-			console.log(mentions, mentions.length);
+			//console.log(mentions, mentions.length);
 			//var tags = this.seltags.join(" ");
 			var tags = [];
 			for (var i = 0; i < this.seltags.length; i++) {
@@ -1286,6 +1359,10 @@ var vue_mixin_for_inputtoot = {
 		insertText : function (text) {
 			this.ckeditor.editable().insertText(text);
 			this.status_text = this.ckeditor.editable().getText();
+		},
+		generate_showable_mention : function () {
+			var men = this.selmentions[0];
+			return `To:${men}`;
 		},
 		//---event handler---------------------------------------------
 		onchange_inputcontent : function (e) {

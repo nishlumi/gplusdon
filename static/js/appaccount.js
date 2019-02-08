@@ -10,7 +10,7 @@ function btn_reg_account_clicked(e) {
 }
 
 
-function loadTimelineCommon(options){
+function loadTimelineCommon(type,options){
     console.log("loadTimelineCommon");
     if (this.is_asyncing) return false;
 
@@ -131,6 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
             methods : {
                 onclick_editor : function(e) {
                     vue_user.editor.dialog = true;
+                },
+                onclick_copypath : function (e) {
+                    MUtility.copyClipboard(location.href.replace("/accounts","/users"));
                 }
             }
 
@@ -248,13 +251,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+                this.pagetype = "account";
             },
             mounted() {
                 this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
-                    this.loadTimeline(this.forWatch_selshare(val));
+                    this.loadTimeline("me",this.forWatch_selshare(val));
                 },400),
                 seltype_current : _.debounce(function(val) {
                     /*console.log(val);
@@ -269,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (val == "tt_media") {
                         opt["only_media"] = true;
                     }*/
-                    this.loadTimeline(this.forWatch_seltype(val));
+                    this.loadTimeline("me",this.forWatch_seltype(val));
                 },400)
             },
             methods : {
@@ -278,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var param = e;
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline(opt);
+                        this.loadTimeline("me",opt);
                     }
                 }
             }
@@ -481,12 +485,12 @@ document.addEventListener('DOMContentLoaded', function() {
             methods : {
                 load_setting : function (item) {
                     this.user = JSON.original(item);
-                    for (var i = 0; i < item.rawdata.fields.length; i++) {
-                        this.saves.fields[i].name = item.rawdata.fields[i].name;
-                        this.saves.fields[i].value = item.rawdata.fields[i].value;
+                    for (var i = 0; i < item.rawdata.source.fields.length; i++) {
+                        this.saves.fields[i].name = item.rawdata.source.fields[i].name;
+                        this.saves.fields[i].value = item.rawdata.source.fields[i].value;
                         if (i == 0) {
-                            this.field_name = item.rawdata.fields[i].name;
-                            this.field_value = item.rawdata.fields[i].value;
+                            this.field_name = item.rawdata.source.fields[i].name;
+                            this.field_value = item.rawdata.source.fields[i].value;
                         }
                     }
                     this.bkup = JSON.original(item);
@@ -655,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });*/
                     var opt = vue_user.tootes.forWatch_allcondition(vue_user.tootes.tlcond.getReturn());
-                    vue_user.tootes.loadTimeline(opt);
+                    vue_user.tootes.loadTimeline("me",opt);
 
                 //}
             }else if (e.id == "tt_fav") {
@@ -731,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pastOptions.api.max_id = vue_user.tootes.info.maxid;
                 pastOptions.app.tlshare = vue_user.tootes.selshare_current;
                 pastOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline({
+                vue_user.tootes.loadTimeline("me",{
                     api : pastOptions.api,
                     app : pastOptions.app
                 });
@@ -771,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 futureOptions.api.since_id = vue_user.tootes.info.sinceid;
                 futureOptions.app.tlshare = vue_user.tootes.selshare_current;
                 futureOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline({
+                vue_user.tootes.loadTimeline("me",{
                     api : futureOptions.api,
                     app : futureOptions.app
                 });

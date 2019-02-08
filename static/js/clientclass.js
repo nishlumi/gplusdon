@@ -22,6 +22,7 @@ class Gplusdon {
 
         this.siteinfo = {
             cke : "_gp_logined",
+            lancke : "_gp_lang",
             srv_inst : "mastodon.cloud",
             key: "",
             secret: "",
@@ -516,6 +517,8 @@ class Gplusdon {
                 "data" : {"id":"dummy","url":"hogehoge"}
             });*/
             //---test
+            var bkupac = MYAPP.sns._accounts;
+            MYAPP.sns.setAccount(account);
             
             MYAPP.sns.postMedia(fnlopt)
             .then(result=>{
@@ -531,6 +534,9 @@ class Gplusdon {
                 alertify.error("Failed: Update media file.");
                 
                 reject(error);
+            })
+            .finally( ()=>{
+                MYAPP.sns.setAccount(bkupac);
             });
 
         });

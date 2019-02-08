@@ -77,7 +77,7 @@
                     <v-flex xs12 sm10 offset-sm1>
                         <v-layout row wrap>
                             <v-flex xs4>
-                                <a href="#isgpuser">
+                                <a href="/tl">
                                     <v-card>
                                         <v-card-text class="blue menu_onepanel">
                                             {{trans.lab_ini_menu_isuser}}
@@ -132,14 +132,14 @@
                             <v-flex xs12 headline>
                                 <span id="isgpuser" class="grey--text text--darken-4 eachtype_usertitle">{{trans.msg_ini_isuser_title}}</span>
                             </v-flex>
-                            <v-flex xs12>
+                            <v-flex xs10 offset-xs2>
                                 <a href="/tl">
-                                    <v-btn flat icon>
+                                    <v-btn >
                                         <v-icon>input</v-icon>
-                                    </v-btn>
-                                    <span class="headline">{{ trans.start_app }}</span>
-                                </a>
-                                
+                                    
+                                    <span class="headline">{{ trans.start_app }}</span></v-btn>
+                                </a><br>
+                                <b>{{trans.msg_ini_isuser_note0}}</b>
                             </v-flex>
                             <v-flex xs12>
                                 {{trans.msg_ini_from_gdrive}} <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
@@ -190,7 +190,8 @@
                                         <v-flex xs12>
                                             <p class="ml-2">
                                                 (*) {{trans.msg_ini_beuser_note3}}<br>
-                                                (*) {{trans.msg_ini_beuser_note4}}
+                                                (*) {{trans.msg_ini_beuser_note4}}<br>
+                                                (*) {{trans.msg_ini_beuser_note5}}
                                             </p>
                                         </v-flex>
                                     </v-layout>
@@ -359,7 +360,7 @@
                     <h5 id="presentvideo">{{trans.lab_ini_menu_presentation}}</h5>
                 </v-flex>
                 <v-flex xs12>
-                    <v-layout row wrap class="common_ui_off">
+                    <v-layout row wrap class="">
                         <v-flex xs12 sm12 md5 offset-md1>
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/4Aeq_2PG2Ms" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             

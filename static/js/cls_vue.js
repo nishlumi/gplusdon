@@ -168,7 +168,7 @@ Vue.component("timeline-toot", {
 				this.comment_stat[obj] = this.comment_viewstyle[obj];
 				this.first_comment_stat[obj] = this.comment_viewstyle[obj];
 			}
-			this.isshow_replyinput = true;
+			this.isshow_replyinput = false;
 			this.issinglewindow = true;
 		}
 		if (this.comment_list_area_viewstyle) {
@@ -267,6 +267,7 @@ Vue.component("timeline-toot", {
 				reply_account : reply.account,
 				selectaccount : `${selac.idname}@${selac.instance}`
 			};
+			this.$refs.replyinput.enable_wasReplyInput(false);
 			return data;
 		},
 		set_replydata : function (paramtoote) {
@@ -790,6 +791,9 @@ Vue.component("timeline-toot", {
 				mainfunc();
 			}
 		},
+		onclick_copytext : function (e) {
+			MUtility.copyClipboard(this.toote.body.html);
+		},
 		onclick_toote_delete : function (toote,commentIndex) {
 			var mainfunc = () => {
 				console.log("target=",toote,commentIndex);
@@ -953,6 +957,10 @@ Vue.component("timeline-toot", {
 			}else{
 				mainfunc();
 			}
+		},
+		onclick_any_link : function (toote) {
+			var url = `/instances/${toote.account.instance}`;
+			location.href = url;
 		},
 		onmouseenter_gifv : function (e) {
 			var pro = e.target.play();

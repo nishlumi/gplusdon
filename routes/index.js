@@ -81,9 +81,11 @@ router.get('/test', function (req, res) {
 router.get('/redirect', function (req, res) {
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(lan);
+    var info = ucommon.analyze_locale(req);
+
     res.render('redirect', {
         sysinfo: ucommon.sysinfo,
-        lang: info.lang,
+        lang: info.lang
         //transjs: trans
 
     });
