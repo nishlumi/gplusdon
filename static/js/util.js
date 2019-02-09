@@ -1062,7 +1062,7 @@ var MUtility = {
 	},
 	copyClipboard : function (htmlcontent) {
 		var a = ID("temporary_area");
-		a.innerHTML = htmlcontent;
+		a.innerHTML = htmlcontent.replace(/class="invisible"/g,"");
 		var selection = window.getSelection();
 		var ran = document.createRange();
 		ran.selectNodeContents(a);

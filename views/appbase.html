@@ -20,13 +20,21 @@
         <meta name="msapplication-tilecolor" content="#FFFFFF">
         <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
+        
+        <meta name="hostname" content="{{sysinfo.hostname}}">
+    
         <meta property="og:title" content="{{sysinfo.oginfo.title}}" />
         <meta property="og:type" content="{{sysinfo.oginfo.type}}" />
         <meta property="og:description" content="{{sysinfo.oginfo.description}}" />
         <meta property="og:url" content="{{sysinfo.oginfo.url}}" />
         <meta property="og:image" content="{{sysinfo.oginfo.image}}"/>
         <meta property="og:site_name" content="{{sysinfo.oginfo.site_name}}" />
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:url" content="{{sysinfo.oginfo.url}}" />
+        <meta name="twitter:title" content="{{sysinfo.oginfo.title}}" />
+        <meta name="twitter:description" content="{{sysinfo.oginfo.description}}" />
+        <meta name="twitter:image" content="{{sysinfo.oginfo.image}}" />
 
         <link rel="shortcut icon" href="/static/images/app_icon.png" >
         <link rel="manifest" href="/static/res/manifest.json" >
@@ -58,6 +66,9 @@
 
     </HEAD>
     <body>
+        {% if request.host  == 'gplusdon.net' %}
+        {% include 'jslib_ggltag.html' %}
+        {% endif %}
         <div id="toppanel" class="grey lighten-3">
             <div class="navbar-fixed">
                 <nav id="navibar" class="white">

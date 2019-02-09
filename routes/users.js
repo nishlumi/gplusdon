@@ -33,14 +33,13 @@ router.get('/', function (req, res) {
     });
 });
 router.get('/:instance/:id', function (req, res) {
-        if (req.params.tootid == ucommon.swjs) return;
+        if (req.params.id == ucommon.swjs) return;
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(req,lan);
     var info = ucommon.analyze_locale(req);
     var api = cls_mstdn.loadAPImaster(req.params.instance);
     var userdata = {};
-    if ("_gp_logined" in req.cookies) {
-        res.render('appuser', {
+        /*res.render('appuser', {
             sysinfo: info.sysinfo,
             lang: info.lang,
             transjs: info.trans,
@@ -53,7 +52,7 @@ router.get('/:instance/:id', function (req, res) {
             csrfToken: req.csrfToken(),
             menustat: menuStatus
         });
-    }else{
+    }else{*/
         cls_mstdn.getUser(api,req.params.instance,req.params.id)
         //api.getUser(req.params.instance, req.params.id)
         //userdata = api.originalGet(`https://${req.params.instance}/api/v1/accounts/${tmpuser.id}`);
@@ -62,10 +61,19 @@ router.get('/:instance/:id', function (req, res) {
             //---set up og:
             if ((result) && ("id" in result)) {
                 var name = (result.display_name.trim() == "" ? result.username : result.display_name);
-                info.sysinfo.oginfo.title = ucommon._T(info.realtrans,[`${name}@${result.instance}`]);
+                info.sysinfo.oginfo.title = ucommon._T(info.realtrans,"lab_profile",[`${name}@${result.instance}`]);
                 info.sysinfo.oginfo.description = result.text;
-                info.sysinfo.oginfo.url += `/users/${req.params.instance}/${req.params.id}`;
+                info.sysinfo.oginfo.type = "profile"; 
+                info.sysinfo.oginfo.url = `https://${req.hostname}/users/${req.params.instance}/${req.params.id}`;
                 info.sysinfo.oginfo.image = result.avatar;
+
+                var realid = "";
+                if ("_gp_logined" in req.cookies) {
+                    userdata = {};
+                } else {
+                    realid = result.id;
+                    userdata = result;
+                }
 
                 res.render('appuser', {
                     sysinfo: info.sysinfo,
@@ -74,9 +82,9 @@ router.get('/:instance/:id', function (req, res) {
                     trans : info.realtrans,
                     instance: req.params.instance,
                     uid: req.params.id,
-                    realid : result.id,
+                    realid : realid,
                     page: "home",
-                    userdata: JSON.stringify(result),
+                    userdata: JSON.stringify(userdata),
                     csrfToken: req.csrfToken(),
                     menustat: menuStatus
                 });
@@ -84,7 +92,7 @@ router.get('/:instance/:id', function (req, res) {
             
             
         });
-    }
+    //}
 });
 router.get('/:instance/:id/:page', function (req, res) {
     //var lan = req.acceptsLanguages();   

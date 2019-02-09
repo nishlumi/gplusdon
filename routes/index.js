@@ -157,7 +157,8 @@ router.get('/terms', function (req, res) {
 
 router.post('/srv/ogp', function (req, res) {
     //console.log(req.body["url"], req.headers.referer);
-    var text = ucommon.load_website_ogp(req, req.body["url"]);
+    var info = ucommon.analyze_locale(req);
+    var text = ucommon.load_website_ogp(req, info, req.body["url"]);
     text.then(result => {
         //console.log("text=", result);
         res.send(result);

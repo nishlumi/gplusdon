@@ -1,6 +1,10 @@
 'use strict';
 const path = require('path');
 const web = require("request");
+const weburl = require("url");
+const webreq = require("request-promise");
+var cls_mstdn = require("./cls_mstdn");
+
 const sysconst = require("./sysconst");
 const {
     JSDOM
@@ -56,7 +60,7 @@ function load_translation(request, locales) {
 
     return ret;
 }
-async function loadWebsiteOGP(request, url) {
+async function loadWebsiteOGP(request, info, url) {
     var ret = "";
     //console.log("param url=", url);
     var def = new Promise((resolve, reject) => {
@@ -70,13 +74,59 @@ async function loadWebsiteOGP(request, url) {
         //console.log("ishit=",ishit);
         if (!ishit) reject("");
 
-        web(url, (error, response, body) => {
-            //console.log("web.get=", error, response, body);
-            const dom = new JSDOM(body);
-            var info = dom.window.document.head;
-            
-            resolve(info.innerHTML);
-        });
+        var tmpurl = weburl.parse(url);
+
+        if (CON_ACCEPT_HOSTS.indexOf(tmpurl.hostname) > -1) {
+            //---when in this app site
+            var arr = tmpurl.pathname.split("/");
+            var instance = arr[2];
+            var id = arr[3];
+            if (arr[1] == "users") {
+                
+                var api = cls_mstdn.loadAPImaster();
+                cls_mstdn.getUser(api, instance, id)
+                .then(result => {
+                    console.log(result);
+                    //---set up og:
+                    var oginfo = { //---default value
+                        title: appEffectiveName,
+                        type: "website",
+                        description: "",
+                        url: "https://gplusdon.net",
+                        image: "https://gplusdon.net/static/images/gp_og_image.png",
+                        site_name: appEffectiveName
+                    };
+                    if ((result) && ("id" in result)) {
+                        var name = (result.display_name.trim() == "" ? result.username : result.display_name);
+                        oginfo.title = ucommon._T(info.realtrans, "lab_profile", [`${name}@${result.instance}`]);
+                        oginfo.description = result.text;
+                        oginfo.type = "profile";
+                        oginfo.url = `https://${request.hostname}/users/${instance}/${id}`;
+                        oginfo.image = result.avatar;
+                        
+                    }
+                    var HTML_FOR_OGP = `
+                        <meta property="og:title" content="${oginfo.title}" />
+                        <meta property="og:type" content="${oginfo.type}" />
+                        <meta property="og:description" content="${oginfo.description}" />
+                        <meta property="og:url" content="${oginfo.url}" />
+                        <meta property="og:image" content="${oginfo.image}"/>
+                        <meta property="og:site_name" content="${oginfo.site_name}" />
+                    `;
+                    resolve(HTML_FOR_OGP);
+
+                });
+            }
+        } else {
+
+            web({ url: url, method: "GET" },(error, response, body) => {
+                //console.log("web.get=", error, response, body);
+                const dom = new JSDOM(body);
+                var info = dom.window.document.head;
+
+                resolve(info.innerHTML);
+            });
+        }
 
     });
     return def;
@@ -136,6 +186,7 @@ var ucommon = {
         author: sysconst.package_info.author.name,
         advisor: [],
         version: sysconst.package_info.version,
+        hostname : "",
         oginfo: { //---default value
             title: appEffectiveName,
             type: "website",
@@ -151,11 +202,24 @@ var ucommon = {
         gdid: sysconst.gdrive.web.client_id
     },
     load_translation: load_translation,
+    /**
+     * 
+     * @param {Request} request request object
+     */
     analyze_locale: function (request) {
         var lan = judgeLanguage(request);
         var trans = ucommon.load_translation(request, lan);
         var js = JSON.parse(trans);
+        ucommon.sysinfo.oginfo = { //---default value
+            title: appEffectiveName,
+            type: "website",
+            description: "",
+            url: "https://gplusdon.net",
+            image: "https://gplusdon.net/static/images/gp_og_image.png",
+            site_name: appEffectiveName
+        };
         ucommon.sysinfo.oginfo.description = js.appDescription;
+        ucommon.sysinfo.hostname = request.hostname;
         return {
             lang : lan[0],
             trans: trans,

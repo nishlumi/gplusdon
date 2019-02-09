@@ -183,7 +183,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                         <v-flex xs12 v-bind:class="css.geo">
                             <v-layout row wrap>
                                 <v-flex xs12 sm12 md6>
-                                    <div class="toot_content_geo">
+                                    <div class="toot_content_geo elevation-1">
                                         <input type="hidden" name="geo_lat" v-bind:value="geo.lat"/>
                                         <input type="hidden" name="geo_lng" v-bind:value="geo.lng"/>
                                         <div class="here_map"></div>

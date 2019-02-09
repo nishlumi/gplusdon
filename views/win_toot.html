@@ -37,7 +37,10 @@
 
     </HEAD>
     <body style="overflow:auto;">
-        
+            {% if request.host  == 'gplusdon.net' %}
+            {% include 'jslib_ggltag.html' %}
+            {% endif %}
+    
             <div id="ov_inputtoot" class="dmy_inputtoot" >
                 <v-app id="inspire" v-cloak>
                     <template v-if="accounts.length > 0">

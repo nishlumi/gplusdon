@@ -363,8 +363,9 @@ div.toot_card_base.g30 {
 }
 
 /*=== toot with geo location  ===*/
-.toot_card_base .toot_content_geo {
-    border-top : 2px inset grey;
+ .toot_content_geo {
+    /*border-top : 1px inset grey;*/
+    margin-right : 1rem;
 }
 .toot_content_geo .here_map {
     width : 100%;
