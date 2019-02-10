@@ -548,7 +548,7 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 .toot_card_base .toot_comment.open {
     transition: 0.2s;
     min-height : 8rem;
-    max-height : 33.5rem;
+    max-height : 35.5rem;
 }
 .toot_card_base .toot_comment.mini {
     height : 8rem;

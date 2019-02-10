@@ -1340,12 +1340,12 @@ div.instances_body .card .card-content.card-account-content p {
 }
 .onetoot_inputcontent, .dmy_inputtoot .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent {
 	background-color: rgb(241, 241, 241);
-	font-size : 1.2rem;
+	font-size : 1.4rem;
     color : #000000;
     overflow : auto;
     -webkit-overflow-scrolling: touch;
 	width : 100%;
-    height : calc(1.7rem * 5);
+    height : calc(1.7rem * 6);
     border-bottom : 0.1rem solid #C7C7C7;
     margin-bottom : 0.5rem;
     outline : none;

@@ -241,6 +241,12 @@ function checkBrowser(){
 		ret.kind =  "vivaldi";
 		ret.platform = "browser";
 	}
+	if (navigator.userAgent.toLowerCase().indexOf("iphone") != -1) {
+		ret.platform = "ios";
+	}
+	if (navigator.userAgent.toLowerCase().indexOf("iipad") != -1) {
+		ret.platform = "ios";
+	}
 	return ret;
 }
 //defines of global variables

@@ -441,6 +441,7 @@ Vue.component("timeline-toot", {
 			//console.log(e);
 			//---set up data for reply
 			this.reply_data = this.generateReplyObject(this.toote);
+			this.$refs.replyinput.enable_wasReplyInput(false);
 			//this.replyinput.select_sender_account();
 			//this.call_replySetup();
 
@@ -791,7 +792,7 @@ Vue.component("timeline-toot", {
 				mainfunc();
 			}
 		},
-		onclick_copytext : function (e) {
+		onclick_copytext : function (toote) {
 			MUtility.copyClipboard(this.toote.body.html);
 		},
 		onclick_toote_delete : function (toote,commentIndex) {

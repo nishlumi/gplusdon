@@ -1171,7 +1171,10 @@ function defineForMainPage(app) {
 
             MYAPP.commonvue.inputtoot.dialog = true;
             MYAPP.commonvue.inputtoot.$nextTick(()=>{
-                Q(".onetoot_inputcontent").focus();
+                var chk = checkBrowser();
+                if (chk.platform != "ios") {
+                    Q(".onetoot_inputcontent").focus();
+                }
             });
             
             

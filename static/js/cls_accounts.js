@@ -175,7 +175,7 @@ class AccountManager {
                 MYAPP.appinfo.name,
                 callbackurl,
                 MYAPP.siteinfo.scopes,
-                "",
+                MYAPP.siteinfo.appurl,
                 function (data) {
                     tmpaccount.siteinfo["key"] = data.client_id;
                     tmpaccount.siteinfo["secret"] = data.client_secret;

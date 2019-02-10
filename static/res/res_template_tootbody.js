@@ -253,7 +253,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
-                    <span class="subtitle truncate" v-html='reply.account.display_name + " @" + reply.account.acct'></span>  
+                    <span class="subtitle truncate" v-html='(reply.account.display_name != "" ? reply.account.display_name : reply.account.username) + " @" + reply.account.instance'></span>  
                     <!--<p style="width:90%" v-html="reply.body.html">-->
                     <pre class="toote_spoiler_or_main"  style="width:90%" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
                     <div class="area_spoiler" v-if="reply.body.spoilered">  
@@ -301,12 +301,16 @@ const CONS_TEMPLATE_TOOTBODY = `
                         <!--<a href="#!" class="tt_datetime" v-bind:title="reply.body.created_at.toLocaleString()" v-on:click="onclick_tt_datetime">{{ reply.body.diff_created_at.text }}</a>-->
                         <a href="#" class="tt_datetime"><time class="timeago" v-bind:datetime="reply.body.created_at.toISOString()" v-on:click="onclick_tt_datetime">{{reply.body.created_at.toLocaleString()}}</time></a>
                         <!--<a class="waves-effect waves-grey1 btn-flat " v-on:click="onclick_morevert"><i class="material-icons">more_vert</i></a>-->
-                        <v-menu offset-y>
+                        <v-menu offset-y left>
                             <v-btn flat icon slot="activator"><v-icon>more_vert</v-icon></v-btn>
                             <v-list>
                                     <v-divider></v-divider>
                                 <v-list-tile>
                                     <v-list-tile-title><a v-bind:href="reply.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a></v-list-tile-title>
+                                </v-list-tile>
+                                    <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_copytext(reply)">
+                                    <v-list-tile-title>{{translation.thistoot_copy}}</v-list-tile-title>
                                 </v-list-tile>
                                     <v-divider></v-divider>
                                 <template v-if="reply.relationship.isme">
@@ -382,7 +386,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-list-tile-title><a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a></v-list-tile-title>
             </v-list-tile>
                 <v-divider></v-divider>
-            <v-list-tile v-on:click="onclick_copytext">
+            <v-list-tile v-on:click="onclick_copytext(toote)">
                 <v-list-tile-title>{{translation.thistoot_copy}}</v-list-tile-title>
             </v-list-tile>
                 <v-divider></v-divider>

@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="{{ lang }}">
     <HEAD>
-        {% if request.host  == 'gplusdon.net' %}
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
         {% endif %}
         <script src="/static/lib/polyfill.min.js"></script>
@@ -66,7 +66,7 @@
 
     </HEAD>
     <body>
-        {% if request.host  == 'gplusdon.net' %}
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_ggltag.html' %}
         {% endif %}
         <div id="toppanel" class="grey lighten-3">

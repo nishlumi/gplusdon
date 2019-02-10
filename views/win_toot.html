@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{lang}}">
     <HEAD>
-        {% if request.host  == 'gplusdon.net' %}
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
         {% endif %}
         
@@ -37,7 +37,7 @@
 
     </HEAD>
     <body style="overflow:auto;">
-            {% if request.host  == 'gplusdon.net' %}
+            {% if sysinfo.hostname  == 'gplusdon.net' %}
             {% include 'jslib_ggltag.html' %}
             {% endif %}
     
@@ -139,10 +139,10 @@
                         </v-card>
                         
                     </template>
+                    {% include  "onedialog2.html"  %}
     
                 </v-app>
             </div>
-            {% include  "onedialog2.html"  %}
 
         <div id="temporary_area"></div>
 

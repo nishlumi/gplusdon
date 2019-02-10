@@ -3,7 +3,7 @@
 <html lang="{{ lang }}">
 
 <head>
-    {% if request.host  == 'gplusdon.net' %}
+    {% if sysinfo.hostname  == 'gplusdon.net' %}
     {% include 'jslib_gglanal.html' %}
     {% endif %}
     <title>G+Don</title>
@@ -50,7 +50,7 @@
     <link href="/static/css/index.css" rel="stylesheet" />
 </head>
 <body>
-        {% if request.host  == 'gplusdon.net' %}
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_ggltag.html' %}
         {% endif %}
 

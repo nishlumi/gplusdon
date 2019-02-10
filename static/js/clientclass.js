@@ -27,6 +27,7 @@ class Gplusdon {
             key: "",
             secret: "",
             token: "",
+            appurl : "https://gplusdon.net",
             //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
             redirect_uri : "/redirect",
             scopes: ["read", "write", "follow","push"],

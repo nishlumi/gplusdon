@@ -178,7 +178,7 @@ Vue.component("toot-inputbox", {
 		if (this.isfirst) {
 
 
-			var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			var OsmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 			Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
 			latlng = L.latLng(34.3939, 134.3939);
@@ -283,7 +283,16 @@ Vue.component("toot-inputbox", {
 				this.selmedias.splice(0,this.selmedias.length);
 				this.medias.splice(0,this.medias.length);
 				this.switch_NSFW = false;
-				this.is_geo = false;
+				if (this.is_geo) {
+					this.is_geo = false;
+					this.css.geo.common_ui_off = true;
+					this.geo.lat = 0;
+					this.geo.lng = 0;
+					this.geo.zoom = 1;
+					this.geo.locos.splice(0,this.geo.locos.length);
+					this.geouris.splice(0,this.geouris.length);
+					this.geotext = "";
+				}
 
 				MYAPP.commonvue.emojisheet.is_sheet = false;
 				if (this.otherwindow) {
@@ -406,6 +415,15 @@ Vue.component("reply-inputbox", {
 
 	},
 	beforeUpdate() {
+		if (this.replydata.reply_account) {
+			if (!this.wasset_replydata) {
+				this.reply_to_id = this.replydata.reply_to_id;
+				this.selmentions.splice(0,this.selmentions.length);
+				this.selmentions.push("@"+this.replydata.reply_account.acct);
+				this.select_sender_account();
+				this.wasset_replydata = true;
+			}
+		}
 		if (this.isfirst) {
 			//---setup CKeditor
 
@@ -413,14 +431,6 @@ Vue.component("reply-inputbox", {
 		}
 	},
 	updated() {
-		if (this.replydata.reply_account) {
-			if (!this.wasset_replydata) {
-				this.reply_to_id = this.replydata.reply_to_id;
-				this.selmentions.splice(0,this.selmentions.length);
-				this.selmentions.push("@"+this.replydata.reply_account.acct);
-				this.wasset_replydata = true;
-			}
-		}
 		if (this.isfirst) {
 			/*CKEDITOR.disableAutoInline = true;
 			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;

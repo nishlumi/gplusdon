@@ -1530,7 +1530,7 @@ var vue_mixin_for_inputtoot = {
 								var latlng = L.latLng(this.geo.lat, this.geo.lng);
 								this.geomap.setView(latlng);
 							}else{
-								var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+								var OsmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 								OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 								Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
 								latlng = L.latLng(this.geo.lat, this.geo.lng);
