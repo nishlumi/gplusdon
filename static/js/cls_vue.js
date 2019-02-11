@@ -960,7 +960,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_any_link : function (toote) {
-			var url = `/instances/${toote.account.instance}`;
+			var url = `/server/${toote.account.instance}`;
 			location.href = url;
 		},
 		onmouseenter_gifv : function (e) {

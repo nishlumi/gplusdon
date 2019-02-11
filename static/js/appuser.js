@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.open(url,"_blank");
                 },
                 onclick_any_link : function () {
-                    var url = `/instances/${this.instance}`;
+                    var url = `/server/${this.instance}`;
                     location.href = url;
                 },
                 onclick_endorse : function (e) {

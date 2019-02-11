@@ -83,7 +83,7 @@ app.use('/', routes);
 app.use('/accounts', accounts);
 app.use('/users', users);
 app.use('/connections', connections);
-app.use('/instances', instances);
+app.use('/server', instances);
 app.use('/tl', tl);
 app.use('/toot', toot);
 app.use('/direct', direct);

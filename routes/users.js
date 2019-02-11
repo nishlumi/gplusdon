@@ -61,34 +61,35 @@ router.get('/:instance/:id', function (req, res) {
             //---set up og:
             if ((result) && ("id" in result)) {
                 var name = (result.display_name.trim() == "" ? result.username : result.display_name);
-                info.sysinfo.oginfo.title = ucommon._T(info.realtrans,"lab_profile",[`${name}@${result.instance}`]);
+                info.sysinfo.oginfo.title = ucommon._T(info.realtrans, "lab_profile", [`${name}@${result.instance}`]);
                 info.sysinfo.oginfo.description = result.text;
-                info.sysinfo.oginfo.type = "profile"; 
+                info.sysinfo.oginfo.type = "profile";
                 info.sysinfo.oginfo.url = `https://${req.hostname}/users/${req.params.instance}/${req.params.id}`;
                 info.sysinfo.oginfo.image = result.avatar;
 
-                var realid = "";
-                if ("_gp_logined" in req.cookies) {
-                    userdata = {};
-                } else {
-                    realid = result.id;
-                    userdata = result;
-                }
-
-                res.render('appuser', {
-                    sysinfo: info.sysinfo,
-                    lang: info.lang,
-                    transjs: info.trans,
-                    trans : info.realtrans,
-                    instance: req.params.instance,
-                    uid: req.params.id,
-                    realid : realid,
-                    page: "home",
-                    userdata: JSON.stringify(userdata),
-                    csrfToken: req.csrfToken(),
-                    menustat: menuStatus
-                });
             }
+            var realid = "";
+            if ("_gp_logined" in req.cookies) {
+                userdata = {};
+            } else {
+                realid = result.id;
+                userdata = result;
+            }
+
+            res.render('appuser', {
+                sysinfo: info.sysinfo,
+                lang: info.lang,
+                transjs: info.trans,
+                trans : info.realtrans,
+                instance: req.params.instance,
+                uid: req.params.id,
+                realid : realid,
+                page: "home",
+                userdata: JSON.stringify(userdata),
+                csrfToken: req.csrfToken(),
+                menustat: menuStatus
+            });
+            
             
             
         });
@@ -115,7 +116,7 @@ router.get('/:instance/:id/toots/:tootid', function (req, res) {
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(req,lan);
     var info = ucommon.analyze_locale(req);
-    var api = cls_mstdn.loadAPI();
+    var api = cls_mstdn.loadAPImaster(req.params.instance);
 
     var userdata = {};
     var pro = [];
@@ -130,25 +131,44 @@ router.get('/:instance/:id/toots/:tootid', function (req, res) {
     pro.push(api.originalGet(targeturl, opt));
 
     Promise.all(pro)
-    .then(result => {
-        var fnldata = {
-            toot: result[0],
-            context : result[1]
-        };
-        res.render('appuser', {
-            sysinfo: info.sysinfo,
-            lang: info.lang,
-            transjs: info.trans,
-            trans : info.realtrans,
-            instance: req.params.instance,
-            uid: req.params.id,
-            page: "home",
-            onetoote: JSON.stringify(fnldata),
-            userdata: JSON.stringify(userdata),
-            csrfToken: req.csrfToken(),
-            menustat: menuStatus
+        .then(result => {
+            var fnldata = {
+                toot: result[0],
+                context: result[1]
+            };
+            res.render('appuser', {
+                sysinfo: info.sysinfo,
+                lang: info.lang,
+                transjs: info.trans,
+                trans: info.realtrans,
+                instance: req.params.instance,
+                uid: req.params.id,
+                page: "home",
+                onetoote: JSON.stringify(fnldata),
+                userdata: JSON.stringify(userdata),
+                csrfToken: req.csrfToken(),
+                menustat: menuStatus
+            });
+        })
+        .catch(error => {
+            var fnldata = {
+                toot: {},
+                context: {}
+            };
+            res.render('appuser', {
+                sysinfo: info.sysinfo,
+                lang: info.lang,
+                transjs: info.trans,
+                trans: info.realtrans,
+                instance: req.params.instance,
+                uid: req.params.id,
+                page: "home",
+                onetoote: JSON.stringify(fnldata),
+                userdata: JSON.stringify(userdata),
+                csrfToken: req.csrfToken(),
+                menustat: menuStatus
+            });
         });
-    });
 });
 
 module.exports = router;

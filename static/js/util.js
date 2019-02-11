@@ -1035,8 +1035,8 @@ var MUtility = {
 	},
 	openDirectOnetoot(rawdata){
 		var tootdata = JSON.parse(rawdata);
-		var toot = JSON.parse(tootdata.toot);
-		var context = JSON.parse(tootdata.context);
+		var toot = JSON.parse(tootdata.toot.data);
+		var context = JSON.parse(tootdata.context.data);
 		var tt = new Gpstatus(toot,14);
 		for (var a = 0; a < context.ancestors.length; a++) {
 			var ance = context.ancestors[a];

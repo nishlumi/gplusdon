@@ -28,6 +28,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
         <!--<v-btn icon  hidden-sm-and-down v-on:click="onclick_openInNew" v-if="!show_openInNew">
             <v-icon>open_in_browser</v-icon>
         </v-btn>-->
+        <span class="headline">{{title}}</span>
         <v-spacer></v-spacer>
         <v-tooltip bottom>
             <v-btn id="btn_addimage" slot="activator" icon v-if="toolbtn.addimage" v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn><input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
@@ -146,6 +147,17 @@ const CONS_TEMPLATE_INPUT_BOX = `
                         </v-flex>
                         <v-flex xs12 class="contentbottomstyle" style="position:relative;">
                             <span class="subheading toottext_length" v-bind:class="strlength_class" >{{ strlength }}</span>
+                            <!--<template v-if="(firsttext != '')&&(!is_editfirsttext)">
+                                <v-layout row wrap>
+                                    <v-flex xs12>
+                                        <div class="onetoot_inputcontent">{{firsttext}}</div>
+                                    </v-flex>
+                                    <v-flex xs12>
+                                        <v-btn color="primary" v-on:click="onclick_starteditfirst">編集する</v-btn>
+                                    </v-flex>
+                                </v-layout>
+                            </template>-->
+                           
                             <div :id="movingElementID('newinput_')" 
                                 name="inputcontent" 
                                 class="onetoot_inputcontent" 
@@ -157,8 +169,9 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 v-on:dragleave="ondragleave_inputcontent"
                                 v-on:drop="ondrop_inputcontent"
 
-                            >{{ status_text }}</div>
-                            
+                            >{{ status_text || firsttext }}</div>
+                        
+                        
                             <p id="toot_input_help" class="common_ui_off">
                                 <span class="body-1 red-text">{{ translation.accounts }}:</span><br>
                                 {{ translation.mn_accountbox_placeHolder }}<br>

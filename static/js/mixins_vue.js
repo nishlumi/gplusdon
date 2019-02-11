@@ -974,6 +974,7 @@ var vue_mixin_for_inputtoot = {
 	data() {
 		return {
 			ckeditor : null,
+			ckeditable : null,
 			btnflags : {
                 loading : false,
                 mood : {
@@ -1168,7 +1169,9 @@ var vue_mixin_for_inputtoot = {
 					this.btnflags.send_disabled = true;
 				}
 			}
-
+			if (val.length == 0) {
+				this.btnflags.send_disabled = true;
+			}
 		},
 		selmentions : function(val) {
 			var mentions;
@@ -1181,12 +1184,29 @@ var vue_mixin_for_inputtoot = {
 			//var tags = this.seltags.join(" ");
 			var tags = [];
 			for (var i = 0; i < this.seltags.length; i++) {
-				tags.push(this.seltags[i].text);
+				tags.push(this.seltags[i]);
 			}
 
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
 
+		},
+		seltags : function (val) {
+			var mentions;
+			if (this.screentype == "direct") {
+				mentions = this.calc_mentionLength(this.selmentions).join(" ");
+			}else{
+				mentions = this.calc_mentionLength(this.selmentions).join(" ");
+			}
+			//console.log(mentions, mentions.length);
+			//var tags = this.seltags.join(" ");
+			var tags = [];
+			for (var i = 0; i < val.length; i++) {
+				tags.push(val[i]);
+			}
+
+			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
+				+ mentions.length + tags.join(" ").length;
 		},
 		geouris : function (val,old) {
 			//var len = val.length;
@@ -1208,6 +1228,9 @@ var vue_mixin_for_inputtoot = {
 		},
 		strlength: function (val) {
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+			if (this.strlength == 0) {
+				this.btnflags.send_disabled = true;
+			}
 		},
 		status_text : function(val) {
 
@@ -1219,6 +1242,14 @@ var vue_mixin_for_inputtoot = {
 				this.strlength_class["red-text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+
+			if (this.strlength == 0) {
+				this.btnflags.send_disabled = true;
+			}
+			if (this.selaccounts.length == 0) {
+				this.btnflags.send_disabled = true;
+			}
+
 		},
 
 	},
@@ -1227,12 +1258,6 @@ var vue_mixin_for_inputtoot = {
 		//CKEDITOR.disableAutoInline = true;
 		//CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 		//this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
-
-		this.$nextTick(()=>{
-
-			
-		});
-
 	
 	},
 	methods : {
@@ -1263,7 +1288,7 @@ var vue_mixin_for_inputtoot = {
 			if (this.seltags.length > 0) {
 				var tags = [];
                 for (var i = 0; i < this.seltags.length; i++) {
-                    tags.push(this.seltags[i].text);
+                    tags.push(this.seltags[i]);
                 }
 
 				content += "\n" + tags.join(" ");
@@ -1357,8 +1382,8 @@ var vue_mixin_for_inputtoot = {
 			this.selaccounts.push(this.initialaccounts[0]);
 		},
 		insertText : function (text) {
-			this.ckeditor.editable().insertText(text);
-			this.status_text = this.ckeditor.editable().getText();
+			this.ckeditable.insertText(text);
+			this.status_text = this.ckeditable.getText();
 		},
 		generate_showable_mention : function () {
 			var men = this.selmentions[0];
@@ -1632,18 +1657,21 @@ var vue_mixin_for_inputtoot = {
 						this.seltags.splice(0,this.seltags.length);
 					}
 					this.selmedias.splice(0,this.selmedias.length);
-					this.selaccounts.splice(0,this.selaccounts.length);
+					if (!this.toolbtn.otherwindow) {
+						this.selaccounts.splice(0,this.selaccounts.length);
+					}
 					this.medias.splice(0,this.medias.length);
 					this.switch_NSFW = false;
+					this.is_geo = false;
 
 					//if (!this.fullscreen) {
 						this.dialog = false;
 					//}
-					if (this.otherwindow) {
+					/*if (this.otherwindow) {
 						if (MYAPP.session.config.action.close_aftertoot) {
 							window.close();
 						}
-					}
+					}*/
 					this.$emit("send",{isOK:true});
 				});
 			}else{

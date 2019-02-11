@@ -197,8 +197,8 @@ function load_instance(type,instance) {
         }
         this.selected.contact_account["instance"] = inst;
         
-        if (MUtility.checkRootpath(location.pathname,"instances") == -1) {
-            MUtility.returnPathToList("instances");
+        if (MUtility.checkRootpath(location.pathname,"server") == -1) {
+            MUtility.returnPathToList("server");
         }
         MUtility.enterPathInDetail(location.pathname,instance);
         if (data["contact_account"]) {

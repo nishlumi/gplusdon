@@ -26,10 +26,12 @@ function defineForTootPage(app) {
             tootIB : {
                 visibility : "",
                 first_scope : "public",
+                text : "",
                 popuping : "",
                 btns : {
                     close : true,
                     open_in_new : true,
+                    otherwindow : false,
                     help : true,
                     open_in_browser : false,
                     addimage : true,
@@ -343,6 +345,7 @@ function defineForTootPage(app) {
                 }
                 this.dialog = false;
                 if (this.otherwindow) {
+                    this.selaccounts.splice(0,this.selaccounts.length);
                     if (MYAPP.session.config.action.close_aftertoot) {
                         window.close();
                     }
@@ -441,6 +444,22 @@ function defineForTootPage(app) {
             onclick_menulink : function (url) {
                 location.href = url;
             },
+            setData : function (data) {
+                //this.$refs.inputbox.insertText(text);
+                this.initialaccounts = data.accounts;
+                this.$refs.inputbox.seltags = data.tags;
+                this.$refs.inputbox.selsharescope = data.scope;
+                this.$refs.inputbox.mentions = data.mentionlist;
+                this.$refs.inputbox.selmentions = data.mentions;
+                //this.$refs.inputbox.status_text = data.text;
+                this.$refs.inputbox.medias = data.medias;
+                localStorage.removeItem(this.CNS_SAVENAME);
+                //ID("dv_inputcontent").textContent = js.text;
+                //this.$refs.inputbox.ckeditor.editable().setText(data.text);
+                //this.tootIB.text = data.text;
+
+    
+            }
         }
     });
     app.commonvue["emojisheet"] = new Vue({

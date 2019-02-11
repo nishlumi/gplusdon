@@ -10,6 +10,10 @@ Vue.component("toot-inputbox", {
 		translation: Object,
 		globalinfo: Object,
 		first_sharescope : String,
+		firsttext : {
+			type : String,
+			default : ""
+		},
 		popuping : {
 			type : String,
 			default : ""
@@ -19,6 +23,7 @@ Vue.component("toot-inputbox", {
 			default : {
 				close : true,
 				open_in_new : true,
+				otherwindow : false,
 				help : true,
 				open_in_browser : false,
 				addimage : true,
@@ -30,13 +35,19 @@ Vue.component("toot-inputbox", {
 		tags : {
 			type : Array,
 			default : null
+		},
+		title : {
+			type : String,
+			default : ""
 		}
 		//account_info : Object,
     },
     data() {
 		return {
 			isfirst : true,
+			isfirsttext : true,
 			show_openInNew : false,
+            CNS_SAVENAME : "gp_inpt_conn",
 
 			//---account box data
 			max_account : 2,
@@ -61,7 +72,7 @@ Vue.component("toot-inputbox", {
             },
             //---tag box data
             seltags : [],
-            //tags: [],
+			//tags: [],
         };
 	},
 	watch: {
@@ -82,7 +93,7 @@ Vue.component("toot-inputbox", {
 
 			var tags = [];
 			for (var i = 0; i < val.length; i++) {
-				tags.push(val[i].text);
+				tags.push(val[i]);
 			}
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
@@ -143,36 +154,43 @@ Vue.component("toot-inputbox", {
 				this.mention_loading = false;
 				MYAPP.sns.setAccount(backupAC);
 			});   
-		},1000)
+		},1000),
 	},
 	mounted() {
-			//'dv_inputcontent'
-			var newid = this.movingElementID('newinput_');
-			CKEDITOR.disableAutoInline = true;
-			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-			this.ckeditor = CKEDITOR.inline( newid, CK_INPUT_TOOTBOX);
+		//'dv_inputcontent'
+		var newid = this.movingElementID('newinput_');
+		CKEDITOR.disableAutoInline = true;
+		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+		this.ckeditor = CKEDITOR.inline( newid, CK_INPUT_TOOTBOX);
 
-			console.log("this.status_text=",this.status_text);
-			//this.ckeditor.setData(this.status_text);
+		this.ckeditable = this.ckeditor.editable();
 
-			$("#"+newid).pastableContenteditable();
-			$("#"+newid).on('pasteImage',  (ev, data) => {
-				console.log(ev,data);
-				//if (this.dialog || this.otherwindow) {
-					this.loadMediafiles("blob",[data.dataURL]);
-				//}
-			}).on('pasteImageError', (ev, data) => {
-				alert('error paste:',data.message);
-				if(data.url){
-					alert('But we got its url anyway:' + data.url)
-				}
-			}).on('pasteText',  (ev, data) => {
-				console.log("text: " + data.text);
-				this.status_text = data.text;
-			});
-		
+		console.log("this.status_text=",this.status_text);
 
-
+		$("#"+newid).pastableContenteditable();
+		$("#"+newid).on('pasteImage',  (ev, data) => {
+			console.log(ev,data);
+			//if (this.dialog || this.otherwindow) {
+				this.loadMediafiles("blob",[data.dataURL]);
+			//}
+		}).on('pasteImageError', (ev, data) => {
+			alert('error paste:',data.message);
+			if(data.url){
+				alert('But we got its url anyway:' + data.url)
+			}
+		}).on('pasteText',  (ev, data) => {
+			console.log("text: " + data.text);
+			this.status_text = data.text;
+		});
+	},
+	beforeUpdate() {
+		if (this.isfirsttext) {
+			this.status_text = this.firsttext;
+			if (this.ckeditor.editable()) this.ckeditor.editable().setText(this.firsttext);
+			
+			this.strlength = twttr.txt.getUnicodeTextLength(this.firsttext);
+			this.isfirsttext = false;
+		}
 	},
 	Updated() {
 		if (this.isfirst) {
@@ -200,6 +218,7 @@ Vue.component("toot-inputbox", {
 			});
 			this.isfirst = false;
 		}
+		
 	},
     methods : {
 		//---Some function------------------------------------
@@ -268,6 +287,10 @@ Vue.component("toot-inputbox", {
 			var ret = dispname + "@" + data.instance;
 			return ret;
 		},
+		setText : function (text) {
+			this.status_text = text;
+			this.ckeditor.editable().setText(this.status_text);
+		},
 		onclick_close : function (e) {
 			var msg = _T("msg_cancel_post");
 			appConfirm(msg,()=>{
@@ -326,7 +349,6 @@ Vue.component("toot-inputbox", {
 			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
 			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
 		},
-
     }
 });
 //===----------------------------------------------------------------------===
@@ -400,7 +422,7 @@ Vue.component("reply-inputbox", {
 
 		var tmpscope = "tt_"+this.first_sharescope;
 		if (this.first_sharescope == "unlisted") {
-			tmpscope = "tt_tlonly"	
+			tmpscope = "tt_tlonly";
 		}
 		//console.log("first_sharescope=",this.first_sharescope,tmpscope);
 		var hitscopes = this.sharescopes.filter(e=>{
