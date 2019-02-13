@@ -108,9 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+                this.tlcond = new GTimelineCondition();
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -130,6 +130,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
                         this.loadTimeline(`tag/${this.tagname}`,opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.streams.tag.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.streams.tag.stop();
+                        }else{
+                            notifAccount.account.streams.tag.start();
+                        }
                     }
                 }
             }
@@ -150,9 +167,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
+                this.tlcond = new GTimelineCondition();
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -172,6 +189,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
                         this.loadTimeline(`tag/${this.tagname}`,opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.streams.taglocal.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline(`tag/${this.tagname}`,opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.streams.taglocal.stop();
+                        }else{
+                            notifAccount.account.streams.taglocal.start();
+                        }
                     }
                 }
             }

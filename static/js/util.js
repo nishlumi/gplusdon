@@ -1077,6 +1077,24 @@ var MUtility = {
 
 		document.execCommand("Copy");
 		selection.removeAllRanges();
+	},
+	/**
+	 * generate NEARLY datetime from Mastodon toot ID 
+	 * @param {String} id Mastodon's snowflake id
+	 * @return {Date} nearly Date object
+	 */
+	id2timestamp : function (id) {
+		var calc = parseInt(id) / 65536;
+		return new Date(calc);
+	},
+	/**
+	 * generate NEARLY Mastodon snowflake ID from Date
+	 * @param {Date} date created date of the toot
+	 * @return {String} nearly toot ID
+	 */
+	timestamp2id : function (date) {
+		var calc = date.valueOf();
+		return (calc * 65536).toString();
 	}
 };
 var gevts;

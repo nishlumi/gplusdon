@@ -120,11 +120,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
-
+                this.tlcond = new GTimelineCondition();
                 
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
+                //this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -143,7 +143,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     var param = e;
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
+                        
                         this.loadTimeline("home",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.stream.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("home",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.stream.stop();
+                        }else{
+                            notifAccount.account.stream.start();
+                        }
                     }
                 }
             }
@@ -166,10 +184,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
-            },
-            mounted() {
                 this.tlcond = new GTimelineCondition();
                 this.tlcond.type = "list";
+            },
+            mounted() {
             },
             watch : {
                 sellisttype_current : _.debounce(function(val){
@@ -236,6 +254,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         var opt = this.forWatch_allcondition(param);
                         opt.app["listid"] = param.listtype;
                         this.loadTimeline("list",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.streams.list.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        //opt.app["listid"] = param.listtype;
+                        this.loadTimeline("list",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.streams.list.stop();
+                        }else{
+                            notifAccount.account.streams.list.start();
+                        }
                     }
                 }
 
@@ -254,10 +290,10 @@ document.addEventListener('DOMContentLoaded', function() {
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
+                this.tlcond = new GTimelineCondition();
                
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -276,9 +312,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
                         this.loadTimeline("local",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.streams.local.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("local",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.streams.local.stop();
+                        }else{
+                            notifAccount.account.streams.local.start();
+                        }
                     }
                 }
-
             }
         }),
         "public" : new Vue({
@@ -294,10 +346,10 @@ document.addEventListener('DOMContentLoaded', function() {
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
+                this.tlcond = new GTimelineCondition();
                
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -316,9 +368,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
                         this.loadTimeline("public",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.streams.public.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("public",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.streams.public.stop();
+                        }else{
+                            notifAccount.account.streams.public.start();
+                        }
                     }
                 }
-
             }
         })
 

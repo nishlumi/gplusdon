@@ -248,6 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         this.loadTimeline("local",opt);
                     }
                 },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("local",opt);
+                    }
+                }
             }
         }),
     };

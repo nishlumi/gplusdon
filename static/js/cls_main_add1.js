@@ -243,25 +243,31 @@ function defineForMainPage(app) {
         },
         methods : {
             onsubmit_search : function (e) {
+                var ftext = this.findtext.trim();
                 //--common search function
 
                 /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
                 if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
                 //parentCommonSearch();
                 if (ID("area_instance")) {
-                    vue_instances.search.onsubmit_search(this.findtext);
+                    vue_instances.search.onsubmit_search(ftext);
                 }
                 if (ID("area_connections")) {
-                    vue_connections.search.load_search(this.findtext,{
+                    vue_connections.search.load_search(ftext,{
                         api : {},
                         app : {}
                     });                
                 }
                 if (ID("area_timeline")) {
-                    location.href = `/s/${this.findtext}`;
+                    if (ftext.indexOf("#") == 0) {
+                        var tmp = ftext.replace("#","");
+                        location.href = `/tl/tags/${tmp}`;
+                    }else{
+                        location.href = `/s/${ftext}`;
+                    }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${this.findtext}`;
+                    location.href = `/s/${ftext}`;
                 }
             },
             onclick_searchClear: function(e) {
@@ -741,24 +747,30 @@ function defineForMainPage(app) {
             onsubmit_search : function (e) {
                 //--common search function
                 this.dialog = false;
+                var ftext = this.findtext.trim();
 
                 /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
                 if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
                 //parentCommonSearch();
                 if (ID("area_instance")) {
-                    vue_instances.search.onsubmit_search(this.findtext);
+                    vue_instances.search.onsubmit_search(ftext);
                 }
                 if (ID("area_connections")) {
-                    vue_connections.search.load_search(this.findtext,{
+                    vue_connections.search.load_search(ftext,{
                         api : {},
                         app : {}
                     });                
                 }
                 if (ID("area_timeline")) {
-                    location.href = `/s/${this.findtext}`;
+                    if (ftext.indexOf("#") == 0) {
+                        var tmp = ftext.replace("#","");
+                        location.href = `/tl/tags/${tmp}`;
+                    }else{
+                        location.href = `/s/${ftext}`;
+                    }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${this.findtext}`;
+                    location.href = `/s/${ftext}`;
                 }
             },
             onclick_searchClear: function(e) {

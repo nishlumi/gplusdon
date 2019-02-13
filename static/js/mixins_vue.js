@@ -167,6 +167,7 @@ var vue_mixin_for_timeline = {
 				for (var obj in this.currentOption.api) {
 					pastOptions.api[obj] = this.currentOption.api[obj];
 				}
+				delete pastOptions.api["since_id"];
                 //var atab = Q(".tab .active");
                 if (this.$el.id == "tl_home") {
 					tlid = "home";
@@ -220,6 +221,7 @@ var vue_mixin_for_timeline = {
 				for (var obj in this.currentOption.api) {
 					futureOptions.api[obj] = this.currentOption.api[obj];
 				}
+				delete futureOptions.api["max_id"];
                 //---page max scroll up
                 console.log("scroll up max");
                 //var atab = Q(".tab .active");
@@ -479,11 +481,13 @@ var vue_mixin_for_timeline = {
 			if (!options.app.is_nomax) {
 				if (paging.next != "") {
 					this.info.maxid = paging.next; //data[data.length - 1].id;
+					this.currentOption.api.max_id = paging.next;
 				}
 			}
 			if (!options.app.is_nosince) {
 				if (paging.prev != "") {
 					this.info.sinceid = paging.prev; //data[0].id;
+					this.currentOption.api.since_id = paging.prev;
 				}
 			}
 			console.log("data.length=" + data.length);
@@ -880,17 +884,37 @@ var vue_mixin_for_timeline = {
 			//---this option is forcely.
 			this.currentOption.api["exclude_replies"] = true;
 
+			if ("link" in cond) {
+				if (cond.link.since_id == "") {
+					delete this.currentOption.api["since_id"];
+					this.currentOption.app["is_nosince"] = true;
+				}else{
+					this.currentOption.api["since_id"] = cond.link.since_id;
+					this.currentOption.app["is_nosince"] = false;
+				}
+				if (cond.link.max_id == "") {
+					delete this.currentOption.api["max_id"];
+					this.currentOption.app["is_nomax"] = true;
+				}else{
+					this.currentOption.api["max_id"] = cond.link.max_id;
+					this.currentOption.app["is_nomax"] = false;
+				}
+			}
 			//---these options are optional.
-			this.currentOption.app["tlshare"] = cond.tlshare;
-			this.currentOption.app["tltype"] = cond.tltype;
-			this.currentOption.app["filter"] = cond.filter;
-			
-			//---its exists in real Mastodon API.
-			if (cond.tltype.indexOf("tv_media") > -1) {
-				this.currentOption.api["only_media"] = true;
+			if ("tlshare" in cond) this.currentOption.app["tlshare"] = cond.tlshare;
+			if ("tltype" in cond) {
+				this.currentOption.app["tltype"] = cond.tltype;
+				//---its exists in real Mastodon API.
+				if (cond.tltype.indexOf("tv_media") > -1) {
+					this.currentOption.api["only_media"] = true;
+				}else{
+					delete this.currentOption.api["only_media"];
+				}
 			}else{
 				delete this.currentOption.api["only_media"];
 			}
+			if ("filter" in cond) this.currentOption.app["filter"] = cond.filter;			
+			
 			return this.currentOption;
 		},
 		forWatch_selshare : function (val) {

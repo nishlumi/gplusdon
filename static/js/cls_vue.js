@@ -1446,6 +1446,24 @@ class GTimelineCondition {
 			data : [],
 			text : "",
 		};
+		var dtb = new Date();
+		var dte = new Date();
+		dtb.setDate(1);
+		dte.setDate(1);
+		dte.setMonth(dte.getMonth()+1);
+		dte.setDate(dte.getDate()-1);
+		this.daterange = {
+			use : false,
+			begin : {
+				date : dtb.toISOString().substr(0,10),
+				time : dtb.toLocaleTimeString()
+			},
+			end : {
+				date : dte.toISOString().substr(0,10),
+				time : dte.toLocaleTimeString()
+			}
+			
+		}
 	}
 	static TLSHARE_TYPE() {
 		return {
@@ -1465,6 +1483,23 @@ class GTimelineCondition {
 		};
 	}
 	getReturn(){
+		var tootids = {
+			since_id : "",
+			max_id : "",
+		};
+
+		var dt = "";
+		if (!this.daterange.begin.date) {
+			dt = `${this.daterange.begin.date}T${this.daterange.begin.time}`;
+			var dtb = new Date(dt);
+			tootids.since_id = MUtility.timestamp2id(dtb);
+		}
+		if (!this.daterange.end.date) {
+			dt = `${this.daterange.end.date}T${this.daterange.end.time}`;
+			var dte = new Date(dt);
+			tootids.max_id = MUtility.timestamp2id(dte);
+		}
+
 		return {
 			status : true,
 			tlshare : this.share,
@@ -1472,6 +1507,7 @@ class GTimelineCondition {
 			listtype : this.listtype,
 			filtertext : this.filter.text,
 			filter : this.filter.data,
+			link : tootids,
 		};
 	}
 }
@@ -1488,11 +1524,30 @@ Vue.component("timeline-condition", {
 	data(){
 		return {
 			dialog : false,
+			datedialog : false,
+			datemenu : false,
 
 			sel_tlshare : "tt_all",
 			sel_tltype : ["tv_all"],
 			sel_listtype : "",
-			sel_filtertext : ""
+			sel_filtertext : "",
+
+			date_simple : 0,
+
+			disablecls : {
+				begin : {
+					date : true,
+					time : true
+				},
+				end : {
+					date : false,
+					time : false
+				},
+			},
+			colorcls : {
+				beginbtn : "grey",
+				endbtn : ""
+			}
 		};
 	},
 	mounted() {
@@ -1562,14 +1617,16 @@ Vue.component("timeline-condition", {
 					});
 				}
 			}
+			
 
 			var ret = {
 				status : true,
+				func : "exec",
 				tlshare : this.sel_tlshare,
 				tltype : this.sel_tltype,
 				listtype : this.sel_listtype,
 				filtertext : this.condition.filter.text,
-				filter : fobj
+				filter : fobj,
 			};
 
 
@@ -1579,6 +1636,77 @@ Vue.component("timeline-condition", {
 			}
 			this.$emit("saveclose",ret);
 			this.dialog = false;
+		},
+		onclick_dateclose : function (flag) {
+			var tootids = {
+				since_id : "",
+				max_id : "",
+			};
+
+			var dt = "";
+			if (!this.disablecls.begin.date) {
+				dt = `${this.condition.daterange.begin.date}T${this.condition.daterange.begin.time}`;
+				var dtb = new Date(dt);
+				tootids.since_id = MUtility.timestamp2id(dtb);
+			}
+			if (!this.disablecls.end.date) {
+				dt = `${this.condition.daterange.end.date}T${this.condition.daterange.end.time}`;
+				var dte = new Date(dt);
+				tootids.max_id = MUtility.timestamp2id(dte);
+			}
+			var ret = {
+				status : true,
+				func : "exec",
+				link : tootids
+			};
+			//---cancel is status only
+			if (!flag) {
+				ret = {status:false};
+			}
+			this.$emit("datesaveclose",ret);
+			this.datedialog = false;
+			
+		},
+		onclick_beginarrow : function (e) {
+			this.disablecls.begin.date = !this.disablecls.begin.date;
+			this.disablecls.begin.time = !this.disablecls.begin.time;
+			if (this.disablecls.begin.date) {
+				this.colorcls.beginbtn = "grey";
+			}else{
+				this.colorcls.beginbtn = "";
+			}
+		},
+		onclick_endarrow : function (e) {
+			this.disablecls.end.date = !this.disablecls.end.date;
+			this.disablecls.end.time = !this.disablecls.end.time;
+			if (this.disablecls.end.date) {
+				this.colorcls.endbtn = "grey";
+			}else{
+				this.colorcls.endbtn = "";
+			}
+		},
+		onclick_clearclose : function (flag) {
+			var ret = {
+				status : true,
+				func : "clear",
+				tlshare : "tt_all",
+				tltype : ["tv_all"],
+				listtype : "",
+				filtertext : "",
+				filter : [],
+				link : {
+					since_id : "",
+					max_id : "",
+				}
+			};
+
+			//---cancel is status only
+			if (!flag) {
+				ret = {status:false};
+			}
+			this.$emit("saveclose",ret);
+			this.dialog = false;
+
 		}
 	}
 });

@@ -252,9 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 //   the workarround for this.
                 Q(".tab.col a").classList.add("active");
                 this.pagetype = "account";
+                this.tlcond = new GTimelineCondition();
             },
             mounted() {
-                this.tlcond = new GTimelineCondition();
             },
             watch : {
                 selshare_current : _.debounce(function(val) {
@@ -283,6 +283,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (e.status) {
                         var opt = this.forWatch_allcondition(param);
                         this.loadTimeline("me",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "clear") {
+                            notifAccount.account.stream.start();
+                        }
+                    }
+                },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("me",opt);
+                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                        if (param.func == "exec") {
+                            notifAccount.account.stream.stop();
+                        }else{
+                            notifAccount.account.stream.start();
+                        }
                     }
                 }
             }
@@ -732,9 +749,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         tltype : vue_user.tootes.info.tltype
                     }
                 });*/
+                for (var obj in vue_user.tootes.currentOption.api) {
+					pastOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
+                }
+                
                 pastOptions.api.max_id = vue_user.tootes.info.maxid;
-                pastOptions.app.tlshare = vue_user.tootes.selshare_current;
-                pastOptions.app.tltype = vue_user.tootes.seltype_current;
+                //pastOptions.app.tlshare = vue_user.tootes.selshare_current;
+                //pastOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline("me",{
                     api : pastOptions.api,
                     app : pastOptions.app
@@ -772,9 +793,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         tltype : vue_user.tootes.info.tltype
                     }
                 });*/
+                for (var obj in vue_user.tootes.currentOption.api) {
+					futureOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
+				}
+
                 futureOptions.api.since_id = vue_user.tootes.info.sinceid;
-                futureOptions.app.tlshare = vue_user.tootes.selshare_current;
-                futureOptions.app.tltype = vue_user.tootes.seltype_current;
+                //futureOptions.app.tlshare = vue_user.tootes.selshare_current;
+                //futureOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline("me",{
                     api : futureOptions.api,
                     app : futureOptions.app

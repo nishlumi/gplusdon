@@ -144,7 +144,7 @@ div.toot_card_base.sizing {
 div.toot_card_base.topItem {
     grid-column : 1;
     grid-row : 1 / span 1;
-    height: 10rem;
+    height: 9rem;
 }
 div.toot_card_base.g1 {
     grid-row-end: span 1;

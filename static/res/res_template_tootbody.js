@@ -4,22 +4,27 @@
 const CONS_TEMPLATE_TLCONDITION = `
 <div class="item-content card-content">
     <v-layout>
-        <v-flex xs5>
+        <v-flex xs10>
             <v-btn fab dark small color="primary" v-on:click="dialog=!dialog">
                 <v-icon dark>settings</v-icon>
             </v-btn>
-            <v-btn fab  small color="white">
-                <v-icon dark>clear</v-icon>
+            <v-btn fab dark small color="primary" v-on:click="datedialog=!datedialog">
+                <v-icon dark>event</v-icon>
             </v-btn>
         </v-flex>
-        <v-flex xs7>
-            
+        <v-flex xs2>
+            <v-tooltip bottom>
+                <v-btn fab  small color="white" slot="activator" v-on:click="onclick_clearclose(true)">
+                    <v-icon dark>clear</v-icon>
+                </v-btn>
+                <span>{{translation.lab_clearcontidion}}</span>
+            </v-tooltip>
         </v-flex>
 
     </v-layout>
     <v-dialog
         v-model="dialog"
-        max-width="500px" persistent
+        max-width="500px"
         transition="dialog-transition"
     >
         <v-card>
@@ -54,6 +59,7 @@ const CONS_TEMPLATE_TLCONDITION = `
                             <v-checkbox :label="item.text" hide-details v-model="sel_tltype" :value="item.value"></v-checkbox>
                         </template>
                     </v-flex>
+                    
                     <!--<v-flex xs6>
                         <select id="sel_tlshare" v-model="selshare_current">
                             <template v-for="item in condition.tlshare_options">
@@ -75,6 +81,94 @@ const CONS_TEMPLATE_TLCONDITION = `
                 <v-spacer></v-spacer>
                 <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{translation.cons_cancel}}</v-btn>
                 <v-btn flat small color="primary" v-on:click="onclick_close(true)">{{translation.cons_apply}}</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="datedialog"
+        max-width="500px" 
+        transition="dialog-transition"
+    >
+        <v-card>
+            <v-card-title primary-title>
+                <v-icon>event</v-icon><span>{{translation.lab_timecondition1}}</span>
+            </v-card-title>
+            <v-card-text>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <span>{{translation.lab_timecondition4}}</span>
+                    </v-flex>
+                    <v-flex xs2>
+                        <v-tooltip bottom>
+                            <v-btn fab small icon slot="activator" :color="colorcls.beginbtn" v-on:click="onclick_beginarrow">
+                                <v-icon>arrow_forward</v-icon>
+                            </v-btn>
+                            <span>Start</span>
+                        </v-tooltip>
+                        
+                    </v-flex>
+                    <v-flex xs4>
+                        <v-text-field
+                            v-model="condition.daterange.begin.date"
+                            type="date"
+                            :label="translation.cons_date"
+                            hint="YYYY/MM/DD"
+                            persistent-hint
+                            :disabled="disablecls.begin.date"
+                            ></v-text-field>
+                    </v-flex>
+                    <v-flex xs4 offset-xs1>
+                            <v-text-field
+                            v-model="condition.daterange.begin.time"
+                            type="time"
+                            :label="translation.cons_time"
+                            hint="HH:MM"
+                            persistent-hint
+                            :disabled="disablecls.begin.time"
+                            ></v-text-field>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs2>
+                        <v-tooltip bottom>
+                            <v-btn fab small icon slot="activator" :color="colorcls.endbtn" v-on:click="onclick_endarrow">
+                                <v-icon>arrow_back</v-icon>
+                            </v-btn>
+                            <span>End</span>
+                        </v-tooltip>
+                        
+                    </v-flex>
+                    <v-flex xs4>
+                        <v-text-field
+                            v-model="condition.daterange.end.date"
+                            type="date"
+                            :label="translation.cons_date"
+                            hint="YYYY/MM/DD"
+                            persistent-hint
+                            :disabled="disablecls.end.date"
+                            ></v-text-field>
+                    </v-flex>
+                    <v-flex xs4 offset-xs1>
+                            <v-text-field
+                            v-model="condition.daterange.end.time"
+                            type="time"
+                            :label="translation.cons_time"
+                            hint="HH:MM"
+                            persistent-hint
+                            :disabled="disablecls.end.time"
+                            ></v-text-field>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <p>{{translation.msg_timecondition1}}</p>
+                    </v-flex>
+                </v-layout>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn flat small color="primary" v-on:click="onclick_dateclose(false)">{{translation.cons_cancel}}</v-btn>
+                <v-btn small color="primary" v-on:click="onclick_dateclose(true)">{{translation.cons_apply}}</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
