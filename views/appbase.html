@@ -150,8 +150,8 @@
                             </ul>-->
                             <v-card >
                                 <v-card-text class="pa-1" v-bind:class="css.bgred">
-                                    <v-list>
-                                        <v-list-tile avatar v-on:click="onclick_current_selaccount">
+                                    <v-list >
+                                        <v-list-tile avatar  v-on:click="onclick_current_selaccount">
                                             <v-list-tile-avatar>
                                                 <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
                                             </v-list-tile-avatar>
@@ -305,7 +305,7 @@
         </div>
         <div id="ov_inputtoot" class="dmy_inputtoot" v-if="accounts.length > 0">
             
-                <v-dialog v-model="dialog" class="white" persistent v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+                <v-dialog v-model="dialog" class="white" :persistent="persistent" v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
             <!--% include  "onetoote.html"  %}-->
                     <v-card>
                     <toot-inputbox  ref="inputbox"
@@ -321,6 +321,7 @@
                         :tags="tags"
                         v-on:close="onclick_close"
                         v-on:send="onclick_send"
+                        v-on:change="onchange_box"
                         ></toot-inputbox>
                     </v-card>
                 </v-dialog>

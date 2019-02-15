@@ -24,7 +24,11 @@ function defineForMainPage(app) {
         delimiters : ["{?", "?}"],
         data : {
             isappdialog : false,
-        }
+            revision : "",
+        },
+        mounted() {
+            this.revision = app.appinfo.revision;
+        },
     });
 
     app.commonvue["cur_sel_account"] = new Vue({
@@ -731,6 +735,9 @@ function defineForMainPage(app) {
                 this.remove_notification(id);
                 this.save_notification();
                 this.boarding--;
+            },
+            onclick_shownotifpage : function (e) {
+                location.href = "/notifications";
             }
         }
         
@@ -906,6 +913,10 @@ function defineForMainPage(app) {
             },
             onclick_close : function (e) {
                 this.is_overlaying = false;
+                if (this.$refs.tootview.is_opencomment) {
+                    //---if opened comment area, close.
+                    this.$refs.tootview.onclick_ttbtn_reply(e);
+                }
             },
             onclick_scrolltop : function (e) {
                 Q(".onetoote_cardtext").scroll({top:0, behavior:"smooth"});
@@ -915,6 +926,32 @@ function defineForMainPage(app) {
                 var ju_width = "";
                 var ju_fullscreen = false;
                 var ju_toolbar = false;
+                var breaksize = {
+                    xl : {size : "50%", isfull : false},
+                    lg : {size : "60%", isfull : false},
+                    md : {size : "70%", isfull : false},
+                    sm : {size : "90%", isfull : false},
+                    xs : {size : "90%", isfull : true}
+                };
+                if (breakpoint.xl) {
+                    ju_width = breaksize.xl.size;
+                    ju_fullscreen = breaksize.xl.isfull;
+                }else if (breakpoint.lg) {
+                    ju_width = breaksize.lg.size;
+                    ju_fullscreen = breaksize.lg.isfull;
+                }else if (breakpoint.md) {
+                    ju_width = breaksize.md.size;
+                    ju_fullscreen = breaksize.md.isfull;
+                }else if (breakpoint.sm) {
+                    ju_width = breaksize.sm.size;
+                    ju_fullscreen = breaksize.sm.isfull;
+                    ju_toolbar = true;
+                }else{
+                    ju_width = breaksize.xs.size;
+                    ju_fullscreen = breaksize.xs.isfull;
+                    ju_toolbar = true;
+                }
+                /*
                 if (breakpoint.lgAndUp) {
                     ju_width = "70%";
                     ju_fullscreen = false;
@@ -947,7 +984,7 @@ function defineForMainPage(app) {
                 }else{
                     ju_width = "70%";
                     ju_fullscreen = false;
-                }
+                }*/
                 this.isfull_toolbar = ju_toolbar;
                 this.activewidth = ju_width;
                 this.fullscreen = ju_fullscreen;
@@ -1169,6 +1206,7 @@ function defineForMainPage(app) {
             var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
             MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
             MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
+            MYAPP.commonvue.inputtoot.$refs.inputbox.clear_selectaccount();
             MYAPP.commonvue.inputtoot.$refs.inputbox.set_selectaccount();
             if (e.shiftKey) {
                 MYAPP.commonvue.inputtoot.onclick_openInNew();

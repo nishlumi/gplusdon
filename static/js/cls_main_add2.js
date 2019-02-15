@@ -15,6 +15,7 @@ function defineForTootPage(app) {
             otherwindow : false,
             dialog_title : "",
             fullscreen : false,
+            persistent : false,
             activewidth : "50%",
             show_openInNew : true,
             emoji_bottomsheet : false,
@@ -351,6 +352,10 @@ function defineForTootPage(app) {
                     }
                 }
             },
+            onchange_box : function (e) {
+                this.persistent = e.is_edit;
+                
+            },
             //---Some function------------------------------------
             select_scope: function (item) {
                 for (var i = 0; i < this.sharescopes.length; i++) {
@@ -398,7 +403,34 @@ function defineForTootPage(app) {
                 var breakpoint = this.$vuetify.breakpoint;
                 var ju_width = "";
                 var ju_fullscreen = false;
-                if (breakpoint.lgAndUp) {
+
+                var breaksize = {
+                    xl : {size : "50%", isfull : false},
+                    lg : {size : "60%", isfull : false},
+                    md : {size : "70%", isfull : false},
+                    sm : {size : "90%", isfull : false},
+                    xs : {size : "90%", isfull : true}
+
+                };
+                if (breakpoint.xl) {
+                    ju_width = breaksize.xl.size;
+                    ju_fullscreen = breaksize.xl.isfull;
+                }else if (breakpoint.lg) {
+                    ju_width = breaksize.lg.size;
+                    ju_fullscreen = breaksize.lg.isfull;
+                }else if (breakpoint.md) {
+                    ju_width = breaksize.md.size;
+                    ju_fullscreen = breaksize.md.isfull;
+                }else if (breakpoint.sm) {
+                    ju_width = breaksize.sm.size;
+                    ju_fullscreen = breaksize.sm.isfull;
+                }else{
+                    ju_width = breaksize.xs.size;
+                    ju_fullscreen = breaksize.xs.isfull;
+                }
+
+
+                /*if (breakpoint.lgAndUp) {
                     ju_width = "50%";
                     ju_fullscreen = false;
                 }else if (breakpoint.md) {
@@ -429,7 +461,7 @@ function defineForTootPage(app) {
                 }else{
                     ju_width = "50%";
                     ju_fullscreen = false;
-                }
+                }*/
                 this.activewidth = ju_width;
                 this.fullscreen = ju_fullscreen;
             },

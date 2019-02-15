@@ -1544,6 +1544,7 @@ class Gpsns {
             referInstance = this.reblogOriginal.account.instance;
             referEmojis = this.reblogOriginal.body.emojis;
             */
+           
         }
         
         if (this.medias) {

@@ -70,6 +70,7 @@ var vue_mixin_for_timeline = {
 		return {
 			is_asyncing : false,
 			is_scrolltop : true,
+			is_opencomment : false,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
 			currentOption : {
@@ -1214,6 +1215,11 @@ var vue_mixin_for_inputtoot = {
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
 
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
+
 		},
 		seltags : function (val) {
 			var mentions;
@@ -1231,6 +1237,11 @@ var vue_mixin_for_inputtoot = {
 
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
+
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
 		},
 		geouris : function (val,old) {
 			//var len = val.length;
@@ -1273,7 +1284,10 @@ var vue_mixin_for_inputtoot = {
 			if (this.selaccounts.length == 0) {
 				this.btnflags.send_disabled = true;
 			}
-
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
 		},
 
 	},
@@ -1312,7 +1326,7 @@ var vue_mixin_for_inputtoot = {
 			if (this.seltags.length > 0) {
 				var tags = [];
                 for (var i = 0; i < this.seltags.length; i++) {
-                    tags.push(this.seltags[i]);
+                    tags.push(this.seltags[i].text);
                 }
 
 				content += "\n" + tags.join(" ");
@@ -1401,6 +1415,9 @@ var vue_mixin_for_inputtoot = {
 			.catch(error=>{
 
 			});
+		},
+		clear_selectaccount : function (){
+			this.selaccounts.splice(0,this.selaccounts.length);
 		},
 		set_selectaccount : function (e) {
 			this.selaccounts.push(this.initialaccounts[0]);
@@ -1625,6 +1642,10 @@ var vue_mixin_for_inputtoot = {
 				//console.log("index=",index);
 				this.selmedias.splice(index,1);
 				this.medias.splice(index,1);
+				this.$emit("change",{
+					"is_edit" : (this.selmedias > 0) ? true : false,
+					"length" : this.strlength
+				});
 			});
 		},
 		onclick_send: function (e) {
@@ -1852,6 +1873,11 @@ var vue_mixin_for_inputtoot = {
 			.finally( () => {
 				MYAPP.sns.setAccount(backupAC);
 				console.log("finally=",backupAC);
+
+				this.$emit("change",{
+					"is_edit" : (this.strlength > 0) ? true : false,
+					"length" : this.strlength
+				});
 			});
 			return rootdef;
 		},
@@ -2057,30 +2083,80 @@ var vue_mixin_for_notification = {
 			}else{
 				var d = new Gpstatus(this.saveitem.status,16);
 				this.status = d;
+				MYAPP.sns.getConversation(this.status.body.id, this.status.body.id, "")
+				.then((condata) => {
+					var tt = this.status; //this.getParentToot(condata.parentID);
+					for (var a = 0; a < condata.data.ancestors.length; a++) {
+						var ance = condata.data.ancestors[a];
+						var gcls = new Gpstatus(ance,14);
 
-				//MYAPP.commonvue.tootecard.call_replySetup();
-				//MYAPP.commonvue.tootecard.reply_data = MYAPP.commonvue.tootecard.$refs.tootview.generateReplyObject(this.status);
-				//MYAPP.commonvue.tootecard.$refs.tootview.isupdate_request.reply = true;
-				MYAPP.commonvue.tootecard.status = this.status;
-				//MYAPP.commonvue.tootecard.$refs.tootview.toote = this.status;
-				MYAPP.commonvue.tootecard.$nextTick(()=>{
-					MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
-					MYAPP.commonvue.tootecard.$refs.tootview.apply_initialReplyInputCounter();
+						condata.data.ancestors[a] = gcls;
+
+					}
+					for (var a = 0; a < condata.data.descendants.length; a++) {
+						var desce = condata.data.descendants[a];
+						var gcls = new Gpstatus(desce,14);
+
+
+						condata.data.descendants[a] = gcls;
+					}
+					//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
+
+					if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
+						this.status.ancestors.splice(0,this.status.ancestors.length);
+						this.status.descendants.splice(0,this.status.descendants.length);
+						this.status.ancestors = this.status.ancestors.concat(condata.data.ancestors);
+						this.status.descendants = this.status.descendants.concat(condata.data.descendants);
+						this.status.body.replies_count = condata.data.descendants.length;
+					}
+					return condata;
+				})
+				.then((result)=> {
+					var basetoote = this.status;
+					for (var i = 0; i < basetoote.descendants.length; i++) {
+						var toote = basetoote.descendants[i];
+						if (("relationship" in toote) && ("following" in toote.relationship)) {
+							
+						}else{
+							MYAPP.sns.getRelationship(toote.account.id)
+							.then((result) => {
+								for (var i = 0; i < result.data.length; i++) {
+									for (var obj in result.data[i]) {
+										toote.relationship[obj] = Object.assign({}, result.data[i][obj]);
+									}
+								}
+							});
+						}
+					}
+
+				})
+				.finally( () => {
+					//MYAPP.commonvue.tootecard.call_replySetup();
+					//MYAPP.commonvue.tootecard.reply_data = MYAPP.commonvue.tootecard.$refs.tootview.generateReplyObject(this.status);
+					//MYAPP.commonvue.tootecard.$refs.tootview.isupdate_request.reply = true;
+					MYAPP.commonvue.tootecard.status = this.status;
+					//MYAPP.commonvue.tootecard.$refs.tootview.toote = this.status;
+					MYAPP.commonvue.tootecard.$nextTick(()=>{
+						MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
+						MYAPP.commonvue.tootecard.$refs.tootview.apply_initialReplyInputCounter();
+					});
+					
+					MYAPP.commonvue.tootecard.sizing_window();
+					MYAPP.commonvue.tootecard.is_overlaying = true;
+					//---change URL
+					if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
+						MUtility.returnPathToList(MYAPP.session.status.currentLocation);
+					}
+					var targetpath = "";
+					var changeuri = this.status.body.uri.replace("https://","");
+					changeuri = changeuri.replace("statuses","toots");
+					changeuri = changeuri.replace("users/","");
+					//---when each screen existable toot
+					targetpath = `/users/${changeuri}`;
+					MUtility.enterFullpath(targetpath);
 				});
+
 				
-				MYAPP.commonvue.tootecard.sizing_window();
-				MYAPP.commonvue.tootecard.is_overlaying = true;
-				//---change URL
-				if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
-					MUtility.returnPathToList(MYAPP.session.status.currentLocation);
-				}
-				var targetpath = "";
-				var changeuri = this.status.body.uri.replace("https://","");
-				changeuri = changeuri.replace("statuses","toots");
-				changeuri = changeuri.replace("users/","");
-				//---when each screen existable toot
-				targetpath = `/users/${changeuri}`;
-				MUtility.enterFullpath(targetpath);
 			}
 
 			if (this.pagetype == "popup") {

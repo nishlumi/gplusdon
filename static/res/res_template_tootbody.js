@@ -347,9 +347,9 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
-                    <span class="subtitle truncate" v-html='(reply.account.display_name != "" ? reply.account.display_name : reply.account.username) + " @" + reply.account.instance'></span>  
+                    <span class="subtitle reply_usertitle truncate" v-html='reply_usertitle(reply)'></span>  
                     <!--<p style="width:90%" v-html="reply.body.html">-->
-                    <pre class="toote_spoiler_or_main"  style="width:90%" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
+                    <pre class="toote_spoiler_or_main"  style="width:90%;margin-top:5px;" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
                     <div class="area_spoiler" v-if="reply.body.spoilered">  
                         <!--<label class="button_spoiler"><input type="checkbox"><p class="toote_main " v-html="reply.body.html"></p></label>-->
                         <details>

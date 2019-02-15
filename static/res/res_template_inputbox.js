@@ -52,7 +52,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
             <v-form v-model="toot_valid">
                 <v-container  fluid fill-height class="grey lighten-5" style="padding:12px">
                     <v-layout wrap align-center>
-                        <v-flex xs12 sm5 md5 class="contentbottomstyle">
+                        <v-flex xs12 sm5 md5 class="contentbottomstyle" style="overflow:hidden;">
                             <v-autocomplete v-model="selaccounts" v-bind:items="accounts" 
                                 box chips small-chips deletable-chips
                                 color="red lighten-1" :label="translation.accounts"

@@ -580,6 +580,9 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     width : 32px !important;
     height : 32px !important;
 }
+.toot_comment .reply_usertitle {
+    width : calc(100% - 150px);
+}
 .reply_input_count {
     position : absolute;
     bottom : 1rem;

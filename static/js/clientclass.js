@@ -12,6 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
+            revision : "20190215-02",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,

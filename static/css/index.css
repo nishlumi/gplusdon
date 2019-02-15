@@ -330,7 +330,26 @@ div.collection a i.material-icons {
     margin-top : 1.2rem;
 }
 .menulst_tile {
-    padding-left : 16px;
+    padding-left : 0.5rem;
+}
+#cur_sel_account .v-list .v-list__tile {
+    padding-left : 0.5rem;
+}
+@media only screen and (min-width: 1100px) {
+    .menulst_tile {
+        padding-left : 1rem;
+    }
+    #cur_sel_account .v-list .v-list__tile {
+        padding-left : 1rem;
+    }
+}
+@media only screen and (min-width: 1290px) {
+    .menulst_tile {
+        padding-left : 1.5rem;
+    }
+    #cur_sel_account .v-list .v-list__tile {
+        padding-left : 1.5rem;
+    }
 }
 .menulst_row {
     font-weight: 400;

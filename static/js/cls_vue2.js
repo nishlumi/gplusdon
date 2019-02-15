@@ -291,40 +291,59 @@ Vue.component("toot-inputbox", {
 			this.status_text = text;
 			this.ckeditor.editable().setText(this.status_text);
 		},
+		clearEditor : function () {
+			this.status_text = "";
+			this.mainlink.exists = false;
+
+			this.selaccounts.splice(0,this.selaccounts.length);
+			this.ckeditor.editable().setText("");
+			this.selmentions.splice(0,this.selmentions.length);
+			if (!MYAPP.session.config.action.noclear_tag) {
+				this.seltags.splice(0,this.seltags.length);
+			}
+			this.selmedias.splice(0,this.selmedias.length);
+			this.medias.splice(0,this.medias.length);
+			this.switch_NSFW = false;
+			this.btnflags.loading = false;
+			if (this.is_geo) {
+				this.is_geo = false;
+				this.css.geo.common_ui_off = true;
+				this.geo.lat = 0;
+				this.geo.lng = 0;
+				this.geo.zoom = 1;
+				this.geo.locos.splice(0,this.geo.locos.length);
+				this.geouris.splice(0,this.geouris.length);
+				this.geotext = "";
+			}
+
+			MYAPP.commonvue.emojisheet.is_sheet = false;
+		},
 		onclick_close : function (e) {
 			var msg = _T("msg_cancel_post");
-			appConfirm(msg,()=>{
-				this.status_text = "";
-				this.mainlink.exists = false;
-
-				this.selaccounts.splice(0,this.selaccounts.length);
-				this.ckeditor.editable().setText("");
-				this.selmentions.splice(0,this.selmentions.length);
-				if (!MYAPP.session.config.action.noclear_tag) {
-					this.seltags.splice(0,this.seltags.length);
-				}
-				this.selmedias.splice(0,this.selmedias.length);
-				this.medias.splice(0,this.medias.length);
-				this.switch_NSFW = false;
-				if (this.is_geo) {
-					this.is_geo = false;
-					this.css.geo.common_ui_off = true;
-					this.geo.lat = 0;
-					this.geo.lng = 0;
-					this.geo.zoom = 1;
-					this.geo.locos.splice(0,this.geo.locos.length);
-					this.geouris.splice(0,this.geouris.length);
-					this.geotext = "";
-				}
-
-				MYAPP.commonvue.emojisheet.is_sheet = false;
+			var chkedit = false;
+			if (this.status_text != "") chkedit = true;
+			if (this.selmentions.length > 0) chkedit = true;
+			if (this.selmedias.length > 0) chkedit = true;
+			
+			if (chkedit) {
+				appConfirm(msg,()=>{
+					this.clearEditor();
+					if (this.otherwindow) {
+						window.close();
+					}else{
+						this.dialog = false;
+					}
+					this.$emit("close",{});
+				});
+			}else{
+				this.clearEditor();
 				if (this.otherwindow) {
 					window.close();
 				}else{
 					this.dialog = false;
 				}
 				this.$emit("close",{});
-			});
+			}
 		},
 		onclick_openInNew : function (e) {
 			var savedata = {

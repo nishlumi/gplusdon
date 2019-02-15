@@ -260,6 +260,9 @@ Vue.component("timeline-toot", {
 		replyElementId: function (reply) {
 			return this.popuping + "reply_" + reply.id;
 		},
+		reply_usertitle : function (reply) {
+			return (reply.account.display_name != "" ? reply.account.display_name : reply.account.username) + " @" + reply.account.instance;
+		},
 		generateReplyObject: function (reply){
 			var selac = MYAPP.session.status.selectedAccount;
 			var data = {
@@ -397,6 +400,8 @@ Vue.component("timeline-toot", {
 				targetpath = `/accounts/${changeuri}`;
 			}
 			MUtility.enterFullpath(targetpath);
+
+			return Promise.resolve(true);
 	
 		},
 		onclick_morevert: function (e) {
@@ -439,6 +444,15 @@ Vue.component("timeline-toot", {
 		 */
 		onclick_ttbtn_reply: function (e) {
 			//console.log(e);
+			console.log(this.$vuetify.breakpoint);
+			if ((this.$vuetify.breakpoint.xs) && (this.popuping == "")) {
+				//---if smallest mobile, open other window
+				this.onclick_tt_datetime(e)
+				.then(flag=>{
+					MYAPP.commonvue.tootecard.$refs.tootview.onclick_ttbtn_reply(e);
+				});
+				return;
+			}
 			//---set up data for reply
 			this.reply_data = this.generateReplyObject(this.toote);
 			this.$refs.replyinput.enable_wasReplyInput(false);
@@ -482,7 +496,8 @@ Vue.component("timeline-toot", {
 			}
 
 			if (this.comment_stat.open || this.comment_stat.full) {
-				MYAPP.sns.getConversation(this.toote.id, this.toote.id, "")
+				this.is_opencomment = true;
+				MYAPP.sns.getConversation(this.toote.body.id, this.toote.body.id, "")
 				.then((condata) => {
 					var tt = this.toote; //this.getParentToot(condata.parentID);
 					for (var a = 0; a < condata.data.ancestors.length; a++) {
@@ -512,9 +527,10 @@ Vue.component("timeline-toot", {
 							this.first_comment_stat.mini = true;
 							this.comment_stat.mini = false;
 							this.comment_stat.open = true;
-								this.$nextTick(function () {
+							
+							/*this.$nextTick(function () {
 								return;
-							});
+							});*/
 						}
 					}
 					return condata;
@@ -545,9 +561,15 @@ Vue.component("timeline-toot", {
 					//this.isshow_replyinput = !this.isshow_replyinput;
 					//target.querySelector("div.template_reply_box").classList.toggle("common_ui_off");	
 				});
+				this.isshow_replyinput = true;
+				e.target.classList.remove("lighten-3");
+			}else{
+				this.is_opencomment = false;
+				this.isshow_replyinput = false;
+				e.target.classList.add("lighten-3");
 			}
-			e.target.classList.toggle("lighten-3");
-			this.isshow_replyinput = !this.isshow_replyinput;
+			
+			
 			
 
 		},
@@ -1645,12 +1667,22 @@ Vue.component("timeline-condition", {
 
 			var dt = "";
 			if (!this.disablecls.begin.date) {
-				dt = `${this.condition.daterange.begin.date}T${this.condition.daterange.begin.time}`;
+				var tmpdate = this.condition.daterange.begin.date;
+				var tmptime = this.condition.daterange.begin.time;
+				if (tmptime.split(":").length < 2) {
+					tmptime = "00:00";
+				}
+				dt = `${tmpdate}T${tmptime}`;
 				var dtb = new Date(dt);
 				tootids.since_id = MUtility.timestamp2id(dtb);
 			}
 			if (!this.disablecls.end.date) {
-				dt = `${this.condition.daterange.end.date}T${this.condition.daterange.end.time}`;
+				var tmpdate = this.condition.daterange.end.date;
+				var tmptime = this.condition.daterange.end.time;
+				if (tmptime.split(":").length < 2) {
+					tmptime = "00:00";
+				}
+				dt = `${tmpdate}T${tmptime}`;
 				var dte = new Date(dt);
 				tootids.max_id = MUtility.timestamp2id(dte);
 			}

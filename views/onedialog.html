@@ -79,7 +79,7 @@
             <v-card-actions>
                 <v-layout row wrap v-if="boarding === 0">
                     <v-flex xs6>
-                        <v-btn flat >{? _T("msg_show_notification") ?}</v-btn>                        
+                        <v-btn flat v-on:click="onclick_shownotifpage">{? _T("msg_show_notification") ?}</v-btn>                        
                     </v-flex>
                     <v-flex xs1 offset-xs5>
                         <v-btn flat icon v-on:click="onclick_clearall">
@@ -230,7 +230,7 @@
     
                         </div>
                         <div>
-                            {{trans.lab_version}}: {{sysinfo.version}}<br>
+                            {{trans.lab_version}}: {{sysinfo.version}} ({? revision ?})<br>
                             {{trans.lab_author}}: {{sysinfo.author}}<br>
                             {{trans.lab_advisor}}: 
                             <ul>
