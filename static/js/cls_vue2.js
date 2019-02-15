@@ -10,6 +10,10 @@ Vue.component("toot-inputbox", {
 		translation: Object,
 		globalinfo: Object,
 		first_sharescope : String,
+		firsttext : {
+			type : String,
+			default : ""
+		},
 		popuping : {
 			type : String,
 			default : ""
@@ -19,6 +23,7 @@ Vue.component("toot-inputbox", {
 			default : {
 				close : true,
 				open_in_new : true,
+				otherwindow : false,
 				help : true,
 				open_in_browser : false,
 				addimage : true,
@@ -30,13 +35,19 @@ Vue.component("toot-inputbox", {
 		tags : {
 			type : Array,
 			default : null
+		},
+		title : {
+			type : String,
+			default : ""
 		}
 		//account_info : Object,
     },
     data() {
 		return {
 			isfirst : true,
+			isfirsttext : true,
 			show_openInNew : false,
+            CNS_SAVENAME : "gp_inpt_conn",
 
 			//---account box data
 			max_account : 2,
@@ -61,7 +72,7 @@ Vue.component("toot-inputbox", {
             },
             //---tag box data
             seltags : [],
-            //tags: [],
+			//tags: [],
         };
 	},
 	watch: {
@@ -82,7 +93,7 @@ Vue.component("toot-inputbox", {
 
 			var tags = [];
 			for (var i = 0; i < val.length; i++) {
-				tags.push(val[i].text);
+				tags.push(val[i]);
 			}
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
@@ -143,42 +154,49 @@ Vue.component("toot-inputbox", {
 				this.mention_loading = false;
 				MYAPP.sns.setAccount(backupAC);
 			});   
-		},1000)
+		},1000),
 	},
 	mounted() {
-			//'dv_inputcontent'
-			var newid = this.movingElementID('newinput_');
-			CKEDITOR.disableAutoInline = true;
-			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
-			this.ckeditor = CKEDITOR.inline( newid, CK_INPUT_TOOTBOX);
+		//'dv_inputcontent'
+		var newid = this.movingElementID('newinput_');
+		CKEDITOR.disableAutoInline = true;
+		CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
+		this.ckeditor = CKEDITOR.inline( newid, CK_INPUT_TOOTBOX);
 
-			console.log("this.status_text=",this.status_text);
-			//this.ckeditor.setData(this.status_text);
+		this.ckeditable = this.ckeditor.editable();
 
-			$("#"+newid).pastableContenteditable();
-			$("#"+newid).on('pasteImage',  (ev, data) => {
-				console.log(ev,data);
-				//if (this.dialog || this.otherwindow) {
-					this.loadMediafiles("blob",[data.dataURL]);
-				//}
-			}).on('pasteImageError', (ev, data) => {
-				alert('error paste:',data.message);
-				if(data.url){
-					alert('But we got its url anyway:' + data.url)
-				}
-			}).on('pasteText',  (ev, data) => {
-				console.log("text: " + data.text);
-				this.status_text = data.text;
-			});
-		
+		console.log("this.status_text=",this.status_text);
 
-
+		$("#"+newid).pastableContenteditable();
+		$("#"+newid).on('pasteImage',  (ev, data) => {
+			console.log(ev,data);
+			//if (this.dialog || this.otherwindow) {
+				this.loadMediafiles("blob",[data.dataURL]);
+			//}
+		}).on('pasteImageError', (ev, data) => {
+			alert('error paste:',data.message);
+			if(data.url){
+				alert('But we got its url anyway:' + data.url)
+			}
+		}).on('pasteText',  (ev, data) => {
+			console.log("text: " + data.text);
+			this.status_text = data.text;
+		});
+	},
+	beforeUpdate() {
+		if (this.isfirsttext) {
+			this.status_text = this.firsttext;
+			if (this.ckeditor.editable()) this.ckeditor.editable().setText(this.firsttext);
+			
+			this.strlength = twttr.txt.getUnicodeTextLength(this.firsttext);
+			this.isfirsttext = false;
+		}
 	},
 	Updated() {
 		if (this.isfirst) {
 
 
-			var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			var OsmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 			Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
 			latlng = L.latLng(34.3939, 134.3939);
@@ -200,6 +218,7 @@ Vue.component("toot-inputbox", {
 			});
 			this.isfirst = false;
 		}
+		
 	},
     methods : {
 		//---Some function------------------------------------
@@ -220,7 +239,11 @@ Vue.component("toot-inputbox", {
 			}else{
 				this.isopen_mention = true;
 			}
-		},    
+		},
+		/**
+		 * remove selected account
+		 * @param {String} item 
+		 */
 		remove (item) {
 			var index = -1;
 			for (var i = 0; i < this.selaccounts.length; i++) {
@@ -231,7 +254,16 @@ Vue.component("toot-inputbox", {
 					break;
 				}
 			}
-			if (index >= 0) this.selaccounts.splice(index, 1);
+			if (index >= 0) {
+				for (var i = 0; i < this.medias.length; i++) {
+					for (var name in this.medias[i]) {
+						if (name == item.acct) {
+							delete this.medias[i][name];
+						}
+					}
+				}
+				this.selaccounts.splice(index, 1);
+			}
 		},
 		remove_mention (item) {
 			var index = -1;
@@ -255,31 +287,63 @@ Vue.component("toot-inputbox", {
 			var ret = dispname + "@" + data.instance;
 			return ret;
 		},
+		setText : function (text) {
+			this.status_text = text;
+			this.ckeditor.editable().setText(this.status_text);
+		},
+		clearEditor : function () {
+			this.status_text = "";
+			this.mainlink.exists = false;
+
+			this.selaccounts.splice(0,this.selaccounts.length);
+			this.ckeditor.editable().setText("");
+			this.selmentions.splice(0,this.selmentions.length);
+			if (!MYAPP.session.config.action.noclear_tag) {
+				this.seltags.splice(0,this.seltags.length);
+			}
+			this.selmedias.splice(0,this.selmedias.length);
+			this.medias.splice(0,this.medias.length);
+			this.switch_NSFW = false;
+			this.btnflags.loading = false;
+			if (this.is_geo) {
+				this.is_geo = false;
+				this.css.geo.common_ui_off = true;
+				this.geo.lat = 0;
+				this.geo.lng = 0;
+				this.geo.zoom = 1;
+				this.geo.locos.splice(0,this.geo.locos.length);
+				this.geouris.splice(0,this.geouris.length);
+				this.geotext = "";
+			}
+
+			MYAPP.commonvue.emojisheet.is_sheet = false;
+		},
 		onclick_close : function (e) {
 			var msg = _T("msg_cancel_post");
-			appConfirm(msg,()=>{
-				this.status_text = "";
-				this.mainlink.exists = false;
-
-				this.selaccounts.splice(0,this.selaccounts.length);
-				this.ckeditor.editable().setText("");
-				this.selmentions.splice(0,this.selmentions.length);
-				if (!MYAPP.session.config.action.noclear_tag) {
-					this.seltags.splice(0,this.seltags.length);
-				}
-				this.selmedias.splice(0,this.selmedias.length);
-				this.medias.splice(0,this.medias.length);
-				this.switch_NSFW = false;
-				this.is_geo = false;
-
-				MYAPP.commonvue.emojisheet.is_sheet = false;
+			var chkedit = false;
+			if (this.status_text != "") chkedit = true;
+			if (this.selmentions.length > 0) chkedit = true;
+			if (this.selmedias.length > 0) chkedit = true;
+			
+			if (chkedit) {
+				appConfirm(msg,()=>{
+					this.clearEditor();
+					if (this.otherwindow) {
+						window.close();
+					}else{
+						this.dialog = false;
+					}
+					this.$emit("close",{});
+				});
+			}else{
+				this.clearEditor();
 				if (this.otherwindow) {
 					window.close();
 				}else{
 					this.dialog = false;
 				}
 				this.$emit("close",{});
-			});
+			}
 		},
 		onclick_openInNew : function (e) {
 			var savedata = {
@@ -304,7 +368,6 @@ Vue.component("toot-inputbox", {
 			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
 			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
 		},
-
     }
 });
 //===----------------------------------------------------------------------===
@@ -339,6 +402,7 @@ Vue.component("reply-inputbox", {
 			reply_to_id : "",
 			//mention_to_id : "",
 			isfirst : true,
+			wasset_replydata : false,
 			ckeditor : {},
 			btnflags : {
 				send_disabled : false
@@ -377,7 +441,7 @@ Vue.component("reply-inputbox", {
 
 		var tmpscope = "tt_"+this.first_sharescope;
 		if (this.first_sharescope == "unlisted") {
-			tmpscope = "tt_tlonly"	
+			tmpscope = "tt_tlonly";
 		}
 		//console.log("first_sharescope=",this.first_sharescope,tmpscope);
 		var hitscopes = this.sharescopes.filter(e=>{
@@ -392,6 +456,15 @@ Vue.component("reply-inputbox", {
 
 	},
 	beforeUpdate() {
+		if (this.replydata.reply_account) {
+			if (!this.wasset_replydata) {
+				this.reply_to_id = this.replydata.reply_to_id;
+				this.selmentions.splice(0,this.selmentions.length);
+				this.selmentions.push("@"+this.replydata.reply_account.acct);
+				this.select_sender_account();
+				this.wasset_replydata = true;
+			}
+		}
 		if (this.isfirst) {
 			//---setup CKeditor
 
@@ -399,9 +472,6 @@ Vue.component("reply-inputbox", {
 		}
 	},
 	updated() {
-		this.reply_to_id = this.replydata.reply_to_id;
-		this.selmentions.splice(0,this.selmentions.length);
-		if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
 		if (this.isfirst) {
 			/*CKEDITOR.disableAutoInline = true;
 			CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
@@ -462,6 +532,9 @@ Vue.component("reply-inputbox", {
 		select_sender_account : function (e) {
 			this.selaccounts.splice(0,this.selaccounts.length);
 			this.selaccounts.push(this.replydata.selectaccount);
+		},
+		enable_wasReplyInput : function (flag) {
+			this.wasset_replydata = flag;
 		},
 		autocomplete_mention_func : CK_dataFeed_mention,
 		//---event handler-------------------------------------

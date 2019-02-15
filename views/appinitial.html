@@ -3,7 +3,7 @@
 <html lang="{{ lang }}">
 
 <head>
-    {% if request.host  == 'gplusdon.net' %}
+    {% if sysinfo.hostname  == 'gplusdon.net' %}
     {% include 'jslib_gglanal.html' %}
     {% endif %}
     <title>G+Don</title>
@@ -21,12 +21,20 @@
     <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <meta property="og:title" content="G+Don" />
-    <meta property="og:type" content="website" />
-    <meta property="og:description" content="複数アカウント対応、テキスト＆メディアが見やすく楽しいマストドンの新感覚ウェブクライアントです。" />
-    <meta property="og:url" content="https://gplusdon.net" />
-    <meta property="og:image" content="https://gplusdon.net/static/images/gp_og_image.png"/>
-    <meta property="og:site_name" content="G+Don" />
+    <meta name="hostname" content="{{sysinfo.hostname}}">
+
+    <meta property="og:title" content="{{sysinfo.oginfo.title}}" />
+    <meta property="og:type" content="{{sysinfo.oginfo.type}}" />
+    <meta property="og:description" content="{{sysinfo.oginfo.description}}" />
+    <meta property="og:url" content="{{sysinfo.oginfo.url}}" />
+    <meta property="og:image" content="{{sysinfo.oginfo.image}}"/>
+    <meta property="og:site_name" content="{{sysinfo.oginfo.site_name}}" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content="{{sysinfo.oginfo.url}}" />
+    <meta name="twitter:title" content="{{sysinfo.oginfo.title}}" />
+    <meta name="twitter:description" content="{{sysinfo.oginfo.description}}" />
+    <meta name="twitter:image" content="{{sysinfo.oginfo.image}}" />
 
 
     <link rel="shortcut icon" href="/static/images/app_icon.png" />
@@ -42,6 +50,9 @@
     <link href="/static/css/index.css" rel="stylesheet" />
 </head>
 <body>
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
+        {% include 'jslib_ggltag.html' %}
+        {% endif %}
 
     <div id="initialpanel">
         <div id="initialmainpanel" v-cloak>
@@ -77,7 +88,7 @@
                     <v-flex xs12 sm10 offset-sm1>
                         <v-layout row wrap>
                             <v-flex xs4>
-                                <a href="#isgpuser">
+                                <a href="/tl">
                                     <v-card>
                                         <v-card-text class="blue menu_onepanel">
                                             {{trans.lab_ini_menu_isuser}}
@@ -132,14 +143,14 @@
                             <v-flex xs12 headline>
                                 <span id="isgpuser" class="grey--text text--darken-4 eachtype_usertitle">{{trans.msg_ini_isuser_title}}</span>
                             </v-flex>
-                            <v-flex xs12>
+                            <v-flex xs10 offset-xs2>
                                 <a href="/tl">
-                                    <v-btn flat icon>
+                                    <v-btn >
                                         <v-icon>input</v-icon>
-                                    </v-btn>
-                                    <span class="headline">{{ trans.start_app }}</span>
-                                </a>
-                                
+                                    
+                                    <span class="headline">{{ trans.start_app }}</span></v-btn>
+                                </a><br>
+                                <b>{{trans.msg_ini_isuser_note0}}</b>
                             </v-flex>
                             <v-flex xs12>
                                 {{trans.msg_ini_from_gdrive}} <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
@@ -158,6 +169,7 @@
                                     <span class="subheading">{{trans.settings}}</span>
                                 </a>
                                 <p class="ml-2">
+                                    (*) {{trans.msg_ini_cookie1}}<br>
                                     (*) {{trans.msg_ini_isuser_note1}}<br>
                                     <br>
                                 </p>
@@ -189,7 +201,8 @@
                                         <v-flex xs12>
                                             <p class="ml-2">
                                                 (*) {{trans.msg_ini_beuser_note3}}<br>
-                                                (*) {{trans.msg_ini_beuser_note4}}
+                                                (*) {{trans.msg_ini_beuser_note4}}<br>
+                                                (*) {{trans.msg_ini_beuser_note5}}
                                             </p>
                                         </v-flex>
                                     </v-layout>
@@ -216,7 +229,7 @@
                                     {{trans.msg_ini_notuser_note1}}
                                     <br>
                                     {{trans.msg_ini_notuser_note2}}
-                                    <a href="/instances">G+Don instance page</a>
+                                    <a href="/server">G+Don server page</a>
                                 </p>
                             </v-flex>
                         </v-layout>
@@ -358,7 +371,7 @@
                     <h5 id="presentvideo">{{trans.lab_ini_menu_presentation}}</h5>
                 </v-flex>
                 <v-flex xs12>
-                    <v-layout row wrap class="common_ui_off">
+                    <v-layout row wrap class="">
                         <v-flex xs12 sm12 md5 offset-md1>
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/4Aeq_2PG2Ms" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             

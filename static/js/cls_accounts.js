@@ -6,7 +6,14 @@ class Account {
         this.id = "";
         this.idname = "";
         this.display_name = "";
-        this.token = "";
+        this.token = {
+            "token_type": "",
+            "expires_in": "",
+            "refresh_token": "",
+            "scope": "",
+            "access_token": "",
+            "access_secret": ""
+        };
         this.instance = "";
         this.acct = "";
         this.api = null;
@@ -85,7 +92,7 @@ class Account {
         this.directlst = data["directlst"] || [];
 
         this.others = data["others"] || {};
-        
+        try {
         this.stream = new Gpstream("user",this,null,null);
         //this.stream.start();
         this.streams.list = new Gpstream("list",this,null,null);
@@ -94,6 +101,9 @@ class Account {
         this.streams.public = new Gpstream("public",this,null,null);
         this.streams.local = new Gpstream("public:local",this,null,null);
         this.direct = new Gpstream("direct",this,null,null);
+        }catch(e){
+            console.log(e);
+        }
         //this.direct.start();
     }
 };
@@ -142,12 +152,20 @@ class AccountManager {
          effective register point is afterAddInstance
         */
         var acc = new Account();
-        acc.instance = instance_name;
+        var arr = instance_name.split("@");
+        if (arr.length == 1) { //---only instance name
+            acc.instance = arr[0];
+        }else{ //---if it includes username (ex: hoge@mstdn.jp )
+            //---split @, indicate last index element.
+            acc.instance = arr[arr.length-1];
+        }
+        //acc.instance = instance_name;
+
         acc.api = new MastodonAPI({
             instance: acc.getBaseURL()
         });
         var tmpaccount = {
-            "instance": instance_name,
+            "instance": acc.instance,
             "siteinfo": {}
         };
         var callbackurl = window.location.origin + MYAPP.appinfo.firstPath + MYAPP.siteinfo.redirect_uri;
@@ -157,7 +175,7 @@ class AccountManager {
                 MYAPP.appinfo.name,
                 callbackurl,
                 MYAPP.siteinfo.scopes,
-                "",
+                MYAPP.siteinfo.appurl,
                 function (data) {
                     tmpaccount.siteinfo["key"] = data.client_id;
                     tmpaccount.siteinfo["secret"] = data.client_secret;
@@ -234,6 +252,7 @@ class AccountManager {
                                     info : result,
                                     instance : result.uri
                                 };
+                                docCookies.setItem(MYAPP.siteinfo.cke,"1");
 
                                 return ({
                                     users : MYAPP.acman.items,
@@ -457,6 +476,9 @@ class AccountManager {
             } else {
                 var fdata = AppStorage.get(this.setting.NAME, null);
                 if (fdata && (fdata.length > 0)) {
+                    if (!docCookies.getItem(MYAPP.siteinfo.cke)) {
+                        docCookies.setItem(MYAPP.siteinfo.cke,"1");
+                    }
                     var promises = [];
                     var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
                     if (emojitest) {
@@ -466,7 +488,7 @@ class AccountManager {
                             ac.load(fdata[i]);
                             //console.log("ac.api=",ac.api,values[ac.instance]);
                             ac.api.setConfig("stream_url",values[ac.instance].info.urls.streaming_api);
-                            if (location.pathname != "/toot/new") {
+                            if ((location.pathname != "/toot/new") && (location.pathname != "/")) {
                                 ac.stream.start();
                                 ac.direct.start();
                             }

@@ -22,7 +22,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
             </v-menu>
 
         </v-flex>
-        <v-flex xs10>
+        <v-flex xs10 style="position:relative;">
             <div 
                 v-bind:id="movingElementID('replyinput_')"
                 name="inputcontent" 
@@ -45,7 +45,10 @@ const CONS_TEMPLATE_REPLYINPUT = `
                     <v-flex xs2>
                         <a class="waves-effect waves-red btn-flat"><i class="material-icons medium">add_photo_alternate</i></a>  
                     </v-flex>
-                    <v-flex x6 offset-xs5>
+                    <v-flex xs4>
+                        <span class="truncate">{{generate_showable_mention()}}</span>
+                    </v-flex>
+                    <v-flex x4>
                         <div class="">
                             <v-spacer></v-spacer>
                             <a class="btn_reply_cancel waves-effect waves-red btn-flat" 

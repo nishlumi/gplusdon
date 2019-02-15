@@ -79,7 +79,7 @@
             <v-card-actions>
                 <v-layout row wrap v-if="boarding === 0">
                     <v-flex xs6>
-                        <v-btn flat >{? _T("msg_show_notification") ?}</v-btn>                        
+                        <v-btn flat v-on:click="onclick_shownotifpage">{? _T("msg_show_notification") ?}</v-btn>                        
                     </v-flex>
                     <v-flex xs1 offset-xs5>
                         <v-btn flat icon v-on:click="onclick_clearall">
@@ -104,7 +104,7 @@
                 </v-layout>
             </v-card-actions>
         </v-card>
-        <v-window v-model="boarding">
+        <v-window v-model="boarding" style="width:100%;height:100%;">
             <v-window-item >
                 <v-card class="notiflist_card">
                     <v-list two-line>
@@ -136,16 +136,18 @@
                     </v-list>
                 </v-card>
             </v-window-item>
-            <v-window-item >
-                <div class="notiflist_card">
-                    <!--<template v-if="status != null">-->
-                        <timeline-toot 
-                            v-bind:translation="translations"
-                            v-bind:toote="status"
-                            v-bind:popuping="popuping"
+            <v-window-item class="vwinsizing">
+                <div class="notiflist_card toot_timeline_grid">
+                    <!--<template v-if="status != null">
                             v-bind:datastyle="datastyle"
                             v-bind:comment_viewstyle="comment_viewstyle"
                             v-bind:comment_list_area_viewstyle="comment_list_area_viewstyle"
+
+                        -->
+                        <timeline-toot ref="tootview"
+                            v-bind:translation="translations"
+                            v-bind:toote="status"
+                            v-bind:popuping="popuping"
                             v-bind:content_body_style="content_body_style"
                             v-bind:globalinfo="globalInfo"
                             v-on:replied_post="onreplied_children(status,index)"
@@ -228,7 +230,7 @@
     
                         </div>
                         <div>
-                            {{trans.lab_version}}: {{sysinfo.version}}<br>
+                            {{trans.lab_version}}: {{sysinfo.version}} ({? revision ?})<br>
                             {{trans.lab_author}}: {{sysinfo.author}}<br>
                             {{trans.lab_advisor}}: 
                             <ul>

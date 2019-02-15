@@ -111,14 +111,14 @@ span.badge {
     margin-right : 2rem;
     margin-top : 16px;
 }
-.notifmenu .userrectangle {
+/*.notifmenu .userrectangle {
     position: absolute;
     width: 40px;
     height: 40px;
     overflow: hidden;
     display: inline-block;
     vertical-align: middle;
-}
+}*/
 .userrectangle.basic40 {
     width: 40px;
     height: 40px;
@@ -330,7 +330,26 @@ div.collection a i.material-icons {
     margin-top : 1.2rem;
 }
 .menulst_tile {
-    padding-left : 16px;
+    padding-left : 0.5rem;
+}
+#cur_sel_account .v-list .v-list__tile {
+    padding-left : 0.5rem;
+}
+@media only screen and (min-width: 1100px) {
+    .menulst_tile {
+        padding-left : 1rem;
+    }
+    #cur_sel_account .v-list .v-list__tile {
+        padding-left : 1rem;
+    }
+}
+@media only screen and (min-width: 1290px) {
+    .menulst_tile {
+        padding-left : 1.5rem;
+    }
+    #cur_sel_account .v-list .v-list__tile {
+        padding-left : 1.5rem;
+    }
 }
 .menulst_row {
     font-weight: 400;
@@ -370,7 +389,7 @@ div.collection a i.material-icons {
     height : 300px;*/
     width : 100%;
     min-height : 52px;
-    max-height : 480px;
+    height : 500px;
     overflow : hidden;
     z-index : 989;
 }
@@ -382,18 +401,27 @@ div.collection a i.material-icons {
         height : 300px;*/
         width : 480px;
         min-height : 52px;
-        max-height : 480px;
+        height : 500px;
         overflow : hidden;
         z-index : 989;
     }
 }
 
-
+.notifmenu .vwinsizing {
+    width : 100%;
+    height : calc(100% - 52px);
+    /*overflow-y : auto;*/
+}
+.notifmenu .v-window__container {
+    width : 100%;
+    height : 100%;
+}
 .notifmenu .notiflist_card {
     overflow-x : hidden;
-    overflow-y : auto;
+    /*overflow-y : auto;*/
     -webkit-overflow-scrolling: touch;
-    height:calc(480px - 52px);
+    width : 100%;
+    height:calc(500px - 52px);
 }
 .notif_avatar_mark {
     position: absolute;
@@ -876,6 +904,7 @@ div.account_body .user-view .background {
     width : 100%;
     height : -moz-fit-content;
     height: fit-content;
+    /*height : 120px;*/
 }
 div.account_body .user-view .background img {
     width : 100%;
@@ -962,12 +991,26 @@ div.account_body .user-view .email {
     width : 4.5rem;
     height: 17rem;
 }
+.user-action-btns.col4 {
+    position: absolute;
+    bottom: 2rem;
+    right :  2%;
+    width : 4.5rem;
+    height: 6rem;
+}
 .user-action-btns.col_ac1 {
     position: absolute;
     bottom: 2rem;
     left: 2%;
     height: 64px;
     
+}
+.user-action-btns.inaccurate {
+    position: absolute;
+    top : 130px;
+    color : white;
+    height: 40px;
+
 }
 div.account_body .tabs .tab a {
     color : #F44336 !important;
@@ -1315,16 +1358,19 @@ div.instances_body .card .card-content.card-account-content p {
     border : none;
 }
 .onetoot_inputcontent, .dmy_inputtoot .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent {
-	background-color: #EFEFEF;
-	font-size : 1.2rem;
+	background-color: rgb(241, 241, 241);
+	font-size : 1.4rem;
     color : #000000;
     overflow : auto;
     -webkit-overflow-scrolling: touch;
-	width : 100%;
-    height : calc(1.5rem * 5);
+    width : 100%;
+    height : calc(1.7rem * 6);
     border-bottom : 0.1rem solid #C7C7C7;
     margin-bottom : 0.5rem;
     outline : none;
+}
+.onetoot_inputcontent, .dmy_inputtoot:focus .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent:focus {
+    border-bottom : 0.1rem solid #FF3434;
 }
 .onetoot_inputcontent p, .dmy_inputtoot .onetoot_inputcontent p, .template_reply_box .onetoot_inputcontent p {
     margin-bottom : 1px !important;    

@@ -5,11 +5,14 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/new', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     res.render('win_toot', {
-        sysinfo: ucommon.sysinfo,
-        transjs: trans,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         csrfToken: req.csrfToken(),
     });
 });

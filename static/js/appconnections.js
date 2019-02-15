@@ -31,15 +31,15 @@ function load_suggestion(options) {
         return result;        
     })
     .then(result2=>{
-        console.log("before data=",result2.data);
+        console.log("before data=",result2);
         var users = [];
-        for (var i = 0; i < result2.data.length; i++) {
-            users.push(result2.data[i].id);
+        for (var i = 0; i < result2.length; i++) {
+            users.push(result2[i].id);
         }
         return MYAPP.sns.getRelationship(users)
         .then(result3=>{
-            for (var d = 0; d < result2.data.length; d++) {
-                var datum = result2.data[d];
+            for (var d = 0; d < result2.length; d++) {
+                var datum = result2[d];
                 for (var i = 0; i < result3.data.length; i++) {
                     if (datum.id == result3.data[i].id) {
                         datum["relationship"] = result3.data[i];
@@ -48,8 +48,11 @@ function load_suggestion(options) {
                     }
                 }
             }
-            console.log("after data=",result2.data);
-            this.generate_account_detail(result2,options);
+            console.log("after data=",result2);
+            this.generate_account_detail({
+                data : result2,
+                paging : {"next":"", "prv":""}
+            },options);
         });
     })
     .catch((xhr,status)=>{
@@ -122,7 +125,7 @@ function load_following(options) {
             MUtility.loadingOFF();
             return;
         }
-        vue_connections.tabbar.following_count = result.data.length;
+        //vue_connections.tabbar.following_count = result.data.length;
 
         return result;
     })
@@ -198,7 +201,7 @@ function load_follower(options){
             MUtility.loadingOFF();
             return;
         }
-        vue_connections.tabbar.follower_count = result.data.length;
+        //vue_connections.tabbar.follower_count = result.data.length;
         
         return result;
     })
@@ -335,6 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //ID("lm_connections").classList.add("active");
     //ID("sm_connections").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
 
@@ -689,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     appConfirm(msg,()=>{
                         MYAPP.sns.setFollowRequest(e.user.id,e.answer)
                         .then(result=>{
-                            var u = this.getAlreadyAccount(e.user.id);
+                            var u = this.getAlreadyAccount(e.user);
                             this.accounts.splice(u.index,1);
                         });
                     });

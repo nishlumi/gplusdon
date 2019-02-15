@@ -4,22 +4,27 @@
 const CONS_TEMPLATE_TLCONDITION = `
 <div class="item-content card-content">
     <v-layout>
-        <v-flex xs5>
+        <v-flex xs10>
             <v-btn fab dark small color="primary" v-on:click="dialog=!dialog">
                 <v-icon dark>settings</v-icon>
             </v-btn>
-            <v-btn fab  small color="white">
-                <v-icon dark>clear</v-icon>
+            <v-btn fab dark small color="primary" v-on:click="datedialog=!datedialog">
+                <v-icon dark>event</v-icon>
             </v-btn>
         </v-flex>
-        <v-flex xs7>
-            
+        <v-flex xs2>
+            <v-tooltip bottom>
+                <v-btn fab  small color="white" slot="activator" v-on:click="onclick_clearclose(true)">
+                    <v-icon dark>clear</v-icon>
+                </v-btn>
+                <span>{{translation.lab_clearcontidion}}</span>
+            </v-tooltip>
         </v-flex>
 
     </v-layout>
     <v-dialog
         v-model="dialog"
-        max-width="500px" persistent
+        max-width="500px"
         transition="dialog-transition"
     >
         <v-card>
@@ -54,6 +59,7 @@ const CONS_TEMPLATE_TLCONDITION = `
                             <v-checkbox :label="item.text" hide-details v-model="sel_tltype" :value="item.value"></v-checkbox>
                         </template>
                     </v-flex>
+                    
                     <!--<v-flex xs6>
                         <select id="sel_tlshare" v-model="selshare_current">
                             <template v-for="item in condition.tlshare_options">
@@ -75,6 +81,94 @@ const CONS_TEMPLATE_TLCONDITION = `
                 <v-spacer></v-spacer>
                 <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{translation.cons_cancel}}</v-btn>
                 <v-btn flat small color="primary" v-on:click="onclick_close(true)">{{translation.cons_apply}}</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="datedialog"
+        max-width="500px" 
+        transition="dialog-transition"
+    >
+        <v-card>
+            <v-card-title primary-title>
+                <v-icon>event</v-icon><span>{{translation.lab_timecondition1}}</span>
+            </v-card-title>
+            <v-card-text>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <span>{{translation.lab_timecondition4}}</span>
+                    </v-flex>
+                    <v-flex xs2>
+                        <v-tooltip bottom>
+                            <v-btn fab small icon slot="activator" :color="colorcls.beginbtn" v-on:click="onclick_beginarrow">
+                                <v-icon>arrow_forward</v-icon>
+                            </v-btn>
+                            <span>Start</span>
+                        </v-tooltip>
+                        
+                    </v-flex>
+                    <v-flex xs4>
+                        <v-text-field
+                            v-model="condition.daterange.begin.date"
+                            type="date"
+                            :label="translation.cons_date"
+                            hint="YYYY/MM/DD"
+                            persistent-hint
+                            :disabled="disablecls.begin.date"
+                            ></v-text-field>
+                    </v-flex>
+                    <v-flex xs4 offset-xs1>
+                            <v-text-field
+                            v-model="condition.daterange.begin.time"
+                            type="time"
+                            :label="translation.cons_time"
+                            hint="HH:MM"
+                            persistent-hint
+                            :disabled="disablecls.begin.time"
+                            ></v-text-field>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs2>
+                        <v-tooltip bottom>
+                            <v-btn fab small icon slot="activator" :color="colorcls.endbtn" v-on:click="onclick_endarrow">
+                                <v-icon>arrow_back</v-icon>
+                            </v-btn>
+                            <span>End</span>
+                        </v-tooltip>
+                        
+                    </v-flex>
+                    <v-flex xs4>
+                        <v-text-field
+                            v-model="condition.daterange.end.date"
+                            type="date"
+                            :label="translation.cons_date"
+                            hint="YYYY/MM/DD"
+                            persistent-hint
+                            :disabled="disablecls.end.date"
+                            ></v-text-field>
+                    </v-flex>
+                    <v-flex xs4 offset-xs1>
+                            <v-text-field
+                            v-model="condition.daterange.end.time"
+                            type="time"
+                            :label="translation.cons_time"
+                            hint="HH:MM"
+                            persistent-hint
+                            :disabled="disablecls.end.time"
+                            ></v-text-field>
+                    </v-flex>
+                </v-layout>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <p>{{translation.msg_timecondition1}}</p>
+                    </v-flex>
+                </v-layout>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn flat small color="primary" v-on:click="onclick_dateclose(false)">{{translation.cons_cancel}}</v-btn>
+                <v-btn small color="primary" v-on:click="onclick_dateclose(true)">{{translation.cons_apply}}</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -169,7 +263,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <a v-bind:href="toote.mainlink.url" target="_blank" rel="noopener"> 
             <div class="image-area card-image"> 
             <v-img v-if="toote.mainlink.isimage" class="v-img" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" ></v-img>
-            <span class="link-title truncate"><i class="material-icons">link</i> 
+            <span class="link-title truncate" :title="toote.mainlink.site"><i class="material-icons">link</i> 
                 <span class="link-site" v-html="toote.mainlink.site"></span> 
             </span> 
             </div> 
@@ -192,7 +286,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div> 
     </div>  
 <!-----reaction for the toot-->
-    <div class="toot_content_action toot_action bottom"> 
+    <div class="toot_content_action toot_action bottom" v-if="hide_on_noauth"> 
         <v-tooltip bottom>
             <v-btn icon slot="activator" v-on:click="onclick_ttbtn_reply">
                 <v-icon>reply</v-icon>
@@ -246,16 +340,16 @@ const CONS_TEMPLATE_TOOTBODY = `
         </v-dialog> 
     </div> 
 <!-----reply area for the toot-->
-    <div class="toot_comment" v-bind:class="comment_stat">  
+    <div class="toot_comment" v-bind:class="comment_stat">
 <!-----reply commennt list -->
         <div class="comment-list-area" v-bind:class="comment_list_area_stat">
             <ul class="collection comment-list" v-bind:class="elementStyle.commentList"> 
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
-                    <span class="subtitle truncate" v-html='reply.account.display_name + " @" + reply.account.acct'></span>  
+                    <span class="subtitle reply_usertitle truncate" v-html='reply_usertitle(reply)'></span>  
                     <!--<p style="width:90%" v-html="reply.body.html">-->
-                    <pre class="toote_spoiler_or_main"  style="width:90%" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
+                    <pre class="toote_spoiler_or_main"  style="width:90%;margin-top:5px;" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
                     <div class="area_spoiler" v-if="reply.body.spoilered">  
                         <!--<label class="button_spoiler"><input type="checkbox"><p class="toote_main " v-html="reply.body.html"></p></label>-->
                         <details>
@@ -301,12 +395,16 @@ const CONS_TEMPLATE_TOOTBODY = `
                         <!--<a href="#!" class="tt_datetime" v-bind:title="reply.body.created_at.toLocaleString()" v-on:click="onclick_tt_datetime">{{ reply.body.diff_created_at.text }}</a>-->
                         <a href="#" class="tt_datetime"><time class="timeago" v-bind:datetime="reply.body.created_at.toISOString()" v-on:click="onclick_tt_datetime">{{reply.body.created_at.toLocaleString()}}</time></a>
                         <!--<a class="waves-effect waves-grey1 btn-flat " v-on:click="onclick_morevert"><i class="material-icons">more_vert</i></a>-->
-                        <v-menu offset-y>
+                        <v-menu offset-y left>
                             <v-btn flat icon slot="activator"><v-icon>more_vert</v-icon></v-btn>
                             <v-list>
                                     <v-divider></v-divider>
                                 <v-list-tile>
                                     <v-list-tile-title><a v-bind:href="reply.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a></v-list-tile-title>
+                                </v-list-tile>
+                                    <v-divider></v-divider>
+                                <v-list-tile v-on:click="onclick_copytext(reply)">
+                                    <v-list-tile-title>{{translation.thistoot_copy}}</v-list-tile-title>
                                 </v-list-tile>
                                     <v-divider></v-divider>
                                 <template v-if="reply.relationship.isme">
@@ -358,7 +456,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             </ul>
         </div>
         <!-----reply input box-->
-        <div class="toot_comment root_reply"> 
+        <div class="toot_comment root_reply" v-if="hide_on_noauth">
             <reply-inputbox ref="replyinput"
                 v-bind:popuping="popuping"
                 v-bind:id="toote.id"
@@ -380,6 +478,10 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-divider></v-divider>
             <v-list-tile>
                 <v-list-tile-title><a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a></v-list-tile-title>
+            </v-list-tile>
+                <v-divider></v-divider>
+            <v-list-tile v-on:click="onclick_copytext(toote)">
+                <v-list-tile-title>{{translation.thistoot_copy}}</v-list-tile-title>
             </v-list-tile>
                 <v-divider></v-divider>
             <template v-if="toote.relationship.isme">
@@ -412,7 +514,12 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)">
                     <v-list-tile-title v-html="toote.translateText.thisuser_report"></v-list-tile-title>
                 </v-list-tile>
+                <v-divider></v-divider>
             </template>
+            <v-list-tile v-on:click="onclick_any_link(toote)">
+                <v-list-tile-title>{{ translation.to_show_their_instance }}</v-list-tile-title>
+            </v-list-tile>
+
         </v-list>
         <!--<div class="collection">
             <a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ translation.thistoot_original }}</a>  
@@ -424,14 +531,50 @@ const CONS_TEMPLATE_TOOTBODY = `
             <a href="#" class="collection-item">{{ toote.translateText.thisuser_report }}</a>
             </template>
         </div>  -->
-        <dl>  
+        <dl>
+            <dt>{{translation.lab_each_info}}</dt>
+            <dd>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <a :href="get_instance_original_url(toote)" target="_blank">{{translation.lab_instance_original}}</a>
+                    </v-flex>
+                    <v-flex xs4>
+                            {{translation.lab_original_postdate}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <span>{{toote.body.created_at}}</span>
+                        </v-flex>
+                        <v-flex xs4>
+                            {{translation.lab_language}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <span>{{toote.body.language}}</span>
+                        </v-flex>
+                        <v-flex xs4>
+                            {{translation.lab_source_app}}
+                        </v-flex>
+                        <v-flex xs8>
+                            <template v-if="toote.body.application">
+                                <template v-if="toote.body.application.website != ''">
+                                    <a :href="toote.body.application.website" target="_blank">{{toote.body.application.name}}</a>
+                                </template>
+                                <template v-else>
+                                    <span>{{toote.body.application.name}}</span>
+                                </template>
+                            </template>
+                            <template v-else>
+                                {{translation.lab_unknown}}
+                            </template>
+                        </v-flex>
+                    </v-layout>
+            </dd>
             <dt>{{ translation.mentions }}</dt>  
             <dd>  
             <span class="chip" v-for="men in toote.mentions">{{ men }}</span>  
             </dd>  
             <dt>{{ translation.tags }}</dt>  
-            <dd>  
-            <span class="chip" v-for="tag in toote.tags">{{ tag }}</span>  
+            <dd>
+            <a class="chip" v-for="tag in toote.tags" :href="get_tagurl(tag)">{{ tag }}</a>  
             </dd>  
         </dl>  
         </div>  

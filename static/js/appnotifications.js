@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_settings").classList.add("active");
     //ID("sm_settings").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
 
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_notifications = new Vue({
         el : "#notifcationview",
         delimiters : ["{?","?}"],
-        mixins : [vue_mixin_for_notification],
+        mixins : [vue_mixin_for_notification,vue_mixin_for_timeline],
         data() {
             return {
                 is_asyncing : false,

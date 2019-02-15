@@ -34,7 +34,7 @@ const SNSPROP = {
 	}
 };
 const LONGPOLLING_INSTANCE = [
-	"oransns.com"
+	
 ];
 var LeafIcon;;
 var redIcon;
@@ -168,51 +168,30 @@ function setupLocale(params){
 	//URL引数から hl=* を取得
 	var p_lng = (params["hl"] ? params["hl"] : "");
 	
-	var arr = String(navigator.language).split("-");
-	var curloc = arr[0];
+	//var arr = String(navigator.language).split("-");
+	var curloc = document.body.parentElement.lang;
 	if (p_lng == "") {
 		curLocale.name = curloc;
-		curLocale.fullName = navigator.language;
+		curLocale.fullName = curloc;
 	}else{
 		curLocale.name = p_lng;
 		curLocale.fullName = p_lng;
 	}
-	var ishit = sessionStorage.getItem("currentlocale");
+	/*var ishit = sessionStorage.getItem("currentlocale");
 	if (ishit) {
 		curLocale.messages = JSON.parse(ishit);
 		ID("hid_currentlocale").value = "";
-	}else{
+	}else{*/
 		curLocale.messages = JSON.parse(ID("hid_currentlocale").value);
-		sessionStorage.setItem("currentlocale",ID("hid_currentlocale").value);
+		//sessionStorage.setItem("currentlocale",ID("hid_currentlocale").value);
 		ID("hid_currentlocale").value = "";
-	}
+	//}
 
 	var def2 = new Promise((resolve,reject)=>{
 		resolve(true);
 	});
 	return def2;
 
-	var prm = new URLSearchParams();
-	prm.append("srclang",curLocale.name);
-	var req = new Request(ID("hid_staticpath").value + ID("hid_currentlocale").value,{
-		method : "POST",
-		body : prm
-	});
-	var def2 = new Promise((resolve,reject)=>{
-		return fetch(req).then((res)=>{
-			console.log("fetch res=",res);
-			if (res.ok) {
-				return res.json().then((jsdata)=>{
-					console.log("success locale");
-					console.log(jsdata);
-					curLocale.messages = jsdata;
-					resolve(jsdata);
-				});
-			}
-		});
-	
-	});
-	return def2;
 
 }
 function checkBrowser(){
@@ -261,6 +240,12 @@ function checkBrowser(){
 	if (navigator.userAgent.toLowerCase().indexOf("vivaldi") != -1) {
 		ret.kind =  "vivaldi";
 		ret.platform = "browser";
+	}
+	if (navigator.userAgent.toLowerCase().indexOf("iphone") != -1) {
+		ret.platform = "ios";
+	}
+	if (navigator.userAgent.toLowerCase().indexOf("iipad") != -1) {
+		ret.platform = "ios";
 	}
 	return ret;
 }
@@ -710,7 +695,8 @@ function checkRange(min,val,max){
  */
 var AppStorage = {
     apptype: "",
-    filename: "gpdn.db",
+	filename: "gpdn.db",
+	islocal : true,
     data: {},
     isEnable: function () {
         if (Windows.Storage.ApplicationData.current.localSettings) {
@@ -724,7 +710,11 @@ var AppStorage = {
         if (curLocale.environment.platform == "windowsapp") {
             a = Windows.Storage.ApplicationData.current.localSettings.values[key];
         } else {
-            a = localStorage.getItem(key);
+			if (this.islocal) {
+				a = localStorage.getItem(key);
+			}else{
+				a = sessionStorage.getItem(key);
+			}
         }
         if (!a) {
             a = defaults;
@@ -738,21 +728,33 @@ var AppStorage = {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values[key] = JSON.stringify(value);
         } else {
-            localStorage.setItem(key, JSON.stringify(value));
+			if (this.islocal) {
+				localStorage.setItem(key, JSON.stringify(value));
+			}else{
+				sessionStorage.setItem(key, JSON.stringify(value));
+			}
         }
     },
     remove: function (key) {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values.remove(key);
         } else {
-            localStorage.removeItem(key);
+			if (this.islocal) {
+				localStorage.removeItem(key);
+			}else{
+				sessionStorage.removeItem(key);
+			}
         }
     },
     clear: function () {
         if (curLocale.environment.platform == "windowsapp") {
             Windows.Storage.ApplicationData.current.localSettings.values.clear();
         } else {
-            localStorage.clear();
+			if (this.islocal) {
+				localStorage.clear();
+			}else{
+				sessionStorage.clear();
+			}
         }
     },
     initialize: function (callback) {
@@ -875,6 +877,14 @@ var MUtility = {
 		var retpath;
 		retpath = `/users/${account.instance}/${account.username}`;
 		return retpath;
+	},
+	generate_hashtagpath : function (tag) {
+		var url = `/tl/tags/${encodeURIComponent(tag)}`;
+		return url;
+	},
+	generate_instanceOriginalURL : function (current_account,toote) {
+		var url = `https://${current_account.instance}/web/statuses/${toote.body.id}`;
+		return url;
 	},
 	generate_searchQuery(path) {
 		var a = path.replace("?","");
@@ -1000,12 +1010,13 @@ var MUtility = {
 		}
 		for (var r = 0; r < re.length; r++) {
 			var rstr = re[r];
+			var ori_rstr = rstr.replace(/\:/g,"");
 			//---from emojis of toot
 			if (emojis) {
 				for (var i = 0; i < emojis.length; i++) {
 					var emo = emojis[i];
 					//console.log("emoji loop=",r,rstr,emo.shortcode,(rstr.indexOf(emo.shortcode) > -1));
-					if (rstr.indexOf(emo.shortcode) > -1) {
+					if (ori_rstr == emo.shortcode) {
 						var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
 						text = text.replace(rstr,img);
 						break;
@@ -1013,7 +1024,6 @@ var MUtility = {
 				}
 			}
 			//---from emojis of instance
-			var ori_rstr = rstr.replace(/\:/g,"");
 			if (ori_rstr in instemojis.data) {
 				var emo = instemojis.data[ori_rstr];
 				var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
@@ -1025,8 +1035,8 @@ var MUtility = {
 	},
 	openDirectOnetoot(rawdata){
 		var tootdata = JSON.parse(rawdata);
-		var toot = JSON.parse(tootdata.toot);
-		var context = JSON.parse(tootdata.context);
+		var toot = JSON.parse(tootdata.toot.data);
+		var context = JSON.parse(tootdata.context.data);
 		var tt = new Gpstatus(toot,14);
 		for (var a = 0; a < context.ancestors.length; a++) {
 			var ance = context.ancestors[a];
@@ -1055,6 +1065,36 @@ var MUtility = {
 		
 		
 
+	},
+	copyClipboard : function (htmlcontent) {
+		var a = ID("temporary_area");
+		a.innerHTML = htmlcontent.replace(/class="invisible"/g,"");
+		var selection = window.getSelection();
+		var ran = document.createRange();
+		ran.selectNodeContents(a);
+		selection.removeAllRanges();
+		selection.addRange(ran);
+
+		document.execCommand("Copy");
+		selection.removeAllRanges();
+	},
+	/**
+	 * generate NEARLY datetime from Mastodon toot ID 
+	 * @param {String} id Mastodon's snowflake id
+	 * @return {Date} nearly Date object
+	 */
+	id2timestamp : function (id) {
+		var calc = parseInt(id) / 65536;
+		return new Date(calc);
+	},
+	/**
+	 * generate NEARLY Mastodon snowflake ID from Date
+	 * @param {Date} date created date of the toot
+	 * @return {String} nearly toot ID
+	 */
+	timestamp2id : function (date) {
+		var calc = date.valueOf();
+		return (calc * 65536).toString();
 	}
 };
 var gevts;

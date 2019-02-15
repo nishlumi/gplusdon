@@ -105,7 +105,11 @@ class Gpstream {
             if (this._query != "") {
                 endpoint += `&${this._query}`;
             }
-            this._targetAccount.api.stream(endpoint,mainbody,errorbody);
+            if ((this._type.indexOf("public") > -1) || (this._type.indexOf("hashtag") > -1)) {
+                this._targetAccount.api.stream_noauth(endpoint,mainbody,errorbody);    
+            }else{
+                this._targetAccount.api.stream(endpoint,mainbody,errorbody);
+            }
         }
     }
     stop() {

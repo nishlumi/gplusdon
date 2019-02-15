@@ -8,7 +8,7 @@
 <div id="area_timeline" class="timeline_body">
     <div class="row">
         <div class="col s12">
-            <ul  class="tabs tabs-fixed-width">
+            <ul  class="tabs tabs-fixed-width" style="padding-top:3px;">
                 <li class="tab col s3"><a class="black-text active" href="#tl_home"><i class="material-icons">home</i><span class="hidden-sm-and-down">{{trans.home}}</span></a></li>
                 <li class="tab col s3"><a href="#tl_list" class="black-text"><i class="material-icons">list</i><span class="hidden-sm-and-down">{{trans.list}}</span></a></li>
                 <li class="tab col s3"><a href="#tl_local" class="black-text"><i class="material-icons">view_day</i><span class="hidden-sm-and-down">{{trans.local}}</span></a></li>
@@ -54,6 +54,7 @@
                         :translation="translations"
                         :condition="tlcond"
                         v-on:saveclose="onsaveclose"
+                        v-on:datesaveclose="ondatesaveclose"
                     ></timeline-condition>
                 </div>
 
@@ -118,6 +119,7 @@
                         :translation="translations"
                         :condition="tlcond"
                         v-on:saveclose="onsaveclose"
+                        v-on:datesaveclose="ondatesaveclose"
                     ></timeline-condition>
                 </div>
                 <timeline-toot 
@@ -174,6 +176,7 @@
                         :translation="translations"
                         :condition="tlcond"
                         v-on:saveclose="onsaveclose"
+                        v-on:datesaveclose="ondatesaveclose"
                     ></timeline-condition>
                 </div>
                 <timeline-toot 
@@ -230,6 +233,7 @@
                         :translation="translations"
                         :condition="tlcond"
                         v-on:saveclose="onsaveclose"
+                        v-on:datesaveclose="ondatesaveclose"
                     ></timeline-condition>
                 </div>
                 <timeline-toot 

@@ -12,6 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
+            revision : "20190215-02",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -21,9 +22,13 @@ class Gplusdon {
         this.appinfo = cstappinfo;
 
         this.siteinfo = {
+            cke : "_gp_logined",
+            lancke : "_gp_lang",
+            srv_inst : "mastodon.cloud",
             key: "",
             secret: "",
             token: "",
+            appurl : "https://gplusdon.net",
             //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
             redirect_uri : "/redirect",
             scopes: ["read", "write", "follow","push"],
@@ -36,6 +41,10 @@ class Gplusdon {
         };
         
         this.acman = new AccountManager();
+
+        //---for no login user (call no-auth API)
+        this.server_account = new Account();
+        this.is_serveronly = false;
 
         this.session = new Gpsession();
         //---if session data from before page, load it.
@@ -167,8 +176,8 @@ class Gplusdon {
                 
                 }
                 if (Q(".hashtag_body")) {
-                    notifAccount.account.streams.tag.setTargetTimeline(vue_timeline.public);
-                    notifAccount.account.streams.taglocal.setTargetTimeline(vue_timeline.public);
+                    notifAccount.account.streams.tag.setTargetTimeline(vue_timeline.tag);
+                    notifAccount.account.streams.taglocal.setTargetTimeline(vue_timeline.taglocal);
                 }
                 if (Q("#area_account")) {
                     notifAccount.account.stream.setTargetTimeline(vue_user.tootes);
@@ -307,14 +316,21 @@ class Gplusdon {
         //popup_ovuser.open();
         //}
     }
-    showBottomCtrl(flag) {
+    showPostCtrl(flag) {
         if (flag) {
             ID("btn_post_toote").classList.remove("common_ui_off");
-            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
-            ID("bottomnav").classList.remove("common_ui_off");
         }else{
             ID("btn_post_toote").classList.add("common_ui_off");
-            if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
+        }
+    }
+    showBottomCtrl(flag) {
+        if (flag) {
+            //ID("btn_post_toote").classList.remove("common_ui_off");
+            //if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
+            ID("bottomnav").classList.remove("common_ui_off");
+        }else{
+            //ID("btn_post_toote").classList.add("common_ui_off");
+            //if (MYAPP.commonvue.bottomnav.$vuetify.breakpoint.mdAndUp) return;
             ID("bottomnav").classList.add("common_ui_off");
         }
     }
@@ -503,6 +519,8 @@ class Gplusdon {
                 "data" : {"id":"dummy","url":"hogehoge"}
             });*/
             //---test
+            var bkupac = MYAPP.sns._accounts;
+            MYAPP.sns.setAccount(account);
             
             MYAPP.sns.postMedia(fnlopt)
             .then(result=>{
@@ -518,6 +536,9 @@ class Gplusdon {
                 alertify.error("Failed: Update media file.");
                 
                 reject(error);
+            })
+            .finally( ()=>{
+                MYAPP.sns.setAccount(bkupac);
             });
 
         });
@@ -625,5 +646,20 @@ class Gplusdon {
         var openpath = srvurl+"toot/new";
         var features = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=yes,width=640,height=500"
         window.open(openpath,"_blank",features);
+    }
+    createTempAccount (instance) {
+        var def = new Promise((resolve,reject)=>{
+            this.server_account.instance = instance;
+            this.sns.getInstanceInfo(instance)
+            .then(result=>{
+                this.server_account.api = new MastodonAPI({
+                    instance: this.server_account.getBaseURL()
+                });
+                this.server_account.token["stream_url"] = result.urls.streaming_api;
+                this.server_account.api.setConfig("stream_url",this.server_account.token["stream_url"]);
+                resolve(this.server_account);
+            });
+        });
+        return def;
     }
 }

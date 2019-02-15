@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = "G+Don-100-20190203-05";
+var CACHE = "G+Don-103-20190215-02";
 var precacheFiles = [
     /* Add an array of files to precache for your app */
     /*"/",
@@ -238,6 +238,12 @@ self.addEventListener("activate", function(evt) {
             );
         })
     );
+
+    if (!self.registration.navigationPreload) {
+        console.log("navigationPreload not supported")
+    }
+    console.log("navigationPreload supported")
+    evt.waitUntil(self.registration.navigationPreload.enable())
 });
 
 self.addEventListener("fetch", function(evt) {
@@ -260,15 +266,24 @@ self.addEventListener("fetch", function(evt) {
                     return response;
                 }
         
+                if (evt.preloadResponse) {
+                    evt.preloadResponse.then((res) => {
+                        //console.info('preload res', res)
+                        if (res) return res
+                
+                        //console.log('fetch')
+                        return fetch(evt.request)
+                    });
+                }
                 // 重要：レスポンスを clone する。レスポンスは Stream で
                 // ブラウザ用とキャッシュ用の2回必要。なので clone して
                 // 2つの Stream があるようにする
                 let responseToCache = response.clone();
         
                 caches.open(CACHE)
-                    .then((cache) => {
-                        cache.put(evt.request, responseToCache);
-                    });
+                .then((cache) => {
+                    cache.put(evt.request, responseToCache);
+                });
         
                 return response;
             });

@@ -15,6 +15,7 @@ function defineForTootPage(app) {
             otherwindow : false,
             dialog_title : "",
             fullscreen : false,
+            persistent : false,
             activewidth : "50%",
             show_openInNew : true,
             emoji_bottomsheet : false,
@@ -26,10 +27,12 @@ function defineForTootPage(app) {
             tootIB : {
                 visibility : "",
                 first_scope : "public",
+                text : "",
                 popuping : "",
                 btns : {
                     close : true,
                     open_in_new : true,
+                    otherwindow : false,
                     help : true,
                     open_in_browser : false,
                     addimage : true,
@@ -343,10 +346,15 @@ function defineForTootPage(app) {
                 }
                 this.dialog = false;
                 if (this.otherwindow) {
+                    this.selaccounts.splice(0,this.selaccounts.length);
                     if (MYAPP.session.config.action.close_aftertoot) {
                         window.close();
                     }
                 }
+            },
+            onchange_box : function (e) {
+                this.persistent = e.is_edit;
+                
             },
             //---Some function------------------------------------
             select_scope: function (item) {
@@ -395,7 +403,34 @@ function defineForTootPage(app) {
                 var breakpoint = this.$vuetify.breakpoint;
                 var ju_width = "";
                 var ju_fullscreen = false;
-                if (breakpoint.lgAndUp) {
+
+                var breaksize = {
+                    xl : {size : "50%", isfull : false},
+                    lg : {size : "60%", isfull : false},
+                    md : {size : "70%", isfull : false},
+                    sm : {size : "90%", isfull : false},
+                    xs : {size : "90%", isfull : true}
+
+                };
+                if (breakpoint.xl) {
+                    ju_width = breaksize.xl.size;
+                    ju_fullscreen = breaksize.xl.isfull;
+                }else if (breakpoint.lg) {
+                    ju_width = breaksize.lg.size;
+                    ju_fullscreen = breaksize.lg.isfull;
+                }else if (breakpoint.md) {
+                    ju_width = breaksize.md.size;
+                    ju_fullscreen = breaksize.md.isfull;
+                }else if (breakpoint.sm) {
+                    ju_width = breaksize.sm.size;
+                    ju_fullscreen = breaksize.sm.isfull;
+                }else{
+                    ju_width = breaksize.xs.size;
+                    ju_fullscreen = breaksize.xs.isfull;
+                }
+
+
+                /*if (breakpoint.lgAndUp) {
                     ju_width = "50%";
                     ju_fullscreen = false;
                 }else if (breakpoint.md) {
@@ -426,7 +461,7 @@ function defineForTootPage(app) {
                 }else{
                     ju_width = "50%";
                     ju_fullscreen = false;
-                }
+                }*/
                 this.activewidth = ju_width;
                 this.fullscreen = ju_fullscreen;
             },
@@ -441,6 +476,22 @@ function defineForTootPage(app) {
             onclick_menulink : function (url) {
                 location.href = url;
             },
+            setData : function (data) {
+                //this.$refs.inputbox.insertText(text);
+                this.initialaccounts = data.accounts;
+                this.$refs.inputbox.seltags = data.tags;
+                this.$refs.inputbox.selsharescope = data.scope;
+                this.$refs.inputbox.mentions = data.mentionlist;
+                this.$refs.inputbox.selmentions = data.mentions;
+                //this.$refs.inputbox.status_text = data.text;
+                this.$refs.inputbox.medias = data.medias;
+                localStorage.removeItem(this.CNS_SAVENAME);
+                //ID("dv_inputcontent").textContent = js.text;
+                //this.$refs.inputbox.ckeditor.editable().setText(data.text);
+                //this.tootIB.text = data.text;
+
+    
+            }
         }
     });
     app.commonvue["emojisheet"] = new Vue({

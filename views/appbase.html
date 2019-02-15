@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="{{ lang }}">
     <HEAD>
-        {% if request.host  == 'gplusdon.net' %}
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
         {% endif %}
         <script src="/static/lib/polyfill.min.js"></script>
@@ -20,13 +20,21 @@
         <meta name="msapplication-tilecolor" content="#FFFFFF">
         <meta name="msapplication-tileimage" content="/static/images/app_icon.png">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        
+        <meta name="hostname" content="{{sysinfo.hostname}}">
+    
+        <meta property="og:title" content="{{sysinfo.oginfo.title}}" />
+        <meta property="og:type" content="{{sysinfo.oginfo.type}}" />
+        <meta property="og:description" content="{{sysinfo.oginfo.description}}" />
+        <meta property="og:url" content="{{sysinfo.oginfo.url}}" />
+        <meta property="og:image" content="{{sysinfo.oginfo.image}}"/>
+        <meta property="og:site_name" content="{{sysinfo.oginfo.site_name}}" />
 
-        <meta property="og:title" content="{{sysinfo.fullname}}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:description" content="複数アカウント対応、テキスト＆メディアが見やすく楽しいマストドンの新感覚ウェブクライアントです。" />
-        <meta property="og:url" content="https://gplusdon.net" />
-        <meta property="og:image" content="https://gplusdon.net/static/images/gp_og_image.png"/>
-        <meta property="og:site_name" content="{{sysinfo.fullname}}" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:url" content="{{sysinfo.oginfo.url}}" />
+        <meta name="twitter:title" content="{{sysinfo.oginfo.title}}" />
+        <meta name="twitter:description" content="{{sysinfo.oginfo.description}}" />
+        <meta name="twitter:image" content="{{sysinfo.oginfo.image}}" />
 
         <link rel="shortcut icon" href="/static/images/app_icon.png" >
         <link rel="manifest" href="/static/res/manifest.json" >
@@ -58,6 +66,9 @@
 
     </HEAD>
     <body>
+        {% if sysinfo.hostname  == 'gplusdon.net' %}
+        {% include 'jslib_ggltag.html' %}
+        {% endif %}
         <div id="toppanel" class="grey lighten-3">
             <div class="navbar-fixed">
                 <nav id="navibar" class="white">
@@ -74,14 +85,14 @@
                             <div class="col s4 m6 l3">
                                 <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
                             </div>
-                            <div id="frm_search"  class="col l4 hide-on-med-and-down">
+                            <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
                                     <!--<div id="box_search" class="input-field col s12" style="padding:2px 0 2px 0;">
                                         <input id="inp_search" type="search" v-bind:value="findtext" class="navsearch grey lighten-3 black-text" style="margin:5px;border-radius:10px;" placeholder="search any">
                                         <label class="label-icon" for="search"><i class="material-icons black-text">search</i></label>
                                         <i class="material-icons black-text" v-on:click="onclick_searchClear">close</i>
                                     </div>-->
-                                    <v-text-field v-model="findtext"
+                                    <v-text-field v-model="findtext" v-show="applogined"
                                         flat clearable
                                         hide-details
                                         prepend-icon="search"
@@ -90,8 +101,8 @@
                                     ></v-text-field>
                                 </form>
                             </div>
-                            <div id="nav_btnbar" class="navcol-right col s6 m3 l3">
-                                <ul id="box_navright_btns" class="right">
+                            <div id="nav_btnbar" class="navcol-right col s6 m3 l3" v-cloak>
+                                <ul id="box_navright_btns" class="right" v-show="applogined">
                                     <li><div id="apploading" class="preloader-wrapper common_ui_hidden">
                                             <div class="spinner-layer spinner-red-only">
                                                 <div class="circle-clipper left">
@@ -139,8 +150,8 @@
                             </ul>-->
                             <v-card >
                                 <v-card-text class="pa-1" v-bind:class="css.bgred">
-                                    <v-list>
-                                        <v-list-tile avatar v-on:click="onclick_current_selaccount">
+                                    <v-list >
+                                        <v-list-tile avatar  v-on:click="onclick_current_selaccount">
                                             <v-list-tile-avatar>
                                                 <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
                                             </v-list-tile-avatar>
@@ -239,7 +250,7 @@
         </ul>
         <div id="ov_toote">
             <v-app>
-            <v-dialog v-model="is_overlaying" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+            <v-dialog v-model="is_overlaying" :hide-overlay="false" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
                 <v-card>
                     <v-card-title class="onetoote_cardtitle">
                         <v-btn icon  @click="onclick_close" >
@@ -250,7 +261,7 @@
                         </v-btn>
                     </v-card-title>
                     <v-card-text class="onetoote_cardtext overflow-y">
-                        <timeline-toot 
+                        <timeline-toot ref="tootview"
                             v-bind:translation="translations"
                             v-bind:toote="status"
                             v-bind:popuping="popuping"
@@ -294,7 +305,7 @@
         </div>
         <div id="ov_inputtoot" class="dmy_inputtoot" v-if="accounts.length > 0">
             
-                <v-dialog v-model="dialog" class="white" persistent v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+                <v-dialog v-model="dialog" class="white" :persistent="persistent" v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
             <!--% include  "onetoote.html"  %}-->
                     <v-card>
                     <toot-inputbox  ref="inputbox"
@@ -310,6 +321,7 @@
                         :tags="tags"
                         v-on:close="onclick_close"
                         v-on:send="onclick_send"
+                        v-on:change="onchange_box"
                         ></toot-inputbox>
                     </v-card>
                 </v-dialog>
@@ -317,7 +329,7 @@
         </div>
         {% include  "onedialog.html"  %}
         {% include  "onedialog2.html"  %}
-        
+
         <div id="temporary_area"></div>
 
         <!-- Current language: {{ lang }} -->

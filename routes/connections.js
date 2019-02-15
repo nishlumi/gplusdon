@@ -19,8 +19,9 @@ var menuStatus = {
 
 /* GET users listing. */
 router.get('/', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     var tabcss = {
         "finder": "",
         "list": "",
@@ -31,17 +32,20 @@ router.get('/', function (req, res) {
     tabcss["following"] = "active";
 
     res.render('appconnections', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         page : "following",
-        transjs: trans,
         "tabstates": tabcss,
        csrfToken: req.csrfToken(),
         menustat: menuStatus
     });
 });
 router.get('/:page', function (req, res) {
-    var lan = req.acceptsLanguages();
-    var trans = ucommon.load_translation(req,lan);
+    //var lan = req.acceptsLanguages();
+    //var trans = ucommon.load_translation(req,lan);
+    var info = ucommon.analyze_locale(req);
     var tabcss = {
         "finder": "",
         "list": "",
@@ -51,10 +55,12 @@ router.get('/:page', function (req, res) {
     };
     tabcss[req.params.page] = "active";
     res.render('appconnections', {
-        sysinfo: ucommon.sysinfo,
+        sysinfo: info.sysinfo,
+        lang: info.lang,
+        transjs: info.trans,
+        trans: info.realtrans,
         page: req.params.page,
         "tabstates": tabcss,
-        transjs: trans,
         csrfToken: req.csrfToken(),
         menustat: menuStatus
     });

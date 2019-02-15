@@ -42,7 +42,16 @@
             <span>{{trans.connections}}</span>
         </v-tooltip>
         <v-tooltip right>
-            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/instances')" v-ripple>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/direct')" v-ripple>
+                <v-list-tile-action><v-icon>email</v-icon></v-list-tile-action>
+                <v-list-tile-content class="{{menustat.directmsg}}">
+                    <v-list-tile-title><span class="menulst_row title">{{trans.direct_message}}</span></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
+            <span>{{trans.direct_message}}</span>
+        </v-tooltip>
+        <v-tooltip right>
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/server')" v-ripple>
                 <v-list-tile-action><v-icon>business</v-icon></v-list-tile-action>
                 <v-list-tile-content class="{{menustat.instances}}">
                     <v-list-tile-title><span class="menulst_row title">{{trans.instances}}</span></v-list-tile-title>
@@ -93,11 +102,11 @@
                 <v-list-tile-action><v-icon>check</v-icon></v-list-tile-action>
                 <v-list-tile-content>
                     <v-list-tile-title>
-                        Information
+                        <span class="title">{{trans.about_app}}</span>
                     </v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
-            <span>version and others...</span>
+            <span>{{trans.about_app}}(version, etc)</span>
         </v-tooltip>
     
     </v-list>
@@ -123,15 +132,15 @@
             <span>{{trans.help}}</span>
         </v-tooltip>
         <v-tooltip right>
-            <v-list-tile slot="activator" class="menulst_tile" v-on:click="isappdialog=true">
+            <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink2">
                 <v-list-tile-action><v-icon>check</v-icon></v-list-tile-action>
                 <v-list-tile-content>
                     <v-list-tile-title>
-                        Information
+                        <span class="title">{{trans.about_app}}</span>
                     </v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
-            <span>version and others...</span>
+            <span>{{trans.about_app}}(version, etc)</span>
         </v-tooltip>
     </v-list>
 </template>

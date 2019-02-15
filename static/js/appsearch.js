@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("2");
     //ID("lm_timeline").classList.add("active");
     //ID("sm_timeline").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
     MYAPP.setupCommonElement();
@@ -247,6 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         this.loadTimeline("local",opt);
                     }
                 },
+                ondatesaveclose : function (e) {
+                    var param = e;
+                    if (e.status) {
+                        var opt = this.forWatch_allcondition(param);
+                        this.loadTimeline("local",opt);
+                    }
+                }
             }
         }),
     };

@@ -15,6 +15,10 @@ function ondelete_account(e) {
             selected.push(i);
         }
     }
+    if (selected.length == 0) {
+        appAlert(_T("msg_remove_account01"));
+        return;
+    }
     appConfirm(_T("remove_account_mes01"),() => {
         for (var i = 0; i < selected.length; i++) {
             var sel = selected[i];
@@ -134,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     //ID("lm_accounts").classList.add("active");
     //ID("sm_accounts").classList.add("active");
+    MYAPP.showPostCtrl(true);
     MYAPP.showBottomCtrl(true);
 
 

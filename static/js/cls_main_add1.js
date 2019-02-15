@@ -24,7 +24,11 @@ function defineForMainPage(app) {
         delimiters : ["{?", "?}"],
         data : {
             isappdialog : false,
-        }
+            revision : "",
+        },
+        mounted() {
+            this.revision = app.appinfo.revision;
+        },
     });
 
     app.commonvue["cur_sel_account"] = new Vue({
@@ -243,25 +247,31 @@ function defineForMainPage(app) {
         },
         methods : {
             onsubmit_search : function (e) {
+                var ftext = this.findtext.trim();
                 //--common search function
 
                 /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
                 if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
                 //parentCommonSearch();
                 if (ID("area_instance")) {
-                    vue_instances.search.onsubmit_search(this.findtext);
+                    vue_instances.search.onsubmit_search(ftext);
                 }
                 if (ID("area_connections")) {
-                    vue_connections.search.load_search(this.findtext,{
+                    vue_connections.search.load_search(ftext,{
                         api : {},
                         app : {}
                     });                
                 }
                 if (ID("area_timeline")) {
-                    location.href = `/s/${this.findtext}`;
+                    if (ftext.indexOf("#") == 0) {
+                        var tmp = ftext.replace("#","");
+                        location.href = `/tl/tags/${tmp}`;
+                    }else{
+                        location.href = `/s/${ftext}`;
+                    }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${this.findtext}`;
+                    location.href = `/s/${ftext}`;
                 }
             },
             onclick_searchClear: function(e) {
@@ -311,7 +321,7 @@ function defineForMainPage(app) {
                     }*/
                 }
                 ID("ov_notif").classList.toggle("common_ui_off");
-                ID("ov_notif_menu").classList.toggle("scale-up-tr");        
+                //ID("ov_notif_menu").classList.toggle("scale-up-tr");        
                 MYAPP.commonvue.nav_notification.dialog = !MYAPP.commonvue.nav_notification.dialog;
             },
             onclick_search : function (e) {
@@ -389,9 +399,9 @@ function defineForMainPage(app) {
             popuping : "ov_",
             comment_viewstyle : {
                 close : false,
-                mini : false,
+                mini : true,
                 open : false,
-                full : true
+                full : false
             },
             comment_list_area_viewstyle : {
 				default : false
@@ -408,6 +418,8 @@ function defineForMainPage(app) {
 				staticpath : ""
 			},
             users : [],
+
+            tlcond : null,
 
             cons_savename : "gp_sv_notif"
         },
@@ -643,10 +655,22 @@ function defineForMainPage(app) {
                         location.href = path;
                     }else{
                         this.status = null;
-                        var d = new Gpstatus(this.saveitem.status,16);
-                        this.status = d;
-                        
-                        MYAPP.sns.getConversation(d.body.id, d.id, "")
+                        //var d = new Gpstatus(this.saveitem.status,16);
+                        //this.status = d;
+                        this.statuses.splice(0,this.statuses.length);
+                        this.currentOption.app.tlshare = "tt_all";
+                        this.currentOption.app.exclude_reply = false;
+                        var tmpsta = this.generate_toot_detail({
+                            data : [this.saveitem.status],
+                            paging : {prev:"",next:""}
+                        },this.currentOption);
+                        //this.$refs.tootview.toote = this.status;
+                        //this.$refs.tootview.set_replydata(this.status);
+                        //this.$nextTick(()=>{
+                        //    this.$refs.tootview.apply_childReplyInput(); 
+                        //});
+        
+                        /*MYAPP.sns.getConversation(d.body.id, d.id, "")
 						.then((condata) => {
                             var context = condata.data;
                             for (var a = 0; a < context.ancestors.length; a++) {
@@ -667,10 +691,13 @@ function defineForMainPage(app) {
                         })
                         .finally((a)=>{
                             this.$nextTick(()=>{
-                                this.boarding++;
+                                
                             });
+                        });*/
+                        tmpsta.then(result=>{
+                            this.status = result[0];
+                            this.boarding++;
                         });
-
                     }
                 }
             },
@@ -708,6 +735,9 @@ function defineForMainPage(app) {
                 this.remove_notification(id);
                 this.save_notification();
                 this.boarding--;
+            },
+            onclick_shownotifpage : function (e) {
+                location.href = "/notifications";
             }
         }
         
@@ -724,24 +754,30 @@ function defineForMainPage(app) {
             onsubmit_search : function (e) {
                 //--common search function
                 this.dialog = false;
+                var ftext = this.findtext.trim();
 
                 /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
                 if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
                 //parentCommonSearch();
                 if (ID("area_instance")) {
-                    vue_instances.search.onsubmit_search(this.findtext);
+                    vue_instances.search.onsubmit_search(ftext);
                 }
                 if (ID("area_connections")) {
-                    vue_connections.search.load_search(this.findtext,{
+                    vue_connections.search.load_search(ftext,{
                         api : {},
                         app : {}
                     });                
                 }
                 if (ID("area_timeline")) {
-                    location.href = `/s/${this.findtext}`;
+                    if (ftext.indexOf("#") == 0) {
+                        var tmp = ftext.replace("#","");
+                        location.href = `/tl/tags/${tmp}`;
+                    }else{
+                        location.href = `/s/${ftext}`;
+                    }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${this.findtext}`;
+                    location.href = `/s/${ftext}`;
                 }
             },
             onclick_searchClear: function(e) {
@@ -848,7 +884,7 @@ function defineForMainPage(app) {
         watch : {
             is_overlaying : function (val) {
                 if (!val) {
-                    this.status = {};
+                    //this.status = {};
 
                     //---change URL
                     if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
@@ -877,6 +913,10 @@ function defineForMainPage(app) {
             },
             onclick_close : function (e) {
                 this.is_overlaying = false;
+                if (this.$refs.tootview.is_opencomment) {
+                    //---if opened comment area, close.
+                    this.$refs.tootview.onclick_ttbtn_reply(e);
+                }
             },
             onclick_scrolltop : function (e) {
                 Q(".onetoote_cardtext").scroll({top:0, behavior:"smooth"});
@@ -886,6 +926,32 @@ function defineForMainPage(app) {
                 var ju_width = "";
                 var ju_fullscreen = false;
                 var ju_toolbar = false;
+                var breaksize = {
+                    xl : {size : "50%", isfull : false},
+                    lg : {size : "60%", isfull : false},
+                    md : {size : "70%", isfull : false},
+                    sm : {size : "90%", isfull : false},
+                    xs : {size : "90%", isfull : true}
+                };
+                if (breakpoint.xl) {
+                    ju_width = breaksize.xl.size;
+                    ju_fullscreen = breaksize.xl.isfull;
+                }else if (breakpoint.lg) {
+                    ju_width = breaksize.lg.size;
+                    ju_fullscreen = breaksize.lg.isfull;
+                }else if (breakpoint.md) {
+                    ju_width = breaksize.md.size;
+                    ju_fullscreen = breaksize.md.isfull;
+                }else if (breakpoint.sm) {
+                    ju_width = breaksize.sm.size;
+                    ju_fullscreen = breaksize.sm.isfull;
+                    ju_toolbar = true;
+                }else{
+                    ju_width = breaksize.xs.size;
+                    ju_fullscreen = breaksize.xs.isfull;
+                    ju_toolbar = true;
+                }
+                /*
                 if (breakpoint.lgAndUp) {
                     ju_width = "70%";
                     ju_fullscreen = false;
@@ -918,7 +984,7 @@ function defineForMainPage(app) {
                 }else{
                     ju_width = "70%";
                     ju_fullscreen = false;
-                }
+                }*/
                 this.isfull_toolbar = ju_toolbar;
                 this.activewidth = ju_width;
                 this.fullscreen = ju_fullscreen;
@@ -1074,6 +1140,12 @@ function defineForMainPage(app) {
                         elemName = ".tab-content.active";
                     }
                 }
+                if (Q(".hashtag_body")) {
+                    if (Q(".timelinebody")) {
+                        //Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        elemName = ".tab-content.active";
+                    }
+                }
                 //---/notifications
                 if (Q(".notifcation_body")) {
                     //ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
@@ -1134,6 +1206,7 @@ function defineForMainPage(app) {
             var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
             MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
             MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
+            MYAPP.commonvue.inputtoot.$refs.inputbox.clear_selectaccount();
             MYAPP.commonvue.inputtoot.$refs.inputbox.set_selectaccount();
             if (e.shiftKey) {
                 MYAPP.commonvue.inputtoot.onclick_openInNew();
@@ -1147,6 +1220,12 @@ function defineForMainPage(app) {
             MYAPP.commonvue.inputtoot.sizing_window();
 
             MYAPP.commonvue.inputtoot.dialog = true;
+            MYAPP.commonvue.inputtoot.$nextTick(()=>{
+                var chk = checkBrowser();
+                if (chk.platform != "ios") {
+                    Q(".onetoot_inputcontent").focus();
+                }
+            });
             
             
         });

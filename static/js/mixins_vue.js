@@ -36,8 +36,10 @@ var vue_mixin_for_account = {
 
 			var ids = [];
 			for (var i = 0; i < acdata.length; i++) {
-				ids.push(acdata[i].id);
-				this.accounts.push(acdata[i]);
+				if (!this.getAlreadyAccount(acdata[i])) {
+					ids.push(acdata[i].id);
+					this.accounts.push(acdata[i]);
+				}
 			}
 			/*MYAPP.sns.getRelationship(ids)
 			.then((result) => {
@@ -52,9 +54,9 @@ var vue_mixin_for_account = {
 			});
 			*/
 		},
-		getAlreadyAccount(id) {
+		getAlreadyAccount(ac) {
 			for (var i = 0; i < this.accounts.length; i++) {
-				if (id == this.accounts[i].id) {
+				if (ac.id == this.accounts[i].id) {
 					return { index: i, data: this.accounts[i] };
 				}
 			}
@@ -68,6 +70,7 @@ var vue_mixin_for_timeline = {
 		return {
 			is_asyncing : false,
 			is_scrolltop : true,
+			is_opencomment : false,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
 			currentOption : {
@@ -84,6 +87,8 @@ var vue_mixin_for_timeline = {
 					filter : []
 				}
 			},
+			id : "",
+			pagetype : "",
 			info : {
 				maxid : "",
 				sinceid : "",
@@ -92,7 +97,8 @@ var vue_mixin_for_timeline = {
 			},
 			translations : {},
 			globalInfo : {
-				staticpath : ""
+				staticpath : "",
+				is_serveronly : false,
 			},
 			statuses : [],
 			timeline_gridstyle : {
@@ -113,22 +119,13 @@ var vue_mixin_for_timeline = {
 					statuses : [],
 				}
 			},
-			/*
-			grid_conf : {
-				columnWidth : 200,
-				duration : 100,
-				gutter : 10,
-			},
-			wrapperSize: {
-				width: 0,
-			},
-			grid : {} //wrapperSize.width <= 768 ? '100%' : grid_conf.columnWidth
-			*/
+			is_serveronly : false,
 		}
 	},
 	created() {
 		if (MYAPP) {
 			this.globalInfo.staticpath = MYAPP.appinfo.staticPath;
+			
 		}
 	},
 	mounted() {
@@ -171,6 +168,7 @@ var vue_mixin_for_timeline = {
 				for (var obj in this.currentOption.api) {
 					pastOptions.api[obj] = this.currentOption.api[obj];
 				}
+				delete pastOptions.api["since_id"];
                 //var atab = Q(".tab .active");
                 if (this.$el.id == "tl_home") {
 					tlid = "home";
@@ -187,6 +185,12 @@ var vue_mixin_for_timeline = {
 				}else if (this.$el.id == "tl_taglocal") {
 					tlid = `tag/${this.tagname}`;
 					pastOptions.api["local"] = true;
+				}else if (this.$el.id == "tt_public") {
+					if (this.pagetype == "account") {
+						tlid = "me";
+					}else if (this.pagetype == "user") {
+						tlid = this.id;
+					}
 				}
 				pastOptions.api.max_id = this.info.maxid;
 				//pastOptions.app.tlshare = this.selshare_current;
@@ -218,6 +222,7 @@ var vue_mixin_for_timeline = {
 				for (var obj in this.currentOption.api) {
 					futureOptions.api[obj] = this.currentOption.api[obj];
 				}
+				delete futureOptions.api["max_id"];
                 //---page max scroll up
                 console.log("scroll up max");
                 //var atab = Q(".tab .active");
@@ -236,6 +241,12 @@ var vue_mixin_for_timeline = {
 				}else if (this.$el.id == "tl_taglocal") {
 					tlid = `tag/${this.tagname}`;
 					futureOptions.api["local"] = true;
+				}else if (this.$el.id == "tt_public") {
+					if (this.pagetype == "account") {
+						tlid = "me";
+					}else if (this.pagetype == "user") {
+						tlid = this.id;
+					}
 				}
 				futureOptions.api.since_id = this.info.sinceid;
 				//futureOptions.app.tlshare = this.selshare_current;
@@ -441,6 +452,9 @@ var vue_mixin_for_timeline = {
 			});
 		},
 		//---some function----------------------------------------------
+		hide_on_noauth : function () {
+			return !this.is_serveronly;
+		},
 		clearPending : function() {
 			this.pending.above.statuses.splice(0,this.pending.above.statuses.length);
 			this.pending.above.waiting = false;
@@ -468,11 +482,13 @@ var vue_mixin_for_timeline = {
 			if (!options.app.is_nomax) {
 				if (paging.next != "") {
 					this.info.maxid = paging.next; //data[data.length - 1].id;
+					this.currentOption.api.max_id = paging.next;
 				}
 			}
 			if (!options.app.is_nosince) {
 				if (paging.prev != "") {
 					this.info.sinceid = paging.prev; //data[0].id;
+					this.currentOption.api.since_id = paging.prev;
 				}
 			}
 			console.log("data.length=" + data.length);
@@ -521,47 +537,11 @@ var vue_mixin_for_timeline = {
 							var tt = this.getParentToot(condata.parentID);
 							//console.log(condata.index, tt);
 							if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
-								/*var tmptt = Object.assign({}, tt.data, {
-									ancestors : condata[0].ancestors,
-									descendants : condata[0].descendants
-								});*/
-								/*var check_mediameta = function (toot) {
-									for (var i = 0; i < toot.media_attachments.length; i++) {
-										var data = toot.media_attachments[i];
-										if (data.meta == null) {
-											var img = GEN("img");
-											img.src = data.preview_url;
-											var asp = img.width / img.height;
-											if (img.height > img.width) {
-												asp = img.height / img.width;
-											}
-											data.meta = {
-												small: {
-													aspect: asp,
-													width: img.width,
-													height: img.height,
-													size: `${img.width}x${img.height}`
-												}
-											};
-										}
-									}
-									return toot;
-								}*/
+								
 								//console.log("ancester & descendants=", condata.data);
 								for (var a = 0; a < condata.data.ancestors.length; a++) {
 									var ance = condata.data.ancestors[a];
 									var gcls = new Gpstatus(ance,14);
-
-									/*var tmpan = MYAPP.extractTootInfo(ance.content);
-									var inst = MUtility.getInstanceFromAccount(ance.account.url);
-									var tmpname = ance.account.display_name == "" ? ance.account.username : ance.account.display_name;
-									ance.account.display_name = MUtility.replaceEmoji(tmpname,inst,ance.account.emojis,14);
-									
-									ance.created_at = new Date(ance.created_at);
-
-									ance["html"] = MUtility.replaceEmoji(ance.content,inst,ance.emojis,14);
-									ance.content = tmpan.text;
-									ance = check_mediameta(ance);*/
 
 									condata.data.ancestors[a] = gcls;
 
@@ -569,18 +549,6 @@ var vue_mixin_for_timeline = {
 								for (var a = 0; a < condata.data.descendants.length; a++) {
 									var desce = condata.data.descendants[a];
 									var gcls = new Gpstatus(desce,14);
-
-									/*var tmpan = MYAPP.extractTootInfo(desce.content);
-									var inst = MUtility.getInstanceFromAccount(desce.account.url);
-									var tmpname = desce.account.display_name == "" ? desce.account.username : desce.account.display_name;
-									desce.account.display_name = MUtility.replaceEmoji(tmpname,inst,desce.account.emojis,14);
-
-									desce.created_at = new Date(desce.created_at);
-
-									desce["html"] = MUtility.replaceEmoji(desce.content,inst,desce.emojis,14);
-									desce.content = tmpan.text;
-									desce = check_mediameta(desce);
-									*/
 
 									condata.data.descendants[a] = gcls;
 								}
@@ -592,10 +560,8 @@ var vue_mixin_for_timeline = {
 								this.$set(this.statuses[tt.index], "ancestors", condata.data.ancestors);
 								this.$set(this.statuses[tt.index], "descendants", condata.data.descendants);
 								this.statuses[tt.index].body.replies_count = condata.data.descendants.length;
-								//vue_user.tootes.statuses[index].ancestors = condata.ancestors;
-								//vue_user.tootes.statuses[index].descendants = condata.descendants;
-								this.$nextTick(function () {
-									return;
+								/*this.$nextTick(function () {
+									
 									console.log(this.$el);
 									var es = this.$el.querySelectorAll(".carousel");
 									console.log(es.length);
@@ -608,7 +574,8 @@ var vue_mixin_for_timeline = {
 									}
 									jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 									$("time.timeago").timeago();
-								});
+									
+								});*/
 							}
 						});
 					}
@@ -618,6 +585,7 @@ var vue_mixin_for_timeline = {
 						var targeturl = st.urls[0];
 						//console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
 						//---get GPHT
+						//====> Iam, denove mi ekzameos...
 						/*loadGPHT(st.url[0],data[i].id)
 						.then((result)=>{
 
@@ -683,17 +651,7 @@ var vue_mixin_for_timeline = {
 											if ("pixiv_cards" in tt.data.body) {
 												result.data["og:image"] = tt.data.body.pixiv_cards[0].image_url;
 												resolve(result);
-											} /*else {
-												var a = GEN("a");
-												var url = tt.data.body.uri.replace("users", "api");
-												url = url.replace(tt.data.account.username, "v1");
-
-												MYAPP.sns.originalGet(`${url}/card`, {})
-												.then(result_card => {
-													result.data["og:image"] = result_card.image;
-													resolve(result);
-												});
-											}*/
+											} 
 										} else {
 											resolve(result);
 										}
@@ -808,20 +766,9 @@ var vue_mixin_for_timeline = {
 					}
 					*/
 				}
-				
-				return;
-				var es = this.$el.querySelectorAll(".carousel");
-				console.log(es.length);
-				for (var i = 0; i < es.length; i++) {
-					M.Carousel.init(es[i], {
-						dist: 0,
-						fullWidth: true,
-						indicators: true
-					});
-				}
-				jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
-				$("time.timeago").timeago();
+
 			});
+			return Promise.resolve(this.statuses);
 		},
 
 		/**
@@ -938,17 +885,37 @@ var vue_mixin_for_timeline = {
 			//---this option is forcely.
 			this.currentOption.api["exclude_replies"] = true;
 
+			if ("link" in cond) {
+				if (cond.link.since_id == "") {
+					delete this.currentOption.api["since_id"];
+					this.currentOption.app["is_nosince"] = true;
+				}else{
+					this.currentOption.api["since_id"] = cond.link.since_id;
+					this.currentOption.app["is_nosince"] = false;
+				}
+				if (cond.link.max_id == "") {
+					delete this.currentOption.api["max_id"];
+					this.currentOption.app["is_nomax"] = true;
+				}else{
+					this.currentOption.api["max_id"] = cond.link.max_id;
+					this.currentOption.app["is_nomax"] = false;
+				}
+			}
 			//---these options are optional.
-			this.currentOption.app["tlshare"] = cond.tlshare;
-			this.currentOption.app["tltype"] = cond.tltype;
-			this.currentOption.app["filter"] = cond.filter;
-			
-			//---its exists in real Mastodon API.
-			if (cond.tltype.indexOf("tv_media") > -1) {
-				this.currentOption.api["only_media"] = true;
+			if ("tlshare" in cond) this.currentOption.app["tlshare"] = cond.tlshare;
+			if ("tltype" in cond) {
+				this.currentOption.app["tltype"] = cond.tltype;
+				//---its exists in real Mastodon API.
+				if (cond.tltype.indexOf("tv_media") > -1) {
+					this.currentOption.api["only_media"] = true;
+				}else{
+					delete this.currentOption.api["only_media"];
+				}
 			}else{
 				delete this.currentOption.api["only_media"];
 			}
+			if ("filter" in cond) this.currentOption.app["filter"] = cond.filter;			
+			
 			return this.currentOption;
 		},
 		forWatch_selshare : function (val) {
@@ -1006,7 +973,15 @@ var vue_mixin_for_timeline = {
             }else if (MYAPP.session.config.application.timeline_view == "3") {
                 this.timeline_gridstyle.width_3 = true;
             }
-		}
+		},
+		/**
+		 * call function of set up reply data (for from parent object)
+		*/
+		call_replySetup() {
+			//---generateReplyObject() exists in Vue.component("timeline-toot")
+			this.reply_data = this.$refs.tootview.generateReplyObject(this.toote);
+		},
+
 	}
 };
 //----------------------------------------------------------------------
@@ -1024,6 +999,7 @@ var vue_mixin_for_inputtoot = {
 	data() {
 		return {
 			ckeditor : null,
+			ckeditable : null,
 			btnflags : {
                 loading : false,
                 mood : {
@@ -1079,7 +1055,35 @@ var vue_mixin_for_inputtoot = {
 			//tags: [],
 			
 			//---media
+			/**
+			 * pysical selected media files
+			 * [
+			 * {
+			 *   src : {DataURL},
+			 *   comemnt : {String},
+			 *   data : {File}
+			 * }, ...
+			 * ]
+			 */
 			selmedias : [],
+			/**
+			 * returned media object from mastodon
+			 * [
+			 *  {
+			 *   "name@instance" : {
+			 * 	   id : "",
+			 *     meta : {},
+			 *     description : "",
+			 *     preview_url : "",
+			 *     remote_url : "",
+			 *     text_url : "",
+			 *     type : "image",
+			 *     url : "",
+			 *    },
+			 *    "name2@instance" : {...},
+			 *  }
+			 * ]
+			 */
             medias : [],
 			switch_NSFW : false,
 			
@@ -1128,6 +1132,7 @@ var vue_mixin_for_inputtoot = {
 			var tmparr = [];
 			for (var i = 0; i < val.length; i++) {
 				var v = val[i];
+				//---check toot text limit
 				for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
 					var lim = MYAPP.session.config.notification.toot_limit_instance[st];
 					if (v.indexOf(lim.instance) > -1) {
@@ -1139,6 +1144,36 @@ var vue_mixin_for_inputtoot = {
 						}
 					}else{
 						tmparr.push(MYAPP.appinfo.config.toot_max_character);
+					}
+				}
+				//---check media
+				for (var m = 0; m < this.medias.length; m++) {
+					var media = this.medias[m];
+					var ishit = false;
+					for (var name in media) {
+						if (v == name) {
+							//---if hited, this account has media.
+							ishit = true;
+							break;
+						}
+					}
+					if (!ishit) {
+						//---this account don't has media.
+						this.btnflags.send_disabled = true;
+						this.btnflags.loading = true;
+						var hitac = this.getTextAccount2Object(i);
+						if (hitac) {
+							var fdef = MYAPP.uploadMedia(hitac,this.selmedias[m].data,{
+								filename : this.selmedias[m].data.name
+							});
+							fdef.then(mediaresult=>{
+								media[v] = mediaresult.data;
+							})
+							.finally(()=>{
+								this.btnflags.send_disabled = false;
+								this.btnflags.loading = false;				
+							});
+						}
 					}
 				}
 			}
@@ -1159,7 +1194,9 @@ var vue_mixin_for_inputtoot = {
 					this.btnflags.send_disabled = true;
 				}
 			}
-
+			if (val.length == 0) {
+				this.btnflags.send_disabled = true;
+			}
 		},
 		selmentions : function(val) {
 			var mentions;
@@ -1168,16 +1205,43 @@ var vue_mixin_for_inputtoot = {
 			}else{
 				mentions = this.calc_mentionLength(val).join(" ");
 			}
-			console.log(mentions, mentions.length);
+			//console.log(mentions, mentions.length);
 			//var tags = this.seltags.join(" ");
 			var tags = [];
 			for (var i = 0; i < this.seltags.length; i++) {
-				tags.push(this.seltags[i].text);
+				tags.push(this.seltags[i]);
 			}
 
 			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
 				+ mentions.length + tags.join(" ").length;
 
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
+
+		},
+		seltags : function (val) {
+			var mentions;
+			if (this.screentype == "direct") {
+				mentions = this.calc_mentionLength(this.selmentions).join(" ");
+			}else{
+				mentions = this.calc_mentionLength(this.selmentions).join(" ");
+			}
+			//console.log(mentions, mentions.length);
+			//var tags = this.seltags.join(" ");
+			var tags = [];
+			for (var i = 0; i < val.length; i++) {
+				tags.push(val[i]);
+			}
+
+			this.strlength = twttr.txt.getUnicodeTextLength(this.status_text)
+				+ mentions.length + tags.join(" ").length;
+
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
 		},
 		geouris : function (val,old) {
 			//var len = val.length;
@@ -1199,6 +1263,9 @@ var vue_mixin_for_inputtoot = {
 		},
 		strlength: function (val) {
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+			if (this.strlength == 0) {
+				this.btnflags.send_disabled = true;
+			}
 		},
 		status_text : function(val) {
 
@@ -1210,6 +1277,17 @@ var vue_mixin_for_inputtoot = {
 				this.strlength_class["red-text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
+
+			if (this.strlength == 0) {
+				this.btnflags.send_disabled = true;
+			}
+			if (this.selaccounts.length == 0) {
+				this.btnflags.send_disabled = true;
+			}
+			this.$emit("change",{
+				"is_edit" : (this.strlength > 0) ? true : false,
+				"length" : this.strlength
+			});
 		},
 
 	},
@@ -1218,12 +1296,6 @@ var vue_mixin_for_inputtoot = {
 		//CKEDITOR.disableAutoInline = true;
 		//CK_INPUT_TOOTBOX.mentions[0].feed = this.autocomplete_mention_func;
 		//this.ckeditor = CKEDITOR.inline( 'dv_inputcontent', CK_INPUT_TOOTBOX);
-
-		this.$nextTick(()=>{
-
-			
-		});
-
 	
 	},
 	methods : {
@@ -1344,12 +1416,19 @@ var vue_mixin_for_inputtoot = {
 
 			});
 		},
+		clear_selectaccount : function (){
+			this.selaccounts.splice(0,this.selaccounts.length);
+		},
 		set_selectaccount : function (e) {
 			this.selaccounts.push(this.initialaccounts[0]);
 		},
 		insertText : function (text) {
-			this.ckeditor.editable().insertText(text);
-			this.status_text = this.ckeditor.editable().getText();
+			this.ckeditable.insertText(text);
+			this.status_text = this.ckeditable.getText();
+		},
+		generate_showable_mention : function () {
+			var men = this.selmentions[0];
+			return `To:${men}`;
 		},
 		//---event handler---------------------------------------------
 		onchange_inputcontent : function (e) {
@@ -1358,6 +1437,7 @@ var vue_mixin_for_inputtoot = {
 		},
 		onkeydown_inputcontent : function (e) {
 			if ((e.keyCode == 13) && (e.ctrlKey || e.metaKey)) {
+				this.onclick_send(e);
 				console.log("enter pos!");
 			}
 		},
@@ -1516,7 +1596,7 @@ var vue_mixin_for_inputtoot = {
 								var latlng = L.latLng(this.geo.lat, this.geo.lng);
 								this.geomap.setView(latlng);
 							}else{
-								var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+								var OsmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 								OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 								Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
 								latlng = L.latLng(this.geo.lat, this.geo.lng);
@@ -1562,6 +1642,10 @@ var vue_mixin_for_inputtoot = {
 				//console.log("index=",index);
 				this.selmedias.splice(index,1);
 				this.medias.splice(index,1);
+				this.$emit("change",{
+					"is_edit" : (this.selmedias > 0) ? true : false,
+					"length" : this.strlength
+				});
 			});
 		},
 		onclick_send: function (e) {
@@ -1618,18 +1702,21 @@ var vue_mixin_for_inputtoot = {
 						this.seltags.splice(0,this.seltags.length);
 					}
 					this.selmedias.splice(0,this.selmedias.length);
-					this.selaccounts.splice(0,this.selaccounts.length);
+					if (!this.toolbtn.otherwindow) {
+						this.selaccounts.splice(0,this.selaccounts.length);
+					}
 					this.medias.splice(0,this.medias.length);
 					this.switch_NSFW = false;
+					this.is_geo = false;
 
 					//if (!this.fullscreen) {
 						this.dialog = false;
 					//}
-					if (this.otherwindow) {
+					/*if (this.otherwindow) {
 						if (MYAPP.session.config.action.close_aftertoot) {
 							window.close();
 						}
-					}
+					}*/
 					this.$emit("send",{isOK:true});
 				});
 			}else{
@@ -1786,6 +1873,11 @@ var vue_mixin_for_inputtoot = {
 			.finally( () => {
 				MYAPP.sns.setAccount(backupAC);
 				console.log("finally=",backupAC);
+
+				this.$emit("change",{
+					"is_edit" : (this.strlength > 0) ? true : false,
+					"length" : this.strlength
+				});
 			});
 			return rootdef;
 		},
@@ -1907,7 +1999,7 @@ var vue_mixin_for_notification = {
 			MYAPP.acman.save();
 		},
 		/**
-		 * 
+		 * push or unshift a notification data in account.notifications 
 		 * @param {AccountNotification} account target account
 		 * @param {Notification[]} datas notifications to insert
 		 * @param {Object} options options for API and APP
@@ -1979,7 +2071,7 @@ var vue_mixin_for_notification = {
 		},
 		//---event handler--------------------------
 		/**
-		 * 
+		 * click event of notification line
 		 * @param {AccountNotification} account target account
 		 * @param {Number} index index of AccountNotification.notifications
 		 */
@@ -1991,21 +2083,80 @@ var vue_mixin_for_notification = {
 			}else{
 				var d = new Gpstatus(this.saveitem.status,16);
 				this.status = d;
+				MYAPP.sns.getConversation(this.status.body.id, this.status.body.id, "")
+				.then((condata) => {
+					var tt = this.status; //this.getParentToot(condata.parentID);
+					for (var a = 0; a < condata.data.ancestors.length; a++) {
+						var ance = condata.data.ancestors[a];
+						var gcls = new Gpstatus(ance,14);
 
-				MYAPP.commonvue.tootecard.status = this.status;
-				MYAPP.commonvue.tootecard.sizing_window();
-				MYAPP.commonvue.tootecard.is_overlaying = true;
-				//---change URL
-				if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
-					MUtility.returnPathToList(MYAPP.session.status.currentLocation);
-				}
-				var targetpath = "";
-				var changeuri = this.status.body.uri.replace("https://","");
-				changeuri = changeuri.replace("statuses","toots");
-				changeuri = changeuri.replace("users/","");
-				//---when each screen existable toot
-				targetpath = `/users/${changeuri}`;
-				MUtility.enterFullpath(targetpath);
+						condata.data.ancestors[a] = gcls;
+
+					}
+					for (var a = 0; a < condata.data.descendants.length; a++) {
+						var desce = condata.data.descendants[a];
+						var gcls = new Gpstatus(desce,14);
+
+
+						condata.data.descendants[a] = gcls;
+					}
+					//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
+
+					if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
+						this.status.ancestors.splice(0,this.status.ancestors.length);
+						this.status.descendants.splice(0,this.status.descendants.length);
+						this.status.ancestors = this.status.ancestors.concat(condata.data.ancestors);
+						this.status.descendants = this.status.descendants.concat(condata.data.descendants);
+						this.status.body.replies_count = condata.data.descendants.length;
+					}
+					return condata;
+				})
+				.then((result)=> {
+					var basetoote = this.status;
+					for (var i = 0; i < basetoote.descendants.length; i++) {
+						var toote = basetoote.descendants[i];
+						if (("relationship" in toote) && ("following" in toote.relationship)) {
+							
+						}else{
+							MYAPP.sns.getRelationship(toote.account.id)
+							.then((result) => {
+								for (var i = 0; i < result.data.length; i++) {
+									for (var obj in result.data[i]) {
+										toote.relationship[obj] = Object.assign({}, result.data[i][obj]);
+									}
+								}
+							});
+						}
+					}
+
+				})
+				.finally( () => {
+					//MYAPP.commonvue.tootecard.call_replySetup();
+					//MYAPP.commonvue.tootecard.reply_data = MYAPP.commonvue.tootecard.$refs.tootview.generateReplyObject(this.status);
+					//MYAPP.commonvue.tootecard.$refs.tootview.isupdate_request.reply = true;
+					MYAPP.commonvue.tootecard.status = this.status;
+					//MYAPP.commonvue.tootecard.$refs.tootview.toote = this.status;
+					MYAPP.commonvue.tootecard.$nextTick(()=>{
+						MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
+						MYAPP.commonvue.tootecard.$refs.tootview.apply_initialReplyInputCounter();
+					});
+					
+					MYAPP.commonvue.tootecard.sizing_window();
+					MYAPP.commonvue.tootecard.is_overlaying = true;
+					//---change URL
+					if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
+						MUtility.returnPathToList(MYAPP.session.status.currentLocation);
+					}
+					var targetpath = "";
+					var changeuri = this.status.body.uri.replace("https://","");
+					changeuri = changeuri.replace("statuses","toots");
+					changeuri = changeuri.replace("users/","");
+					//---when each screen existable toot
+					targetpath = `/users/${changeuri}`;
+					MUtility.enterFullpath(targetpath);
+				});
+
+				
 			}
 
 			if (this.pagetype == "popup") {

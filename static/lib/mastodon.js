@@ -122,6 +122,30 @@ var MastodonAPI = function (config) {
                 error: onAjaxError(url, "GET", callback_fail)
             });
         },
+        get_noauth: function (endpoint) {
+            // for GET API calls
+            // can be called with two or three parameters
+            // endpoint, callback
+            // or
+            // endpoint, queryData, callback
+            // where queryData is an object { paramname1: "paramvalue1", paramname2: paramvalue2 }
+
+            var args = checkArgs(arguments);
+            var queryData = args.data;
+            var callback = args.callback;
+        	var callback_fail = args.callback_fail || function() {};
+            var url = apiBase + endpoint;
+
+            // ajax function
+            return $.ajax({
+                url: url,
+                type: "GET",
+                data: queryData,
+                //headers: addAuthorizationHeader({}, this.config.api_user_token),
+                success: onAjaxSuccess(url, "GET", callback, false),
+                error: onAjaxError(url, "GET", callback_fail)
+            });
+        },
         post: function (endpoint) {
             // for POST API calls
             var args = checkArgs(arguments);
@@ -283,6 +307,38 @@ var MastodonAPI = function (config) {
             }
             var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
                 + "streaming/?access_token=" + this.config.api_user_token + "&stream=" + streamType);
+            var listener = function (event) {
+                console.log("Got Data from Stream " + streamType);
+                event = JSON.parse(event.data);
+                event.payload = JSON.parse(event.payload);
+                onData(event);
+            };
+            es.onmessage = listener;
+            es.onclose = function (e) {
+            	console.log("wss closed:",e);
+            	onError(e);
+            }
+            this.setConfig("stream_"+streamType,es);
+        },
+        stream_noauth: function (streamType, onData, onError) {
+            // Event Stream Support
+            // websocket streaming is undocumented. i had to reverse engineer the fucking web client.
+            // streamType is either
+            // user for your local home TL and notifications
+            // public for your federated TL
+            // public:local for your home TL
+            // hashtag&tag=fuckdonaldtrump for the stream of #fuckdonaldtrump
+            // callback gets called whenever new data ist recieved
+            // callback { event: (eventtype), payload: {mastodon object as described in the api docs} }
+            // eventtype could be notification (=notification) or update (= new toot in TL)
+            var wss = this.getConfig("stream_url");
+            if (wss) {
+            	wss += "/api/v1/";
+            }else{
+            	wss = "wss://" + apiBase.substr(8);
+            }
+            var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
+                + "streaming/?stream=" + streamType);
             var listener = function (event) {
                 console.log("Got Data from Stream " + streamType);
                 event = JSON.parse(event.data);
