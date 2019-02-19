@@ -870,9 +870,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var atab = Q(".tab .active");
             if (atab.hash == "#tt_public") {
-                for (var obj in vue_user.tootes.currentOption.api) {
-                    pastOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
-                }
                 console.log(JSON.stringify(vue_user.tootes.info));
                 /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
                     api : {
@@ -889,8 +886,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (var obj in vue_user.tootes.currentOption.api) {
 					pastOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
                 }
+                delete pastOptions.api["since_id"];
+				delete pastOptions.api["min_id"];                
 
-                pastOptions.api.max_id = vue_user.tootes.info.maxid;
+                //pastOptions.api.max_id = vue_user.tootes.info.maxid;
                 //pastOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //pastOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline(vue_user.tootes.id,{
@@ -933,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var futureOptions = {
                 api : {
                     exclude_replies : true,
-                    since_id : "",
+                    //since_id : "",
                 },
                 app : {
                     is_nomax : true,
@@ -946,9 +945,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var atab = Q(".tab .active");
             if (atab.hash == "#tt_public") {
-                for (var obj in vue_user.tootes.currentOption.api) {
-                    futureOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
-                }
                 /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
                     api : {
                         exclude_replies : true,
@@ -963,9 +959,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 });*/
                 for (var obj in vue_user.tootes.currentOption.api) {
 					futureOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
-				}
+                }
+                
+                if (futureOptions.api["exclude_replies"] === true) {
+                    futureOptions.api["exclude_replies"] = "";
+                }else if (futureOptions.api["exclude_replies"] === false) {
+                    delete futureOptions.api["exclude_replies"];
+                }
+                /* TODO: ユーザーのsince_id とmin_idの挙動を改めて確認！ */
+                futureOptions.api["min_id"] = futureOptions.api["since_id"];
+                delete futureOptions.api["since_id"];
 
-                futureOptions.api.since_id = vue_user.tootes.info.sinceid;
+				delete futureOptions.api["max_id"];
+
+                //futureOptions.api.since_id = vue_user.tootes.info.sinceid;
                 //futureOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //futureOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline(vue_user.tootes.id,{
@@ -994,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
-        //MYAPP.acman.checkVerify();
+        MYAPP.acman.checkVerify();
         
         var ac = MYAPP.acman.get({
             "instance":MYAPP.session.status.selectedAccount.instance,
@@ -1010,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //---account load
         vue_user.userview.currentAccount = MYAPP.selectAccount(ac);
         MYAPP.afterLoadAccounts(data);
+
 
         //---rapidly open and show toot data
         if (ID("hid_onetoote").value != "") {
@@ -1034,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 vue_user[obj].changeTimelineStyle();            
             }
         }
-        vue_user.userview.show_inaccurate();
+
         
     }, function (flag) {
         /*appAlert(_T("msg_notlogin_myapp"), function () {

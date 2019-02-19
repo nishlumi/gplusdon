@@ -1006,9 +1006,10 @@ var MUtility = {
 		if (!re) return text;
 		var instemojis = {data : {}};
 		if (instance in MYAPP.acman.instances) {
-			instemojis = MYAPP.acman.instances[instance].emoji;
+			instemojis = MYAPP.acman.instances[instance]["emoji"];
 		}
 		for (var r = 0; r < re.length; r++) {
+			var ishit = false;
 			var rstr = re[r];
 			var ori_rstr = rstr.replace(/\:/g,"");
 			//---from emojis of toot
@@ -1019,15 +1020,20 @@ var MUtility = {
 					if (ori_rstr == emo.shortcode) {
 						var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
 						text = text.replace(rstr,img);
+						ishit = true;
 						break;
 					}
 				}
 			}
 			//---from emojis of instance
-			if (ori_rstr in instemojis.data) {
-				var emo = instemojis.data[ori_rstr];
-				var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
-				text = text.replace(rstr,img);
+			if (!ishit) {
+				if ((instemojis) && ("data" in instemojis)) {
+					if (ori_rstr in instemojis.data) {
+						var emo = instemojis.data[ori_rstr];
+						var img = `<img src="${emo.url}" alt="${emo.shortcode}" width="${size}" height="${size}">`;
+						text = text.replace(rstr,img);
+					}
+				}
 			}
 		}
 		//console.log(text);
@@ -1095,6 +1101,100 @@ var MUtility = {
 	timestamp2id : function (date) {
 		var calc = date.valueOf();
 		return (calc * 65536).toString();
+	},
+	convertG2G : function (html) {
+		var div = GEN("div");
+		div.innerHTML = html;
+		var ret = {};
+		ret["emojis"] = [];
+		ret["reblog"] = null;
+
+		//var doc = div.querySelector("body");
+		var body = div.querySelector("div");
+
+		//---Sender Account
+		var divuser = body.children.item(0);
+		var divuser_author = divuser.querySelector("a.author");
+		ret["account"] = {
+			"display_name" : divuser_author.textContent,
+			"url" : divuser_author.href,
+			"uri" : divuser_author.href,
+			"username" : divuser_author.pathname.replace("/","").replace("+",""),
+			"instance" : divuser_author.hostname,
+			"avatar" : divuser.querySelector("img.author-photo").src,
+		};
+
+		//---Main content
+		var as = divuser.querySelectorAll("a");
+		for (var i = 0; i < as.length; i++) {
+			if (as[i].href.indexOf("/posts") > -1) {
+				ret["created_at"] = as[i].textContent.replace(" ","T");
+				ret["uri"] = as[i].href;
+				ret["url"] = as[i].href;
+				break;
+			}
+		}
+		var main = body.querySelector("div.main-content");
+		ret["content"] = main.innerHTML;
+
+		var visi = div.querySelector("div.visibility");
+		ret["visibility_str"] = visi.textContent;
+		ret["visibility"] = "";
+
+		ret["media_attachments"] = [];
+
+		//---post-activity
+		var postact = div.querySelector("div.post-activity");
+		if (postact) {
+			var plusone = postact.querySelector("div.plus-oners");
+			var oners = plusone.querySelectorAll("a");
+			ret["favourite_users"] = [];
+			for (var i = 0; i < oners.length; i++) {
+				ret.favourite_users.push({
+					"username" : oners[i].pathname.replace("/","").replace("+",""),
+					"display_name" : oners[i].textContent
+				});
+			}
+			ret["favourites_count"] = ret.favourite_users.length;
+
+			var reshare = postact.querySelector("div.resharers");
+			var reshares = reshare.querySelectorAll("a");
+			ret["reblog_users"] = [];
+			for (var i = 0; i < reshares.length; i++) {
+				ret.reblog_users.push({
+					"username" : reshares[i].pathname.replace("/","").replace("+",""),
+					"display_name" : reshares[i].textContent
+				});
+			}
+			ret["reblogs_count"] = ret.reblog_users.length;
+		}
+
+		//---comment
+		var comments = div.querySelector("div.comments");
+		if (comments) {
+			var comment = comments.querySelectorAll("div.comment");
+			ret["descendants"] = [];
+			for (var i = 0; i < comment.length; i++) {
+				var combody = comment[i];
+				var coma = combody.querySelector("a.author");
+				var comtime = combody.querySelector("span.time");
+				var comcont = combody.querySelector("div.comment-content");
+
+				var desc = {
+					"account" : {
+						"username" : coma.pathname.replace("/","").replace("+",""),
+						"display_name" : coma.textContent,
+						"instance" : coma.hostname,
+					},
+					"created_at" : comtime.textContent.replace(" ","T"),
+					"content" : comcont.innerHTML
+				};
+				ret.descendants.push(desc);
+			}
+			ret["replies_count"] = comment.length;
+		}
+
+		return ret;
 	}
 };
 var gevts;

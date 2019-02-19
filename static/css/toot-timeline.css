@@ -65,8 +65,8 @@ div.toot_timeline_grid.width_1 {
     grid-template-columns: 100%;
 }
 div.toot_timeline_grid.width_2 {
-    grid-template-columns: 45% 45%;
-    padding-left : 5%;
+    grid-template-columns: 48% 48%;
+    padding-left : 1%;
 }
 div.toot_timeline_grid.width_3 {
     grid-template-columns: 31% 31% 31%;
@@ -77,18 +77,18 @@ div.toot_timeline_grid.width_3 {
 @media only screen and (min-width: 601px) {
 
     div.toot_timeline_grid.width_count {
-        grid-template-columns: 45% 45%;
-        padding-left : 5%;
-    }
+        grid-template-columns: 48% 48%;
+        padding-left : 1%;
+        }
 
     div.toot_timeline_grid.width_2 {
-        grid-template-columns: 45% 45%;
-        padding-left : 5%;
-    }
+        grid-template-columns: 48% 48%;
+        padding-left : 1%;
+        }
     div.toot_timeline_grid.width_3 {
-        grid-template-columns: 45% 45%;
-        padding-left : 3%;
-    }
+        grid-template-columns: 48% 48%;
+        padding-left : 1%;
+        }
     
 }
 @media only screen and (min-width: 993px) {
@@ -99,7 +99,7 @@ div.toot_timeline_grid.width_3 {
     }
     div.toot_timeline_grid.width_2 {
         grid-template-columns: 47% 47%;
-        padding-left : 5%;
+        padding-left : 3%;
     }
     div.toot_timeline_grid.width_3 {
         grid-template-columns: 31% 31% 31%;
@@ -115,7 +115,7 @@ div.toot_timeline_grid.width_3 {
     }
     div.toot_timeline_grid.width_2 {
         grid-template-columns: 47% 47%;
-        padding-left : 5%;
+        padding-left : 3%;
     }
     div.toot_timeline_grid.width_3 {
         grid-template-columns: 31% 31% 31%;
@@ -351,9 +351,11 @@ div.toot_card_base.g30 {
 
 .toot_card_base  .toote_spoiler_or_main p, .dmsg_body .toote_spoiler_or_main p{
     padding : 0 0 0.5rem 0;
+    margin-bottom : 4px;
 }
 .toot_card_base  .toote_main p, .dmsg_body .toote_main p{
     padding : 0 0 0.5rem 0;
+    margin-bottom : 4px;
 }
 .toot_card_base  .area_spoiler details summary {
     font-weight: bold;

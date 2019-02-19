@@ -318,6 +318,10 @@ div.collection a i.material-icons {
     top: 1.5rem;
     right: 1.5rem;
 }
+.nav_notif_iconarea .v-btn__content {
+    height : 40px;
+}
+
 #cursel_avatar {
     margin-left: 0.5rem;
 }
@@ -859,7 +863,8 @@ div.search-box {
 div.account_body {
     height : 100%;
     width : 100%;
-    overflow : hidden auto;
+    overflow-x : hidden;
+    overflow-y : auto;
     -webkit-overflow-scrolling: touch;
 }
 div.account_body .user-view {
@@ -868,6 +873,15 @@ div.account_body .user-view {
     margin-bottom: 0;
     width : 100%;
     height : 500px;
+}
+@media only screen and (min-width: 601px) {
+    div.account_body .user-view {
+        position: relative;
+        padding: 0;
+        margin-bottom: 0;
+        width : 100%;
+        height : 450px;
+    }
 }
   
 div.account_body .user-view > a {
@@ -974,7 +988,7 @@ div.account_body .user-view .email {
     bottom: 2rem;
     left: 2%;
     height: 40px;
-    /*width: 14.5rem;*/
+    width: 12.5rem;
 }
 .user-action-btns.col2 {
     position: absolute;
@@ -986,10 +1000,10 @@ div.account_body .user-view .email {
 }
 .user-action-btns.col3 {
     position: absolute;
-    bottom: 2rem;
+    bottom: 3rem;
     right :  2%;
     width : 4.5rem;
-    height: 17rem;
+    height: 21rem;
 }
 .user-action-btns.col4 {
     position: absolute;
@@ -1168,7 +1182,9 @@ div.account_body .tabs li.indicator {
 div.instances_body {
     height : 100%;
     width : 100%;
-    overflow : hidden auto;
+    overflow-x : hidden;
+    overflow-y : auto;
+
 }
 div.instances_body .chip_box {
     width : 100%;
@@ -1337,7 +1353,9 @@ div.instances_body .card .card-content.card-account-content p {
     overflow : hidden;
 }
 .scroll-y {
-    overflow : hidden auto;
+    overflow-x : hidden;
+    overflow-y : auto;
+
     -webkit-overflow-scrolling: touch;
 }
 .dmy_inputtoot div.v-dialog--fullscreen {
@@ -1421,17 +1439,20 @@ div.dragover_indicate {
     font-size: 1.8rem;
     cursor : pointer;
 }
+.emoji-view {
+
+}
 #chararea {
 	width:100%;
-	height:20rem;
-    overflow:scroll;
+	height:10rem;
+    overflow:auto;
     -webkit-overflow-scrolling: touch;
 	border:2px inset black;
 	margin-top:0.2em;
 }
 .charbutton-normal {
-	font-size : 2.1rem;
-	width : 4.3rem;
+	font-size : 2.0rem;
+	width : 4.2rem;
 	border : 0 solid black;
 	border-radius : 0;
 	background-color : #454545;
@@ -1502,7 +1523,8 @@ div.dragover_indicate {
 =====================================================*/
 div.setting_body {
     height : 100%;
-    overflow : hidden auto;
+    overflow-x : hidden;
+    overflow-y : auto;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1525,6 +1547,9 @@ div.setting_body {
 .dmsg_body .v-window-item .layout {
     height : 100%;
 }
+.dmsg_body .v-window-item .layout .flex {
+    height : 100%;
+}
 .dmsg_body .v-card {
     height : 100%;
 }
@@ -1544,5 +1569,7 @@ div.setting_body {
     -webkit-overflow-scrolling: touch;
 }
 .dmsg_body .timeline_cardaction {
-    height : 96px;
+    height : 96px;    
+    box-shadow: 1px -2px 4px 0 grey;
+
 }

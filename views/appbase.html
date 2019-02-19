@@ -59,6 +59,7 @@
             crossorigin=""
         />
 
+        <link href="/static/lib/highlight/styles/atom-one-dark.css" rel="stylesheet" >
 
         <link href="/static/css/accounts.css" rel="stylesheet" >
         <link href="/static/css/index.css" rel="stylesheet" >
@@ -82,7 +83,7 @@
                                 <img id="img_brand" class="brand-image hidden-sm-and-down" src="/static/images/app_icon.png" width="48" height="48">
                                 <span class="brand-title black-text hidden-sm-and-down">{{sysinfo.fullname}}</span>
                             </div>
-                            <div class="col s4 m6 l3">
+                            <div class="col s4 m5 l3">
                                 <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
                             </div>
                             <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
@@ -101,7 +102,7 @@
                                     ></v-text-field>
                                 </form>
                             </div>
-                            <div id="nav_btnbar" class="navcol-right col s6 m3 l3" v-cloak>
+                            <div id="nav_btnbar" class="navcol-right col s6 m4 l3" v-cloak>
                                 <ul id="box_navright_btns" class="right" v-show="applogined">
                                     <li><div id="apploading" class="preloader-wrapper common_ui_hidden">
                                             <div class="spinner-layer spinner-red-only">
@@ -116,11 +117,23 @@
                                         </div>
                                     </li>
                                     <li><a href="#" id="navbtn_search" class="hidden-md-and-up" v-on:click.stop="onclick_search"><i class="material-icons black-text">search</i></a></li>
-                                    <li>
-                                        <v-badge v-cloak overlap bottom color="red" v-model="show_notif_badge">
+                                    <li class="nav_notif_iconarea">
+                                        <!--<v-badge v-cloak overlap bottom color="red" v-model="show_notif_badge">
                                             <span slot="badge">{? notif_badge_count ?}</span> 
                                             <a id="navbtn_notification" v-on:click.stop="onclick_notification"><i class="material-icons black-text" id="navbtn_icon_notification">notifications_none</i></a>
-                                        </v-badge>
+                                        </v-badge>-->
+                                        <v-btn :flat="ntf_stat.flat" :icon="ntf_stat.icon"
+                                            :fab="ntf_stat.fab" :dark="ntf_stat.dark" small
+                                            :color="ntf_stat.color"
+                                            v-on:click.stop="onclick_notification"
+                                        >
+                                            <template v-if="ntf_stat.icon">
+                                                <v-icon>notifications_none</v-icon>
+                                            </template>
+                                            <template v-else>
+                                                <span>{? notif_badge_count ?}</span>
+                                            </template>
+                                        </v-btn>
                                         
                                     </li>
                                     <li><a id="navbtn_refresh" class="hidden-sm-and-down" v-on:click.stop="onclick_refresh"><i class="material-icons black-text">refresh</i></a></li>
@@ -360,6 +373,8 @@
 
         <script src="/static/lib/mastodon-text.js"></script>
         <script src="/static/lib/mastodon.js"></script>
+        <script src="/static/lib/marked.min.js"></script>
+        <script src="/static/lib/highlight/highlight.pack.js"></script>
 
         <script src="/static/lib/jtimeago/jquery.timeago.js"></script>
         <script src="/static/lib/jtimeago/locales/jquery.timeago.{{ lang }}.js"></script>

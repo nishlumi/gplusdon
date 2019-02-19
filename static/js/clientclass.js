@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190215-02",
+            revision : "20190219-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -69,6 +69,27 @@ class Gplusdon {
         }
         if ("defineForTootPage" in window) defineForTootPage(this);
         
+        if ("marked" in window) {
+            hljs.initHighlightingOnLoad();
+            var ren = new marked.Renderer();
+            ren.code = function (code,lang) {
+                return '<pre'+'><code class="hljs">' + hljs.highlightAuto(code).value + '</code></pre>';
+            }
+            marked.setOptions({
+                renderer: ren,
+                /*highlight: function(code) {
+                    return hljs.highlightAuto(code).value;
+                },*/
+                pedantic: false,
+                gfm: true,
+                tables: true,
+                breaks: false,
+                sanitize: false,
+                smartLists: true,
+                smartypants: false,
+                xhtml: false
+            });
+        }
     }
     get sns(){
         return this._sns;
@@ -357,7 +378,8 @@ class Gplusdon {
         //---sidenav
 
     }
-    setupInstanceAdditionalData(){
+    setupInstanceAdditionalData(instance){
+        return;
         for (var obj in this.acman.instances) {
             var ins = this.acman.instances[obj];
             var len_emoji = 0;

@@ -4,7 +4,13 @@
 const CONS_TEMPLATE_TLCONDITION = `
 <div class="item-content card-content">
     <v-layout>
-        <v-flex xs10>
+        <v-flex xs9 md8>
+            <v-tooltip bottom>
+                <v-btn fab  small color="white" slot="activator" v-on:click="onclick_clearclose(true)">
+                    <v-icon dark>clear</v-icon>
+                </v-btn>
+                <span>{{translation.lab_clearcontidion}}</span>
+            </v-tooltip>
             <v-btn fab dark small color="primary" v-on:click="dialog=!dialog">
                 <v-icon dark>settings</v-icon>
             </v-btn>
@@ -12,12 +18,12 @@ const CONS_TEMPLATE_TLCONDITION = `
                 <v-icon dark>event</v-icon>
             </v-btn>
         </v-flex>
-        <v-flex xs2>
+        <v-flex xs3 md4>
             <v-tooltip bottom>
-                <v-btn fab  small color="white" slot="activator" v-on:click="onclick_clearclose(true)">
-                    <v-icon dark>clear</v-icon>
-                </v-btn>
-                <span>{{translation.lab_clearcontidion}}</span>
+                <v-text-field slot="activator"
+                v-bind:label="translation.lab_posttext" v-on:focus="onfocus_posttext" readonly
+                ></v-text-field>
+                <span>{{translation.toots}}</span>
             </v-tooltip>
         </v-flex>
 
@@ -96,74 +102,107 @@ const CONS_TEMPLATE_TLCONDITION = `
             <v-card-text>
                 <v-layout row wrap>
                     <v-flex xs12>
-                        <span>{{translation.lab_timecondition4}}</span>
-                    </v-flex>
-                    <v-flex xs2>
-                        <v-tooltip bottom>
-                            <v-btn fab small icon slot="activator" :color="colorcls.beginbtn" v-on:click="onclick_beginarrow">
-                                <v-icon>arrow_forward</v-icon>
-                            </v-btn>
-                            <span>Start</span>
-                        </v-tooltip>
-                        
-                    </v-flex>
-                    <v-flex xs4>
-                        <v-text-field
-                            v-model="condition.daterange.begin.date"
-                            type="date"
-                            :label="translation.cons_date"
-                            hint="YYYY/MM/DD"
-                            persistent-hint
-                            :disabled="disablecls.begin.date"
-                            ></v-text-field>
-                    </v-flex>
-                    <v-flex xs4 offset-xs1>
-                            <v-text-field
-                            v-model="condition.daterange.begin.time"
-                            type="time"
-                            :label="translation.cons_time"
-                            hint="HH:MM"
-                            persistent-hint
-                            :disabled="disablecls.begin.time"
-                            ></v-text-field>
-                    </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                    <v-flex xs2>
-                        <v-tooltip bottom>
-                            <v-btn fab small icon slot="activator" :color="colorcls.endbtn" v-on:click="onclick_endarrow">
-                                <v-icon>arrow_back</v-icon>
-                            </v-btn>
-                            <span>End</span>
-                        </v-tooltip>
-                        
-                    </v-flex>
-                    <v-flex xs4>
-                        <v-text-field
-                            v-model="condition.daterange.end.date"
-                            type="date"
-                            :label="translation.cons_date"
-                            hint="YYYY/MM/DD"
-                            persistent-hint
-                            :disabled="disablecls.end.date"
-                            ></v-text-field>
-                    </v-flex>
-                    <v-flex xs4 offset-xs1>
-                            <v-text-field
-                            v-model="condition.daterange.end.time"
-                            type="time"
-                            :label="translation.cons_time"
-                            hint="HH:MM"
-                            persistent-hint
-                            :disabled="disablecls.end.time"
-                            ></v-text-field>
-                    </v-flex>
-                </v-layout>
-                <v-layout row wrap>
-                    <v-flex xs12>
                         <p>{{translation.msg_timecondition1}}</p>
                     </v-flex>
                 </v-layout>
+                <v-tabs
+                    v-model="timetab"
+                    slider-color="primary"
+                >
+                    <v-tab key="0">{{translation.lab_timecondition2}}</v-tab>
+                    <v-tab key="1">{{translation.lab_timecondition3}}</v-tab>
+                    <v-tabs-items>
+                        <v-tab-item key="0">
+                            <v-layout row wrap>
+                                <v-flex xs5 offset-xs1>
+                                    <v-radio-group v-model="datecolumn" column>
+                                            <v-radio :label="translation.lab_timecondition_hour" value="0"></v-radio>
+                                            <v-radio :label="translation.lab_timecondition_day" value="1"></v-radio>
+                                            <v-radio :label="translation.lab_timecondition_week" value="2"></v-radio>
+                                        <v-radio :label="translation.lab_timecondition_month" value="3"></v-radio>
+                                    </v-radio-group>
+                                </v-flex>
+                                <v-flex xs2 offset-xs1>
+                                    <br>
+                                    <v-text-field
+                                        v-model="date_simple"
+                                        type="number" min="1"
+                                        :label="translation.lab_timecondition_value"
+                                    ></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </v-tab-item>
+                        <v-tab-item key="1">
+                            <v-layout row wrap>
+                                <v-flex xs12>
+                                    <span>{{translation.lab_timecondition4}}</span>
+                                </v-flex>
+                                <v-flex xs2>
+                                    <v-tooltip bottom>
+                                        <v-btn fab small icon slot="activator" :color="colorcls.beginbtn" v-on:click="onclick_beginarrow">
+                                            <v-icon>arrow_forward</v-icon>
+                                        </v-btn>
+                                        <span>Start</span>
+                                    </v-tooltip>
+                                    
+                                </v-flex>
+                                <v-flex xs4>
+                                    <v-text-field
+                                        v-model="condition.daterange.begin.date"
+                                        type="date"
+                                        :label="translation.cons_date"
+                                        hint="YYYY/MM/DD"
+                                        persistent-hint
+                                        :disabled="disablecls.begin.date"
+                                        ></v-text-field>
+                                </v-flex>
+                                <v-flex xs4 offset-xs1>
+                                        <v-text-field
+                                        v-model="condition.daterange.begin.time"
+                                        type="time"
+                                        :label="translation.cons_time"
+                                        hint="HH:MM"
+                                        persistent-hint
+                                        :disabled="disablecls.begin.time"
+                                        ></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                            <v-layout row wrap>
+                                <v-flex xs2>
+                                    <v-tooltip bottom>
+                                        <v-btn fab small icon slot="activator" :color="colorcls.endbtn" v-on:click="onclick_endarrow">
+                                            <v-icon>arrow_back</v-icon>
+                                        </v-btn>
+                                        <span>End</span>
+                                    </v-tooltip>
+                                    
+                                </v-flex>
+                                <v-flex xs4>
+                                    <v-text-field
+                                        v-model="condition.daterange.end.date"
+                                        type="date"
+                                        :label="translation.cons_date"
+                                        hint="YYYY/MM/DD"
+                                        persistent-hint
+                                        :disabled="disablecls.end.date"
+                                        ></v-text-field>
+                                </v-flex>
+                                <v-flex xs4 offset-xs1>
+                                        <v-text-field
+                                        v-model="condition.daterange.end.time"
+                                        type="time"
+                                        :label="translation.cons_time"
+                                        hint="HH:MM"
+                                        persistent-hint
+                                        :disabled="disablecls.end.time"
+                                        ></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </v-tab-item>
+                    </v-tabs-items>
+
+                </v-tabs>
+                
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -317,7 +356,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-divider></v-divider>
                 <v-card-text >
                     <v-list two-line>
-                        <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts">
+                        <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts" :key="reactindex">
                             <v-list-tile-avatar>
                                 <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
                                 <input type="hidden" name="sender_id" alt="reaction" v-bind:value="reactitem.id">
@@ -668,7 +707,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                 <v-divider></v-divider>
                 <v-card-text >
                     <v-list two-line>
-                        <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts">
+                        <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts" :key="reactindex">
                             <v-list-tile-avatar>
                                 <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
                                 <input type="hidden" name="sender_id" alt="reaction" v-bind:value="reactitem.id">

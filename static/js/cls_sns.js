@@ -27,6 +27,7 @@ class Gpsns {
                 ser[s] = ser[s].split("=");
                 if (consIDprop.indexOf(ser[s][0]) > -1) {
                     ret[ln[1]] = ser[s][1];
+                    ret["raw_"+ln[1]] = ser[s][0];
                 }
             }
             //ret[ln[1]] = a.search.split("=")[1];
@@ -1666,7 +1667,10 @@ class Gpsns {
             referContent = tmprefcon[0] + 
                 "<p class='invisible'>" + tmprefcon[1] + "</p>";
         }
+
         var content = MYAPP.extractTootInfo(referContent);
+
+        
         //---mention, tag: change URL original to app version
         var tmp = GEN("div");
         tmp.innerHTML = referContent;
@@ -1684,6 +1688,25 @@ class Gpsns {
             qa[i].href = fnlhref;
         }
 
+        //---check if markdown format
+        var markdown = {
+            stpos : content.text.indexOf("-md-"),
+            edpos : content.text.indexOf("-mde-"),
+            htmlstpos : tmp.innerHTML.indexOf("-md-"),
+        };
+        if (markdown.stpos > -1) {
+            var fnlst = markdown.stpos+4;
+            var fnled = content.text.length;
+            if (markdown.edpos > -1) {
+                fnled = markdown.edpos;
+            }
+            var targettext = content.text.substr(fnlst,fnled);
+            var mdhtml = marked(targettext);
+
+            var tmprefcon = tmp.innerHTML.substr(0,markdown.htmlstpos);
+            tmprefcon += "<br>" + mdhtml + "</p>";
+            tmp.innerHTML = tmprefcon;
+        }
         referContent = tmp.innerHTML;
         
         this.body["html"] = MUtility.replaceEmoji(referContent,referInstance,referEmojis,iconsize);

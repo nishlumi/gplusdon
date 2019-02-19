@@ -1204,6 +1204,11 @@ Vue.component("tootgallery-carousel", {
 		onclick_rehide : function (){
 			this.is_sensitive_hidden.common_ui_off = true;
 			this.is_sensitive_title.common_ui_off = false;
+		},
+
+		//---some function--------------------------------------
+		judgeSrc : function (item) {
+			
 		}
     }
 });
@@ -1553,8 +1558,9 @@ Vue.component("timeline-condition", {
 			sel_tltype : ["tv_all"],
 			sel_listtype : "",
 			sel_filtertext : "",
-
-			date_simple : 0,
+			timetab : 0,
+			date_simple : 1,
+			datecolumn : "0",
 
 			disablecls : {
 				begin : {
@@ -1583,6 +1589,32 @@ Vue.component("timeline-condition", {
 		}
 	},
 	methods : {
+		onfocus_posttext : function (e) {
+			console.log(e);
+            var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
+            MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
+            MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
+            MYAPP.commonvue.inputtoot.$refs.inputbox.clear_selectaccount();
+            MYAPP.commonvue.inputtoot.$refs.inputbox.set_selectaccount();
+            if (e.shiftKey) {
+                MYAPP.commonvue.inputtoot.onclick_openInNew();
+                return;
+            }
+            if (MYAPP.session.config.action.popupNewtoot_always) {
+                MYAPP.commonvue.inputtoot.onclick_openInNew();
+                return;
+            }
+            
+            MYAPP.commonvue.inputtoot.sizing_window();
+
+            MYAPP.commonvue.inputtoot.dialog = true;
+            MYAPP.commonvue.inputtoot.$nextTick(()=>{
+                var chk = checkBrowser();
+                if (chk.platform != "ios") {
+                    Q(".onetoot_inputcontent").focus();
+                }
+            });
+		},
 		onclick_close : function (flag) {
 			//---analyze filter
 			var fobj = [];
@@ -1666,25 +1698,40 @@ Vue.component("timeline-condition", {
 			};
 
 			var dt = "";
-			if (!this.disablecls.begin.date) {
-				var tmpdate = this.condition.daterange.begin.date;
-				var tmptime = this.condition.daterange.begin.time;
-				if (tmptime.split(":").length < 2) {
-					tmptime = "00:00";
+			if (this.timetab == 0) {
+				var curdt = new Date();
+				if (this.datecolumn == "0") {
+					curdt.setHours(curdt.getHours() - parseInt(this.date_simple));
+				}else if (this.datecolumn == "1") {
+					curdt.setDate(curdt.getDate() - parseInt(this.date_simple));
+				}else if (this.datecolumn == "2") {
+					curdt.setDate(curdt.getDate() - (parseInt(this.date_simple)*7));
+				}else if (this.datecolumn == "3") {
+					curdt.setMonth(curdt.getMonth() - parseInt(this.date_simple));
 				}
-				dt = `${tmpdate}T${tmptime}`;
-				var dtb = new Date(dt);
-				tootids.since_id = MUtility.timestamp2id(dtb);
-			}
-			if (!this.disablecls.end.date) {
-				var tmpdate = this.condition.daterange.end.date;
-				var tmptime = this.condition.daterange.end.time;
-				if (tmptime.split(":").length < 2) {
-					tmptime = "00:00";
+				
+				tootids.max_id = MUtility.timestamp2id(curdt);
+			} else if (this.timetab == 1) {
+				if (!this.disablecls.begin.date) {
+					var tmpdate = this.condition.daterange.begin.date;
+					var tmptime = this.condition.daterange.begin.time;
+					if (tmptime.split(":").length < 2) {
+						tmptime = "00:00";
+					}
+					dt = `${tmpdate}T${tmptime}`;
+					var dtb = new Date(dt);
+					tootids.since_id = MUtility.timestamp2id(dtb);
 				}
-				dt = `${tmpdate}T${tmptime}`;
-				var dte = new Date(dt);
-				tootids.max_id = MUtility.timestamp2id(dte);
+				if (!this.disablecls.end.date) {
+					var tmpdate = this.condition.daterange.end.date;
+					var tmptime = this.condition.daterange.end.time;
+					if (tmptime.split(":").length < 2) {
+						tmptime = "00:00";
+					}
+					dt = `${tmpdate}T${tmptime}`;
+					var dte = new Date(dt);
+					tootids.max_id = MUtility.timestamp2id(dte);
+				}
 			}
 			var ret = {
 				status : true,

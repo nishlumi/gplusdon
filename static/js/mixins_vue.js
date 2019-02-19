@@ -169,6 +169,7 @@ var vue_mixin_for_timeline = {
 					pastOptions.api[obj] = this.currentOption.api[obj];
 				}
 				delete pastOptions.api["since_id"];
+				delete pastOptions.api["min_id"];
                 //var atab = Q(".tab .active");
                 if (this.$el.id == "tl_home") {
 					tlid = "home";
@@ -192,7 +193,7 @@ var vue_mixin_for_timeline = {
 						tlid = this.id;
 					}
 				}
-				pastOptions.api.max_id = this.info.maxid;
+				//pastOptions.api.max_id = this.info.maxid;
 				//pastOptions.app.tlshare = this.selshare_current;
 				//pastOptions.app.tltype = this.seltype_current;
 				console.log("timeline ID=",tlid,JSON.stringify(this.info));
@@ -206,7 +207,7 @@ var vue_mixin_for_timeline = {
                 var futureOptions = {
                     api : {
                         exclude_replies : true,
-                        since_id : "",
+                        //since_id : "",
                     },
                     app : {
                         is_nomax : true,
@@ -222,6 +223,12 @@ var vue_mixin_for_timeline = {
 				for (var obj in this.currentOption.api) {
 					futureOptions.api[obj] = this.currentOption.api[obj];
 				}
+				if (futureOptions.api["exclude_replies"] === true) {
+                    futureOptions.api["exclude_replies"] = "";
+                }else if (futureOptions.api["exclude_replies"] === false) {
+                    delete futureOptions.api["exclude_replies"];
+                }
+
 				delete futureOptions.api["max_id"];
                 //---page max scroll up
                 console.log("scroll up max");
@@ -248,7 +255,7 @@ var vue_mixin_for_timeline = {
 						tlid = this.id;
 					}
 				}
-				futureOptions.api.since_id = this.info.sinceid;
+				//futureOptions.api.since_id = this.info.sinceid;
 				//futureOptions.app.tlshare = this.selshare_current;
 				//futureOptions.app.tltype = this.seltype_current;
 				this.loadTimeline(tlid,{
@@ -488,14 +495,16 @@ var vue_mixin_for_timeline = {
 			if (!options.app.is_nosince) {
 				if (paging.prev != "") {
 					this.info.sinceid = paging.prev; //data[0].id;
-					this.currentOption.api.since_id = paging.prev;
+					if (paging["raw_prev"]) {
+						this.currentOption.api[paging["raw_prev"]] = paging.prev;	
+					}else{
+						this.currentOption.api.since_id = paging.prev;
+					}
 				}
 			}
 			console.log("data.length=" + data.length);
-			for (var i = 0; i < data.length; i++) {
-				if (this.checkExistToot(data[i].id)) continue;
-
-				var st = new Gpstatus(data[i],18);
+			var generate_body = (data,options,direct) => {
+				var st = new Gpstatus(data,18);
 				var flag = this.filterToot("filter", st, options);
 				if (flag) {
 					flag = this.filterToot("share", st, options);
@@ -515,20 +524,20 @@ var vue_mixin_for_timeline = {
 					 */
 					//console.log("st=", st);
 					var baseIndex = 0;
-					if ("since_id" in options.api) {
+					if (direct == "since") {
 						this.statuses.unshift(st);
-					} else {						
+					} else if (direct == "max") {
 						this.statuses.push(st);
 						baseIndex = this.statuses.length-1;
 					}
 					var tmpid = this.statuses.length - 1;
 					//---get /statuses/:id/context
-					var conversationData = data[i];
-					var ascendantData = data[i];
-					if (data[i].reblog != null) {
+					var conversationData = data;
+					var ascendantData = data;
+					if (data.reblog != null) {
 						//---if this toot boosted post from any one, replace id.
-						conversationData = data[i].reblog;
-						ascendantData = data[i].reblog;
+						conversationData = data.reblog;
+						ascendantData = data.reblog;
 					}
 					if ((st.body.in_reply_to_id != null) || (st.body.replies_count < 0) || (st.body.replies_count > 0) )  {
 						MYAPP.sns.getConversation(st.body.id, st.id, tmpid)
@@ -728,6 +737,19 @@ var vue_mixin_for_timeline = {
 					}
 				}
 			}
+
+			if (!options.app.is_nomax) {
+				for (var i = 0; i < data.length; i++) {
+					if (this.checkExistToot(data[i].id)) continue;
+					generate_body(data[i],options,"max");
+				}
+			}else if (!options.app.is_nosince) {
+				for (var i = data.length-1; i >= 0; i--) {
+					if (this.checkExistToot(data[i].id)) continue;
+					generate_body(data[i],options,"since");
+					
+				}
+			}
 			console.log("vm.statuses=" + this.statuses.length);
 			this.is_asyncing = false;
 			this.$nextTick(() =>{
@@ -888,14 +910,15 @@ var vue_mixin_for_timeline = {
 			if ("link" in cond) {
 				if (cond.link.since_id == "") {
 					delete this.currentOption.api["since_id"];
-					this.currentOption.app["is_nosince"] = true;
+					delete this.currentOption.api["min_id"];
+					this.currentOption.app["is_nosince"] = false;
 				}else{
-					this.currentOption.api["since_id"] = cond.link.since_id;
+					this.currentOption.api["min_id"] = cond.link.since_id;
 					this.currentOption.app["is_nosince"] = false;
 				}
 				if (cond.link.max_id == "") {
 					delete this.currentOption.api["max_id"];
-					this.currentOption.app["is_nomax"] = true;
+					this.currentOption.app["is_nomax"] = false;
 				}else{
 					this.currentOption.api["max_id"] = cond.link.max_id;
 					this.currentOption.app["is_nomax"] = false;
@@ -1197,6 +1220,7 @@ var vue_mixin_for_inputtoot = {
 			if (val.length == 0) {
 				this.btnflags.send_disabled = true;
 			}
+			this.loadEmoji();
 		},
 		selmentions : function(val) {
 			var mentions;
@@ -1423,8 +1447,8 @@ var vue_mixin_for_inputtoot = {
 			this.selaccounts.push(this.initialaccounts[0]);
 		},
 		insertText : function (text) {
-			this.ckeditable.insertText(text);
-			this.status_text = this.ckeditable.getText();
+			this.ckeditor.editable().insertText(text);
+			this.status_text = this.ckeditor.editable().getText();
 		},
 		generate_showable_mention : function () {
 			var men = this.selmentions[0];
@@ -1881,6 +1905,48 @@ var vue_mixin_for_inputtoot = {
 			});
 			return rootdef;
 		},
+		loadEmoji : function() {
+			MYAPP.commonvue.emojisheet.emojis_title.instances.splice(0,MYAPP.commonvue.emojisheet.emojis_title.instances.length);
+			for (var i = 0; i < this.selaccounts.length; i++) {
+				var ac = this.getTextAccount2Object(i);
+				
+				if (ac) {
+					if (MYAPP.acman.instances[ac.instance]["emoji"]) {
+						var ins = MYAPP.acman.instances[ac.instance]["emoji"];
+						var len_emoji = 0;
+						for (var e in ins.data) {
+							len_emoji++;
+						}
+						MYAPP.commonvue.emojisheet.emojis_title.instances.push({
+							type : "inst",
+							text : ins.instance,
+							group : _T("instances"),
+							start : 0,
+							end : len_emoji
+						});
+					}else{
+						MYAPP.sns.getInstanceEmoji(ac.instance)
+						.then(emojiresult => {
+							var ins = emojiresult;
+							var len_emoji = 0;
+							for (var e in ins.data) {
+								len_emoji++;
+							}
+							MYAPP.acman.instances[emojiresult.instance]["emoji"] = emojiresult;
+							MYAPP.commonvue.emojisheet.emojis_title.instances.push({
+								type : "inst",
+								text : emojiresult.instance,
+								group : _T("instances"),
+								start : 0,
+								end : len_emoji
+							});
+						});
+
+					}
+
+				}
+			}
+		}
 	}
 };
 

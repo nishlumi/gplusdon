@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("scroll down max");
             var pastOptions = {
                 api : {
-                    exclude_replies : true,
+                    exclude_replies : "",
                     max_id : "",
                 },
                 app : {
@@ -752,8 +752,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (var obj in vue_user.tootes.currentOption.api) {
 					pastOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
                 }
-                
-                pastOptions.api.max_id = vue_user.tootes.info.maxid;
+
+                delete pastOptions.api["since_id"];
+				delete pastOptions.api["min_id"];                
+                //pastOptions.api.max_id = vue_user.tootes.info.maxid;
                 //pastOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //pastOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline("me",{
@@ -767,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("scroll up max");
             var futureOptions = {
                 api : {
-                    exclude_replies : true,
+                    exclude_replies : "",
                     since_id : "",
                 },
                 app : {
@@ -795,9 +797,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 });*/
                 for (var obj in vue_user.tootes.currentOption.api) {
 					futureOptions.api[obj] = vue_user.tootes.currentOption.api[obj];
-				}
-
-                futureOptions.api.since_id = vue_user.tootes.info.sinceid;
+                }
+                if (futureOptions.api["exclude_replies"] === true) {
+                    futureOptions.api["exclude_replies"] = "";
+                }else if (futureOptions.api["exclude_replies"] === false) {
+                    delete futureOptions.api["exclude_replies"];
+                }
+                /* TODO: ユーザーのsince_id とmin_idの挙動を改めて確認！ */
+                //futureOptions.api["since_id"] = futureOptions.api["min_id"];
+                delete futureOptions.api["since_id"];
+				delete futureOptions.api["max_id"];
+                //futureOptions.api.since_id = vue_user.tootes.info.sinceid;
                 //futureOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //futureOptions.app.tltype = vue_user.tootes.seltype_current;
                 vue_user.tootes.loadTimeline("me",{
@@ -866,6 +876,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //---account load
         MYAPP.afterLoadAccounts(data);
         MYAPP.selectAccount(ac);
+
 
         vue_user.basicinfo.loadPinnedToot({
             api : {},

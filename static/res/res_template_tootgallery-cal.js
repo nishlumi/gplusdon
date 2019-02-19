@@ -18,7 +18,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
             <slide style="position:relative;">
                 <div class="grey lighten-4 white-text">
                     <v-img src="/static/images/gp_sensitive_image.png" class="landscape"></v-img>
-                    <h4 class="sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h4>
+                    <h3 class="headline sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h3>
                 </div>
             </slide>
         </template>
@@ -81,7 +81,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
             <v-flex xs12  v-bind:class="is_sensitive_title">
                 <div class="grey lighten-4 white-text" v-on:click="onclick_sensitive_ingrid">
                     <v-img src="/static/images/gp_sensitive_image.png" class="landscape"></v-img>
-                    <h4 class="sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h4>
+                    <h3 class="headline sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h3>
                 </div>
             </v-flex>
         </template>
