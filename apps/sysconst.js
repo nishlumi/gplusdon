@@ -4,19 +4,23 @@ var sysconst = {
     server_token: function () {
         return "";
     },
-    server_mastodon_cloud: function () {
-        return "";
+    server_mastodon_cloud: function (type) {
+        if (type == 0) { //---mastodon.cloud
+            return "";
+        }else if(type == 1) {
+            return "";
+        }
     },
     vap_id: function () {
         return "BCGiOKTrNfAFmIPybyacC2UcM2y9zJlDCtacpZoX44U4QjkY1HtaLla0leTn5HWXUevOrSFwb3xunrHHffdPaek=";
     },
-    yh_id: "-",
-    mab_id: "..",
+    yh_id: "",
+    mab_id: "pk.",
     package_info: packagejson,
     gdrive: {
         "web": {
             "api_key": '-E',
-            "client_id": "-.apps.googleusercontent.com",
+            "client_id": "",
             "project_id": "gplus-mastodon-webclient",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
