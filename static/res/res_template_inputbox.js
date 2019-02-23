@@ -209,7 +209,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                                 <v-list-tile-action>
                                                     <v-checkbox v-model="geouris" :rules="geouris_rules" :disabled="geochk_error" :value="generate_geouri(item)"></v-checkbox>
                                                 </v-list-tile-action>
-                                                <v-list-tile-content :title="item.Property.Address">
+                                                <v-list-tile-content :title="generate_geouri(item)">
                                                     {{item.Name}}
                                                 </v-list-tile-content>
                                                 <v-divider></v-divider>

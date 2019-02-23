@@ -3434,10 +3434,10 @@ table span.badge {
   }
 }
 
-.col .row {
+/*.col .row { comment out 2019.02.23
   margin-left: -0.75rem;
   margin-right: -0.75rem;
-}
+}*/
 
 .section {
   padding-top: 1rem;

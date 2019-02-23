@@ -1023,7 +1023,7 @@ Vue.component("timeline-toot", {
 			//MYAPP.commonvue.mapviewer.set_data(this.toote);
 			//MYAPP.commonvue.mapviewer.dialog = true;
 			if (this.curLocation) {
-				var url = `https://www.openstreetmap.org/#map=${this.curLocation.zoom}/${this.curLocation.lat}/${this.curLocation.lng}`;
+				var url = this.curLocation.url; //`https://www.openstreetmap.org/#map=${this.curLocation.zoom}/${this.curLocation.lat}/${this.curLocation.lng}`;
 				window.open(url,"_blank");
 			}
 		},

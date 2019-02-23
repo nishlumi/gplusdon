@@ -366,6 +366,7 @@ div.toot_card_base.g30 {
 
 /*=== toot with geo location  ===*/
  .toot_content_geo {
+    width : 100%;
     /*border-top : 1px inset grey;*/
     margin-right : 1rem;
 }

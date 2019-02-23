@@ -72,9 +72,9 @@ const srvMaps = {
 		}
 	},
 	"mapbox" : {
-		hostnmame : "https://www.openstreetmap.org/",
+		hostname : "https://www.openstreetmap.org/",
 		search : "?mlat=%2&mlon=%3#map=%1/%2/%3",
-		regmatch : "www\.openstreetmap\.org\/#map",
+		regmatch : "www\.openstreetmap\.org\/",
 		remove : /#map=/,
 		delimiter : "/",
 		llz : {
@@ -82,7 +82,8 @@ const srvMaps = {
 				return arr[1];
 			},
 			lng : function(arr) {
-				return arr[2];
+				var p = arr[2].indexOf("&");
+				return arr[2].substr(0,(p == -1) ? arr[2].length : p);
 			},
 			zoom : function(arr) {
 				return arr[0];
@@ -92,8 +93,8 @@ const srvMaps = {
 	"google" : {
 		hostname : "https://www.google.com/",
 		search : "maps/@%2,%3,%1z",
-		regmatch : "www\.google.+\/maps\/@",
-		remove : /\/maps\/@/,
+		regmatch : "www\.google.+\/maps",
+		remove : /\/@/,
 		delimiter : ",",
 		llz : {
 			lat : function(arr) {
@@ -103,7 +104,8 @@ const srvMaps = {
 				return arr[1];
 			},
 			zoom : function(arr) {
-				return arr[2];
+				var p = arr[2].indexOf("z");
+				return arr[2].substr(0,(p == -1) ? arr[2].length : p);
 			}
 		}
 	}
@@ -699,7 +701,7 @@ function ch2seh(data) {
 	//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;");
 	//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
 	var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
-	return DOMPurify.sanitize(tmp).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
 }
 
 Date.prototype.toFullText = function(){

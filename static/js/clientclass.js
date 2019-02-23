@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190223-01",
+            revision : "20190223-02",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -495,12 +495,13 @@ class Gplusdon {
                         suburl = suburl.replace(smap.remove,"");
 
                         var arr1 = suburl.split(smap.delimiter);
-                        var fnlgeo = {lat:0, lng:0, zoom:1, name:""};
+                        var fnlgeo = {lat:0, lng:0, zoom:1, name:"", url:""};
 
                         fnlgeo.lat = smap.llz.lat(arr1);
                         fnlgeo.lng = smap.llz.lng(arr1);
                         fnlgeo.zoom = smap.llz.zoom(arr1);
                         fnlgeo.name = fnlgeo.lat + "," + fnlgeo.lng;
+                        fnlgeo.url = url;
 
                         resultGeo.location.push(fnlgeo);
                         resultGeo.enabled = true;

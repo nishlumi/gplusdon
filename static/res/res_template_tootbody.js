@@ -269,7 +269,7 @@ const CONS_TEMPLATE_TOOTBODY = `
     </div>
     <!-----toot with geo-->
     <div class="toot_content_geo" v-if="toote.geo.enabled">
-        <v-layout>
+        <v-layout row wrap>
             <!--<v-flex xs12>
                 <img :src="geoyolp(toote.geo.location[0])" width="100%"></img>
             </v-flex>-->
@@ -280,7 +280,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <template v-else>
                     <div :id="'heremap'+toote.id" class="here_map"></div>
                 </template>-->
-                <img :src="geomap" width="100%" v-on:click="onclick_map"></img>
+                <img :src="geomap" width="100%" style="cursor:pointer;" v-on:click="onclick_map"></img>
             </v-flex>
             <v-flex xs12 sm12 md5>
                 <div class="toot_content_locos">
