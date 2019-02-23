@@ -701,10 +701,14 @@ var vue_mixin_for_timeline = {
 									if (this.statuses[tt.index].medias.length > 0) {
 										this.$set(this.statuses[tt.index].mainlink, "exists", false);
 									}
+								}else {
+									this.$set(this.statuses[tt.index].mainlink, "exists", true);
 								}
 								//---if found map, hide link preview
 								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
 									this.$set(this.statuses[tt.index].mainlink, "exists", false);
+								}else{
+									this.$set(this.statuses[tt.index].mainlink, "exists", true);
 								}
 								if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
 								if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);
