@@ -31,7 +31,7 @@ function barancerTimelineType(type,id) {
         //vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
         vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
         vue_timeline.local.loadTimeline(type,{
-            api : {},
+            api : {local:true},
             app : vue_timeline.local.currentOption.app
         });
     }else if (type == "public") {
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "home" : new Vue({
             el : "#tl_home",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
         
             data : {
                 domgrid : {},
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "list" : new Vue({
             el : "#tl_list",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 sel_listtype : [],
                 sellisttype_current : "",
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "local" : new Vue({
             el : "#tl_local",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "public" : new Vue({
             el : "#tl_public",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
-
+        
         
         var tltype = ID("hid_timelinetype").value;
         if (tltype == "") {
@@ -692,11 +692,13 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.afterLoadAccounts(data);
         MYAPP.selectAccount(ac);
 
+
         barancerTimelineType(tltype,tltypeid);
 
         vue_timeline.list.loadListNames();
 
         MYAPP.commonvue.bottomnav.activeBtn = 1;
+
     }, function (flag) {
         appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";

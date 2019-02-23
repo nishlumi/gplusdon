@@ -1658,6 +1658,7 @@ class Gpsns {
         }
 
         //---other information setup
+        referContent = ch2seh(referContent);
         var text_end_pos = referContent.indexOf("-end-");
         if (text_end_pos > -1) { //---if -end- exitst, hide text.
             var tmprefcon = [
@@ -1673,7 +1674,7 @@ class Gpsns {
         
         //---mention, tag: change URL original to app version
         var tmp = GEN("div");
-        tmp.innerHTML = referContent;
+        tmp.innerHTML = (referContent);
         var qa = tmp.querySelectorAll("p span.h-card a.mention");
         for (var i = 0; i < qa.length; i++) {
             var href = qa[i].href;
@@ -1694,19 +1695,25 @@ class Gpsns {
             edpos : content.text.indexOf("-mde-"),
             htmlstpos : tmp.innerHTML.indexOf("-md-"),
         };
-        if (markdown.stpos > -1) {
-            var fnlst = markdown.stpos+4;
-            var fnled = content.text.length;
-            if (markdown.edpos > -1) {
-                fnled = markdown.edpos;
-            }
-            var targettext = content.text.substr(fnlst,fnled);
-            var mdhtml = marked(targettext);
+        this.markdowned = false;
+        /*if (content.text.indexOf("\\-md-") < 0) {
+            if (markdown.stpos > -1) {
+                var fnlst = markdown.stpos+4;
+                var fnled = content.text.length;
+                if (markdown.edpos > -1) {
+                    fnled = markdown.edpos;
+                }
+                var targettext = content.text.substr(fnlst,fnled);
+                var mdhtml = marked(targettext);
 
-            var tmprefcon = tmp.innerHTML.substr(0,markdown.htmlstpos);
-            tmprefcon += "<br>" + mdhtml + "</p>";
-            tmp.innerHTML = tmprefcon;
-        }
+                var tmprefcon = tmp.innerHTML.substr(0,markdown.htmlstpos);
+                tmprefcon += "<br>" + mdhtml + "</p>";
+                tmp.innerHTML = tmprefcon;
+
+                this.markdowned = true;
+            }
+        }*/
+
         referContent = tmp.innerHTML;
         
         this.body["html"] = MUtility.replaceEmoji(referContent,referInstance,referEmojis,iconsize);

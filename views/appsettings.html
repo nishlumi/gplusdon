@@ -40,7 +40,8 @@
                                     column
                                 >
                                     <v-radio label="Yahoo" value="yahoo"></v-radio>
-                                    <v-radio label="Mapbox(OpenStreetMap)" value="mapbox"></v-radio>
+                                    <v-radio label="OpenStreetMap" value="mapbox"></v-radio>
+                                    <v-radio label="Google" value="google"></v-radio>
                                 </v-radio-group>
                             </v-flex>
                             <v-flex xs12 sm12 md4 lg4>
@@ -255,6 +256,12 @@
                                     </v-layout>
                                     
                                 </v-container>                                
+                            </v-flex>
+                            <v-flex xs12 sm12 md6>
+                                <span class="subheading">{{trans.ntf_lab_display_content_title}}</span>
+                                <v-checkbox hide-details v-model="type_notification.notpreview_onmap" label="{{trans.ntf_lab_notpreview_onmap}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_notification.notpreview_onmedia" label="{{trans.ntf_lab_notpreview_onmedia}}" :disabled="type_notification.minimumize_media_onlink"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_notification.minimumize_media_onlink" label="{{trans.ntf_lab_minimumize_media_onlink}}" :disabled="type_notification.notpreview_onmedia"></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-card-text>

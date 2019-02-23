@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_notifications = new Vue({
         el : "#notifcationview",
         delimiters : ["{?","?}"],
-        mixins : [vue_mixin_for_notification,vue_mixin_for_timeline],
+        mixins : [vue_mixin_base,vue_mixin_for_notification,vue_mixin_for_timeline],
         data() {
             return {
                 is_asyncing : false,
@@ -249,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
-        
         //MYAPP.session.status.showingAccount.data = MYAPP.acman.items[0];
         //MYAPP.session.status.showingAccount.idname = MYAPP.acman.items[0].idname;
         //MYAPP.session.status.showingAccount.instance = MYAPP.acman.items[0].instance;

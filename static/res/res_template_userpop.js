@@ -12,13 +12,13 @@ const CONS_TEMPLATE_USERPOPUP = `
     <div class="card-account-info">
         <a v-bind:href="generate_userlink(account)">
             <v-img v-bind:src="account.avatar" class="btn-floating halfway-fab2 userrectangle" width="32" height="32"></v-img>
-            <span class="truncate" v-bind:title="account.acct" v-html="generate_userDisplayName(account)"></span><br>
+            <span class="truncate" v-bind:title="account.acct" v-html="ch2seh(generate_userDisplayName(account))"></span><br>
             <i class="truncate" v-bind:title="account.acct"> @{{ account.acct }}</i>
         </a>
         <input type="hidden" name="sender_id" v-bind:value="account.id">
     </div>
     <div class="card-content card-account-content truncate blue-grey-text text-darken-4" 
-        v-html="generate_userNote(account)"
+        v-html="ch2seh(generate_userNote(account))"
         v-if="cardtype != 'selectable'"
     ></div>
     <div class="card-account-stats row">

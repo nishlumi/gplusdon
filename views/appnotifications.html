@@ -16,7 +16,7 @@
             <v-tabs-slider color="red"></v-tabs-slider>
             <v-tab v-for="(account,index) in accounts" v-bind:key="index" v-bind:href="`#tab_${index}`">
                 <img v-bind:src="account.account.rawdata.avatar" class="userrectangle" width="32" height="32">
-                <span v-html="full_display_name(account.account)"></span>
+                <span v-html="ch2seh(full_display_name(account.account))"></span>
             </v-tab>
             <v-tabs-items class="notification-tabitems">
                 <v-tab-item 
@@ -46,7 +46,7 @@
                                                 <img v-bind:src="item.account[0].avatar" class="userrectangle basic40">        
                                             </v-flex>
                                             <v-flex xs5>
-                                                <b v-html="get_display_name_html(item.account)"></b>
+                                                <b v-html="ch2seh(get_display_name_html(item.account))"></b>
                                             </v-flex>
                                             <v-flex xs6 v-if="item.account.length > 1">
                                                 <v-layout row>

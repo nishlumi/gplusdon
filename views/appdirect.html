@@ -22,7 +22,7 @@
                             </v-btn>
                         </v-toolbar>
                         <v-list two-line>
-                            <v-list-tile avatar>
+                            <v-list-tile avatar v-if="is_show_autocom">
                                 <v-autocomplete id="mention_box" v-model="autocom_mention" v-bind:items="a_mentions"
                                     color="red lighten-1" 
                                     background-color="grey lighten-5"
@@ -44,7 +44,7 @@
                                     <template slot="selection" slot-scope="data" >
                                         <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text" close v-on:input="remove_mention(data.item)">
                                             <v-avatar><img :src="data.item.avatar"></v-avatar>
-                                            <span v-html='data.item.display_name + "@" + data.item.instance'></span>
+                                            <span v-html='ch2seh(data.item.display_name + "@" + data.item.instance)'></span>
                                         </v-chip>
                                     </template>
                                     <template slot="item" slot-scope="data">
@@ -52,7 +52,7 @@
                                             <v-img :src="data.item.avatar">
                                         </v-list-tile-avatar>
                                         <v-list-tile-content>
-                                            <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
+                                            <v-list-tile-title v-html="ch2seh(data.item.display_name)"></v-list-tile-title>
                                             <v-list-tile-sub-title >{? `${data.item.acct}` ?}</v-list-tile-sub-title>
                                         </v-list-tile-content>
                                     </template>
@@ -65,7 +65,7 @@
                                     </v-list-tile-avatar>
                     
                                     <v-list-tile-content>
-                                        <v-list-tile-title v-html="full_display_name(item.user)"></v-list-tile-title>
+                                        <v-list-tile-title v-html="ch2seh(full_display_name(item.user))"></v-list-tile-title>
                                         
                                     </v-list-tile-content>
                                 </v-list-tile>
@@ -194,7 +194,7 @@
                         <v-icon>arrow_left</v-icon>
                     </v-btn>
                     <v-toolbar-title>
-                        <span v-html="full_display_name(show_user)"></span>
+                        <span v-html="ch2seh(full_display_name(show_user))"></span>
                     </v-toolbar-title>
                     
                 </v-toolbar>

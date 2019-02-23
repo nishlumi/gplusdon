@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "accounts" : new Vue({
             el : "#s_user",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "hashtags" : new Vue({
             el : "#s_hashtags",
             delimiters : ["{?","?}"],
-            mixins : [],
+            mixins : [vue_mixin_base],
             data : {
                 tags : [],
                 translations : {},
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
-
+        MYAPP.acman.loadEmoji();
         
         var findtext = ID("hid_findtext").value;
         MYAPP.commonvue.nav_search.findtext = findtext;

@@ -3,7 +3,7 @@
 //===----------------------------------------------------------------------===
 Vue.component("toot-inputbox", {
     template : CONS_TEMPLATE_INPUT_BOX,
-    mixins: [vue_mixin_for_inputtoot],
+    mixins: [vue_mixin_base, vue_mixin_for_inputtoot],
 	props: {
 		id : String,
 		visibility : Boolean,
@@ -50,7 +50,7 @@ Vue.component("toot-inputbox", {
             CNS_SAVENAME : "gp_inpt_conn",
 
 			//---account box data
-			max_account : 2,
+			max_account : 1,
 			account_errmsg : "",
             account_rules : [
                 v => {
@@ -367,6 +367,49 @@ Vue.component("toot-inputbox", {
 		onclick_moodbtn : function (e) {
 			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
 			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
+
+
+			if (!MYAPP.commonvue.emojisheet.is_sheet) {
+				return;
+			}
+			MYAPP.commonvue.emojisheet.emojis_title.instances.splice(0,MYAPP.commonvue.emojisheet.emojis_title.instances.length);
+			MYAPP.commonvue.emojisheet.emoji_subtitle.splice(0,MYAPP.commonvue.emojisheet.emoji_subtitle.length);
+			for (var i = 0; i < this.selaccounts.length; i++) {
+				var ac = this.getTextAccount2Object(i);
+				
+				if (MYAPP.acman.instances[ac.instance]["emoji"]) {
+					var ins = MYAPP.acman.instances[ac.instance]["emoji"];
+					var len_emoji = 0;
+					for (var e in ins.data) {
+						len_emoji++;
+					}
+					MYAPP.commonvue.emojisheet.emojis_title.instances.push({
+						type : "inst",
+						text : ins.instance,
+						group : _T("instances"),
+						start : 0,
+						end : len_emoji
+					});
+				}else{
+					MYAPP.sns.getInstanceEmoji(ac.instance)
+					.then(emojiresult => {
+						var ins = emojiresult;
+						var len_emoji = 0;
+						for (var e in ins.data) {
+							len_emoji++;
+						}
+						MYAPP.acman.instances[emojiresult.instance]["emoji"] = emojiresult;
+						MYAPP.commonvue.emojisheet.emojis_title.instances.push({
+							type : "inst",
+							text : emojiresult.instance,
+							group : _T("instances"),
+							start : 0,
+							end : len_emoji
+						});
+					});
+
+				}
+			}
 		},
     }
 });
@@ -375,7 +418,7 @@ Vue.component("toot-inputbox", {
 //===----------------------------------------------------------------------===
 Vue.component("reply-inputbox", {
 	template: CONS_TEMPLATE_REPLYINPUT,
-	mixins: [vue_mixin_for_inputtoot],
+	mixins: [vue_mixin_base, vue_mixin_for_inputtoot],
 	props: {
 		id : String,
 		visibility : Boolean,

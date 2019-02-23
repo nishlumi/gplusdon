@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===
 Vue.component("timeline-toot", {
 	template: CONS_TEMPLATE_TOOTBODY,
-	
+	mixins: [vue_mixin_base],
 	props: {
 		translation: Object,
 		globalinfo: Object,
@@ -1034,6 +1034,7 @@ Vue.component("timeline-toot", {
 //===----------------------------------------------------------------------===
 Vue.component("user-popupcard", {
 	template: CONS_TEMPLATE_USERPOPUP,
+	mixins: [vue_mixin_base],
 	props: {
 		cardtype: String,	//normal, selectable
 		translation: Object,
@@ -1217,7 +1218,8 @@ Vue.component("tootgallery-carousel", {
 //  Component: dmessage-item
 //===----------------------------------------------------------------------===
 Vue.component("dmessage-item", {
-    template: CONS_TEMPLATE_DMSGBODY,
+	template: CONS_TEMPLATE_DMSGBODY,
+	mixins: [vue_mixin_base],
 	props: {
 		translation: Object,
 		/**
@@ -1347,7 +1349,7 @@ Vue.component("dmessage-item", {
 //===----------------------------------------------------------------------===
 Vue.component("dashboard-gadget", {
 	template: CONS_TEMPLATE_DASHBOARD_GADGET,
-	mixins : [vue_mixin_for_timeline],
+	mixins : [vue_mixin_base,vue_mixin_for_timeline],
 	props: {
 		//---common
 		type : String,
@@ -1540,7 +1542,7 @@ class GTimelineCondition {
 }
 Vue.component("timeline-condition", {
 	template: CONS_TEMPLATE_TLCONDITION,
-	mixins : [],
+	mixins : [vue_mixin_base],
 	props: {
 		translation : Object,
 		condition : {

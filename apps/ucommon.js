@@ -3,6 +3,7 @@ const path = require('path');
 const web = require("request");
 const weburl = require("url");
 const webreq = require("request-promise");
+const sanhtml = require("sanitize-html");
 var cls_mstdn = require("./cls_mstdn");
 
 const sysconst = require("./sysconst");
@@ -23,6 +24,23 @@ const INSTANCE_TOKEN = sysconst.server_token();
 //lumsis@mastodon.cloud
 const __user_dirname = __dirname.replace("apps", "");
 const appEffectiveName = "G+Don";
+const avalable_languages = [
+    {
+        code: "ja", name: "日本語"
+    },
+    {
+        code: "en", name: "English",
+    },
+    {
+        code: "eo", name: "Esperanto",
+    },
+    {
+        code: "fr", name: "Français",
+    },
+    {
+        code: "de", name: "Deutsche",
+    }
+];
 
 
 function judgeLanguage(request) {
@@ -124,7 +142,7 @@ async function loadWebsiteOGP(request, info, url) {
                 const dom = new JSDOM(body);
                 var info = dom.window.document.head;
 
-                resolve(info.innerHTML);
+                resolve(sanhtml(info.innerHTML));
             });
         }
 
@@ -171,7 +189,7 @@ async function getDirectoryMastodon(request, param) {
             const dom = new JSDOM(body);
             var info = dom.window.document.head;
 
-            resolve(info.innerHTML);
+            resolve(sanhtml(info.innerHTML));
         });
 
     });
@@ -221,7 +239,8 @@ var ucommon = {
         ucommon.sysinfo.oginfo.description = js.appDescription;
         ucommon.sysinfo.hostname = request.hostname;
         return {
-            lang : lan[0],
+            lang: lan[0],
+            avalable_strings: avalable_languages,
             trans: trans,
             realtrans : js,
             sysinfo: ucommon.sysinfo

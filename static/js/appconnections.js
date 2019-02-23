@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tabbar" : new Vue({
             el : "#tabbar",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data : {
                 currentTab : "",
                 following_count : 0,
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "suggestion" : new Vue({
             el : "#suggestion",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "search" : new Vue({
             el : "#search",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "list" : new Vue({
             el : "#list",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "frequest" : new Vue({
             el : "#frequest",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -703,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "following" : new Vue({
             el : "#following",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -818,7 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "follower" : new Vue({
             el : "#follower",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data() {
                 return {
                     is_asyncing : false,
@@ -1144,6 +1144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.session.status.currentLocation = location.pathname;
 
         MYAPP.commonvue.bottomnav.activeBtn = 2;
+
 
     }, function (flag) {
         appAlert(_T("msg_notlogin_myapp"), function () {

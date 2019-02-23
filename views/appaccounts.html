@@ -15,7 +15,7 @@
                             flat clearable
                             hide-details
                             label="{{trans.txt_add_instance}}"
-                            class="hidden-sm-and-down"
+                            
                         ></v-text-field>
                     </v-flex>
                     <v-flex xs3>
@@ -65,7 +65,7 @@
                             </a>
                         </td>
                         <td>
-                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct" v-html="fullname(item.account)">
+                            <a v-bind:href="accountAppLink(item.account)" v-bind:title="item.account.rawdata.acct" v-html="ch2seh(fullname(item.account))">
                                 
                             </a>
                         </td>
@@ -103,7 +103,7 @@
                         <div class="title">{{trans.notifications}} :</div>
                     </v-flex>
                     <v-flex xs8>
-                        <div class="title" v-html="fullname(select_subscription.account)"></div>
+                        <div class="title" v-html="ch2seh(fullname(select_subscription.account))"></div>
                     </v-flex>
                     <v-flex xs2>
                         <v-btn fab dark color="red" v-on:click="onclick_savepushsub">

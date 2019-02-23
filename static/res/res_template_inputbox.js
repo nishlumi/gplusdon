@@ -63,12 +63,12 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 :messages="account_errmsg"
                                 v-bind:rules="account_rules"
                                 item-text="display_name" item-value="acct" 
-                                multiple required
+                                multiple required v-on:change="onchange_autocomp"
                             >
                                 <template slot="selection" slot-scope="data" >
                                     <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text truncate" close  v-on:input="remove(data.item)">
                                         <v-avatar><img :src="data.item.rawdata.avatar"></v-avatar>
-                                        <span v-html='chip_user_name(data.item)'></span>
+                                        <span v-html='ch2seh(chip_user_name(data.item))'></span>
                                     </v-chip>
                                 </template>
                                 <template slot="item" slot-scope="data">
@@ -80,8 +80,8 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                             <img :src="data.item.rawdata.avatar" slot="activator">    
                                         </v-list-tile-avatar>
                                         <v-list-tile-content>
-                                            <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
-                                            <v-list-tile-sub-title v-html="'@' + data.item.idname + '@' + data.item.instance"></v-list-tile-sub-title>
+                                            <v-list-tile-title v-html="ch2seh(data.item.display_name)"></v-list-tile-title>
+                                            <v-list-tile-sub-title v-html="ch2seh('@' + data.item.idname + '@' + data.item.instance)"></v-list-tile-sub-title>
                                         </v-list-tile-content>
                                     </template>
                                 </template>
@@ -131,7 +131,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 <template slot="selection" slot-scope="data" >
                                     <v-chip small v-bind:selected="data.selected" class="chip--select-multi primary white-text" close v-on:input="remove_mention(data.item)">
                                         <v-avatar><img :src="data.item.avatar"></v-avatar>
-                                        <span v-html='data.item.display_name + "@" + data.item.instance'></span>
+                                        <span v-html='ch2seh(data.item.display_name + "@" + data.item.instance)'></span>
                                     </v-chip>
                                 </template>
                                 <template slot="item" slot-scope="data">
@@ -139,7 +139,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                         <v-img :src="data.item.avatar"></v-img>
                                     </v-list-tile-avatar>
                                     <v-list-tile-content>
-                                        <v-list-tile-title v-html="data.item.display_name"></v-list-tile-title>
+                                        <v-list-tile-title v-html="ch2seh(data.item.display_name)"></v-list-tile-title>
                                         <v-list-tile-sub-title >{{ data.item.acct }}</v-list-tile-sub-title>
                                     </v-list-tile-content>
                                 </template>
@@ -175,9 +175,9 @@ const CONS_TEMPLATE_INPUT_BOX = `
                             <p id="toot_input_help" class="common_ui_off">
                                 <span class="body-1 red-text">{{ translation.accounts }}:</span><br>
                                 {{ translation.mn_accountbox_placeHolder }}<br>
-                                <span class="body-1 red-text">本文の特殊な使い方：</span><br>
-                                <b class="red-text">-cw-</b> 本文中に入れると、その前までの行がCWの文章になります。<br>
-                                <b class="red-text">-end-</b> 本文中に入れると、本アプリを使う相手からはその行以降が見えなくなります。（注！他のアプリからは見えます！）<br>
+                                <span class="body-1 red-text">{{translation.msg_help_statushelp01}}</span><br>
+                                <b class="red-text">-cw-</b> <span>{{translation.msg_help_status_cw}}</span><br>
+                                <b class="red-text">-end-</b> {{translation.msg_help_status_end}}<br>
                             </p>
                         </v-flex>
                         <v-flex xs12 class="tagbottomstyle1">
@@ -205,7 +205,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 <v-flex xs12 sm12 md6>
                                     <div class="toot_content_locos">
                                         <v-list>
-                                            <v-list-tile v-for="item in geo.locos" :key="item.Id" v-on:click="onclick_selloco(item)">
+                                            <v-list-tile v-for="(item,index) in geo.locos" :key="index" v-on:click="onclick_selloco(item)">
                                                 <v-list-tile-action>
                                                     <v-checkbox v-model="geouris" :rules="geouris_rules" :disabled="geochk_error" :value="generate_geouri(item)"></v-checkbox>
                                                 </v-list-tile-action>
@@ -227,7 +227,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                     <div class="image-area card-image"> 
                                     <v-img v-if="mainlink.isimage" class="v-img" v-bind:src="mainlink.image" v-bind:alt="mainlink.description" v-bind:title="mainlink.description" ></v-img>
                                     <span class="link-title truncate"><i class="material-icons">link</i> 
-                                        <span class="link-site" v-html="mainlink.site"></span> 
+                                        <span class="link-site" v-html="ch2seh(mainlink.site)"></span> 
                                     </span> 
                                     </div> 
                                     <div class="card-content link-content grey-text text-darken-1">

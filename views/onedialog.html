@@ -59,7 +59,7 @@
                             <v-list-tile-avatar >
                                 <v-img v-bind:src="ac.rawdata.avatar" class="userrectagnle" v-bind:title="ac.idname">
                             </v-list-tile-avatar>
-                            <v-list-tile-content v-bind:title="ac.idname" v-html="fullname(ac)"></v-list-tile-content>
+                            <v-list-tile-content v-bind:title="ac.idname" v-html="ch2seh(fullname(ac))"></v-list-tile-content>
                             <v-list-tile-action>
                                 <span class="new badge red" v-if="ac.notifications.length > 0">{? ac.notifications.length ?}</span>
                             </v-list-tile-action>
@@ -121,7 +121,7 @@
                                             <v-icon class="white-text">{? get_type_icon(item.type) ?}</v-icon>
                                             <span >{? get_translated_typename(item.type) ?}</span>
                                         </span>-->
-                                        <b v-html="get_display_name_html(item.account)"></b>
+                                        <b v-html="ch2seh(get_display_name_html(item.account))"></b>
                                     </v-list-tile-title>
                                     <v-list-tile-sub-title>{? generate_oneline_content(item) ?}</v-list-tile-sub-title>
                                 </v-list-tile-content>
@@ -238,10 +238,15 @@
                                 <li>{{item}}</li>
                                 {% endfor %}
                             </ul><br>
-                            <a href="https://github.com/nishlumi/gplusdon" target="_blank" rel="noopener">github</a>
+                            
                         </div>
                     </div>
                 </v-card-title>
+                <v-card-actions>
+                    <a href="https://github.com/nishlumi/gplusdon" target="_blank" rel="noopener">github</a>
+                    <v-spacer></v-spacer>
+                    <v-btn ><a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank"><span>{{trans.help}}</span></a></v-btn>
+                </v-card-actions>
             </v-card>
         </v-dialog>
     </div>

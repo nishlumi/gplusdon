@@ -98,7 +98,7 @@
                                 </a>
                             </v-flex>
                             <v-flex xs4>
-                                <a href="#beuser">
+                                <a href="#ismstdnuser">
                                     <v-card>
                                         <v-card-text class="yellow menu_onepanel">
                                             {{trans.lab_ini_menu_beuser}}
@@ -137,6 +137,20 @@
                     </v-flex>
                 </v-layout>
                 <br>
+                <v-layout row wrap >
+                    <v-flex xs12 sm12 md6 offset-md3>
+                        <details class="white">
+                            <summary class="subheading  elevation-1" style="cursor:pointer;">Your language ?</summary>
+                            <v-layout row wrap>
+                                <v-flex xs12>
+                                   <v-chip v-for="(it,idx) in available_languages" color="blue" v-on:click="onclick_applyLang(it)">{? it.name ?}</v-chip>     
+                                </v-flex>
+                            </v-layout>
+                            
+                        </details>
+                    </v-flex>
+                </v-layout>
+                <br>
                 <v-divider></v-divider>
                 <v-layout row wrap white elevation-2>
                     <v-flex xs12 sm12 md6>
@@ -145,16 +159,17 @@
                                 <span id="isgpuser" class="grey--text text--darken-4 eachtype_usertitle">{{trans.msg_ini_isuser_title}}</span>
                             </v-flex>
                             <v-flex xs10 offset-xs2>
-                                <a href="/tl">
+                                <!--<a href="/tl">
                                     <v-btn >
                                         <v-icon>input</v-icon>
                                     
                                     <span class="headline">{{ trans.start_app }}</span></v-btn>
-                                </a><br>
+                                </a><br>-->
                                 <b>{{trans.msg_ini_isuser_note0}}</b>
                             </v-flex>
                             <v-flex xs12>
-                                {{trans.msg_ini_from_gdrive}} <v-btn small v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
+                                <v-btn v-on:click="onclick_authorize_drive_btn">{{trans.msg_ini_from_gdrive}}</v-btn>
+                                <v-btn v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
                             </v-flex>
                             <v-flex xs12>
                                 <a href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" style="font-size:2.1rem;">
@@ -407,6 +422,7 @@
                         </v-flex>
                     </v-layout>
                 </v-flex>
+                
             </v-layout>
         </div>
         <v-footer height="" fixed>
@@ -443,6 +459,7 @@
     <input type="hidden" id="_csrf" value="{{csrfToken}}">
     {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid ] %}
     <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
+    <input type="hidden" id="hid_avalangs" value="{{avalangs}}">
 
     <script src="/static/lib/polyfill.min.js"></script>
 

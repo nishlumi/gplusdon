@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tabbar" : new Vue({
             el : "#tabbar",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data : {
                 currentTab : "",
                 hashtag : "",
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tag" : new Vue({
             el : "#tl_tag",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 domgrid : {},
                 sel_tlshare : tlshare_options,
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "taglocal" : new Vue({
             el : "#tl_taglocal",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 domgrid : {},
                 sel_tlshare : tlshare_options,
@@ -317,7 +317,10 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.afterLoadAccounts(data);
         MYAPP.selectAccount(ac);
 
+
         barancerTimelineType("taglocal",tltypeid);
+
+
 
     }, function (flag) {
         appAlert(_T("msg_notlogin_myapp"), function () {

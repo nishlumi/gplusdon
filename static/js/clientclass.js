@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190219-01",
+            revision : "20190223-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -451,7 +451,7 @@ class Gplusdon {
         //    lat:0, lng:0, zoom:1, name:""
         //    ],... 
         //};
-        if (tmpgeo) {
+        /*if (tmpgeo) {
             for (var i = 0; i < tmpgeo.length; i++) {
                 var onegeo = tmpgeo[i];
                 var tmpa = GEN("a");
@@ -474,7 +474,7 @@ class Gplusdon {
 
                 }
             }
-        }
+        }*/
 
         var ret = {
             text : text,
@@ -483,6 +483,34 @@ class Gplusdon {
             urls : twttr.txt.extractUrls(text),
             geo : resultGeo
         }
+        for (var i = 0; i < ret.urls.length; i++) {
+            var url = ret.urls[i];
+            for (var obj in srvMaps) {
+                var smap = srvMaps[obj];
+                var reg = new RegExp(smap.regmatch,"g");
+                if (url.search(reg) > -1) {
+                    var stpos = url.search(smap.remove);
+                    if (stpos > -1) {
+                        var suburl = url.substr(stpos,url.length);
+                        suburl = suburl.replace(smap.remove,"");
+
+                        var arr1 = suburl.split(smap.delimiter);
+                        var fnlgeo = {lat:0, lng:0, zoom:1, name:""};
+
+                        fnlgeo.lat = smap.llz.lat(arr1);
+                        fnlgeo.lng = smap.llz.lng(arr1);
+                        fnlgeo.zoom = smap.llz.zoom(arr1);
+                        fnlgeo.name = fnlgeo.lat + "," + fnlgeo.lng;
+
+                        resultGeo.location.push(fnlgeo);
+                        resultGeo.enabled = true;
+                    }
+
+                }
+            }
+        }
+        ret.geo = resultGeo;
+
         //console.log(ret);
         tmparea.removeChild(tmp);
         return ret;

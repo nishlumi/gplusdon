@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_direct = new Vue({
         el : "#area_dmsg",
         delimiters : ["{?","?}"],
-        mixins : [vue_mixin_for_inputtoot],
+        mixins : [vue_mixin_base,vue_mixin_for_inputtoot],
         //mixins : [vue_mixin_for_timeline],
         data : {
             translations : {},

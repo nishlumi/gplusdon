@@ -290,6 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_instances = {
         "search" : new Vue({
             el : "#search",
+            mixins : [vue_mixin_base],
             delimiters : ["{?","?}"],
             data : {
                 resulturis : [],
@@ -352,10 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         //MYAPP.acman.checkVerify();
-        
-        //MYAPP.session.status.showingAccount.data = MYAPP.acman.items[0];
-        //MYAPP.session.status.showingAccount.idname = MYAPP.acman.items[0].idname;
-        //MYAPP.session.status.showingAccount.instance = MYAPP.acman.items[0].instance;
         MYAPP.checkSession();
         //MYAPP.sns.setAccount(MYAPP.session.status.showingAccount.data);
 

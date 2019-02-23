@@ -36,8 +36,78 @@ const SNSPROP = {
 const LONGPOLLING_INSTANCE = [
 	
 ];
-var LeafIcon;;
+var LeafIcon;
 var redIcon;
+
+function checkPath_searchBase(name,arr) {
+	var ishit = "";
+	for (var i = 0; i < arr.length; i++) {
+		var p = arr[i].split("=");
+		if (name == p[0]) {
+			ishit = p[1];
+			break;
+		}
+	}
+	return ishit;
+}
+const srvMaps = {
+	"yahoo" : {
+		//---for generate
+		hostname : "https://map.yahoo.co.jp/",
+		search : "maps?zoom=%1&lat=%2&lon=%3",
+		//---for analyze
+		regmatch : "map\.yahoo\.co\.jp\/",
+		remove : /\/maps\?/,
+		delimiter : "&",
+		llz : {
+			lat : function (arr) {
+				return checkPath_searchBase("lat",arr);
+			},
+			lng : function (arr) {
+				return checkPath_searchBase("lon",arr);
+			},
+			zoom : function (arr) {
+				return checkPath_searchBase("zoom",arr);
+			}
+		}
+	},
+	"mapbox" : {
+		hostnmame : "https://www.openstreetmap.org/",
+		search : "?mlat=%2&mlon=%3#map=%1/%2/%3",
+		regmatch : "www\.openstreetmap\.org\/#map",
+		remove : /#map=/,
+		delimiter : "/",
+		llz : {
+			lat : function(arr) {
+				return arr[1];
+			},
+			lng : function(arr) {
+				return arr[2];
+			},
+			zoom : function(arr) {
+				return arr[0];
+			}
+		}
+	},
+	"google" : {
+		hostname : "https://www.google.com/",
+		search : "maps/@%2,%3,%1z",
+		regmatch : "www\.google.+\/maps\/@",
+		remove : /\/maps\/@/,
+		delimiter : ",",
+		llz : {
+			lat : function(arr) {
+				return arr[0];
+			},
+			lng : function(arr) {
+				return arr[1];
+			},
+			zoom : function(arr) {
+				return arr[2];
+			}
+		}
+	}
+};
 
 function _T(){
 	//console.log(arguments);
@@ -622,13 +692,14 @@ function loadGeoLoco(lat,lng) {
 	});
 	return def;
 }
-/**
-* プレーンテキストをHTMLで適切な表示になるよう変換する
-* @param {String} text 元のテキスト
-* @return {String} 変換後のテキスト
-*/
-function convertText_ForHTML(text) {
-    return text;
+
+function ch2seh(data) {
+	////return data.replace(/&lt;/g,"").replace(/&gt;/g,"")
+	////	.replace(/innerHTML|document|querySelector|getElement/g,"");
+	//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;");
+	//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
+	var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
+	return DOMPurify.sanitize(tmp).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
 }
 
 Date.prototype.toFullText = function(){
@@ -971,7 +1042,7 @@ var MUtility = {
 		var url = "";
 		if (type == "yahoo") {
 			url = `https://map.yahooapis.jp/map/V1/static?appid=${MYAPP.siteinfo.yh}&pin${index}=${location.lat},${location.lng},${location.name}&z=${location.zoom}&width=${w}&height=${h}`;
-		}else if (type == "mapbox") {
+		}else if ((type == "mapbox")||(type == "google")) {
 			var size = `${w}x${h}`;
 			var pincolor = "FF0000";
 			url = `https://api.mapbox.com/styles/v1/kemikampo/cjrngm87t0wk52smpyoh14s1u/static/pin-s-${index}+${pincolor}(${location.lng},${location.lat})/${location.lng},${location.lat},${location.zoom}.0,0,0/${size}?access_token=${MYAPP.siteinfo.mab}`;

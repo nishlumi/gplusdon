@@ -4,6 +4,17 @@
 //  Vue mixin Objects
 //
 //===========================================================================
+var vue_mixin_base = {
+	methods : {
+		ch2seh : function(data) {
+			////return data.replace(/&lt;/g,"").replace(/&gt;/g,"").replace(/innerHTML|document|querySelector|getElement/g,"");
+			//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;")
+			//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
+			var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
+			return DOMPurify.sanitize(tmp).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+		}
+	}
+};
 var vue_mixin_for_account = {
 	data : {
 
@@ -228,7 +239,7 @@ var vue_mixin_for_timeline = {
                 }else if (futureOptions.api["exclude_replies"] === false) {
                     delete futureOptions.api["exclude_replies"];
                 }
-
+				delete futureOptions.api["since_id"];
 				delete futureOptions.api["max_id"];
                 //---page max scroll up
                 console.log("scroll up max");
@@ -394,7 +405,7 @@ var vue_mixin_for_timeline = {
 			},{
 				api : {
 					exclude_replies : true,
-					since_id : "",
+					min_id : "",
 				},
 				app : this.currentOption.app
 			});
@@ -406,6 +417,7 @@ var vue_mixin_for_timeline = {
 			}
 
 			//---post scripts
+			//TODO: during modification!!!
 			this.clearPending();
 
 			Q(".tab-content.active").scroll({top:0,behavior: "instant"});
@@ -607,7 +619,12 @@ var vue_mixin_for_timeline = {
 							//console.log("result,tt=",result,tt);
 
 							if (("url" in data)) {
-								this.$set(this.statuses[tt.index].mainlink, "exists", true);
+								//---if found map, hide link preview
+								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+									this.$set(this.statuses[tt.index].mainlink, "exists", false);
+								}else{
+									this.$set(this.statuses[tt.index].mainlink, "exists", true);
+								}
 								if ("provider_name" in data) {
 									if (data.provider_name != "") {
 										this.$set(this.statuses[tt.index].mainlink, "site", data["provider_name"]);
@@ -678,7 +695,17 @@ var vue_mixin_for_timeline = {
 								//console.log("result.getParentToot=", tt);
 								//console.log(this.statuses[tt.index]);
 
-								this.$set(this.statuses[tt.index].mainlink, "exists", true);
+								
+								//---if exists medias, not preview link
+								if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
+									if (this.statuses[tt.index].medias.length > 0) {
+										this.$set(this.statuses[tt.index].mainlink, "exists", false);
+									}
+								}
+								//---if found map, hide link preview
+								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+									this.$set(this.statuses[tt.index].mainlink, "exists", false);
+								}
 								if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
 								if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);
 								if (data["og:title"]) this.$set(this.statuses[tt.index].mainlink, "title", data["og:title"]);
@@ -905,7 +932,7 @@ var vue_mixin_for_timeline = {
 		forWatch_allcondition : function (cond) {
 			this.statuses.splice(0,this.statuses.length);
 			//---this option is forcely.
-			this.currentOption.api["exclude_replies"] = true;
+			this.currentOption.api["exclude_replies"] = "";
 
 			if ("link" in cond) {
 				if (cond.link.since_id == "") {
@@ -930,7 +957,7 @@ var vue_mixin_for_timeline = {
 				this.currentOption.app["tltype"] = cond.tltype;
 				//---its exists in real Mastodon API.
 				if (cond.tltype.indexOf("tv_media") > -1) {
-					this.currentOption.api["only_media"] = true;
+					this.currentOption.api["only_media"] = "";
 				}else{
 					delete this.currentOption.api["only_media"];
 				}
@@ -1212,10 +1239,10 @@ var vue_mixin_for_inputtoot = {
 
 			this.account_errmsg = "";
 			if (val.length > 1) {
-				if (tmparr[0] != tmparr[1]) {
-					this.account_errmsg = _T("msg_limit_max1");
+				//if (tmparr[0] != tmparr[1]) {
+				//	this.account_errmsg = _T("msg_limit_max1");
 					this.btnflags.send_disabled = true;
-				}
+				//}
 			}
 			if (val.length == 0) {
 				this.btnflags.send_disabled = true;
@@ -1290,6 +1317,9 @@ var vue_mixin_for_inputtoot = {
 			if (this.strlength == 0) {
 				this.btnflags.send_disabled = true;
 			}
+			if ((this.selaccounts.length == 0) || (this.selaccounts.length > 1)) {
+				this.btnflags.send_disabled = true;
+			}
 		},
 		status_text : function(val) {
 
@@ -1305,7 +1335,7 @@ var vue_mixin_for_inputtoot = {
 			if (this.strlength == 0) {
 				this.btnflags.send_disabled = true;
 			}
-			if (this.selaccounts.length == 0) {
+			if ((this.selaccounts.length == 0) || (this.selaccounts.length > 1)) {
 				this.btnflags.send_disabled = true;
 			}
 			this.$emit("change",{
@@ -1386,7 +1416,16 @@ var vue_mixin_for_inputtoot = {
 		},
 		generate_geouri : function (item) {
 			var name = item.Name.replace(/\s/g,"");
-			return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${(name)}`;
+			//return `geo:${item.Geometry.latlng.lat},${item.Geometry.latlng.lng}?z=${item.Geometry.zoom}&n=${(name)}`;
+
+			//---alternative output
+			var mapobj = srvMaps[MYAPP.session.config.application.map_type];
+			var url = mapobj.hostname;
+			url += mapobj.search
+				.replace(/%1/g,item.Geometry.zoom)
+				.replace(/%2/g,item.Geometry.latlng.lat)
+				.replace(/%3/g,item.Geometry.latlng.lng);
+			return url;
 		},
 		generate_marker : function(lat, lng, zoom) {
 			var marker = L.marker({lat:lat,lng:lng},{icon:redIcon}).addTo(this.geomap);
@@ -1455,6 +1494,12 @@ var vue_mixin_for_inputtoot = {
 			return `To:${men}`;
 		},
 		//---event handler---------------------------------------------
+		onchange_autocomp : function (e) {
+			if (e.length > 1) {
+				this.selaccounts.pop();
+			}
+			return false;
+		},
 		onchange_inputcontent : function (e) {
 			var content = MYAPP.extractTootInfo(this.ckeditor.getData());
 			this.status_text = this.ckeditor.editable().getText();

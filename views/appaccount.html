@@ -13,8 +13,8 @@
             <a v-bind:href="rawdata.url" target="_blank" rel="noopener">
                 <img id="us_avatar" class="userrectangle" v-bind:src="avatar" alt="">
                 <div style="display:inline-block">
-                    <span id="us_display_name" class="white-text name" v-html="full_display_name"></span>
-                    <span id="us_idname_instance" class="white-text email">@{? idname ?}@{? instance ?}</span>
+                    <span id="us_display_name" class="white-text name" v-html="ch2seh(full_display_name)"></span>
+                    <span id="us_idname_instance" class="white-text email" v-text="full_acct"></span>
                 </div>
             </a>
         </div>
@@ -84,15 +84,15 @@
         </div>
         <!-- tab content -->
         <div id="basicinfo" class="col s12 tabcontent" v-cloak>
-            <p id="us_description" class="flow-text" v-html="note.replace('<p>','').replace('</p>','')" v-cloak></p>
+            <p id="us_description" class="flow-text" v-html="ch2seh(note.replace('<p>','').replace('</p>',''))" v-cloak></p>
             <v-list>
                 <v-list-tile avatar v-for="fld in fields">
                     <v-list-tile-avatar>
                         <v-icon>{? fieldicon(fld.name) ?}</v-icon>
                     </v-list-tile-avatar>
                     <v-list-tile-content>
-                        <v-list-tile-title v-html='fieldname(fld.name)'></v-list-tile-title>
-                        <v-list-tile-sub-title v-html="fld.value"></v-list-tile-sub-title>
+                        <v-list-tile-title v-html='ch2seh(fieldname(fld.name))'></v-list-tile-title>
+                        <v-list-tile-sub-title v-html="ch2seh(fld.value)"></v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>

@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //MYAPP.setupCommonTranslate();
     vue_accounts = new Vue({
         el : "#area_accounts",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             is_bottomsheet : false,
@@ -344,6 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //---if no account register, redirect /start
         MYAPP.acman.load().then(function (data) {
             MYAPP.acman.checkVerify();
+            MYAPP.acman.loadEmoji();
             //var elem = ID("tbl_acc").tBodies[0];
             //var frag = document.createDocumentFragment();
             vue_accounts.translations = curLocale.messages;

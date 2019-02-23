@@ -62,7 +62,7 @@
                     </div>
                     <div class="col s12 m12 l12 instance-desc">
                         <div class="card white z-depth-2">
-                            <p v-html="selected.description"></p>
+                            <p v-html="ch2seh(selected.description)"></p>
                         </div>
                     </div>
 
@@ -80,11 +80,11 @@
                     <div class="card-account-info">
                         <a v-bind:href="`${globalInfo.firstPath}/users/${selected.contact_account.instance}/${selected.contact_account.username}`">
                             <img v-bind:src="selected.contact_account.avatar" class="btn-floating halfway-fab2 userrectangle" width="32" height="32">
-                            <span v-html="selected.contact_account.display_name"></span><br>
+                            <span v-html="ch2seh(selected.contact_account.display_name)"></span><br>
                             <i> @{?  selected.contact_account.acct ?}@{? selected.uri ?}</i>
                         </a>
                     </div>
-                    <div class="card-content card-account-content blue-grey-text text-darken-4" v-html="selected.contact_account.note">
+                    <div class="card-content card-account-content blue-grey-text text-darken-4" v-html="ch2seh(selected.contact_account.note)">
                     </div>
                     <table>
                         <thead>

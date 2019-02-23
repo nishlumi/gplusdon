@@ -7,6 +7,7 @@ function defineForTootPage(app) {
 
     app.commonvue["inputtoot"] = new Vue({
         el : "#ov_inputtoot",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         //mixins : [vue_mixin_for_inputtoot],
         data :  {
@@ -496,6 +497,7 @@ function defineForTootPage(app) {
     });
     app.commonvue["emojisheet"] = new Vue({
         el : ".emoji-view",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             is_sheet : false,

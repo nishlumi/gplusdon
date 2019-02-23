@@ -264,6 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_user = {
         "userview" : new Vue({
             el : "#userview",
+            mixins: [vue_mixin_base],
             delimiters : ["{?","?}"],
             data : {
                 is_asyncing : false,
@@ -568,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tabbar" : new Vue({
             el : "#tabbar",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data : {
                 status_count : 0,
                 following_count : 0,
@@ -578,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "basicinfo" : new Vue({
             el : "#basicinfo",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 is_asyncing : false,
                 info : {
@@ -616,6 +617,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.fields = data.fields;
                     this.translations = Object.assign({},curLocale.messages);            
                 },
+                display_note : function (note) {
+                    return note.replace('<p>','').replace('</p>','');
+                },
                 loadPinnedToot : loadPinnedToot,
             }
 
@@ -623,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tootes" : new Vue({
             el : "#tt_public",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
@@ -698,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "following" : new Vue({
             el : "#tt_follow",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data : {
                 is_asyncing : false,
                 info : {
@@ -731,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "follower" : new Vue({
             el : "#tt_follower",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base,vue_mixin_for_account],
             data : {
                 is_asyncing : false,
                 info : {

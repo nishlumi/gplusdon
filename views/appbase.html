@@ -169,7 +169,7 @@
                                                 <v-img id="cursel_avatar" v-bind:src="account.rawdata.avatar" class="userrectangle tooltipped" v-bind:data-tooltip="acct"></v-img>
                                             </v-list-tile-avatar>
                                             <v-list-tile-content>
-                                                <span id="cursel_display_name" class="title truncate" v-html="fullname(account)"></span>
+                                                <span id="cursel_display_name" class="title truncate" v-html="ch2seh(fullname(account))"></span>
                                                 <!--<v-icon color="red" v-if="whole_notification" v-cloak>notifications</v-icon>-->
                                             </v-list-tile-content>
                                         </v-list-tile>
@@ -227,7 +227,7 @@
                             <v-img v-bind:src="account.rawdata.header" v-bind:alt="account.idname" style="width:100%;"></v-img>
                         </div>
                         <a v-on:click="onclick_current_selaccount"><img class="userrectangle" v-bind:src="account.rawdata.avatar"></a>
-                        <a ><span class="white-text name" v-html="account.display_name"></span></a>
+                        <a ><span class="white-text name" v-html="ch2seh(account.display_name)"></span></a>
                         <a ><span class="white-text email">{? acct ?}</span></a>
                         <i class="material-icons whole-notification red-text" v-if="whole_notification">notifications</i>
                     </div>
@@ -360,7 +360,7 @@
         <iframe name="nodisp"  id="dummyfrm" class="common_ui_off"></iframe>
 
 
-        
+        <script src="/static/lib/purify.min.js"></script>
         <script src="/static/lib/cookies.js"></script>
         <script src="/static/lib/jquery.min.js"></script>
         <script src="/static/lib/lodash.min.js"></script>

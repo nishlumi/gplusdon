@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     vue_user = {
         "userview" : new Vue({
             el : "#userview",
+            mixins : [vue_mixin_base],
             delimiters : ["{?","?}"],
             data : {
                 header : "",
@@ -127,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 full_display_name : function() {
                     return MUtility.replaceEmoji(this.display_name,this.instance,this.rawdata.emojis,24);
                 },
+                full_acct : function () {
+                    return "@" + this.idname + "@" + this.instance;
+                }
             },
             methods : {
                 onclick_editor : function(e) {
@@ -141,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tabbar" : new Vue({
             el : "#tabbar",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_account],
+            mixins : [vue_mixin_base, vue_mixin_for_account],
             data : {
                 translations : {},
                 tab_favourite : ""
@@ -156,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "basicinfo" : new Vue({
             el : "#basicinfo",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base, vue_mixin_for_timeline],
             data : {
                 is_asyncing : false,
                 info : {
@@ -239,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "tootes" : new Vue({
             el : "#tt_public",
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 sel_tlshare : tlshare_options,
                 sel_tltype : tltype_options,
@@ -306,8 +310,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }),
         "fav" : new Vue({
             el : "#tt_fav",
+            
             delimiters : ["{?","?}"],
-            mixins : [vue_mixin_for_timeline],
+            mixins : [vue_mixin_base,vue_mixin_for_timeline],
             data : {
                 is_asyncing : false,
                 info : {
@@ -332,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }),
         "editor" : new Vue({
             el : "#editdlg",
+            mixins: [vue_mixin_base],
             delimiters : ["{?","?}"],
             data : {
                 cons : {

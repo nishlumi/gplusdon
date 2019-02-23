@@ -37,7 +37,8 @@ router.get('/', function (req, res) {
     menuStatus.start = "active";
     res.render('appinitial', {
         sysinfo: info.sysinfo,
-        lang : info.lang,
+        lang: info.lang,
+        avalangs : JSON.stringify(info.avalable_strings),
         transjs: info.trans,
         trans : info.realtrans,
         csrfToken: req.csrfToken(),

@@ -152,7 +152,7 @@ class AccountManager {
          effective register point is afterAddInstance
         */
         var acc = new Account();
-        var arr = instance_name.split("@");
+        var arr = instance_name.toLowerCase().split("@");
         if (arr.length == 1) { //---only instance name
             acc.instance = arr[0];
         }else{ //---if it includes username (ex: hoge@mstdn.jp )
@@ -373,7 +373,12 @@ class AccountManager {
             }
             AppStorage.set(this.setting.NAME, tmparr);
 
-            AppStorage.set(this.setting.INSTANCEEMOJI,this.instances);
+            var tmpinst = {};
+            for (var obj in  this.instances) {
+                tmpinst[obj] = Object.assign(this.instances[obj]);
+                delete tmpinst[obj].emoji;
+            }
+            AppStorage.set(this.setting.INSTANCEEMOJI,tmpinst);
         }
     }
     checkVerify() {
@@ -483,6 +488,7 @@ class AccountManager {
                     var emojitest = AppStorage.get(this.setting.INSTANCEEMOJI, null);
                     if (emojitest) {
                         var values = (emojitest);
+                        this.instances = values;
                         for (var i = 0; i < fdata.length; i++) {
                             var ac = new Account();
                             ac.load(fdata[i]);
@@ -494,14 +500,14 @@ class AccountManager {
                             }
                             this.items.push(ac);
                             this.backupItems.push(ac);
-                            //console.log(ac.instance);
+                            //console.log(ac.instance);                            
                         }
                         /*for (var iv = 0; iv < values.length; iv++) {
                             this.instances[values[iv].instance] = {
                                 emoji : values[iv]
                             };
                         }*/
-                        this.instances = values;
+                        
                         resolve(this.items);
                     }else{
                         for (var i = 0; i < fdata.length; i++) {
@@ -567,6 +573,43 @@ class AccountManager {
                     reject(false);
                 }
             }
+        });
+        return def;
+    }
+    loadEmoji() {
+        var pros = [];
+        var def = new Promise((resolve,reject)=>{
+            resolve(true);
+
+            /*for (var i = 0; i < this.items.length; i++) {
+                var ac = this.items[i];
+                var pro = 
+                MYAPP.sns.getInstanceEmoji(ac.instance)
+                .then(emojiresult => {
+                    this.instances[emojiresult.instance]["emoji"] = emojiresult;
+                    return emojiresult; 
+                    //(this.instances[emojiresult.instance]);
+                    //this.instances = values;
+                    //AppStorage.remove(this.setting.INSTANCEEMOJI);
+                    
+                })
+                .catch(e=>{
+                    console.log(e);
+                });
+                
+                pros.push(pro);
+            }
+            return Promise.all(pros)
+            .then(values=>{
+                for (var obj in this.instances) {
+                    for (var j = 0; j < values.length; j++) {
+                        if (obj == values[j].instance) {
+                            this.instances[obj]["emoji"] = values;
+                        }
+                    }
+                }
+                resolve(this.instances);
+            });*/
         });
         return def;
     }

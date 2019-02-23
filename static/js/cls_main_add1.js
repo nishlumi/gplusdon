@@ -5,6 +5,7 @@
 function defineForMainPage(app) {
     app.commonvue["navibar"] = new Vue({
         el : "#frm_navleft",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -21,6 +22,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["appdialog"] = new Vue({
         el : "#appverdlg",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             isappdialog : false,
@@ -33,6 +35,7 @@ function defineForMainPage(app) {
 
     app.commonvue["cur_sel_account"] = new Vue({
         el : "#maincol_leftmenu",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -75,7 +78,7 @@ function defineForMainPage(app) {
         },
         methods: {
             fullname : function (ac) {
-                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
+                return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,ac.rawdata.emojis,"14")}@${ac.instance}</span>`;
             },
             onclick_current_selaccount : function(e) {
                 if (e.shiftKey) {
@@ -116,6 +119,7 @@ function defineForMainPage(app) {
     });*/
     app.commonvue["sidebar"] = new Vue({
         el : "#slide-out",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             drawer : false,
@@ -158,6 +162,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["nav_sel_account"] = new Vue({
         el : "#modal1", //"#nav_sel_account",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -240,6 +245,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["nav_search"] = new Vue({
         el : "#frm_search",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -281,6 +287,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["nav_btnbar"] = new Vue({
         el : "#nav_btnbar",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -288,11 +295,29 @@ function defineForMainPage(app) {
                 {key : "10", text : "hoge"}
             ],
             show_notif_badge : false,
+            ntf_stat : {
+                flat : true,
+                icon : true,
+                fab : false,
+                dark : false,
+                color : ""
+            },
             notif_badge_count : 0,
             
         },
         methods : {
             //---some function--------------------
+            changeIconState : function (isplane) {
+                this.ntf_stat.flat = isplane;
+                this.ntf_stat.icon = isplane;
+                this.ntf_stat.fab = !isplane;
+                this.ntf_stat.dark = !isplane;
+                if (isplane) {
+                    this.ntf_stat.color = "";
+                }else{
+                    this.ntf_stat.color = "red";
+                }
+            },
             checkNotificationCount : function () {
                 var ret = "";
                 if (app.commonvue.nav_notification.currentAccount.notifications.length > 0) {
@@ -381,7 +406,7 @@ function defineForMainPage(app) {
     app.commonvue["nav_notification"] = new Vue({
         el : "#ov_notif",
         delimiters : ["{?", "?}"],
-        mixins : [vue_mixin_for_timeline],
+        mixins : [vue_mixin_base, vue_mixin_for_timeline],
         data : {
             dialog : false,
             applogined : false,
@@ -436,13 +461,15 @@ function defineForMainPage(app) {
             ,*/
             notifications : function (val) {
                 if (val > 0) {
-                    ID("navbtn_icon_notification").textContent = "notifications";
+                    //ID("navbtn_icon_notification").textContent = "notifications";
                     MYAPP.commonvue.nav_btnbar.notif_badge_count = val;
                     MYAPP.commonvue.nav_btnbar.show_notif_badge = true;
+                    MYAPP.commonvue.nav_btnbar.changeIconState(false);
                 }else{
-                    ID("navbtn_icon_notification").textContent = "notifications_none";
+                    //ID("navbtn_icon_notification").textContent = "notifications_none";
                     MYAPP.commonvue.nav_btnbar.notif_badge_count = 0;
                     MYAPP.commonvue.nav_btnbar.show_notif_badge = false;
+                    MYAPP.commonvue.nav_btnbar.changeIconState(true);
                 }
             }
         },
@@ -744,6 +771,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["mbl_search"] = new Vue({
         el : "#mbl_search",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             dialog : false,
@@ -787,6 +815,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["bottomnav"] = new Vue({
         el : "#bottomnav",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             activeBtn : 0,
@@ -825,6 +854,7 @@ function defineForMainPage(app) {
     }),
     app.commonvue["usercard"] = new Vue({
         el : "#ov_user",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             translation : {
@@ -848,7 +878,7 @@ function defineForMainPage(app) {
     app.commonvue["tootecard"] = new Vue({
         el : "#ov_toote",
         delimiters : ["{?", "?}"],
-        mixins : [vue_mixin_for_timeline],
+        mixins : [vue_mixin_base,vue_mixin_for_timeline],
 
         data : {
             is_overlaying : false,
@@ -993,6 +1023,7 @@ function defineForMainPage(app) {
     });
     app.commonvue["imagecard"] = new Vue({
         el : "#imagescreen",
+        mixins: [vue_mixin_base],
         delimiters : ["{?", "?}"],
         data : {
             imgdialog : false,
@@ -1202,7 +1233,7 @@ function defineForMainPage(app) {
         ID("btn_post_toote").addEventListener("click",function(e){
             //MYAPP.forms["inputtoot"].open();
             console.log(e);
-            MYAPP.setupInstanceAdditionalData();
+            //MYAPP.setupInstanceAdditionalData();
             var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
             MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
             MYAPP.commonvue.inputtoot.selaccounts.push(defsel);

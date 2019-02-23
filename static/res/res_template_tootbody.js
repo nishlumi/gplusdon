@@ -219,9 +219,9 @@ const CONS_TEMPLATE_TOOTBODY = `
 <div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-if="toote != null" v-bind:style="toote.cardtypeSize"><!-- v-if="'body' in toote"-->
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
-        <span v-html="toote.ancestors[toote.ancestors.length-1].visibility" style="float:left;"></span>
+        <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].visibility)" style="float:left;"></span>
         <v-img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:width="elementStyle.toot_avatar_imgsize" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
-        <span v-html="toote.ancestors[toote.ancestors.length-1].translateText.visibility3" class="waves-effect waves-light" v-on:click="onclick_toot_ancestor"></span> 
+        <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].translateText.visibility3)" class="waves-effect waves-light" v-on:click="onclick_toot_ancestor"></span> 
         <input v-if="toote.ancestors.length > 0" type="hidden" name="sender_id" alt="parent" v-bind:value="toote.ancestors[toote.ancestors.length-1].account.id">
     </div>
     <div class="toot_content_grid">  
@@ -232,7 +232,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div>-->
         <div class="toot_sender truncate">  
             <v-img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
-            <b v-bind:title="toote.account.acct" v-html="toote.account.display_name"></b>
+            <b v-bind:title="toote.account.acct" v-html="ch2seh(toote.account.display_name)"></b>
             <b class="toot_sender_id">@{{ toote.account.username }}<b class="red-text">@{{ toote.account.instance }}</b></b>
             <input type="hidden" name="sender_id" alt="thistoot" v-bind:value="toote.account.id">
         </div>
@@ -248,13 +248,13 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="toot_share_range truncate" v-bind:class="toote.shareColor">
             <i class="material-icons">arrow_drop_down</i>  
             <v-img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
-            <span v-html="toote.translateText.visibility" style="float:left;"></span>
-            <span v-html="toote.translateText.visibility2"></span> 
+            <span v-html="ch2seh(toote.translateText.visibility)" style="float:left;"></span>
+            <span v-html="ch2seh(toote.translateText.visibility2)"></span> 
             <input v-if="toote.reblogOriginal" type="hidden" name="sender_id" alt="boost" v-bind:value="toote.reblogOriginal.account.id">
         </div> 
 <!-----toot main content (spoiler or content)-->
         <div class="toot_content_body" v-bind:class="toot_body_stat">
-            <pre class="toote_spoiler_or_main" v-html="toote.body.spoilered ? toote.body.spoiler_text : toote.body.html "></pre>  
+            <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>  
             <div class="area_spoiler" v-if="toote.body.spoilered">  
                 <!--<label class="button_spoiler">
                     <input type="checkbox">
@@ -262,7 +262,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 </label>-->
                 <details>
                     <summary>...</summary>
-                    <pre class="toote_main " v-html="toote.body.html"></pre>
+                    <pre class="toote_main " v-html="ch2seh(toote.body.html)"></pre>
                 </details>
             </div>
         </div>  
@@ -303,7 +303,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             <div class="image-area card-image"> 
             <v-img v-if="toote.mainlink.isimage" class="v-img" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" ></v-img>
             <span class="link-title truncate" :title="toote.mainlink.site"><i class="material-icons">link</i> 
-                <span class="link-site" v-html="toote.mainlink.site"></span> 
+                <span class="link-site" v-html="ch2seh(toote.mainlink.site)"></span> 
             </span> 
             </div> 
             <div class="card-content link-content grey-text text-darken-1">
@@ -363,7 +363,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                                 <input type="hidden" name="sender_index" v-bind:value="reactindex">
                             </v-list-tile-avatar>
                             <v-list-tile-content>
-                                <v-list-tile-title v-html="reactitem.display_name"></v-list-tile-title>
+                                <v-list-tile-title v-html="ch2seh(reactitem.display_name)"></v-list-tile-title>
                                 <v-list-tile-sub-title>
                                     <b>@{{ reactitem.username }}<b class="red-text">@{{ reactitem.instance }}</b></b>
                                 </v-list-tile-sub-title>
@@ -386,14 +386,14 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
-                    <span class="subtitle reply_usertitle truncate" v-html='reply_usertitle(reply)'></span>  
+                    <span class="subtitle reply_usertitle truncate" v-html='ch2seh(reply_usertitle(reply))'></span>  
                     <!--<p style="width:90%" v-html="reply.body.html">-->
-                    <pre class="toote_spoiler_or_main"  style="width:90%;margin-top:5px;" v-html="reply.body.spoilered ? reply.body.spoiler_text : reply.body.html "></pre>  
+                    <pre class="toote_spoiler_or_main"  style="width:90%;margin-top:5px;" v-html="ch2seh(reply.body.spoilered ? reply.body.spoiler_text : reply.body.html)"></pre>  
                     <div class="area_spoiler" v-if="reply.body.spoilered">  
                         <!--<label class="button_spoiler"><input type="checkbox"><p class="toote_main " v-html="reply.body.html"></p></label>-->
                         <details>
                             <summary>...</summary>
-                            <pre class="toote_main " v-html="reply.body.html"></pre>
+                            <pre class="toote_main " v-html="ch2seh(reply.body.html)"></pre>
                         </details>
                     </div>
                     
@@ -463,19 +463,19 @@ const CONS_TEMPLATE_TOOTBODY = `
                                     <v-divider></v-divider>-->
                                 <template v-if="!reply.relationship.isme">
                                     <v-list-tile v-on:click="">
-                                        <v-list-tile-title v-html="reply.relationship.muting ? reply.translateText.thisuser_unmute : reply.translateText.thisuser_mute"></v-list-tile-title>
+                                        <v-list-tile-title v-html="ch2seh(reply.relationship.muting ? reply.translateText.thisuser_unmute : reply.translateText.thisuser_mute)"></v-list-tile-title>
                                     </v-list-tile>
                                         <v-divider></v-divider>
                                     <v-list-tile v-on:click="">
-                                        <v-list-tile-title v-html="reply.relationship.blocking ? reply.translateText.thisuser_unblock : reply.translateText.thisuser_block"></v-list-tile-title>
+                                        <v-list-tile-title v-html="ch2seh(reply.relationship.blocking ? reply.translateText.thisuser_unblock : reply.translateText.thisuser_block)"></v-list-tile-title>
                                     </v-list-tile>
                                         <v-divider></v-divider>
                                     <v-list-tile v-on:click="">
-                                            <v-list-tile-title v-html="reply.body.pinned ? reply.translateText.thisuser_unendorse : reply.translateText.thisuser_endorse"></v-list-tile-title>
+                                            <v-list-tile-title v-html="ch2seh(reply.body.pinned ? reply.translateText.thisuser_unendorse : reply.translateText.thisuser_endorse)"></v-list-tile-title>
                                     </v-list-tile>
                                         <v-divider></v-divider>
                                     <v-list-tile v-on:click="">
-                                        <v-list-tile-title v-html="reply.translateText.thisuser_report"></v-list-tile-title>
+                                        <v-list-tile-title v-html="ch2seh(reply.translateText.thisuser_report)"></v-list-tile-title>
                                     </v-list-tile>
                                 </template>
                             </v-list>
@@ -539,19 +539,19 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <v-divider></v-divider>
             <template v-if="!toote.relationship.isme">
                 <v-list-tile v-on:click="onclick_user_mute(toote.account,-1)">
-                    <v-list-tile-title v-html="toote.relationship.muting ? toote.translateText.thisuser_unmute : toote.translateText.thisuser_mute"></v-list-tile-title>
+                    <v-list-tile-title v-html="ch2seh(toote.relationship.muting ? toote.translateText.thisuser_unmute : toote.translateText.thisuser_mute)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
                 <v-list-tile v-on:click="onclick_user_block(toote.account,-1)">
-                    <v-list-tile-title v-html="toote.relationship.blocking ? toote.translateText.thisuser_unblock : toote.translateText.thisuser_block"></v-list-tile-title>
+                    <v-list-tile-title v-html="ch2seh(toote.relationship.blocking ? toote.translateText.thisuser_unblock : toote.translateText.thisuser_block)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
                 <v-list-tile v-on:click="onclick_user_endorse(toote.account,-1)">
-                    <v-list-tile-title v-html="toote.body.pinned ? toote.translateText.thisuser_unendorse : toote.translateText.thisuser_endorse"></v-list-tile-title>
+                    <v-list-tile-title v-html="ch2seh(toote.body.pinned ? toote.translateText.thisuser_unendorse : toote.translateText.thisuser_endorse)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
                 <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)">
-                    <v-list-tile-title v-html="toote.translateText.thisuser_report"></v-list-tile-title>
+                    <v-list-tile-title v-html="ch2seh(toote.translateText.thisuser_report)"></v-list-tile-title>
                 </v-list-tile>
                 <v-divider></v-divider>
             </template>
@@ -637,7 +637,7 @@ const CONS_TEMPLATE_DMSGBODY = `
     <v-flex xs11 style="border-top:1px solid rgba(0,0,0,0.2)">
         <div class="dmsg_onebody">
             <div class="toot_content_body">
-                <pre class="toote_spoiler_or_main" v-html="toote.body.spoilered ? toote.body.spoiler_text : toote.body.html "></pre>  
+                <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>  
                 <div class="area_spoiler" v-if="toote.body.spoilered">  
                     <!--<label class="button_spoiler">
                         <input type="checkbox">
@@ -645,7 +645,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                     </label>-->
                     <details>
                         <summary>...</summary>
-                        <pre class="toote_main " v-html="toote.body.html"></pre>
+                        <pre class="toote_main " v-html="ch2seh(toote.body.html)"></pre>
                     </details>
                 </div>
             </div>
@@ -656,7 +656,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                     <div class="image-area card-image"> 
                     <v-img v-if="toote.mainlink.isimage" class="v-img" v-bind:src="toote.mainlink.image" v-bind:alt="toote.mainlink.description" v-bind:title="toote.mainlink.description" ></v-img>
                     <span class="link-title truncate"><i class="material-icons">link</i> 
-                        <span class="link-site" v-html="toote.mainlink.site"></span> 
+                        <span class="link-site" v-html="ch2seh(toote.mainlink.site)"></span> 
                     </span> 
                     </div> 
                     <div class="card-content link-content grey-text text-darken-1">
@@ -714,7 +714,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                                 <input type="hidden" name="sender_index" v-bind:value="reactindex">
                             </v-list-tile-avatar>
                             <v-list-tile-content>
-                                <v-list-tile-title v-html="reactitem.display_name"></v-list-tile-title>
+                                <v-list-tile-title v-html="ch2seh(reactitem.display_name)"></v-list-tile-title>
                                 <v-list-tile-sub-title>
                                     <b>@{{ reactitem.username }}<b class="red-text">@{{ reactitem.instance }}</b></b>
                                 </v-list-tile-sub-title>
@@ -734,7 +734,7 @@ const CONS_TEMPLATE_DMSGBODY = `
         <template v-if="user_direction.type == 'they'">
             <v-tooltip bottom>
                 <v-img v-bind:src="toote.account.avatar" slot="activator" class="toot_prof userrectangle" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
-                <span v-html="full_display_name(toote.account)"></span>    
+                <span v-html="ch2seh(full_display_name(toote.account))"></span>    
             </v-tooltip>
         </template>
     </v-flex>

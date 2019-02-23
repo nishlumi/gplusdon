@@ -1,9 +1,13 @@
 const request = require("request-promise");
 const url = require("url");
+const sanhtml = require("sanitize-html");
 const sysconst = require("./sysconst");
 
 const Mastodon = require("mastodon-api");
 //import Mastodon from '../node_modules/mastodon-api/lib/mastodon';
+const serverMastodon = [
+    "mastodon.cloud","mstdn.jp"
+];
 const needAuthInstances = [
     "pawoo.net","qiitadon.com","friends.nico"
 ];
@@ -73,6 +77,8 @@ class MastodonServer {
                 var data =  result.data[0];
                 var arr = url.parse(data.url);
                 data["instance"] = arr.hostname;
+                data.display_name = sanhtml(data.display_name);
+                data.note = sanhtml(data.note);
                 return data;
             } else {
                 return { };
@@ -87,6 +93,9 @@ class MastodonServer {
             for (var i = 0; i < result.data.length; i++) {
                 var tmp = url.parse(result.data[i].account.url);
                 result.data[i].account["instance"] = tmp.hostname;
+                result.data[i].account.display_name = sanhtml(result.data[i].account.display_name);
+                result.data[i].account.note = sanhtml(result.data[i].account.note);
+                result.data[i].content = sanhtml(result.data[i].content);
             }
             return { data: result.data, paging: hlink, userid : userid, options : options };
         });
@@ -96,8 +105,8 @@ class MastodonServer {
 }
 
 var cls_mstdn = {
-    loadAPImaster: function () {
-        return new MastodonServer("mastodon.cloud", sysconst.server_mastodon_cloud());
+    loadAPImaster: function (index) {
+        return new MastodonServer(serverMastodon[1], sysconst.server_mastodon_cloud(1));
     },
     loadAPI: function (instance) {
         return new MastodonServer(instance, "");
@@ -139,7 +148,7 @@ var cls_mstdn = {
             tt.account["instance"] = instance;
             tt.account["copy"] = {
                 id : tt.account.id,
-                instance : instance,
+                instance : instance
             };
             if (needAuthInstances.indexOf(instance) > -1) {
                 //---if request instance is need auth, return the instance with to call API(mastodon.cloud)

@@ -203,7 +203,7 @@ class Gpstream {
 
             if (isOK) {
                 if (this._targetObject.pending.above.waiting) {
-                    this._targetObject.pending.above.statuses.push(data);
+                    this._targetObject.pending.above.statuses.unshift(data);
                     this._targetObject.pending.above.is = true;
                 }else{
                     this._targetObject.currentOption.app.is_nomax = true;

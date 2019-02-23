@@ -58,6 +58,9 @@ class Gpsession {
                     tell_newtoot : false,
                     tell_newtoot_scroll : 300,
                     toot_limit_instance : [],
+                    notpreview_onmap : false,
+                    notpreview_onmedia : false,
+                    minimumize_media_onlink : false,
                 }
             },
             gadgets : []

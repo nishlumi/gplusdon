@@ -17,9 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     vue_settings = new Vue({
         el : "#settingview",
+        mixins: [vue_mixin_base],
         delimiters : ["{?","?}"],
-        data() {
-            return {
+        data : {
+            //return {
                 //---setting choosable values
                 vals_timeline_view : [
                     {text:_T("app_item_timelineview_auto"),value:"auto"},
@@ -62,6 +63,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     tell_newtoot : false,
                     tell_newtoot_scroll : 300,
                     toot_limit_instance : [],
+                    notpreview_onmap : false,
+                    notpreview_onmedia : false,
+                    minimumize_media_onlink : false,
                 },
                 temp_tags : "",
                 temp_toot_limit : "",
@@ -89,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ggldata : null,
                 },
                 globalInfo : {}
-            }
+            //}
         },
         watch : {
             type_app : {
@@ -250,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .finally(result=>{
                         MUtility.loadingOFF();
+                        alertify.message(_T("msg_login_service",["Google"]));
                     });
                 });
             },
@@ -302,7 +307,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     //---priority drive
                     var file = this.temp_sync.ggldata;
                     console.log("ans=",ans,file);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,file.body);
+                    localStorage.setItem(MYAPP.acman.setting.NAME,file.body);
+                    alertify.message(_T("msg_apply_gdrive"));
                 }else if (ans == 3) {
                     //---integrate, priority local
                     var local = MYAPP.acman.items;
@@ -338,7 +344,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     console.log("ans=",ans,integarr);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
+                    localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
+                    alertify.message(_T("msg_apply_gdrive"));
                 }else if (ans == 4) {
                     //---integrate, priority drive
                     var local = MYAPP.acman.items;
@@ -374,7 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     console.log("ans=",ans,integarr);
-                    //localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
+                    localStorage.setItem(MYAPP.acman.setting.NAME,JSON.stringify(integarr));
+                    alertify.message(_T("msg_apply_gdrive"));
                 }else if (ans == 5) {
                     //---nothing. cancel
                     this.is_sync_confirm = false;
@@ -408,6 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
+        MYAPP.acman.loadEmoji();
 
         vue_settings.load_setting();
         
