@@ -17,6 +17,10 @@ G+Don は Mastodon のためのウェブアプリです。
 [G+Don簡易説明書](https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing)
 
 
+## As supporter
+
+もし翻訳にご協力していただける方は、下記Googleスプレッドシートをコピーの上お使いください。
+[Translation-Gplusdon](https://docs.google.com/spreadsheets/d/1m1Tx-q2sFgcM-VJh_eKESbE5ri_gIuw9jvAfJTrtdWg/edit?usp=sharing)
 
 
 ## Development setup

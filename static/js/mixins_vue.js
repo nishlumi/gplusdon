@@ -511,6 +511,7 @@ var vue_mixin_for_timeline = {
 						this.currentOption.api[paging["raw_prev"]] = paging.prev;	
 					}else{
 						this.currentOption.api.since_id = paging.prev;
+						this.currentOption.api.min_id = paging.prev;
 					}
 				}
 			}
