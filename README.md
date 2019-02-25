@@ -20,7 +20,10 @@ G+Don は Mastodon のためのウェブアプリです。
 ## As supporter
 
 もし翻訳にご協力していただける方は、下記Googleスプレッドシートをコピーの上お使いください。
+
 [Translation-Gplusdon](https://docs.google.com/spreadsheets/d/1m1Tx-q2sFgcM-VJh_eKESbE5ri_gIuw9jvAfJTrtdWg/edit?usp=sharing)
+
+その後そのファイルをお送りいただけると助かります。
 
 
 ## Development setup

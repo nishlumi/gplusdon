@@ -215,80 +215,80 @@ var vue_mixin_for_timeline = {
 
             }
             if (e.target.scrollTop == 0) {
-                var futureOptions = {
-                    api : {
-                        exclude_replies : true,
-                        //since_id : "",
-                    },
-                    app : {
-                        is_nomax : true,
-                        is_nosince : false,
-                        tlshare : this.currentOption.app.tlshare,
-                        tltype : this.currentOption.app.tltype,
-                        exclude_reply : true,
-                    }
-				}
-				if ("filter" in this.currentOption.app) {
-					futureOptions.app["filter"] = this.currentOption.app.filter;
-				}
-				for (var obj in this.currentOption.api) {
-					futureOptions.api[obj] = this.currentOption.api[obj];
-				}
-				if (futureOptions.api["exclude_replies"] === true) {
-                    futureOptions.api["exclude_replies"] = "";
-                }else if (futureOptions.api["exclude_replies"] === false) {
-                    delete futureOptions.api["exclude_replies"];
-                }
-				delete futureOptions.api["since_id"];
-				delete futureOptions.api["max_id"];
-                //---page max scroll up
-                console.log("scroll up max");
-                //var atab = Q(".tab .active");
-                if (this.$el.id == "tl_home") {
-					tlid = "home";
-                }else if (this.$el.id == "tl_list") {
-					tlid = "list";
-                    futureOptions.app["listid"] = this.currentOption.app.listid;
-                }else if (this.$el.id == "tl_local") {
-					tlid = "local";
-					futureOptions.api["local"] = true;
-                }else if (this.$el.id == "tl_public") {
-					tlid = "public";
-                }else if (this.$el.id == "tl_tag") {
-					tlid = `tag/${this.tagname}`;
-				}else if (this.$el.id == "tl_taglocal") {
-					tlid = `tag/${this.tagname}`;
-					futureOptions.api["local"] = true;
-				}else if (this.$el.id == "tt_public") {
-					if (this.pagetype == "account") {
-						tlid = "me";
-					}else if (this.pagetype == "user") {
-						tlid = this.id;
+				if (this.pending.above.waiting) {
+					this.onclick_show_pending();
+				}else{
+					var futureOptions = {
+						api : {
+							exclude_replies : true,
+							//since_id : "",
+						},
+						app : {
+							is_nomax : true,
+							is_nosince : false,
+							tlshare : this.currentOption.app.tlshare,
+							tltype : this.currentOption.app.tltype,
+							exclude_reply : true,
+						}
 					}
+					if ("filter" in this.currentOption.app) {
+						futureOptions.app["filter"] = this.currentOption.app.filter;
+					}
+					for (var obj in this.currentOption.api) {
+						futureOptions.api[obj] = this.currentOption.api[obj];
+					}
+					if (futureOptions.api["exclude_replies"] === true) {
+						futureOptions.api["exclude_replies"] = "";
+					}else if (futureOptions.api["exclude_replies"] === false) {
+						delete futureOptions.api["exclude_replies"];
+					}
+					delete futureOptions.api["since_id"];
+					delete futureOptions.api["max_id"];
+					//---page max scroll up
+					console.log("scroll up max");
+					//var atab = Q(".tab .active");
+					if (this.$el.id == "tl_home") {
+						tlid = "home";
+					}else if (this.$el.id == "tl_list") {
+						tlid = "list";
+						futureOptions.app["listid"] = this.currentOption.app.listid;
+					}else if (this.$el.id == "tl_local") {
+						tlid = "local";
+						futureOptions.api["local"] = true;
+					}else if (this.$el.id == "tl_public") {
+						tlid = "public";
+					}else if (this.$el.id == "tl_tag") {
+						tlid = `tag/${this.tagname}`;
+					}else if (this.$el.id == "tl_taglocal") {
+						tlid = `tag/${this.tagname}`;
+						futureOptions.api["local"] = true;
+					}else if (this.$el.id == "tt_public") {
+						if (this.pagetype == "account") {
+							tlid = "me";
+						}else if (this.pagetype == "user") {
+							tlid = this.id;
+						}
+					}
+					//futureOptions.api.since_id = this.info.sinceid;
+					//futureOptions.app.tlshare = this.selshare_current;
+					//futureOptions.app.tltype = this.seltype_current;
+					this.loadTimeline(tlid,{
+						api : futureOptions.api,
+						app : futureOptions.app
+					});
+					this.is_scrolltop = true;
+					this.pending.above.waiting = false;
+					this.pending.above.is = false;
 				}
-				//futureOptions.api.since_id = this.info.sinceid;
-				//futureOptions.app.tlshare = this.selshare_current;
-				//futureOptions.app.tltype = this.seltype_current;
-				this.loadTimeline(tlid,{
-					api : futureOptions.api,
-					app : futureOptions.app
-				});
-				this.is_scrolltop = true;
-				this.pending.above.waiting = false;
-				this.pending.above.is = false;
+
             }else{
 				this.is_scrolltop = false;
 				//---pending new toot 
 				if (e.target.scrollTop > MYAPP.session.config.notification.tell_newtoot_scroll) {
-					if (MYAPP.session.config.notification.tell_newtoot) {
+					//if (MYAPP.session.config.notification.tell_newtoot) {
 						this.pending.above.waiting = !this.is_scrolltop;
-						/*if (this.pending.above.waiting) {
-							for (var s = 0; s < this.statuses.length; s++) {
-								this.$set(this.statuses[s].cardtypeSize,"border-top","");
-							}
-							this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
-						}*/
-					}
+						
+					//}
 				}
 				MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
 				
@@ -384,35 +384,37 @@ var vue_mixin_for_timeline = {
 			}
 		},
 		onclick_show_pending : function (e) {
-			var b = [];
-			b = b.concat(this.pending.above.statuses);
-			
-			if (this.pending.above.waiting) {
-				for (var s = 0; s < this.statuses.length; s++) {
-					this.$set(this.statuses[s].cardtypeSize,"border-top","");
+			if (this.pending.above.statuses.length > 0) {
+				var b = [];
+				b = b.concat(this.pending.above.statuses);
+				
+				if (this.pending.above.waiting) {
+					for (var s = 0; s < this.statuses.length; s++) {
+						this.$set(this.statuses[s].cardtypeSize,"border-top","");
+					}
+					this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
 				}
-				this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
-			}
 
-			this.currentOption.app.is_nomax = true;
-			this.currentOption.app.is_nosince = false;
+				this.currentOption.app.is_nomax = true;
+				this.currentOption.app.is_nosince = false;
 
-			this.generate_toot_detail({
-				data: b,
-				paging : {
-					prev : this.pending.above.statuses[0].id
-				}
-			},{
-				api : {
-					exclude_replies : true,
-					min_id : "",
-				},
-				app : this.currentOption.app
-			});
-			//---finish get update from stream, remove old loaded tootes
-			if (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-				while (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-					this.statuses.pop();
+				this.generate_toot_detail({
+					data: b,
+					paging : {
+						prev : this.pending.above.statuses[0].id
+					}
+				},{
+					api : {
+						exclude_replies : true,
+						min_id : "",
+					},
+					app : this.currentOption.app
+				});
+				//---finish get update from stream, remove old loaded tootes
+				if (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+					while (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+						this.statuses.pop();
+					}
 				}
 			}
 
@@ -696,20 +698,16 @@ var vue_mixin_for_timeline = {
 								//console.log("result.getParentToot=", tt);
 								//console.log(this.statuses[tt.index]);
 
-								
+								this.$set(this.statuses[tt.index].mainlink, "exists", true);
 								//---if exists medias, not preview link
 								if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
 									if (this.statuses[tt.index].medias.length > 0) {
 										this.$set(this.statuses[tt.index].mainlink, "exists", false);
 									}
-								}else {
-									this.$set(this.statuses[tt.index].mainlink, "exists", true);
 								}
 								//---if found map, hide link preview
 								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
 									this.$set(this.statuses[tt.index].mainlink, "exists", false);
-								}else{
-									this.$set(this.statuses[tt.index].mainlink, "exists", true);
 								}
 								if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
 								if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);

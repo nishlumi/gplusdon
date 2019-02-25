@@ -167,13 +167,26 @@
         <!-- tab content -->
         <div id="basicinfo" class="col s12 tabcontent" v-cloak>
             <p id="us_description" class="flow-text" v-html="ch2seh(display_note(note))"></p>
-            <ul id="tbl_fields" class="collection" >
+            <!--<ul id="tbl_fields" class="collection" >
                 <li class="collection-item avatar" v-for="fld in fields">
                     <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
                     <span class="title">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[1] : fld.name ?}</span>
                     <p v-html="ch2seh(fld.value)"></p>
                 </li>
-            </ul>
+            </ul>-->
+            <v-layout row wrap>
+                <v-flex xs12 sm12 md6 v-for="fld in fields">
+                    <v-card>
+                        <v-card-title primary-title>
+                            <v-icon>{? fieldicon(fld.name) ?}</v-icon>
+                            <b class="title" v-text='ch2seh(fieldname(fld.name))'></b>
+                        </v-card-title>
+                        <v-card-text>
+                            <div class="subheading" v-html="ch2seh(fld.value)"></div>
+                        </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
             <h3 v-if="statuses.length > 0">{{ trans.pinned_post }}</h3>
             <div class="timelinebody toot_timeline_grid"  v-bind:class="timeline_gridstyle" v-if="statuses.length > 0">
                 <timeline-toot 

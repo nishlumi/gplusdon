@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     //---analyze and get extra fields
                     for (var i = 0; i < flds.length; i++) {
                         var f = flds[i];
-                        if (f.name.indexOf("#more") > -1) {
+                        /*if (f.name.indexOf("#more") > -1) {
                             var tmp = GEN("div");
                             tmp.innerHTML = f.value;
                             var tmptxt = tmp.textContent;
@@ -222,12 +222,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                     value : cnt[obj]
                                 });
                             }
-                        }else{
+                        }else{*/
                             retflds.push({
                                 name : f.name,
                                 value : f.value
                             });
-                        }
+                        //}
                     }
                     this.fields = retflds;
                 },

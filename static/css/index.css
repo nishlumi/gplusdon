@@ -1002,14 +1002,14 @@ div.account_body .user-view .email {
     position: absolute;
     bottom: 3rem;
     right :  2%;
-    width : 4.5rem;
+    width : 6rem;
     height: 21rem;
 }
 .user-action-btns.col4 {
     position: absolute;
     bottom: 2rem;
     right :  2%;
-    width : 4.5rem;
+    width : 6rem;
     height: 6rem;
 }
 .user-action-btns.col_ac1 {
@@ -1031,6 +1031,9 @@ div.account_body .tabs .tab a {
 }
 div.account_body .tabs li.indicator {
     background-color : #F44336 !important;
+}
+div.user_fieldtext {
+    font-size : 2rem;
 }
 
 .userdialog {

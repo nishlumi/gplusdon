@@ -314,7 +314,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div>
     </div> 
 <!-----toot media -->
-    <div class=" card-image" v-if="toote.medias.length > 0">  
+    <div class="card-image" v-if="toote.medias.length > 0">
         <div class="xcarousel xcarousel-slider center"> 
             <tootgallery-carousel
                 v-bind:medias="toote.medias"

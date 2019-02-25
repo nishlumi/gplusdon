@@ -620,6 +620,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 display_note : function (note) {
                     return note.replace('<p>','').replace('</p>','');
                 },
+                fieldicon : function (val) {
+                    return val.indexOf(":") >= 0 ? val.split(":")[0] : "comment";
+                },
+                fieldname : function (val) {
+                    return val.indexOf(":") >= 0 ? val.split(":")[1] : val;
+                },
                 loadPinnedToot : loadPinnedToot,
             }
 

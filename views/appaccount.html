@@ -85,7 +85,7 @@
         <!-- tab content -->
         <div id="basicinfo" class="col s12 tabcontent" v-cloak>
             <p id="us_description" class="flow-text" v-html="ch2seh(note.replace('<p>','').replace('</p>',''))" v-cloak></p>
-            <v-list>
+            <!--<v-list>
                 <v-list-tile avatar v-for="fld in fields">
                     <v-list-tile-avatar>
                         <v-icon>{? fieldicon(fld.name) ?}</v-icon>
@@ -95,7 +95,20 @@
                         <v-list-tile-sub-title v-html="ch2seh(fld.value)"></v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
-            </v-list>
+            </v-list>-->
+            <v-layout row wrap>
+                <v-flex xs12 sm12 md6 v-for="fld in fields">
+                    <v-card>
+                        <v-card-title primary-title>
+                            <v-icon>{? fieldicon(fld.name) ?}</v-icon>
+                            <b class="title" v-text='ch2seh(fieldname(fld.name))'></b>
+                        </v-card-title>
+                        <v-card-text>
+                            <div class="subheading" v-html="ch2seh(fld.value)"></div>
+                        </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
             <!--<ul id="tbl_fields" class="collection" >
                 <li class="collection-item avatar" v-for="fld in fields">
                     <i class="material-icons circle">{? fld.name.indexOf(":") >= 0 ? fld.name.split(":")[0] : "comment"?}</i>
@@ -259,7 +272,7 @@
                             <v-text-field label="{{trans.lab_field_name}}" :counter="cons.field_name" v-model="field_name"></v-text-field>
                         </v-flex>
                         <v-flex xs5 offset-xs1>
-                            <v-checkbox hide-details v-model="toggle_extension" label="{{trans.lab_extension}}"></v-checkbox>
+                            <v-checkbox class="common_ui_off" hide-details v-model="toggle_extension" label="{{trans.lab_extension}}"></v-checkbox>
                         </v-flex>
                         <v-flex xs12>
                             <template v-if="toggle_extension">
