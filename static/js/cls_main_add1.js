@@ -273,11 +273,11 @@ function defineForMainPage(app) {
                         var tmp = ftext.replace("#","");
                         location.href = `/tl/tags/${tmp}`;
                     }else{
-                        location.href = `/s/${ftext}`;
+                        location.href = `/s?q=${encodeURIComponent(ftext)}`;
                     }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${ftext}`;
+                    location.href = `/s?q=${encodeURIComponent(ftext)}`;
                 }
             },
             onclick_searchClear: function(e) {
@@ -801,11 +801,11 @@ function defineForMainPage(app) {
                         var tmp = ftext.replace("#","");
                         location.href = `/tl/tags/${tmp}`;
                     }else{
-                        location.href = `/s/${ftext}`;
+                        location.href = `/s?q=${encodeURIComponent(ftext)}`;
                     }
                 }
                 if (ID("area_search")) {
-                    location.href = `/s/${ftext}`;
+                    location.href = `/s?q=${encodeURIComponent(ftext)}`;
                 }
             },
             onclick_searchClear: function(e) {

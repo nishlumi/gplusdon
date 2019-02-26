@@ -700,8 +700,15 @@ function ch2seh(data) {
 	////	.replace(/innerHTML|document|querySelector|getElement/g,"");
 	//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;");
 	//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
+	if (!data) return "";
+	/*var tmp = data.replace(/&lt;/g," _<").replace(/&gt;/g,">_ ");
+	var res =  DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']})
+	var res2 = res.replace(/\s_</g,"&lt;").replace(/>_\s/g,"&gt;");
+	return res2;
+*/
 	var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
-	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+
 }
 
 Date.prototype.toFullText = function(){

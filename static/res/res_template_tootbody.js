@@ -609,11 +609,11 @@ const CONS_TEMPLATE_TOOTBODY = `
             </dd>
             <dt>{{ translation.mentions }}</dt>  
             <dd>  
-            <span class="chip" v-for="men in toote.mentions">{{ men }}</span>  
+            <a class="chip" v-for="men in toote.body.mentions" :href="men.url" rel="noopener" target="_blank">{{ men.acct }}</a>  
             </dd>  
             <dt>{{ translation.tags }}</dt>  
             <dd>
-            <a class="chip" v-for="tag in toote.tags" :href="get_tagurl(tag)">{{ tag }}</a>  
+            <a class="chip" v-for="tag in toote.body.tags" :href="tag.url" rel="noopener">{{ tag.name }}</a>
             </dd>  
         </dl>  
         </div>  

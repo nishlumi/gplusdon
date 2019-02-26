@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190225-02",
+            revision : "20190226-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -69,7 +69,7 @@ class Gplusdon {
         }
         if ("defineForTootPage" in window) defineForTootPage(this);
         
-        if ("marked" in window) {
+        /*if ("marked" in window) {
             hljs.initHighlightingOnLoad();
             var ren = new marked.Renderer();
             ren.code = function (code,lang) {
@@ -77,9 +77,7 @@ class Gplusdon {
             }
             marked.setOptions({
                 renderer: ren,
-                /*highlight: function(code) {
-                    return hljs.highlightAuto(code).value;
-                },*/
+                
                 pedantic: false,
                 gfm: true,
                 tables: true,
@@ -89,7 +87,7 @@ class Gplusdon {
                 smartypants: false,
                 xhtml: false
             });
-        }
+        }*/
     }
     get sns(){
         return this._sns;

@@ -124,7 +124,7 @@ router.get('/settings', function (req, res) {
 
     });
 });
-router.get('/s/:findtext', function (req, res) {
+router.get('/s', function (req, res) {
     //var lan = req.acceptsLanguages();
     //var trans = ucommon.load_translation(req,lan);
     var info = ucommon.analyze_locale(req);
@@ -134,7 +134,7 @@ router.get('/s/:findtext', function (req, res) {
         lang: info.lang,
         transjs: info.trans,
         trans : info.realtrans,
-        findtext : req.params.findtext,
+        findtext : "",
         csrfToken: req.csrfToken(),
         menustat: menuStatus
 

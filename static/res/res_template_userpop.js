@@ -19,7 +19,7 @@ const CONS_TEMPLATE_USERPOPUP = `
     </div>
     <div class="card-content card-account-content truncate blue-grey-text text-darken-4" 
         v-html="ch2seh(generate_userNote(account))"
-        v-if="cardtype != 'selectable'"
+        v-if="cardtype != 'xselectable'"
     ></div>
     <div class="card-account-stats row">
         <div class="col s4">
@@ -40,7 +40,7 @@ const CONS_TEMPLATE_USERPOPUP = `
                 <dd><span class="poup-stat-number blue-text">{{ account.followers_count }}</span></dd>
             </dl>
         </div>
-        <div class="col s12" v-if="cardtype == 'selectable'">
+        <div class="col s12" v-if="cardtype == 'xselectable'">
             
                 <b v-on:mouseenter="onhover_b" class="poup-stat-number" v-if="account.lists.length > 0">{{ _T("msg_belong_list",[account.lists.length]) }}</b>
                 <v-menu open-on-hover v-model="stat.isshow_listmenu"
@@ -60,22 +60,33 @@ const CONS_TEMPLATE_USERPOPUP = `
             </v-menu>
         </div>
     </div>
-    <div class="card-action" style="width:100%;">
-        <div class="row">
+    <div class="card-action" style="width:100%;padding-top:4px;">
+        <v-layout row wrap>
             <template v-if="cardtype == 'requestable'">
-                <div class="col s10">
-                    <v-btn color="success" v-on:click="onclick_requestOK">{{translation.request_ok}}</v-btn>
+                <v-flex xs10>
+                    <v-tooltip bottom>
+                        <v-btn fab dark small color="success" slot="activator" v-on:click="onclick_requestOK">
+                            <v-icon dark>check</v-icon>
+                        </v-btn>
+                        <span>{{translation.request_ok}}</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                        <v-btn fab dark small color="error" slot="activator" v-on:click="onclick_requestNO">
+                            <v-icon dark>cancel</v-icon>
+                        </v-btn>
+                        <span>{{translation.request_no}}</span>
+                    </v-tooltip>
+                    
+                    <!--<v-btn color="success" v-on:click="onclick_requestOK">{{translation.request_ok}}</v-btn>
                     <v-btn color="error" v-on:click="onclick_requestNO">{{translation.request_no}}</v-btn>
-                </div>
-                <div class="col s2">
-                    <i v-if="account.locked === true" class="material-icons">lock</i>
-                </div>
+                    -->
+                </v-flex>
+                <v-flex xs2>
+                    <i v-if="account.locked === true" class="material-icons">lock</i> 
+                </v-flex>
             </template>
             <template v-else>
-                <div class="col s9">
-                    <!--<a href="#" class="waves-effect waves-red" v-if="relationship.followed_by === false" v-bind:title="translation.to_unfollow"><i class="material-icons red-text">person_add</i></a>
-                    <a href="#" class="waves-effect waves-red" v-if="relationship.followed_by" v-bind:title="translation.to_follow"><i class="material-icons red-text">person_outline</i></a>
-                    -->
+                <v-flex xs9>
                     <div class="switch">
                         <label>
                             <i class="material-icons tooltipped" data-position="bottom" data-tooltip="unfollow">person_outline</i>
@@ -84,11 +95,14 @@ const CONS_TEMPLATE_USERPOPUP = `
                             <i class="material-icons tooltipped red-text" data-position="bottom" data-tooltip="follow">person_add</i>
                         </label>
                     </div>
-                </div>
-                <div class="col s3">
+                </v-flex>
+                <v-flex xs3>
                     <i v-if="account.locked === true" class="material-icons">lock</i>
-                </div>
+                </v-flex>
             </template>
+        </v-layout>
+        <div class="row">
+            
             <!--<div class="col s6" v-if="relationship.followed_by === true">
                 <span class="new badge blue" v-bind:data-badge-caption="showRelationshpText()"></span>
             </div>-->

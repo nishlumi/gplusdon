@@ -1157,10 +1157,11 @@ div.user_fieldtext {
 }
 .user-grid-item .card .card-content {
     height : 10rem;
+    overflow: hidden;
 }
 .user-grid-item .card .card-content p {
     display: block;
-    white-space: nowrap;
+    white-space: pre-wrap;
     overflow: hidden;
     text-overflow: ellipsis;
     height: 100%;
@@ -1171,7 +1172,7 @@ div.user_fieldtext {
     height : 6rem;
     width : 100%;
     position : absolute;
-    bottom : 6rem;
+    /*bottom : 6rem;*/
 }
 .user-grid-item .card .card-action {
     position : absolute;

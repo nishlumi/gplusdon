@@ -359,6 +359,12 @@ Vue.component("timeline-toot", {
         onclick_tt_datetime: function (e) {
 			console.log(e);
 
+			//---reload some information
+			MYAPP.sns.getToot(this.toote.id,{})
+			.then(result=>{
+				this.toote.body.favourites_count = result.data.favourites_count;
+				this.toote.body.reblogs_count = result.data.reblogs_count;
+			});
 			
 			if (this.issinglewindow) return;
 

@@ -13,6 +13,7 @@
         </v-tooltip>-->
 
         <v-tooltip right>
+            
             <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/tl')" v-ripple>
                 <v-list-tile-action><v-icon>view_day</v-icon></v-list-tile-action>
                 <v-list-tile-content class="{{menustat.timeline}}">
@@ -20,6 +21,7 @@
                         <span class="menulst_row title">{{trans.timeline}}</span></v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
+        
             <span>{{trans.timeline}}</span>
         </v-tooltip>
         <v-tooltip right>

@@ -292,24 +292,24 @@ function load_followRequest(options){
     MYAPP.sns.getFollowRequest(options)
     .then((result)=>{
         console.log("getFollowRequest",result);
-        if (result.data.length == 0) {
+        if (result.data.data.length == 0) {
             MUtility.loadingOFF();
             return;
         }
-        vue_connections.tabbar.followRequest_count = result.data.length;
+        vue_connections.tabbar.followRequest_count = result.data.data.length;
         
         return result.data;
     })
-    .then(data=>{
+    .then(result2=>{
         var users = [];
-        for (var i = 0; i < data.length; i++) {
-            users.push(data[i].id);
+        for (var i = 0; i < result2.data.length; i++) {
+            users.push(result2.data[i].id);
         }
         console.log("follow request users=",users);
         return MYAPP.sns.getRelationship(users)
         .then(result=>{
-            for (var d = 0; d < data.length; d++) {
-                var datum = data[d];
+            for (var d = 0; d < result2.data.length; d++) {
+                var datum = result2.data[d];
                 for (var i = 0; i < result.data.length; i++) {
                     if (datum.id == result.data[i].id) {
                         datum["relationship"] = result.data[i];
@@ -318,8 +318,8 @@ function load_followRequest(options){
                     }
                 }
             }
-            console.log("follower data=",data);
-            this.generate_account_detail(data,options);
+            console.log("follower data=",result2.data);
+            this.generate_account_detail(result2,options);
         });
     })
     .catch((xhr,status)=>{
@@ -380,11 +380,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         MYAPP.sns.getFollowRequest({api:{},app:{}})
                         .then((result)=>{
                             console.log("getFollowRequest",result);
-                            if (result.data.length == 0) {
+                            if (result.data.data.length == 0) {
                                 MUtility.loadingOFF();
                                 return;
                             }
-                            this.followRequest_count = result.data.length;
+                            this.followRequest_count = result.data.data.length;
             
                         });
                     }

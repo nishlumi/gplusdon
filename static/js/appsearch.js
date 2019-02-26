@@ -298,12 +298,14 @@ document.addEventListener('DOMContentLoaded', function() {
         constrainWidth : false
     });
 
+    var se = MUtility.generate_searchQuery(location.search);
+
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
         MYAPP.acman.loadEmoji();
         
-        var findtext = ID("hid_findtext").value;
+        var findtext = decodeURIComponent(se.q); //ID("hid_findtext").value;
         MYAPP.commonvue.nav_search.findtext = findtext;
 
         MYAPP.checkSession();
@@ -313,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (!ac) ac = data[0];
 
-        MYAPP.session.status.currentLocation = `/s/${findtext}`; //location.pathname;
+        MYAPP.session.status.currentLocation = `/s`; //`/s/${findtext}`; //location.pathname;
     
         vue_search.accounts.translations = Object.assign({},curLocale.messages);
         vue_search.hashtags.translations = Object.assign({},curLocale.messages);

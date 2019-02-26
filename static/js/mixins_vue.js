@@ -10,8 +10,9 @@ var vue_mixin_base = {
 			////return data.replace(/&lt;/g,"").replace(/&gt;/g,"").replace(/innerHTML|document|querySelector|getElement/g,"");
 			//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;")
 			//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
+			if (!data) return "";
 			var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
-			return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+			return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
 		}
 	}
 };

@@ -158,6 +158,27 @@ class Gpsns {
         });
         return def;
     }
+    getToot(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            this._accounts.api.get(`statuses/${id}`)
+            .then((data)=>{
+                console.log(`statuses/${id}`,
+                    id,options,data);
+                var tmp = GEN("a");
+                tmp.href = data.account.url;
+                data.account["instance"] = tmp.hostname;
+                
+                resolve({data: data, id: id, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
     getConversation(id,parentTootID, parentIndex) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
@@ -714,12 +735,16 @@ class Gpsns {
             }
             
             this._accounts.api.get(`follow_requests`,options.api)
-            .then((data)=>{
+            .then((data,status,xhr)=>{
                 console.log(`follow_requests`,data);
+                var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
                 for (var i = 0; i < data.length; i++) {
                     data[i]["instance"] = MUtility.getInstanceFromAccount(data[i].url);
                 }
-                resolve({data: data, options : options});
+                resolve({data: {
+                    data : data,
+                    paging : hlink
+                }, options : options});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
             });
