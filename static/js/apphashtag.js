@@ -301,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.session.status.currentLocation = `/tl/${tltype}/${tltypeid}`;
         }
     
-        vue_timeline.tag.translations = Object.assign({},curLocale.messages);
-        vue_timeline.taglocal.translations = Object.assign({},curLocale.messages);
+        vue_timeline.tag.translations = curLocale.messages;
+        vue_timeline.taglocal.translations = curLocale.messages;
         vue_timeline.tabbar.hashtag = tltypeid;
         vue_timeline.tag.tagname = tltypeid;
         vue_timeline.taglocal.tagname = tltypeid;

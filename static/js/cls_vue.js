@@ -357,7 +357,7 @@ Vue.component("timeline-toot", {
 		 * @param {Event} e Event object
 		 */
         onclick_tt_datetime: function (e) {
-			console.log(e);
+			//console.log(e);
 
 			//---reload some information
 			MYAPP.sns.getToot(this.toote.id,{})
@@ -1598,7 +1598,7 @@ Vue.component("timeline-condition", {
 	},
 	methods : {
 		onfocus_posttext : function (e) {
-			console.log(e);
+			//console.log(e);
             var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
             MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
             MYAPP.commonvue.inputtoot.selaccounts.push(defsel);

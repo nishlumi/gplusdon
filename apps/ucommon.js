@@ -5,6 +5,7 @@ const weburl = require("url");
 const webreq = require("request-promise");
 const sanhtml = require("sanitize-html");
 var cls_mstdn = require("./cls_mstdn");
+var res_langs = require("./res_langs");
 
 const sysconst = require("./sysconst");
 const {
@@ -59,6 +60,7 @@ function judgeLanguage(request) {
  * 
  * @param {Request} request request object
  * @param {String} locales locale string
+ * @return {JSON} locale data
  */
 function load_translation(request, locales) {
     var ret = "";
@@ -66,6 +68,8 @@ function load_translation(request, locales) {
     if (locales) tmp = locales;
 
     var ishit = "";
+    ret = res_langs.loadData(tmp[0]);
+    /*
     for (var i = 0; i < tmp.length; i++) {
         var lo = tmp[i];
         var lofile = path.join(__user_dirname, `/static/strings/${lo}.json`);
@@ -75,7 +79,7 @@ function load_translation(request, locales) {
             break;
         }
     }
-
+    */
     return ret;
 }
 async function loadWebsiteOGP(request, info, url) {
@@ -223,11 +227,12 @@ var ucommon = {
     /**
      * 
      * @param {Request} request request object
+     * @return {Object} neccesary data 
      */
     analyze_locale: function (request) {
         var lan = judgeLanguage(request);
         var trans = ucommon.load_translation(request, lan);
-        var js = JSON.parse(trans);
+        //var js = trans;
         ucommon.sysinfo.oginfo = { //---default value
             title: appEffectiveName,
             type: "website",
@@ -236,13 +241,13 @@ var ucommon = {
             image: "https://gplusdon.net/static/images/gp_og_image.png",
             site_name: appEffectiveName
         };
-        ucommon.sysinfo.oginfo.description = js.appDescription;
+        ucommon.sysinfo.oginfo.description = trans.appDescription;
         ucommon.sysinfo.hostname = request.hostname;
         return {
             lang: lan[0],
-            avalable_strings: avalable_languages,
-            trans: trans,
-            realtrans : js,
+            avalable_strings: res_langs.support,
+            trans: JSON.stringify(trans),
+            realtrans : trans,
             sysinfo: ucommon.sysinfo
         };
     },

@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190226-01",
+            revision : "20190228-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -65,7 +65,7 @@ class Gplusdon {
         });*/
         if ("defineForMainPage" in window) {
             defineForMainPage(this);
-            this.commonvue.usercard.globalInfo.firstPath = this.appinfo.firstPath;
+            //this.commonvue.usercard.globalInfo.firstPath = this.appinfo.firstPath;
         }
         if ("defineForTootPage" in window) defineForTootPage(this);
         
@@ -113,6 +113,7 @@ class Gplusdon {
     afterLoadAccounts(data){
         //---set up login status to left menu and side bar
         if ("cur_sel_account" in this.commonvue) this.commonvue.cur_sel_account.applogined = true;
+        if ("navigation" in this.commonvue) this.commonvue.navigation.applogined = true;
         if ("sidebar" in this.commonvue) this.commonvue.sidebar.applogined = true;
         if ("nav_search" in this.commonvue) this.commonvue.nav_search.applogined = true;
         if ("nav_btnbar" in this.commonvue) this.commonvue.nav_btnbar.applogined = true;
@@ -155,7 +156,7 @@ class Gplusdon {
                 //ID("nav_sel_account").value = `${ac2.idname},${ac2.instance}`;
                 //if ("sidebar" in this.commonvue) this.commonvue.sidebar.account = ac2;
                 this.sns.setAccount(tmpac);
-                console.log("tmpac=",tmpac);
+                //console.log("tmpac=",tmpac);
                 if ("nav_sel_account" in this.commonvue) this.commonvue.nav_sel_account.setCurrentAccount(tmpac);
                 this.session.save(true);
 
@@ -205,7 +206,7 @@ class Gplusdon {
                 if (Q("#area_user")) {
                     //---rapidly open and show user data
                     var serverdata = JSON.parse(ID("hid_userdata").value);
-                    console.log(serverdata);
+                    //console.log(serverdata);
                     if ("acct" in serverdata) {
                         vue_user.userview.loadUserInfoDirect(serverdata);
                     }else{
@@ -247,7 +248,7 @@ class Gplusdon {
                     thisform.tab.select(defsel);
                 }
                 if (Q(".search_body")) {
-                    MYAPP.sns.search(MYAPP.commonvue.nav_search.findtext,{
+                    MYAPP.sns.search(MYAPP.commonvue.navigation.findtext,{
                         api : {
                             resolve : true
                         },
@@ -288,8 +289,10 @@ class Gplusdon {
         return null;
     }
     setGeneralTitle(title) {
-        ID("general_title").innerHTML = title;
-        ID("general_title").setAttribute("data-tooltip",title);
+        //ID("general_title").innerHTML = title;
+        //ID("general_title").setAttribute("data-tooltip",title);
+        MYAPP.commonvue.navigation.genttl.text = title;
+        MYAPP.commonvue.navigation.genttl.tooltip = ch2seh(title);
     }
     /**
      * Set up all common elements for all page (exclude appinitial.html)
@@ -559,7 +562,7 @@ class Gplusdon {
                 fnlopt.api["focus"] = options["focus"];
             }
             fnlopt.api["file"] = data;
-            console.log("fnlopt=",fnlopt);
+            //console.log("fnlopt=",fnlopt);
 
             //---test
             /*resolve({
@@ -603,7 +606,7 @@ class Gplusdon {
                 "tt_private" : "private",
                 "tt_direct" : "direct"
             };
-            console.log("executePost=",content,options);
+            //console.log("executePost=",content,options);
             var chk = this.checkPostBefore(content,options);
             if (chk.cd != "") {
                 reject(chk);

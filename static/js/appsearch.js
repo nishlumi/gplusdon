@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         MYAPP.acman.loadEmoji();
         
         var findtext = decodeURIComponent(se.q); //ID("hid_findtext").value;
-        MYAPP.commonvue.nav_search.findtext = findtext;
+        MYAPP.commonvue.navigation.findtext = findtext;
 
         MYAPP.checkSession();
         var ac = MYAPP.acman.get({
@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         MYAPP.session.status.currentLocation = `/s`; //`/s/${findtext}`; //location.pathname;
     
-        vue_search.accounts.translations = Object.assign({},curLocale.messages);
-        vue_search.hashtags.translations = Object.assign({},curLocale.messages);
-        vue_search.tootes.translations = Object.assign({},curLocale.messages);
+        vue_search.accounts.translations = curLocale.messages;
+        vue_search.hashtags.translations = curLocale.messages;
+        vue_search.tootes.translations = curLocale.messages;
 
         for (var obj in vue_search) {
             if ("timeline_gridstyle" in vue_search[obj]) {

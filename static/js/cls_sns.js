@@ -187,8 +187,8 @@ class Gpsns {
             }
             this._accounts.api.get(`statuses/${id}/context`)
             .then((data)=>{
-                console.log(`statuses/${id}/context`,
-                    id,parentTootID, parentIndex,data);
+                //console.log(`statuses/${id}/context`,
+                //    id,parentTootID, parentIndex,data);
                 resolve({data: data, id: id, parentID : parentTootID, index: parentIndex});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
@@ -204,8 +204,8 @@ class Gpsns {
             }
             this._accounts.api.get(`statuses/${id}/card`)
             .then((data)=>{
-                console.log(`statuses/${id}/card`,
-                    id,parentTootID, parentIndex,data);
+                //console.log(`statuses/${id}/card`,
+                //    id,parentTootID, parentIndex,data);
                 resolve({data: data, id: id, parentID : parentTootID, index: parentIndex});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
@@ -410,8 +410,7 @@ class Gpsns {
             }
             
             var successfunc = (data)=>{
-                console.log(`search`,
-                query,data);
+                //console.log(`search`,query,data);
                 for (var i = 0; i < data.accounts.length; i++) {
                     data.accounts[i]["instance"] = MUtility.getInstanceFromAccount(data.accounts[i].url);
                 }
@@ -465,7 +464,7 @@ class Gpsns {
 
             this._accounts.api.postMedia("media",option.api)
             .then((result)=>{
-                console.log("media",result);
+                //console.log("media",result);
                 
                 resolve(result);
             },(xhr,status,err)=>{
@@ -490,7 +489,7 @@ class Gpsns {
 
             this._accounts.api.put(`media/${id}`,option.api)
             .then((result)=>{
-                console.log(`media/${id}`,result);
+                //console.log(`media/${id}`,result);
                 
                 resolve(result);
             },(xhr,status,err)=>{
@@ -588,8 +587,7 @@ class Gpsns {
             options.api["q"] = `${userid}@${instance}`;
             this._accounts.api.get(`accounts/search`,options.api)
             .then((data)=>{
-                console.log(`accounts/search`,
-                userid,instance,data);
+                //console.log(`accounts/search`,userid,instance,data);
                 var resdata = null;
                 for (var i = 0; i < data.length; i++) {
                     var tmp = GEN("a");
@@ -630,8 +628,7 @@ class Gpsns {
             options["api"]["q"] = query;
             this._accounts.api.get(`accounts/search`,options.api)
             .then((data)=>{
-                console.log(`accounts/search`,
-                query,data);
+                //console.log(`accounts/search`,query,data);
                 for (var i = 0; i < data.length; i++) {
                     data[i]["instance"] = MUtility.getInstanceFromAccount(data[i].url);
                 }
@@ -654,8 +651,7 @@ class Gpsns {
             }
             this._accounts.api.get(`accounts/relationships`,{id:userid})
             .then((data)=>{
-                console.log(`accounts/relationships`,
-                    userid,data);
+                //console.log(`accounts/relationships`,userid,data);
                 resolve({data: data, id: userid});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
@@ -877,7 +873,7 @@ class Gpsns {
             }
             this._accounts.api.get(`notifications`,options.api)
             .then((data,status,xhr)=>{
-                console.log(`notifications`,data);
+                //console.log(`notifications`,data);
                 var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
                 for (var i = 0; i < data.length; i++) {
                     data[i].created_at = new Date(data[i].created_at);

@@ -6,7 +6,6 @@
         {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
         {% endif %}
-        <script src="/static/lib/polyfill.min.js"></script>
 
         <title>G+Don {% block eachtitle %}{% endblock %}</title>
         <meta charset="utf-8"/>
@@ -84,7 +83,11 @@
                                 <span class="brand-title black-text hidden-sm-and-down">{{sysinfo.fullname}}</span>
                             </div>
                             <div class="col s4 m5 l3">
-                                <span id="general_title" class="black-text general-title truncate tooltipped" data-tooltip=""></span>
+                                <v-tooltip right>
+                                    <span id="general_title" class="black-text general-title truncate" v-text="genttl.text"></span>
+                                    <span>{? genttl.tooltip?}</span>
+                                </v-tooltip>
+                                
                             </div>
                             <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
@@ -359,6 +362,7 @@
         </form>
         <iframe name="nodisp"  id="dummyfrm" class="common_ui_off"></iframe>
 
+        <script src="/static/lib/polyfill.min.js"></script>
 
         <script src="/static/lib/purify.min.js"></script>
         <script src="/static/lib/cookies.js"></script>
@@ -374,8 +378,6 @@
         <script src="/static/lib/mastodon-text.js"></script>
         <script src="/static/lib/mastodon.js"></script>
         
-        <script src="/static/lib/highlight/highlight.pack.js"></script>
-
         <script src="/static/lib/jtimeago/jquery.timeago.js"></script>
         <script src="/static/lib/jtimeago/locales/jquery.timeago.{{ lang }}.js"></script>
         <script src="/static/lib/paste.js"></script>

@@ -61,8 +61,9 @@ app.use("/pwabuilder-sw.js", express.static(path.join(__dirname, 'pwabuilder-sw.
 // set up i18n
 /*app.use(i18n({
     // available locale
-    siteLangs: ['ja', 'en'],
+    siteLangs: ['ja', 'en', "eo", "fr", "de"],
     defaultLang: 'ja',
+    cookie : '_gp_lang',
     // dictionary file path
     translationsPath: path.join(__dirname, "/static/strings"),
     textsVarName : "trans"

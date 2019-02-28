@@ -706,8 +706,10 @@ function ch2seh(data) {
 	var res2 = res.replace(/\s_</g,"&lt;").replace(/>_\s/g,"&gt;");
 	return res2;
 */
-	var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
-	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+	var tmp = data.replace(/&lt;/g,"_$<").replace(/&gt;/g,">$_");
+	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']})
+	.replace(/_\$\&lt\;/g,"&lt;").replace(/\&gt\;\$_/g,"&gt;")
+	.replace(/_\$</g,"&lt;").replace(/>\$_/g,"&gt;");
 
 }
 

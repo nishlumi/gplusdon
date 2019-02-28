@@ -326,7 +326,7 @@ class AccountManager {
     }
     remove(key) {
         var i = this.getIndex(key);
-        console.log(i);
+        //console.log(i);
         if (i > -1) {
             var old = this.items[i].instance;
             this.items[i].dispose();

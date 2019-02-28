@@ -31,6 +31,10 @@ const CONS_TEMPLATE_INPUT_BOX = `
         <span class="headline">{{title}}</span>
         <v-spacer></v-spacer>
         <v-tooltip bottom>
+            <v-btn id="btn_addcw" slot="activator" icon v-if="toolbtn.addcw" v-on:click="onclick_addcw"><v-icon>visibility</v-icon></v-btn><input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+            <span>{{translation.toolbtn_addcw}}</span>  
+        </v-tooltip>
+        <v-tooltip bottom>
             <v-btn id="btn_addimage" slot="activator" icon v-if="toolbtn.addimage" v-on:click="onclick_addimage"><v-icon>add_to_photos</v-icon></v-btn><input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
             <span>{{translation.toolbtn_addimage}}</span>  
         </v-tooltip>
@@ -177,7 +181,6 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 {{ translation.mn_accountbox_placeHolder }}<br>
                                 <span class="body-1 red-text">{{translation.msg_help_statushelp01}}</span><br>
                                 <b class="red-text">-cw-</b> <span>{{translation.msg_help_status_cw}}</span><br>
-                                <b class="red-text">-end-</b> {{translation.msg_help_status_end}}<br>
                             </p>
                         </v-flex>
                         <v-flex xs12 class="tagbottomstyle1">

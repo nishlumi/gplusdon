@@ -11,8 +11,10 @@ var vue_mixin_base = {
 			//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;")
 			//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
 			if (!data) return "";
-			var tmp = data.replace(/&lt;/g,"_<").replace(/&gt;/g,">_");
-			return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']}).replace(/_</g,"&lt;").replace(/>_/g,"&gt;");
+			var tmp = data.replace(/&lt;/g,"_$<").replace(/&gt;/g,">$_");
+			return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']})
+			.replace(/_\$&lt;/g,"&lt;").replace(/&gt;\$_/g,"&gt;")
+			.replace(/_\$</g,"&lt;").replace(/>\$_/g,"&gt;");
 		}
 	}
 };
@@ -208,7 +210,7 @@ var vue_mixin_for_timeline = {
 				//pastOptions.api.max_id = this.info.maxid;
 				//pastOptions.app.tlshare = this.selshare_current;
 				//pastOptions.app.tltype = this.seltype_current;
-				console.log("timeline ID=",tlid,JSON.stringify(this.info));
+				//console.log("timeline ID=",tlid,JSON.stringify(this.info));
 				this.loadTimeline(tlid,{
 					api : pastOptions.api,
 					app : pastOptions.app
@@ -300,7 +302,7 @@ var vue_mixin_for_timeline = {
 			//---this status.body.id is toot context OWN id, not view id for this app!
 			MYAPP.sns.getConversation(status.body.id, status.body.id, index)
 			.then((condata) => {
-				console.log("getConversation", condata);
+				//console.log("getConversation", condata);
 				var tt = this.getParentToot(condata.parentID);
 				//console.log(condata.index, tt);
 				if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
@@ -518,7 +520,7 @@ var vue_mixin_for_timeline = {
 					}
 				}
 			}
-			console.log("data.length=" + data.length);
+			//console.log("data.length=" + data.length);
 			var generate_body = (data,options,direct) => {
 				var st = new Gpstatus(data,18);
 				var flag = this.filterToot("filter", st, options);
@@ -558,7 +560,7 @@ var vue_mixin_for_timeline = {
 					if ((st.body.in_reply_to_id != null) || (st.body.replies_count < 0) || (st.body.replies_count > 0) )  {
 						MYAPP.sns.getConversation(st.body.id, st.id, tmpid)
 						.then((condata) => {
-							console.log("getConversation", condata);
+							//console.log("getConversation", condata);
 							var tt = this.getParentToot(condata.parentID);
 							//console.log(condata.index, tt);
 							if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
@@ -664,7 +666,7 @@ var vue_mixin_for_timeline = {
 							}
 						})
 						.catch(param=>{
-							console.log("param=",param);
+							//console.log("param=",param);
 							loadOGP(param.url, param.tootid)
 							.then(result => {
 								//---if image is none and url is pixiv, re-get image url
@@ -843,11 +845,15 @@ var vue_mixin_for_timeline = {
 				} else if (options.app.tlshare == "tt_private") {
 					ret =  data.visibility == "private" ? true : false;
 				} else if (data.visibility == "direct") {
-					console.log(data.visibility,"include_dmsg_tl",MYAPP.session.config.notification.include_dmsg_tl);
+					//console.log(data.visibility,"include_dmsg_tl",MYAPP.session.config.notification.include_dmsg_tl);
 					if (MYAPP.session.config.notification.include_dmsg_tl) {
 						ret = true;
 					}else{
-						ret = false;
+						if (options.app["notify_direct"]) {
+							ret = true;
+						}else{
+							ret = false;
+						}
 					}
 				} 
 			}else if (priority == "additional") {
@@ -1301,7 +1307,7 @@ var vue_mixin_for_inputtoot = {
 		geouris : function (val,old) {
 			//var len = val.length;
 			//this.strlength += len + 1; //1 is space.
-			console.log(val,old);
+			//console.log(val,old);
 			if (val.length > 4) {
 				return false;
 			}else{
@@ -1511,7 +1517,6 @@ var vue_mixin_for_inputtoot = {
 		onkeydown_inputcontent : function (e) {
 			if ((e.keyCode == 13) && (e.ctrlKey || e.metaKey)) {
 				this.onclick_send(e);
-				console.log("enter pos!");
 			}
 		},
 		onkeyup_inputcontent : function (e) {
@@ -1634,6 +1639,9 @@ var vue_mixin_for_inputtoot = {
 				}
 			});
 		},
+		onclick_addcw : function (e) {
+			this.insertText("-cw-");
+		},
 		onclick_addimage : function(e) {
 			ID("dmy_openmdia").click();
 		},
@@ -1663,7 +1671,7 @@ var vue_mixin_for_inputtoot = {
 							this.geomap.removeControl(this.geoitems[i]);
 						}
 
-						console.log(pos);
+						//console.log(pos);
 						this.$nextTick(()=>{
 							if ((this.geomap) && ("setView" in this.geomap)) {
 								var latlng = L.latLng(this.geo.lat, this.geo.lng);
@@ -1675,10 +1683,10 @@ var vue_mixin_for_inputtoot = {
 								latlng = L.latLng(this.geo.lat, this.geo.lng);
 
 								this.geomap = L.map(this.$el.querySelector('.here_map'), {center: latlng, dragging : true, zoom: 18,layers: [Osm]});
-								console.log("geomap=",this.geomap);
+								//console.log("geomap=",this.geomap);
 								//---re-calculate location mark
 								this.geomap.on("click",(e)=>{
-									console.log(e);
+									//console.log(e);
 									this.geo.locos.splice(0,this.geo.locos.length);
 									for (var i = 0; i < this.geoitems.length; i++) {
 										this.geomap.removeControl(this.geoitems[i]);
@@ -1726,7 +1734,7 @@ var vue_mixin_for_inputtoot = {
 				var pros = [];
 				for (var i = 0; i < this.selaccounts.length; i++) {
 					var account = this.getTextAccount2Object(i);
-					console.log(account);
+					//console.log(account);
 					var mediaids = [];
 					for (var m = 0; m < this.medias.length; m++) {
 						mediaids.push(this.medias[m][account.acct].id);
@@ -1819,7 +1827,6 @@ var vue_mixin_for_inputtoot = {
 		 */
 		loadMediafiles : function (filetype,files) {
 			var backupAC = MYAPP.sns._accounts;
-			//console.log("blob=",files);
 
 			var rootdef = new Promise((rootresolve, rootreject)=>{
 				var rootpros = [];
@@ -1831,7 +1838,6 @@ var vue_mixin_for_inputtoot = {
 							reader.onload = ((fle) => {
 								return (e) => {
 									var imgsrc = e.target.result;
-									//console.log("e=",e);
 									var dat = {
 										src : imgsrc,
 										comment : "",
@@ -1847,7 +1853,7 @@ var vue_mixin_for_inputtoot = {
 					}
 					rootresolve(Promise.all(rootpros)
 					.then(vals=>{
-						console.log("vals=",vals);
+						//console.log("vals=",vals);
 						return vals;
 					}));
 				}else if (filetype == "blob") {
@@ -1869,7 +1875,7 @@ var vue_mixin_for_inputtoot = {
 			.then(result=>{
 				var pros = [];
 				//var rootdef = new Promise((rootresolve, rootreject)=>{
-				console.log("result=",result);
+				//console.log("result=",result);
 				//---loop for loaded medias
 				for (var i = 0; i < result.length; i++) {
 					var re = result[i];
@@ -1901,13 +1907,6 @@ var vue_mixin_for_inputtoot = {
 					}
 				}
 				return Promise.all(pros);
-					//rootresolve(Promise.all(pros)
-					//.then(vals=>{
-					//	console.log("vals after vals=",vals);
-					//	return vals;
-					//}));
-				//});
-				//return rootdef;
 			})
 			.then(values=>{
 				//---finally
@@ -1916,7 +1915,7 @@ var vue_mixin_for_inputtoot = {
 				//console.log("values=",values);
 				var loopfilename = values[0].filename;
 				for (var iv = 0; iv < values.length; iv++) {
-					console.log(iv,loopfilename,values[iv]);
+					//console.log(iv,loopfilename,values[iv]);
 					if (loopfilename != values[iv].filename) {
 						this.medias.push(ret);
 						ret = {};
@@ -1930,22 +1929,19 @@ var vue_mixin_for_inputtoot = {
 
 				//ここでうっかりmediasを上書きしてるよ、同じインスタンスの場合！
 				//this.medias.push(ret);
-				console.log(
-					this.selmedias,
-					this.medias
-				);
+				//console.log(this.selmedias,this.medias);
 				return {"selmedias":this.selmedias,"medias":this.medias};
 			})
 			.then((res)=>{
-				console.log("res=",res);
+				//console.log("res=",res);
 			})
 			.catch(err=>{
-				console.log(err);
+				//console.log(err);
 				btnflags.loading = false;
 			})
 			.finally( () => {
 				MYAPP.sns.setAccount(backupAC);
-				console.log("finally=",backupAC);
+				//console.log("finally=",backupAC);
 
 				this.$emit("change",{
 					"is_edit" : (this.strlength > 0) ? true : false,
@@ -2121,11 +2117,11 @@ var vue_mixin_for_notification = {
 		 */
 		push_notification(account,datas,options) {
 			for (var i = 0; i < datas.length; i++) {
-				console.log(i,datas[i]);
+				//console.log(i,datas[i]);
 				var data = datas[i];
 				//data.account = [data.account];
 				var ismerge = this.merge_notification(account,data);
-				console.log("merge=",ismerge,account,data);
+				//console.log("merge=",ismerge,account,data);
 				if (!ismerge) {
 					if ("since_id" in options.api) {
 						account.notifications.unshift(data);
@@ -2301,7 +2297,6 @@ var vue_mixin_for_notification = {
 
 		},
 		onclick_open_in_new_toot : function (status) {
-			console.log("line click");
 
 			var path;
 			if (this.saveitem.type == "reblog"){

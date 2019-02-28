@@ -403,7 +403,7 @@ var MastodonAPI = function (config) {
                         // event(イベント名), payload(データ内容)で処理をする
                         
                         data=content[3];
-                        console.log(event,payload);
+                        //console.log(event,payload);
                         listener({
                             event : event,
                             payload : payload

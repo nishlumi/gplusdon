@@ -26,6 +26,7 @@ Vue.component("toot-inputbox", {
 				otherwindow : false,
 				help : true,
 				open_in_browser : false,
+				addcw : true,
 				addimage : true,
 				addgeo : true,
 				emoji : true,

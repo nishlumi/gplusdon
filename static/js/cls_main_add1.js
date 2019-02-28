@@ -3,6 +3,178 @@
  * necessary **1st** include
  =============================================================================*/
 function defineForMainPage(app) {
+    
+    app.commonvue["navigation"] = new Vue({
+        el : "#navibar",
+        mixins : [vue_mixin_base],
+        delimiters : ["{?", "?}"],
+        data : {
+            //---common
+            applogined : false,
+            genttl : {
+                text : "",
+                tooltip : ""
+            },
+            
+            //---#frm_navleft(=navibar)
+
+            //---#frm_search(=nav_search)
+            findtext : "",
+
+            //---#nav_btnbar(=nav_btnbar)
+            items : [
+                {key : "10", text : "hoge"}
+            ],
+            show_notif_badge : false,
+            ntf_stat : {
+                flat : true,
+                icon : true,
+                fab : false,
+                dark : false,
+                color : ""
+            },
+            notif_badge_count : 0,
+        },
+        methods: {
+            //---#frm_navleft
+            onclick_sidenavbtn : function (e) {
+                MYAPP.commonvue.sidebar.drawer = !MYAPP.commonvue.sidebar.drawer;
+            },
+
+            //---#frm_search
+            onsubmit_search : function (e) {
+                var ftext = this.findtext.trim();
+                //--common search function
+
+                /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
+                if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
+                //parentCommonSearch();
+                if (ID("area_instance")) {
+                    vue_instances.search.onsubmit_search(ftext);
+                }
+                if (ID("area_connections")) {
+                    vue_connections.search.load_search(ftext,{
+                        api : {},
+                        app : {}
+                    });                
+                }
+                if (ID("area_timeline")) {
+                    if (ftext.indexOf("#") == 0) {
+                        var tmp = ftext.replace("#","");
+                        location.href = `/tl/tags/${tmp}`;
+                    }else{
+                        location.href = `/s?q=${encodeURIComponent(ftext)}`;
+                    }
+                }
+                if (ID("area_search")) {
+                    location.href = `/s?q=${encodeURIComponent(ftext)}`;
+                }
+            },
+            onclick_searchClear: function(e) {
+                this.findtext = null;
+            },
+
+            //---#nav_btnbar
+            //---some function--------------------
+            changeIconState : function (isplane) {
+                this.ntf_stat.flat = isplane;
+                this.ntf_stat.icon = isplane;
+                this.ntf_stat.fab = !isplane;
+                this.ntf_stat.dark = !isplane;
+                if (isplane) {
+                    this.ntf_stat.color = "";
+                }else{
+                    this.ntf_stat.color = "red";
+                }
+            },
+            checkNotificationCount : function () {
+                var ret = "";
+                if (app.commonvue.nav_notification.currentAccount.notifications.length > 0) {
+                    ret = "notifications";
+                }else{
+                    ret = "notifications_none";
+                }
+                return ret;
+            },
+            //---event handler--------------------
+            onclick_notification : function (e) {
+                var brk = this.$vuetify.breakpoint;
+                if (!MYAPP.commonvue.nav_notification.dialog) {
+                    var rect = e.target.getBoundingClientRect();
+                    ID("ov_notif_menu").style.top = (rect.y+64) + "px";
+                    ID("ov_notif_menu").style.right = (0) + "px";
+                    //ID("ov_notif_menu").classList.remove("common_ui_off");
+                    if (brk.xs === true) {
+                        ID("ov_notif_menu").style.width = "100%";
+                    }
+                    
+                    /*MYAPP.commonvue.nav_notification.gpstatus.splice(0,MYAPP.commonvue.nav_notification.gpstatus.length);
+                    for (var i = 0; i < MYAPP.commonvue.nav_notification.notifications.length; i++) {
+                        var d = new Gpstatus(MYAPP.commonvue.nav_notification.notifications[i].status,16);
+                        MYAPP.commonvue.nav_notification.gpstatus.push(d);
+                    }*/
+                }
+                ID("ov_notif").classList.toggle("common_ui_off");
+                //ID("ov_notif_menu").classList.toggle("scale-up-tr");        
+                MYAPP.commonvue.nav_notification.dialog = !MYAPP.commonvue.nav_notification.dialog;
+            },
+            onclick_search : function (e) {
+                MYAPP.commonvue.mbl_search.dialog = true;
+            },
+            onclick_refresh : function (e) {
+                //---/tl
+                if (Q(".timeline_body")) {
+                    if (Q(".timelinebody")) {
+                        Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                    }
+                }
+                //---/hashtag
+                if (Q(".hashtag_body")) {
+                    Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                }
+                //---/notifications
+                if (ID("area_notifications")){
+                    var ac = vue_notifications.accounts[vue_notifications.current_itemID];
+                    ac.notifications.splice(0,ac.notifications.length);
+                    vue_notifications.loadNotifications(vue_notifications.accounts[vue_notifications.current_itemID],{
+                        api:{
+                            
+                        },app:{
+                            is_nomax : false,
+                            is_nosince : false,
+
+                        }
+                    });
+                }
+                //---/s/*
+                if (Q(".search_body")) {
+                    MYAPP.sns.search(this.findtext,{
+                        api : {
+                            resolve : true
+                        },
+                        app : {
+                            
+                        }
+                    })
+                    .then(result=>{
+                        vue_search.hashtags.tags = result.data.hashtags;
+                        vue_search.accounts.accounts.splice(0,vue_search.accounts.accounts.length);
+                        vue_search.accounts.load_accounts(result.data.accounts,{api:{},app:{}});
+                        vue_search.accounts.tootes.statuses(0,vue_search.tootes.statuses.length);
+                        vue_search.tootes.loadTimeline(result.data.statuses,{
+                            api:{},
+                            app:{
+                                tltype : "tt_all"
+                            }
+                        });
+                    });            
+                }
+            },
+
+            //---#
+        },
+    });
+    /* 2019/02/28
     app.commonvue["navibar"] = new Vue({
         el : "#frm_navleft",
         mixins: [vue_mixin_base],
@@ -20,6 +192,7 @@ function defineForMainPage(app) {
             }
         },
     });
+    */
     app.commonvue["appdialog"] = new Vue({
         el : "#appverdlg",
         mixins: [vue_mixin_base],
@@ -243,6 +416,7 @@ function defineForMainPage(app) {
             }
         }
     });
+    /*
     app.commonvue["nav_search"] = new Vue({
         el : "#frm_search",
         mixins: [vue_mixin_base],
@@ -256,8 +430,8 @@ function defineForMainPage(app) {
                 var ftext = this.findtext.trim();
                 //--common search function
 
-                /*if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
-                if (vue_instances !== undefined) vue_instances.search.onsubmit_search();*/
+                //if (vue_connections !== undefined) vue_connections.search.load_search(ID("inp_search").value,{});
+                //if (vue_instances !== undefined) vue_instances.search.onsubmit_search();
                 //parentCommonSearch();
                 if (ID("area_instance")) {
                     vue_instances.search.onsubmit_search(ftext);
@@ -339,11 +513,11 @@ function defineForMainPage(app) {
                         ID("ov_notif_menu").style.width = "100%";
                     }
                     
-                    /*MYAPP.commonvue.nav_notification.gpstatus.splice(0,MYAPP.commonvue.nav_notification.gpstatus.length);
-                    for (var i = 0; i < MYAPP.commonvue.nav_notification.notifications.length; i++) {
-                        var d = new Gpstatus(MYAPP.commonvue.nav_notification.notifications[i].status,16);
-                        MYAPP.commonvue.nav_notification.gpstatus.push(d);
-                    }*/
+                    //MYAPP.commonvue.nav_notification.gpstatus.splice(0,MYAPP.commonvue.nav_notification.gpstatus.length);
+                    //for (var i = 0; i < MYAPP.commonvue.nav_notification.notifications.length; i++) {
+                    //    var d = new Gpstatus(MYAPP.commonvue.nav_notification.notifications[i].status,16);
+                    //    MYAPP.commonvue.nav_notification.gpstatus.push(d);
+                    //}
                 }
                 ID("ov_notif").classList.toggle("common_ui_off");
                 //ID("ov_notif_menu").classList.toggle("scale-up-tr");        
@@ -403,6 +577,7 @@ function defineForMainPage(app) {
             }
         }
     });
+    */
     app.commonvue["nav_notification"] = new Vue({
         el : "#ov_notif",
         delimiters : ["{?", "?}"],
@@ -462,14 +637,14 @@ function defineForMainPage(app) {
             notifications : function (val) {
                 if (val > 0) {
                     //ID("navbtn_icon_notification").textContent = "notifications";
-                    MYAPP.commonvue.nav_btnbar.notif_badge_count = val;
-                    MYAPP.commonvue.nav_btnbar.show_notif_badge = true;
-                    MYAPP.commonvue.nav_btnbar.changeIconState(false);
+                    MYAPP.commonvue.navigation.notif_badge_count = val;
+                    MYAPP.commonvue.navigation.show_notif_badge = true;
+                    MYAPP.commonvue.navigation.changeIconState(false);
                 }else{
                     //ID("navbtn_icon_notification").textContent = "notifications_none";
-                    MYAPP.commonvue.nav_btnbar.notif_badge_count = 0;
-                    MYAPP.commonvue.nav_btnbar.show_notif_badge = false;
-                    MYAPP.commonvue.nav_btnbar.changeIconState(true);
+                    MYAPP.commonvue.navigation.notif_badge_count = 0;
+                    MYAPP.commonvue.navigation.show_notif_badge = false;
+                    MYAPP.commonvue.navigation.changeIconState(true);
                 }
             }
         },
@@ -687,6 +862,7 @@ function defineForMainPage(app) {
                         this.statuses.splice(0,this.statuses.length);
                         this.currentOption.app.tlshare = "tt_all";
                         this.currentOption.app.exclude_reply = false;
+                        this.currentOption.app["notify_direct"] = true;
                         var tmpsta = this.generate_toot_detail({
                             data : [this.saveitem.status],
                             paging : {prev:"",next:""}
@@ -729,7 +905,7 @@ function defineForMainPage(app) {
                 }
             },
             onclick_notif_linebtn : function (index) {
-                console.log("delete");
+                //console.log("delete");
                 this.remove_notification(index);
                 this.save_notification();
             },
@@ -740,7 +916,7 @@ function defineForMainPage(app) {
                 MYAPP.commonvue.nav_sel_account.checkAccountsNotification();
             },
             onclick_open_in_new_toot : function (status) {
-                console.log("line click");
+                //console.log("line click");
 
                 var path;
                 if (this.saveitem.type == "reblog"){
@@ -852,6 +1028,8 @@ function defineForMainPage(app) {
             }
         }
     }),
+    
+    
     app.commonvue["usercard"] = new Vue({
         el : "#ov_user",
         mixins: [vue_mixin_base],
@@ -897,16 +1075,16 @@ function defineForMainPage(app) {
                 full : true
             },
             comment_list_area_viewstyle : {
-				default : false
+                default : false
             },
             content_body_style : {
                 "sizing-fullmax" : true
             },
             datastyle : {
-				"comment-list" : {
-					sizing : false
-				}
-			},
+                "comment-list" : {
+                    sizing : false
+                }
+            },
             globalInfo : {
                 staticpath : app.appinfo.staticPath
             },
@@ -1034,62 +1212,6 @@ function defineForMainPage(app) {
             
         }
     });
-    /*
-    app.commonvue["mapviewer"] = new Vue({
-        el : "#mapviewer",
-        delimiters : ["{?", "?}"],
-        data : {
-            dialog : false,
-            toote : null,
-            geomap : null,
-            isfirst : true,
-        },
-        mounted() {
-            var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-            Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
-            latlng = L.latLng(35.6811, 139.7671);
-
-            this.geomap = L.map("mv_map", {
-                center: latlng, dragging : true, zoom: 18,layers: [Osm]});
-            console.log("geomap=",this.geomap);
-            
-            //---re-calculate location mark
-
-            
-        },
-        Updated() {
-            if (this.isfirst) {
-                this.isfirst = false;
-            }
-        },
-        methods : {
-            set_data : function (item) {
-                this.toote = item;
-
-                var locs = this.toote.geo.location;
-                for (var i = 0; i < locs.length; i++) {
-                    var loc = locs[i];
-                    var marker = L.marker({lat:loc.lat,lng:loc.lng},{icon:redIcon}).addTo(this.geomap);
-                    marker.on("click",(ev)=>{
-                        //ev.sourceTarget.remove();
-                        //this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}`;
-                    });
-                    marker.bindPopup(`${loc.lat},${loc.lng}`);
-                }
-            },
-            onclick_selloco : function (item) {
-                if (this.geomap) {
-                    this.geomap.setView({ lat:item.lat, lng: item.lng });
-                }
-            },
-            onclick_close : function () {
-                this.dialog = false;
-            }
-    
-        }
-    });*/
-
 
     app["setupMainPageElement"] = function() {
         //------------------------------------------------
@@ -1132,7 +1254,7 @@ function defineForMainPage(app) {
                 }
             });
         }*/
-        console.log(Qs(".nav-wrapper .navcol-left, .navcol-right"));
+        //console.log(Qs(".nav-wrapper .navcol-left, .navcol-right"));
         var es = Qs(".nav-wrapper .navcol-left, .navcol-right");
         var scrollOpt = {
             duration: 300,
@@ -1179,10 +1301,8 @@ function defineForMainPage(app) {
                 }
                 //---/notifications
                 if (Q(".notifcation_body")) {
-                    //ID(vue_notifications.tabvalue).scroll({top:0, behavior:"smooth"});
                     elemName = ".notifcation_body";
                 }
-                //MYAPP.commonvue.nav_btnbar.$vuetify.goTo(Q(elemName),scrollOpt);
                 if (elemName != "") {
                     Q(elemName).scroll({top:0,behavior: "smooth"});
                 }
@@ -1260,6 +1380,7 @@ function defineForMainPage(app) {
             
             
         });
+
     
     }
  }

@@ -254,7 +254,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         </div> 
 <!-----toot main content (spoiler or content)-->
         <div class="toot_content_body" v-bind:class="toot_body_stat">
-            <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>  
+            <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>
             <div class="area_spoiler" v-if="toote.body.spoilered">  
                 <!--<label class="button_spoiler">
                     <input type="checkbox">

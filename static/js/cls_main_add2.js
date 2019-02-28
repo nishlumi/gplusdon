@@ -36,6 +36,7 @@ function defineForTootPage(app) {
                     otherwindow : false,
                     help : true,
                     open_in_browser : false,
+                    addcw : true,
                     addimage : true,
                     addgeo : true,
                     emoji : true,
@@ -138,7 +139,7 @@ function defineForTootPage(app) {
             },*/
             selmentions : function(val) {
                 var mentions = this.calc_mentionLength(val).join(" ");
-                console.log(mentions, mentions.length);
+                //console.log(mentions, mentions.length);
                 //var tags = this.seltags.join(" ");
                 var tags = [];
                 for (var i = 0; i < this.seltags.length; i++) {
@@ -159,7 +160,7 @@ function defineForTootPage(app) {
                     + mentions.length + tags.join(" ").length;
             },
             selsharescope : function (val) {
-                console.log(val);
+                //console.log(val);
                 if ((val.value == "tt_private") || (val.value == "tt_direct")) {
                     this.isopen_mention = true;
                 }else{
@@ -170,7 +171,7 @@ function defineForTootPage(app) {
                 if (this.selaccounts.length == 0) return;
                 if (val == "") return;
                 //var baseac = this.selaccounts[0].split("@");
-                console.log("mention_search=",val);
+                //console.log("mention_search=",val);
 
                 var hitac = this.getTextAccount2Object(0);
                 if (!hitac) return;
@@ -203,7 +204,7 @@ function defineForTootPage(app) {
                         });
                         
                     }
-                    console.log(this.mentions);
+                    //console.log(this.mentions);
                 },result=>{
 
                 })
@@ -324,7 +325,7 @@ function defineForTootPage(app) {
                 }
             },
             onsubmit_comment : function (index) {
-                console.log(this.selmedias[index].comment);
+                //console.log(this.selmedias[index].comment);
                 var media = this.medias[index];
                 for (var obj in media) {
                     var acmedia = media[obj];
@@ -377,7 +378,7 @@ function defineForTootPage(app) {
                 var index = -1;
                 for (var i = 0; i < this.selaccounts.length; i++) {
                     var ac= this.selaccounts[i];
-                    console.log(item,ac);
+                    //console.log(item,ac);
                     if (item.acct == ac ) {
                         index = i;
                         break;
@@ -389,7 +390,7 @@ function defineForTootPage(app) {
                 var index = -1;
                 for (var i = 0; i < this.selmentions.length; i++) {
                     var ac= this.selmentions[i];
-                    console.log(item,ac);
+                    //console.log(item,ac);
                     if (item.acct == ac ) {
                         index = i;
                         break;
@@ -716,7 +717,7 @@ function defineForTootPage(app) {
                     var after = text.substr(insertpos,text.length);
 
                     MYAPP.commonvue.inputtoot.status_text = `${before}:${a}:${after}`;*/
-                    MYAPP.commonvue.inputtoot.$refs.inputbox.ckeditor.editable().insertText(`:${a}:`);
+                    //MYAPP.commonvue.inputtoot.$refs.inputbox.ckeditor.editable().insertText(`:${a}:`);
                     MYAPP.commonvue.inputtoot.$refs.inputbox.insertText(`:${a}:`);
                 }
                 chararea.appendChild(btn);
