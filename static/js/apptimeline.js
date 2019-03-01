@@ -7,12 +7,14 @@ var thisform = {
 function barancerTimelineType(type,id) {
     if (type == "home") {
         //vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
+        vue_timeline.home.clearPending();
         vue_timeline.home.statuses.splice(0,vue_timeline.home.statuses.length);
         vue_timeline.home.loadTimeline(type,{
             api : {},
             app : vue_timeline.home.currentOption.app
         });
     }else if (type == "list") {
+        vue_timeline.list.clearPending();
         vue_timeline.list.tlcond.listtype = id;
         vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
         var opt = vue_timeline.list.forWatch_allcondition(vue_timeline.list.tlcond.getReturn());
@@ -28,6 +30,7 @@ function barancerTimelineType(type,id) {
             }
         });*/
     }else if (type == "local") {
+        vue_timeline.local.clearPending();
         //vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
         vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
         vue_timeline.local.loadTimeline(type,{
@@ -35,6 +38,7 @@ function barancerTimelineType(type,id) {
             app : vue_timeline.local.currentOption.app
         });
     }else if (type == "public") {
+        vue_timeline.public.clearPending();
         //vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
         vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
         vue_timeline.public.loadTimeline(type,{

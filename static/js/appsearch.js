@@ -326,6 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 vue_search[obj].changeTimelineStyle();
             }
         }
+        vue_search.accounts.globalInfo["firstPath"] = "";
+        vue_search.hashtags.globalInfo["firstPath"] = "";
 
         //---account load
         MYAPP.afterLoadAccounts(data);
