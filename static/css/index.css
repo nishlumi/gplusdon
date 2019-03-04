@@ -197,7 +197,22 @@ label.button_spoiler input:checked ~ p.toote_main {
 .btn-portrait {
     height : 7rem;
 }
-
+.btn-tabbtn {
+    height : 48px !important;
+    line-height: 48px !important;
+}
+.btn-tabbtn.active {
+    border-bottom: 2px solid #f44336 !important;
+    transition: 0.3s;
+}
+.btn-tabbtn i.material-icons {
+    font-size : 2rem;
+}
+.btn-tabbtn-text {
+    line-height: 48px !important;
+    position : relative;
+    top : -0.5rem;
+}
 /* --- CSS class for Mastodon native style --- */
 .ellipsis:after {
     content : "..."

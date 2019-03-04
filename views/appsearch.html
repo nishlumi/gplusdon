@@ -79,6 +79,7 @@
                     v-bind:key="status.id"
                     v-bind:globalinfo="globalInfo"
                     v-for="(status,index) in statuses"
+                    v-bind:gallery_options="gallery_options"
                     v-on:replied_post="onreplied_children(status,index)"
                 ></timeline-toot>
             </div>

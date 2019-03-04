@@ -196,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
             created : function() {
                 //---if normaly indicate "active" class in html, it is shiftted why digit position
                 //   the workarround for this.
+                this.tl_tabtype = "user";
                 
             },
             computed: {
@@ -257,6 +258,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
                 this.pagetype = "account";
                 this.tlcond = new GTimelineCondition();
+
+                this.tl_tabtype = "user";
             },
             mounted() {
             },

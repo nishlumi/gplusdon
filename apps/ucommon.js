@@ -108,7 +108,7 @@ async function loadWebsiteOGP(request, info, url) {
                 var api = cls_mstdn.loadAPImaster();
                 cls_mstdn.getUser(api, instance, id)
                 .then(result => {
-                    console.log(result);
+                    //console.log(result);
                     //---set up og:
                     var oginfo = { //---default value
                         title: appEffectiveName,

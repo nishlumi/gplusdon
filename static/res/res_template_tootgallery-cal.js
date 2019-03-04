@@ -11,11 +11,13 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
     <carousel 
         class="tootgallery-carousel" 
         style="min-height:327px"
-        v-bind:per-page="1"
-        v-bind:loop="true"
+        v-bind:adjustableHeight="options.carousel.adjustableHeight"
+        v-bind:per-page="local_options.carousel.perPage"
+        v-bind:loop="local_options.carousel.loop"
+        v-model="value.carousel"
     >
         <template v-if="sensitive">
-            <slide style="position:relative;">
+            <slide style="position:relative;" :key="0">
                 <div class="grey lighten-4 white-text">
                     <v-img src="/static/images/gp_sensitive_image.png" class="landscape"></v-img>
                     <h3 class="headline sensitive-image-text"> {{ _T(translation.sensitive_imagetext,[medias.length ]) }}</h3>
@@ -23,7 +25,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
             </slide>
         </template>
         <template v-for="(item,index) in medias">
-            <slide :key="index" style="position:relative;">
+            <slide :key="(index+1)" style="position:relative;">
                 <template v-if="item.type=='video'">
                     <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
                     <video controls v-bind:src="item.url" class="landscape" v-if="item.meta.width >= item.meta.height" v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>

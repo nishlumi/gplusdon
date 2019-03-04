@@ -1589,9 +1589,12 @@ class Gpsns {
                 }
             }
         }
-        if (MYAPP.session.config.action.image_everyNsfw === true) {
-            this.body.sensitive = true;
-        }
+        //---option: remove nsfw, if specified instance
+        /*if (MYAPP.session.config.action.remove_nsfw_remove_instance === true) {
+            if (MYAPP.session.config.action.nsfw_remove_instances.indexOf(this.account.instance) > -1) {
+                this.body.sensitive = false;
+            }
+        }*/
         //---option: add nsfw, if specified instance
         if (MYAPP.session.config.action.add_nsfw_force_instance === true) {
             if (MYAPP.session.config.action.nsfw_force_instances.indexOf(this.account.instance) > -1) {
@@ -1609,6 +1612,9 @@ class Gpsns {
                     this.body.sensitive = true;
                 }
             }
+        }
+        if (MYAPP.session.config.action.image_everyNsfw === true) {
+            this.body.sensitive = true;
         }
 
         //---card css style class setup

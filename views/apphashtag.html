@@ -5,7 +5,82 @@
 {% endblock %}
 {% block content %}
 <div id="area_timeline" class="hashtag_body">
-    <div class="row">
+    <div id="tl_tab" v-cloak>
+        <div class="row white nomatlze">
+            <div class="col s6">
+                <button class="waves-effect waves-light btn-tabbtn btn-flat white red--text btntab_sizer" :class="css.tabs.taglocal" @click="onclick_btntabitem('taglocal')"><i class="material-icons ">local_offer</i><span class="btn-tabbtn-text hidden-sm-and-down">#{? hashtag ?}</span></button>
+            </div>
+            <div class="col s6">
+                <button class="waves-effect waves-light btn-tabbtn btn-flat white red--text btntab_sizer" :class="css.tabs.list" @click="onclick_btntabitem('tag')"><i class="material-icons ">public</i><span class="btn-tabbtn-text hidden-sm-and-down">#{? hashtag ?}</span></button>
+            </div>
+        </div>
+        <!--<v-layout row wrap class="nomatlze">
+            <v-flex xs12>
+                <v-item-group v-model="tl_tabtype" mandatory>
+                    <v-layout wrap white>
+                        <v-flex xs6>
+                            <v-item value="taglocal">
+                                <v-btn flat large class="btntab_sizer" :class="css.tabs.taglocal" @click="onclick_btntabitem('taglocal')">
+                                    <v-icon>local_offer</v-icon>
+                                    <span class="hidden-sm-and-down">#{? hashtag ?}</span>
+                                </v-btn>
+                            </v-item>
+                        </v-flex>
+                        <v-flex xs6>
+                            <v-item value="tag">
+                                <v-btn flat large class="btntab_sizer" :class="css.tabs.tag" @click="onclick_btntabitem('tag')">
+                                    <v-icon>public</v-icon>
+                                    <span class="hidden-sm-and-down">#{? hashtag ?}</span>
+                                </v-btn>
+                            </v-item>
+                        </v-flex>
+                    </v-layout>
+                </v-item-group>
+            </v-flex>
+        </v-layout>-->
+    </div>
+    <div id="tl_common" class="tab-content" v-cloak v-on:scroll="onscroll_timeline">
+        <div class="pending_above_area" v-if="pending.above.is == true">
+            <v-layout row wrap >
+                <v-flex xs2 offset-xs6>
+                    <v-btn round color="red" dark v-on:click="onclick_show_pending">{? _T("msg_pending",[pending.above.statuses.length]) ?}</v-btn>
+                </v-flex>    
+            </v-layout>
+        </div>
+        <div class="timelinebody toot_timeline_grid  " v-bind:class="timeline_gridstyle">
+            <div class="card toot_card_base topItem" >
+                <timeline-condition
+                    :translation="translations"
+                    :condition="tlcond"
+                    v-on:saveclose="onsaveclose"
+                    v-on:datesaveclose="ondatesaveclose"
+                ></timeline-condition>
+            </div>
+
+            <timeline-toot 
+                v-bind:translation="translations"
+                v-bind:toote="status"
+                v-bind:key="status.id"
+                v-bind:globalinfo="globalInfo"
+                v-for="(status,index) in statuses"
+                v-bind:gallery_options="gallery_options"
+                v-on:replied_post="onreplied_children(status,index)"
+                v-on:delete_toot="ondelete_toot_children"
+            ></timeline-toot>
+        </div>
+        <div class="pending_below_area" v-if="statuses.length < 10">
+            <v-layout row wrap >
+                <v-flex xs2 offset-xs6>
+                    <v-btn fab dark small color="red" v-on:click="onclick_load_below">
+                        <v-icon>expand_more</v-icon>
+                    </v-btn>
+                </v-flex>    
+            </v-layout>
+        </div>
+    </div>
+
+
+    <div class="row common_ui_off">
         <div id="tabbar" class="col s12">
             <ul  class="tabs tabs-fixed-width">
                 <li class="tab col s6"><a class="black-text active" href="#tl_taglocal"><i class="material-icons">local_offer</i><span class="hidden-sm-and-down">#{? hashtag ?}</span></a></li>
@@ -22,25 +97,7 @@
             </div>
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
-                    <!--<div class="card-content">
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <select id="sel_tlshare" v-model="selshare_current">
-                                    <template v-for="item in sel_tlshare">
-                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="input-field col s6">
-                                <select id="sel_tltype" v-model="seltype_current">
-                                    <template v-for="item in sel_tltype">
-                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                    </template>
-
-                                </select>
-                            </div>
-                        </div>
-                    </div>-->
+                    
                     <timeline-condition
                         :translation="translations"
                         :condition="tlcond"
@@ -79,25 +136,7 @@
             </div>
             <div class="timelinebody toot_timeline_grid" v-bind:class="timeline_gridstyle">
                 <div class="card toot_card_base topItem" >
-                    <!--<div class="card-content">
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <select id="sel_tlshare" v-model="selshare_current">
-                                    <template v-for="item in sel_tlshare">
-                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="input-field col s6">
-                                <select id="sel_tltype" v-model="seltype_current">
-                                    <template v-for="item in sel_tltype">
-                                        <option v-bind:value="item.value" v-bind:selected=item.selected>{? item.text ?}</option>
-                                    </template>
-
-                                </select>
-                            </div>
-                        </div>
-                    </div>-->
+                    
                     <timeline-condition
                         :translation="translations"
                         :condition="tlcond"

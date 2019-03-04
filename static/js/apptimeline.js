@@ -1,10 +1,33 @@
 var MYAPP;
 var vue_timeline;
+var vue_tltab;
 var thisform = {
     select : ""
 };
 
 function barancerTimelineType(type,id) {
+    vue_tltab.tl_tabtype = type;
+    vue_timeline.changeTabType(type);
+    vue_timeline.clearPending();
+    vue_timeline.statuses.splice(0,vue_timeline.statuses.length);
+
+    vue_tltab.turnButtonStatus(type);
+    
+    if (type == "list") {
+        vue_timeline.tlcond.listtype = id;
+        var opt = vue_timeline.forWatch_allcondition(vue_timeline.tlcond.getReturn());
+        opt.app.listid = id;
+        vue_timeline.loadTimeline(type,opt);
+        MYAPP.commonvue.navigation.switchListSelect(true);
+    }else{
+        MYAPP.commonvue.navigation.switchListSelect(false);
+        vue_timeline.loadTimeline(type,{
+            api : {},
+            app : vue_timeline.currentOption.app
+        });
+    }
+    return;
+
     if (type == "home") {
         //vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
         vue_timeline.home.clearPending();
@@ -105,418 +128,689 @@ document.addEventListener('DOMContentLoaded', function() {
         {text : _T("sel_media"), type: "type", value: "tt_media", selected:false},
         {text : _T("sel_exclude_share_"+MYAPP.session.config.application.showMode), type: "type", value: "tt_exclude_bst", selected:false},
     ];
+    class tabbtn_style {
+        constructor(){ 
+            this.grey = false;
+            this["lighten-3"] = false;
+            this["red--text"] = false;
+            this["black--text"] = true;
+            this.active = false;
+        };
+    };
 
-    vue_timeline = {
-        "home" : new Vue({
-            el : "#tl_home",
-            delimiters : ["{?","?}"],
-            mixins : [vue_mixin_base,vue_mixin_for_timeline],
-        
-            data : {
-                domgrid : {},
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
-
-                tlcond : null,
-
+    vue_tltab  = new Vue({
+        el : "#tl_tab",
+        delimiters : ["{?","?}"],
+        mixins : [vue_mixin_base],
+        data : {
+            translations : {},
+            tl_tabtype : "home",
+            css : {
+                tabs : {
+                    "home" : new tabbtn_style(),
+                    "list" : new tabbtn_style(),
+                    "local" : new tabbtn_style(),
+                    "public" : new tabbtn_style(),
+                }
             },
-            created : function() {
-                //---if normaly indicate "active" class in html, it is shiftted why digit position
-                //   the workarround for this.
-                Q(".tab.col a").classList.add("active");
-                this.tlcond = new GTimelineCondition();
-                
-            },
-            mounted() {
-                //this.tlcond = new GTimelineCondition();
-            },
-            watch : {
-                selshare_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-
-                    this.loadTimeline("home",this.forWatch_selshare(val));
-                },400),
-                seltype_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("home",this.forWatch_seltype(val));
-                },400)
-            },
-            methods : {
-                loadTimeline : loadTimelineCommon,
-                onsaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        
-                        this.loadTimeline("home",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "clear") {
-                            notifAccount.account.stream.start();
-                        }
-                    }
-                },
-                ondatesaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline("home",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "exec") {
-                            notifAccount.account.stream.stop();
-                        }else{
-                            notifAccount.account.stream.start();
-                        }
-                    }
+            sel_listitem : "",
+            list_items : [],
+        },
+        watch : {
+            /*tl_tabtype : function (val) {
+                vue_timeline.setTLListItem(this.sel_listitem);
+                vue_timeline.funcTabtype(val,"");
+            },*/
+            sel_listitem : function (val) {
+                vue_timeline.funcTabtype("list",this.sel_listitem);
+            }
+        },
+        computed: {
+            isNotListTab : function () {
+                if (this.tl_tabtype == "list") {
+                    return false;
+                }else{
+                    return true;
                 }
             }
-        }),
-        "list" : new Vue({
-            el : "#tl_list",
-            delimiters : ["{?","?}"],
-            mixins : [vue_mixin_base,vue_mixin_for_timeline],
-            data : {
-                sel_listtype : [],
-                sellisttype_current : "",
-
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
-
-                tlcond : null,
-
+        },
+        methods: {
+            turnButtonStatus : function (val) {
+                for (var obj in this.css.tabs) {
+                    this.css.tabs[obj].grey = false;
+                    this.css.tabs[obj]["lighten-3"] = false;
+                    this.css.tabs[obj]["red--text"] = false;
+                    this.css.tabs[obj]["black--text"] = true;
+                    this.css.tabs[obj].active = false;
+                }
+                this.css.tabs[val].grey = true;
+                this.css.tabs[val]["lighten-3"] = true;
+                this.css.tabs[val]["red--text"] = true;
+                this.css.tabs[obj]["black--text"] = false;
+                this.css.tabs[val].active = true;
             },
-            created : function() {
-                //---if normaly indicate "active" class in html, it is shiftted why digit position
-                //   the workarround for this.
-                Q(".tab.col a").classList.add("active");
-                this.tlcond = new GTimelineCondition();
-                this.tlcond.type = "list";
-            },
-            mounted() {
-            },
-            watch : {
-                sellisttype_current : _.debounce(function(val){
-                    if (val == "0") return;
-                    ID("hid_timelinetypeid").value = val;
-                    var opt = this.forWatch_selshare(this.selshare_current);
-                    opt.app["listid"] = val;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("list",opt);
+            onclick_btntabitem : function (e) {
+                this.tl_tabtype = e;
+                MYAPP.commonvue.navigation.switchListSelect((e == "list"));
+                vue_timeline.funcTabtype(e,MYAPP.commonvue.navigation.sel_listitem);
 
+                this.turnButtonStatus(e);
+            }
+        },
+    });
+    vue_timeline = new Vue({
+        el : "#tl_common",
+        delimiters : ["{?","?}"],
+        mixins : [vue_mixin_base,vue_mixin_for_timeline],
+        data : {
+            
+
+            tlcond : null,
+
+            backup : {
+                "home" : {
+                    tlcond : null,
+                    currentOption : null,
+                    pagetype : "",
+                    info : {},
+                    pending : {}
+                },
+                "list" : {
+                    tlcond : null,
+                    currentOption : null,
+                    pagetype : "",
+                    info : {},
+                    pending : {}
+                },
+                "local" : {
+                    tlcond : null,
+                    currentOption : null,
+                    pagetype : "",
+                    info : {},
+                    pending : {}
+                },
+                "public" : {
+                    tlcond : null,
+                    currentOption : null,
+                    pagetype : "",
+                    info : {},
+                    pending : {}
+                },
+            }
+
+        },
+        created : function() {
+            //---if normaly indicate "active" class in html, it is shiftted why digit position
+            //   the workarround for this.
+            //Q(".tab.col a").classList.add("active");
+            this.tlcond = new GTimelineCondition();
+            this.tlcond.type = "home";
+        },
+        mounted() {
+        },
+        watch : {
+            
+        },
+        methods : {
+            funcTabtype : function (val,optionID) {
+                //---common
+                this.clearPending();
+                this.clearTimeline();
+                this.changeTabType(val);
+                var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+
+                if (val == "home") {
+                    this.forWatch_allcondition(this.tlcond.getReturn());
+                    this.loadTimeline("home",this.currentOption);
+                    notifAccount.account.streams.list.stop();
+                    notifAccount.account.streams.local.stop();
+                    notifAccount.account.streams.public.stop();
+                    notifAccount.account.stream.setTargetTimeline(vue_timeline);
+                }else if (val == "list") {
+                    if (MYAPP.commonvue.navigation.sel_listitem != "0") {
+                        this.forWatch_allcondition(this.tlcond.getReturn());
+                        this.currentOption.app["listid"] = optionID;
+                        this.loadTimeline("list",this.currentOption);
+                        notifAccount.account.streams.list.setQuery("list="+this.currentOption.app.listid);
+                        notifAccount.account.streams.list.setTargetTimeline(vue_timeline);
+                        notifAccount.account.streams.list.start();
+                    }
+                    notifAccount.account.streams.local.stop();
+                    notifAccount.account.streams.public.stop();
+                }else if (val == "local") {
+                    this.forWatch_allcondition(this.tlcond.getReturn());
+                    this.currentOption.api["local"] = true;
+                    this.loadTimeline("local",this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     notifAccount.account.streams.list.stop();
-                    notifAccount.account.streams.list.setQuery("list="+val);
-                    notifAccount.account.streams.list.start();
-                },400),
-                selshare_current : _.debounce(function(val) {
-                    var opt = this.forWatch_selshare(val);
-                    opt.app["listid"] = sellisttype_current;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("list",opt);
-                },400),
-                seltype_current : _.debounce(function(val) {
-                    var opt = this.forWatch_seltype(val);
-                    opt.app["listid"] = sellisttype_current;
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("list",opt);
-                },400)
+                    notifAccount.account.streams.local.setTargetTimeline(vue_timeline);
+                    notifAccount.account.streams.local.start();
+                    notifAccount.account.streams.public.stop();
+                }else if (val == "public") {
+                    this.forWatch_allcondition(this.tlcond.getReturn());
+                    this.currentOption.api["local"] = false;
+                    this.loadTimeline("public",this.currentOption);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    notifAccount.account.streams.list.stop();
+                    notifAccount.account.streams.local.stop();
+                    notifAccount.account.streams.public.setTargetTimeline(vue_timeline);
+                    notifAccount.account.streams.public.start();
+                }
             },
-            methods : {
-                loadTimeline : loadTimelineCommon,
-                loadListNames : function(){
-                    var opt = {api:{},app:{}};
-                    MYAPP.sns.getLists(opt)
-                    .then(result=>{
-                        this.tlcond.lists.splice(0,this.tlcond.lists.length);
-                        this.tlcond.lists.push({
-                            text : "--",
-                            value : "0",
-                            selected : true
-                        });
-                        for (var i = 0; i < result.data.length; i++) {
-                            this.tlcond.lists.push({
-                                text : result.data[i].title,
-                                value : result.data[i].id,
-                                selected : false
-                            });
-                        }
-                        //this.sellisttype_current = this.sel_listtype[0].value;
-                        this.tlcond.listype = this.tlcond.lists[0].value;
-                        this.$nextTick( () => {
-                            //this.tlcond.listtype = this.tlcond.lists[0].value;
-                            M.FormSelect.init(Qs("select"), {
-                                dropdownOptions : {
-                                    constrainWidth : false
-                                }
-                            });
+            changeTabType : function (tab) {
+                this.backup[this.tl_tabtype].tlcond = _.cloneDeep(this.tlcond);
+                this.backup[this.tl_tabtype].currentOption = _.cloneDeep(this.currentOption);
+                this.backup[this.tl_tabtype].pagetype = this.pagetype;
+                this.backup[this.tl_tabtype].info = _.cloneDeep(this.info);
+                this.backup[this.tl_tabtype].pending = _.cloneDeep(this.pending);
 
-                        });
+                this.tl_tabtype = tab;
+                if (tab == "list") {
+                    this.tlcond.type = "list";
+                }else{
+                    this.tlcond.type = "normal";
+                }
+                if (this.backup[tab]) {
+                    this.tlcond = new GTimelineCondition();
+                    this.currentOption = new TLoption();
+                    this.pagetype = this.backup[tab].pagetype;
+                    this.info = {
+                        maxid : "",
+                        sinceid : "",
+                        is_nomax : false,
+                        is_nosince : false, 
+                    };
+                    this.pending = new TLpending();
+                }
+
+            },
+            loadTimeline : loadTimelineCommon,
+            loadListNames : function(){
+                var opt = {api:{},app:{}};
+                MYAPP.sns.getLists(opt)
+                .then(result=>{
+                    this.tlcond.lists.splice(0,this.tlcond.lists.length);
+                    this.tlcond.lists.push({
+                        text : "--",
+                        value : "0",
+                        selected : true
                     });
+                    vue_tltab.list_items.push({
+                        text : "--",
+                        value : "0",
+                        selected : true
+                    });
+                    for (var i = 0; i < result.data.length; i++) {
+                        this.tlcond.lists.push({
+                            text : result.data[i].title,
+                            value : result.data[i].id,
+                            selected : false
+                        });
+                        vue_tltab.list_items.push({
+                            text : result.data[i].title,
+                            value : result.data[i].id,
+                            selected : false
+                        });
+                    }
+                    //this.sellisttype_current = this.sel_listtype[0].value;
+                    this.tlcond.listtype = this.tlcond.lists[0].value;
+                    this.$nextTick( () => {
+                        //this.tlcond.listtype = this.tlcond.lists[0].value;
+                        M.FormSelect.init(Qs("select"), {
+                            dropdownOptions : {
+                                constrainWidth : false
+                            }
+                        });
+
+                    });
+                });
+            },
+            onsaveclose : function (e) {
+                var param = e;
+                if (e.status) {
+                    this.forWatch_allcondition(param);
+                    if (this.tl_tabtype == "list") {
+                        this.currentOption.app["listid"] = param.listtype;
+                    }
+                    this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    if (param.func == "clear") {
+                        notifAccount.account.streams[this.tl_tabtype].start();
+                    }
+                }
+            },
+            ondatesaveclose : function (e) {
+                var param = e;
+                if (e.status) {
+                    this.forWatch_allcondition(param);
+                    //opt.app["listid"] = param.listtype;
+                    this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    if (param.func == "exec") {
+                        notifAccount.account.streams[this.tl_tabtype].stop();
+                    }else{
+                        notifAccount.account.streams[this.tl_tabtype].start();
+                    }
+                }
+            }
+
+        }
+    });
+    if (false) {
+        vue_timeline = {
+            "home" : new Vue({
+                el : "#tl_home",
+                delimiters : ["{?","?}"],
+                mixins : [vue_mixin_base,vue_mixin_for_timeline],
+            
+                data : {
+                    domgrid : {},
+                    sel_tlshare : tlshare_options,
+                    sel_tltype : tltype_options,
+
+                    tlcond : null,
+
                 },
-                onsaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        opt.app["listid"] = param.listtype;
+                created : function() {
+                    //---if normaly indicate "active" class in html, it is shiftted why digit position
+                    //   the workarround for this.
+                    Q(".tab.col a").classList.add("active");
+                    this.tlcond = new GTimelineCondition();
+                    
+                },
+                mounted() {
+                    //this.tlcond = new GTimelineCondition();
+                },
+                watch : {
+                    selshare_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+
+                        this.loadTimeline("home",this.forWatch_selshare(val));
+                    },400),
+                    seltype_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("home",this.forWatch_seltype(val));
+                    },400)
+                },
+                methods : {
+                    loadTimeline : loadTimelineCommon,
+                    onsaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            
+                            this.loadTimeline("home",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "clear") {
+                                notifAccount.account.stream.start();
+                            }
+                        }
+                    },
+                    ondatesaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            this.loadTimeline("home",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "exec") {
+                                notifAccount.account.stream.stop();
+                            }else{
+                                notifAccount.account.stream.start();
+                            }
+                        }
+                    }
+                }
+            }),
+            "list" : new Vue({
+                el : "#tl_list",
+                delimiters : ["{?","?}"],
+                mixins : [vue_mixin_base,vue_mixin_for_timeline],
+                data : {
+                    sel_listtype : [],
+                    sellisttype_current : "",
+
+                    sel_tlshare : tlshare_options,
+                    sel_tltype : tltype_options,
+
+                    tlcond : null,
+
+                },
+                created : function() {
+                    //---if normaly indicate "active" class in html, it is shiftted why digit position
+                    //   the workarround for this.
+                    Q(".tab.col a").classList.add("active");
+                    this.tlcond = new GTimelineCondition();
+                    this.tlcond.type = "list";
+                },
+                mounted() {
+                },
+                watch : {
+                    sellisttype_current : _.debounce(function(val){
+                        if (val == "0") return;
+                        ID("hid_timelinetypeid").value = val;
+                        var opt = this.forWatch_selshare(this.selshare_current);
+                        opt.app["listid"] = val;
+                        this.statuses.splice(0,this.statuses.length);
                         this.loadTimeline("list",opt);
+
                         var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "clear") {
-                            notifAccount.account.streams.list.start();
-                        }
-                    }
-                },
-                ondatesaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        //opt.app["listid"] = param.listtype;
+                        notifAccount.account.streams.list.stop();
+                        notifAccount.account.streams.list.setQuery("list="+val);
+                        notifAccount.account.streams.list.start();
+                    },400),
+                    selshare_current : _.debounce(function(val) {
+                        var opt = this.forWatch_selshare(val);
+                        opt.app["listid"] = sellisttype_current;
+                        this.statuses.splice(0,this.statuses.length);
                         this.loadTimeline("list",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "exec") {
-                            notifAccount.account.streams.list.stop();
-                        }else{
-                            notifAccount.account.streams.list.start();
-                        }
-                    }
-                }
-
-            }
-        }),
-        "local" : new Vue({
-            el : "#tl_local",
-            delimiters : ["{?","?}"],
-            mixins : [vue_mixin_base,vue_mixin_for_timeline],
-            data : {
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
-
-                tlcond : null,
-            },
-            created : function() {
-                //---if normaly indicate "active" class in html, it is shiftted why digit position
-                //   the workarround for this.
-                this.tlcond = new GTimelineCondition();
-               
-            },
-            mounted() {
-            },
-            watch : {
-                selshare_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("local",this.forWatch_selshare(val));
-                },400),
-                seltype_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("local",this.forWatch_seltype(val));
-                },400)
-            },
-            methods : {
-                loadTimeline : loadTimelineCommon,
-                onsaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline("local",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "clear") {
-                            notifAccount.account.streams.local.start();
-                        }
-                    }
+                    },400),
+                    seltype_current : _.debounce(function(val) {
+                        var opt = this.forWatch_seltype(val);
+                        opt.app["listid"] = sellisttype_current;
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("list",opt);
+                    },400)
                 },
-                ondatesaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline("local",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "exec") {
-                            notifAccount.account.streams.local.stop();
-                        }else{
-                            notifAccount.account.streams.local.start();
-                        }
-                    }
-                }
-            }
-        }),
-        "public" : new Vue({
-            el : "#tl_public",
-            delimiters : ["{?","?}"],
-            mixins : [vue_mixin_base,vue_mixin_for_timeline],
-            data : {
-                sel_tlshare : tlshare_options,
-                sel_tltype : tltype_options,
+                methods : {
+                    loadTimeline : loadTimelineCommon,
+                    loadListNames : function(){
+                        var opt = {api:{},app:{}};
+                        MYAPP.sns.getLists(opt)
+                        .then(result=>{
+                            this.tlcond.lists.splice(0,this.tlcond.lists.length);
+                            this.tlcond.lists.push({
+                                text : "--",
+                                value : "0",
+                                selected : true
+                            });
+                            for (var i = 0; i < result.data.length; i++) {
+                                this.tlcond.lists.push({
+                                    text : result.data[i].title,
+                                    value : result.data[i].id,
+                                    selected : false
+                                });
+                            }
+                            //this.sellisttype_current = this.sel_listtype[0].value;
+                            this.tlcond.listtype = this.tlcond.lists[0].value;
+                            this.$nextTick( () => {
+                                //this.tlcond.listtype = this.tlcond.lists[0].value;
+                                M.FormSelect.init(Qs("select"), {
+                                    dropdownOptions : {
+                                        constrainWidth : false
+                                    }
+                                });
 
-                tlcond : null,
-            },
-            created : function() {
-                //---if normaly indicate "active" class in html, it is shiftted why digit position
-                //   the workarround for this.
-                this.tlcond = new GTimelineCondition();
-               
-            },
-            mounted() {
-            },
-            watch : {
-                selshare_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("public",this.forWatch_selshare(val));
-                },400),
-                seltype_current : _.debounce(function(val) {
-                    this.statuses.splice(0,this.statuses.length);
-                    this.loadTimeline("public",this.forWatch_seltype(val));
-                },400)
-            },
-            methods : {
-                loadTimeline : loadTimelineCommon,
-                onsaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline("public",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "clear") {
-                            notifAccount.account.streams.public.start();
+                            });
+                        });
+                    },
+                    onsaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            opt.app["listid"] = param.listtype;
+                            this.loadTimeline("list",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "clear") {
+                                notifAccount.account.streams.list.start();
+                            }
+                        }
+                    },
+                    ondatesaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            //opt.app["listid"] = param.listtype;
+                            this.loadTimeline("list",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "exec") {
+                                notifAccount.account.streams.list.stop();
+                            }else{
+                                notifAccount.account.streams.list.start();
+                            }
                         }
                     }
+
+                }
+            }),
+            "local" : new Vue({
+                el : "#tl_local",
+                delimiters : ["{?","?}"],
+                mixins : [vue_mixin_base,vue_mixin_for_timeline],
+                data : {
+                    sel_tlshare : tlshare_options,
+                    sel_tltype : tltype_options,
+
+                    tlcond : null,
                 },
-                ondatesaveclose : function (e) {
-                    var param = e;
-                    if (e.status) {
-                        var opt = this.forWatch_allcondition(param);
-                        this.loadTimeline("public",opt);
-                        var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                        if (param.func == "exec") {
-                            notifAccount.account.streams.public.stop();
-                        }else{
-                            notifAccount.account.streams.public.start();
+                created : function() {
+                    //---if normaly indicate "active" class in html, it is shiftted why digit position
+                    //   the workarround for this.
+                    this.tlcond = new GTimelineCondition();
+                
+                },
+                mounted() {
+                },
+                watch : {
+                    selshare_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("local",this.forWatch_selshare(val));
+                    },400),
+                    seltype_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("local",this.forWatch_seltype(val));
+                    },400)
+                },
+                methods : {
+                    loadTimeline : loadTimelineCommon,
+                    onsaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            this.loadTimeline("local",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "clear") {
+                                notifAccount.account.streams.local.start();
+                            }
+                        }
+                    },
+                    ondatesaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            this.loadTimeline("local",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "exec") {
+                                notifAccount.account.streams.local.stop();
+                            }else{
+                                notifAccount.account.streams.local.start();
+                            }
                         }
                     }
                 }
-            }
-        })
+            }),
+            "public" : new Vue({
+                el : "#tl_public",
+                delimiters : ["{?","?}"],
+                mixins : [vue_mixin_base,vue_mixin_for_timeline],
+                data : {
+                    sel_tlshare : tlshare_options,
+                    sel_tltype : tltype_options,
 
-    };
+                    tlcond : null,
+                },
+                created : function() {
+                    //---if normaly indicate "active" class in html, it is shiftted why digit position
+                    //   the workarround for this.
+                    this.tlcond = new GTimelineCondition();
+                
+                },
+                mounted() {
+                },
+                watch : {
+                    selshare_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("public",this.forWatch_selshare(val));
+                    },400),
+                    seltype_current : _.debounce(function(val) {
+                        this.statuses.splice(0,this.statuses.length);
+                        this.loadTimeline("public",this.forWatch_seltype(val));
+                    },400)
+                },
+                methods : {
+                    loadTimeline : loadTimelineCommon,
+                    onsaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            this.loadTimeline("public",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "clear") {
+                                notifAccount.account.streams.public.start();
+                            }
+                        }
+                    },
+                    ondatesaveclose : function (e) {
+                        var param = e;
+                        if (e.status) {
+                            var opt = this.forWatch_allcondition(param);
+                            this.loadTimeline("public",opt);
+                            var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                            if (param.func == "exec") {
+                                notifAccount.account.streams.public.stop();
+                            }else{
+                                notifAccount.account.streams.public.start();
+                            }
+                        }
+                    }
+                }
+            })
+
+        };
+    }
 
     //MYAPP.setupCommonTranslate();
     //vue_user.tabbar.setTranslation();
 
-    M.Tabs.init(Q(".tabs"), {
-        //swipeable : true,
-        onShow : function(e) {
-            console.log("tab select:",e);
-            console.log(e.id);
-            ID("area_timeline").scroll({top:0});
-            ID("hid_timelinetype").value = e.id.replace("tl_","");
-            //---common
-            vue_timeline.home.clearPending();
-            vue_timeline.list.clearPending();
-            vue_timeline.local.clearPending();
-            vue_timeline.public.clearPending();
-            //---each
-            if (e.id == "tl_home") {
-                var et = ID("area_timeline");
-                var sa = et.scrollHeight - et.clientHeight;
-                var fnlsa = sa - Math.round(et.scrollTop);
-                //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.home.statuses.splice(0,vue_timeline.home.statuses.length);
-                    /*vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
-                    vue_timeline.home.loadTimeline("home",{
-                        api : {
-                            exclude_replies : true,
-                        },
-                        app : {
-                            tlshare : vue_timeline.home.selshare_current,
-                            tltype : vue_timeline.home.seltype_current,
-                            exclude_reply : true,
-                        }
-                    });*/
-                    
-                //}
-                var opt = vue_timeline.home.forWatch_allcondition(vue_timeline.home.tlcond.getReturn());
-                vue_timeline.home.loadTimeline("home",opt);
-                var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                notifAccount.account.streams.list.stop();
-                notifAccount.account.streams.local.stop();
-                notifAccount.account.streams.public.stop();
-
-            }else if (e.id == "tl_list") {
-                var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                if (vue_timeline.list.tlcond.lists.length > 0) {
-                    vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
-                    //vue_timeline.list.info.tltype = vue_timeline.list.tlcond.listtype;
-                    if (vue_timeline.list.tlcond.listtype != "0") {
-                        /*vue_timeline.list.loadTimeline("list",{
+    if (false) {
+        M.Tabs.init(Q(".tabs"), {
+            //swipeable : true,
+            onShow : function(e) {
+                console.log("tab select:",e);
+                console.log(e.id);
+                ID("area_timeline").scroll({top:0});
+                ID("hid_timelinetype").value = e.id.replace("tl_","");
+                //---common
+                vue_timeline.home.clearPending();
+                vue_timeline.list.clearPending();
+                vue_timeline.local.clearPending();
+                vue_timeline.public.clearPending();
+                //---each
+                if (e.id == "tl_home") {
+                    var et = ID("area_timeline");
+                    var sa = et.scrollHeight - et.clientHeight;
+                    var fnlsa = sa - Math.round(et.scrollTop);
+                    //if ((fnlsa > 2) || (et.scrollTop == 0)) {
+                        vue_timeline.home.statuses.splice(0,vue_timeline.home.statuses.length);
+                        /*vue_timeline.home.info.tltype = vue_timeline.home.seltype_current;
+                        vue_timeline.home.loadTimeline("home",{
                             api : {
+                                exclude_replies : true,
                             },
                             app : {
-                                listid : vue_timeline.list.sellisttype_current,
+                                tlshare : vue_timeline.home.selshare_current,
+                                tltype : vue_timeline.home.seltype_current,
+                                exclude_reply : true,
+                            }
+                        });*/
+                        
+                    //}
+                    var opt = vue_timeline.home.forWatch_allcondition(vue_timeline.home.tlcond.getReturn());
+                    vue_timeline.home.loadTimeline("home",opt);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    notifAccount.account.streams.list.stop();
+                    notifAccount.account.streams.local.stop();
+                    notifAccount.account.streams.public.stop();
+
+                }else if (e.id == "tl_list") {
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    if (vue_timeline.list.tlcond.lists.length > 0) {
+                        vue_timeline.list.statuses.splice(0,vue_timeline.list.statuses.length);
+                        //vue_timeline.list.info.tltype = vue_timeline.list.tlcond.listtype;
+                        if (vue_timeline.list.tlcond.listtype != "0") {
+                            /*vue_timeline.list.loadTimeline("list",{
+                                api : {
+                                },
+                                app : {
+                                    listid : vue_timeline.list.sellisttype_current,
+                                    tlshare : vue_timeline.local.selshare_current,
+                                    tltype : vue_timeline.local.seltype_current,
+                                    exclude_reply : true,
+                                }
+                            });*/
+                            var opt = vue_timeline.list.forWatch_allcondition(vue_timeline.list.tlcond.getReturn());
+                            vue_timeline.list.loadTimeline("list",opt);
+                            notifAccount.account.streams.list.setQuery("list="+vue_timeline.list.sellisttype_current);
+                            notifAccount.account.streams.list.start();
+                        }
+                        notifAccount.account.streams.local.stop();
+                        notifAccount.account.streams.public.stop();
+
+                    }
+                }else if (e.id == "tl_local") {
+                    var et = ID("area_timeline");
+                    var sa = et.scrollHeight - et.clientHeight;
+                    var fnlsa = sa - Math.round(et.scrollTop);
+                    //if ((fnlsa > 2) || (et.scrollTop == 0)) {
+                        vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
+                        /*vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
+                        vue_timeline.local.loadTimeline("local",{
+                            api : {
+                                local : true
+                            },
+                            app : {
                                 tlshare : vue_timeline.local.selshare_current,
                                 tltype : vue_timeline.local.seltype_current,
                                 exclude_reply : true,
                             }
                         });*/
-                        var opt = vue_timeline.list.forWatch_allcondition(vue_timeline.list.tlcond.getReturn());
-                        vue_timeline.list.loadTimeline("list",opt);
-                        notifAccount.account.streams.list.setQuery("list="+vue_timeline.list.sellisttype_current);
-                        notifAccount.account.streams.list.start();
-                    }
-                    notifAccount.account.streams.local.stop();
+                    //}
+                    var opt = vue_timeline.local.forWatch_allcondition(vue_timeline.local.tlcond.getReturn());
+                    opt.api["local"] = true;
+                    vue_timeline.local.loadTimeline("local",opt);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    notifAccount.account.streams.list.stop();
+                    notifAccount.account.streams.local.start();
                     notifAccount.account.streams.public.stop();
 
+                }else if (e.id == "tl_public") {
+                    var et = ID("area_timeline");
+                    var sa = et.scrollHeight - et.clientHeight;
+                    var fnlsa = sa - Math.round(et.scrollTop);
+                    //if ((fnlsa > 2) || (et.scrollTop == 0)) {
+                        vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
+                        /*vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
+                        vue_timeline.public.loadTimeline("public",{
+                            api : {
+                                local : false
+                            },
+                            app : {
+                                tlshare : vue_timeline.public.selshare_current,
+                                tltype : vue_timeline.public.seltype_current,
+                                exclude_reply : true,
+                            }
+                        });*/
+                    //}
+                    var opt = vue_timeline.public.forWatch_allcondition(vue_timeline.public.tlcond.getReturn());
+                    vue_timeline.public.loadTimeline("public",opt);
+                    var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
+                    notifAccount.account.streams.list.stop();
+                    notifAccount.account.streams.local.stop();
+                    notifAccount.account.streams.public.start();
+
                 }
-            }else if (e.id == "tl_local") {
-                var et = ID("area_timeline");
-                var sa = et.scrollHeight - et.clientHeight;
-                var fnlsa = sa - Math.round(et.scrollTop);
-                //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.local.statuses.splice(0,vue_timeline.local.statuses.length);
-                    /*vue_timeline.local.info.tltype = vue_timeline.local.seltype_current;
-                    vue_timeline.local.loadTimeline("local",{
-                        api : {
-                            local : true
-                        },
-                        app : {
-                            tlshare : vue_timeline.local.selshare_current,
-                            tltype : vue_timeline.local.seltype_current,
-                            exclude_reply : true,
-                        }
-                    });*/
-                //}
-                var opt = vue_timeline.local.forWatch_allcondition(vue_timeline.local.tlcond.getReturn());
-                opt.api["local"] = true;
-                vue_timeline.local.loadTimeline("local",opt);
-                var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                notifAccount.account.streams.list.stop();
-                notifAccount.account.streams.local.start();
-                notifAccount.account.streams.public.stop();
-
-            }else if (e.id == "tl_public") {
-                var et = ID("area_timeline");
-                var sa = et.scrollHeight - et.clientHeight;
-                var fnlsa = sa - Math.round(et.scrollTop);
-                //if ((fnlsa > 2) || (et.scrollTop == 0)) {
-                    vue_timeline.public.statuses.splice(0,vue_timeline.public.statuses.length);
-                    /*vue_timeline.public.info.tltype = vue_timeline.public.seltype_current;
-                    vue_timeline.public.loadTimeline("public",{
-                        api : {
-                            local : false
-                        },
-                        app : {
-                            tlshare : vue_timeline.public.selshare_current,
-                            tltype : vue_timeline.public.seltype_current,
-                            exclude_reply : true,
-                        }
-                    });*/
-                //}
-                var opt = vue_timeline.public.forWatch_allcondition(vue_timeline.public.tlcond.getReturn());
-                vue_timeline.public.loadTimeline("public",opt);
-                var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-                notifAccount.account.streams.list.stop();
-                notifAccount.account.streams.local.stop();
-                notifAccount.account.streams.public.start();
-
             }
-        }
-    });
+        });
+    }
     thisform.select = M.FormSelect.init(Qs("select"), {
         dropdownOptions : {
             constrainWidth : false,
@@ -533,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     //---not use-----------------------------------------------------
-    Qs(".xtab-content").forEach(e => {
+    /*Qs(".xtab-content").forEach(e => {
         e.addEventListener("scroll",function(e){
             var sa = e.target.scrollHeight - e.target.clientHeight;
             //console.log(e.target.scrollHeight+","+e.target.offsetHeight+" - "+e.target.clientHeight+"="+sa + " : " + e.target.scrollTop);
@@ -650,7 +944,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             }
         });
-    });
+    });*/
 
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
@@ -682,15 +976,18 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.session.status.currentLocation = `/tl/${tltype}/${tltypeid}`;
         }
     
-        vue_timeline.home.translations = Object.assign({},curLocale.messages);
-        vue_timeline.list.translations = Object.assign({},curLocale.messages);
-        vue_timeline.local.translations = Object.assign({},curLocale.messages);
-        vue_timeline.public.translations = Object.assign({},curLocale.messages);
+        ///vue_timeline.home.translations = Object.assign({},curLocale.messages);
+        ///vue_timeline.list.translations = Object.assign({},curLocale.messages);
+        ///vue_timeline.local.translations = Object.assign({},curLocale.messages);
+        ///vue_timeline.public.translations = Object.assign({},curLocale.messages);
+        vue_timeline.translations = Object.assign({},curLocale.messages);
+        vue_tltab.translations = Object.assign({},curLocale.messages);
 
 
-        for (var obj in vue_timeline) {
-            vue_timeline[obj].changeTimelineStyle();            
-        }
+        ///for (var obj in vue_timeline) {
+        ///    vue_timeline[obj].changeTimelineStyle();
+        ///}
+        vue_timeline.changeTimelineStyle();
 
         //---account load
         MYAPP.afterLoadAccounts(data);
@@ -699,7 +996,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         barancerTimelineType(tltype,tltypeid);
 
-        vue_timeline.list.loadListNames();
+        ///vue_timeline.list.loadListNames();
+        MYAPP.commonvue.navigation.loadListNames();
 
         MYAPP.commonvue.bottomnav.activeBtn = 1;
 

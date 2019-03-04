@@ -3,7 +3,18 @@
 //  Vue component define body
 //
 //===========================================================================
-
+class GalleryOptions {
+	constructor() {
+		this.carousel = {
+			adjustableHeight : false,
+		};
+		this.first_sensitive = true;
+	}
+	copy(src){
+		this.carousel.adjustableHeight = src.carousel.adjustableHeight;
+		this.first_sensitive = src.first_sensitive;
+	}
+}
 //===----------------------------------------------------------------------===
 //  Component: timeline-toot
 //===----------------------------------------------------------------------===
@@ -36,12 +47,18 @@ Vue.component("timeline-toot", {
 			type : Object,
 			default : null
 		},
+		gallery_options : {
+			type: GalleryOptions,
+			default : function() {
+				return new GalleryOptions();
+			},
+		},
 		toote: {
 			type : Object,
 			default : null
 		}
 	},
-	data(){
+	data: function(){
 		return {
 			toot_body_stat : {
 				"sizing-min" : false,
@@ -110,6 +127,7 @@ Vue.component("timeline-toot", {
 			isupdate_request : {
 				reply : false
 			},
+			local_galoption : this.gallery_options,
 
 		};
     },
@@ -174,6 +192,21 @@ Vue.component("timeline-toot", {
 		if (this.comment_list_area_viewstyle) {
 			this.comment_list_area_stat.default = this.comment_list_area_viewstyle.default;
 		}
+
+		//---for media object(tootgallery-carousel)
+		this.local_galoption = new GalleryOptions();
+		if (this.gallery_options) {
+			this.local_galoption.copy(this.gallery_options);
+		}
+
+		//---option: remove nsfw, if specified instance
+		if ((MYAPP) && (MYAPP.session.config.action.remove_nsfw_remove_instance === true)) {
+			if (this.toote) {
+				if (MYAPP.session.config.action.nsfw_remove_instances.indexOf(this.toote.account.instance) > -1) {
+					this.local_galoption.first_sensitive = false;
+				}
+			}
+		}
 		
 		
 	},
@@ -190,7 +223,11 @@ Vue.component("timeline-toot", {
 				if ((checkRange(1,this.toote.body.content.length,100))) {
 					this.toot_body_stat["sizing-mid"] = true;
 				}else{
-					this.toot_body_stat["sizing-max"] = true;
+					if (this.toote.urls.length > 0) {
+						this.toot_body_stat["sizing-mid"] = true;
+					}else{
+						this.toot_body_stat["sizing-max"] = true;
+					}
 				}
 			}else{
 				this.toot_body_stat["sizing-max"] = true;
@@ -217,7 +254,7 @@ Vue.component("timeline-toot", {
 		jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 		$("time.timeago").timeago();
 
-		
+	
 	},
 	updated(){
 		if ((this.toote) && ("descendants" in this.toote)) {
@@ -251,6 +288,10 @@ Vue.component("timeline-toot", {
 			this.apply_childReplyInput();
 			this.isupdate_request.reply = false;
 		}
+		if (this.gallery_options) {
+			this.local_galoption.copy(this.gallery_options);
+		}
+
 	},
 	methods: {
 		//---some function----------------------------------------
@@ -1147,37 +1188,58 @@ Vue.component("tootgallery-carousel", {
 		viewmode : {
 			type : String,
 			default : "slide"
-		}
+		},
+		/*
+			vue-carousel:
+			carousel.adjustableHeight = true
+		*/
+		options : {
+			type : GalleryOptions,
+			default : function() {
+				return new GalleryOptions();
+			}
+		},
     },
     data(){
         return {
+			value : {
+				carousel : 0
+			},
 			is_sensitive_hidden : {
 				common_ui_off : false
 			},
 			is_sensitive_title : {
 				common_ui_off : false
 			},
-			is_pause : false
+			local_options : {
+				carousel : {
+					loop : true,
+					perPage : 1
+				}
+			},
+			is_pause : false,
+			is_first : true,
         }
 	},
 	beforeMount() {
 		if (this.sensitive) {
 			this.is_sensitive_hidden.common_ui_off = true;
+			
 		}
 	},
     mounted(){
-        /*console.log("el=",this.$el);
-        $(this.$el).slick({
-            dots : true,
-            infinite : true,
-            speed : 300,
-            lazyload : "progressive",
-            slidesToShow : 1,
-            adaptiveHeight : true
-        });
-        this.$el.querySelector(".slick-list.draggable").style.height="";
-        */
-    },
+		if (this.sensitive) {
+			if (!this.options.first_sensitive) {
+				this.$nextTick(()=>{
+					this.value.carousel = 1;
+				});
+				this.onclick_sensitive_ingrid();
+		   	}
+		}
+	},
+	beforeUpdate() {
+
+	},
     methods : {
         onmouseenter_gifv : function (e) {
 			if (this.is_pause) {

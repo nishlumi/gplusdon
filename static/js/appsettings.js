@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         begin : null,
                         end : null
                     },
+                    remove_nsfw_remove_instance : false,
+                    nsfw_remove_instances : [],
                     popupNewtoot_always : false,
                     close_aftertoot : false,
                     tags : [],

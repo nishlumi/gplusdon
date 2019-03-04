@@ -645,6 +645,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 Q(".tab.col a").classList.add("active");
                 this.pagetype = "user";
                 this.tlcond = new GTimelineCondition();
+
+                this.tl_tabtype = "user";
+
             },
             mounted() {
 

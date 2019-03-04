@@ -13,6 +13,7 @@
 .timeline_body .row {
     height: 100%;
 }
+
 .timeline_body .tab-content {
     height:  calc(100% - 48px);
     overflow-x  : hidden;
@@ -26,6 +27,12 @@
     overflow : auto;*/
     z-index: 10;
     position: relative;
+}
+.row .nomatlze { 
+    margin-bottom : 0;
+}
+.btntab_sizer {
+    width : 100%;
 }
 .pending_above_area {
     position : absolute;
@@ -48,7 +55,8 @@
 /*=== grid panel === */
 div.toot_timeline_grid {
     display : grid;
-    gap:  2rem;
+    row-gap:  1rem;
+    column-gap : 2rem;
     grid-template-rows: minmax(2rem,auto);
     grid-auto-flow: dense;
     grid-auto-rows : minmax(2rem,auto);
@@ -132,7 +140,7 @@ div.toot_card_base {
     break-inside: avoid;
     page-break-inside: avoid;
     -webkit-column-break-inside: avoid;
-    margin-top: 1rem;
+    /*margin-top: 1rem;*/
     border-radius: 3px;
 }
 .onetoote_area div.toot_card_base {
@@ -331,7 +339,7 @@ div.toot_card_base.g30 {
     max-height : 15rem;*/
 }
 .toot_card_base .toot_content_body.sizing-max {
-    grid-row-end : span 5;
+    grid-row-end : span 6;
     /*height : 15rem;
     max-height : 17rem;*/
 }
@@ -343,10 +351,16 @@ div.toot_card_base.g30 {
 .toot_card_base  .toote_spoiler_or_main, .dmsg_body .toote_spoiler_or_main {
     font-size : 14px;
     white-space: pre-wrap;
+    font-family: monospace, serif;
+    line-height: 125%;
+    margin-top : 3px;
 }
 .toot_card_base  .toote_main, .dmsg_body .toote_main {
     font-size : 14px;
     white-space: pre-wrap;
+    font-family: monospace, serif;
+    line-height: 125%;
+    margin-top : 3px;
 }
 
 .toot_card_base  .toote_spoiler_or_main p, .dmsg_body .toote_spoiler_or_main p{
@@ -356,6 +370,14 @@ div.toot_card_base.g30 {
 .toot_card_base  .toote_main p, .dmsg_body .toote_main p{
     padding : 0 0 0.5rem 0;
     margin-bottom : 4px;
+}
+.toot_card_base  .toote_spoiler_or_main p img, .dmsg_body .toote_spoiler_or_main p img {
+    vertical-align: middle;
+    object-fit: contain;
+}
+.toot_card_base  .toote_main p img, .dmsg_body .toote_main p img {
+    vertical-align: middle;
+    object-fit: contain;
 }
 .toot_card_base  .area_spoiler details summary {
     font-weight: bold;

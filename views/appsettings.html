@@ -138,7 +138,7 @@
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox hide-details v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
-                                <v-checkbox hide-details v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}" v-bind:disabled="type_action.add_nsfw_force_instance"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}" v-bind:disabled="type_action.add_nsfw_force_instance||type_action.remove_nsfw_remove_instance"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_action.add_nsfw_force_instance" label="{{trans.act_lab_add_nsfw_force_instance}}" v-bind:disabled="type_action.image_everyNsfw"></v-checkbox>
                                 <v-textarea v-model="type_action.nsfw_force_instances" label="{{trans.tbl_acc_col3}}"
                                     outline box rows="5" height="10rem" hide-details
@@ -189,6 +189,11 @@
                                         </v-dialog>
                                     </v-flex>
                                 </v-layout>
+                                <v-checkbox hide-details v-model="type_action.remove_nsfw_remove_instance" label="{{trans.act_lab_remove_nsfw_remove_instance}}" v-bind:disabled="type_action.image_everyNsfw"></v-checkbox>
+                                <v-textarea v-model="type_action.nsfw_remove_instances" label="{{trans.tbl_acc_col3}}"
+                                    outline box rows="5" height="10rem" hide-details
+                                    v-bind:disabled="type_action.image_everyNsfw"
+                                ></v-textarea>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-container fluid grid-list-md>

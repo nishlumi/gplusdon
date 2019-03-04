@@ -80,12 +80,23 @@
                                 <img id="img_brand" class="brand-image hidden-sm-and-down" src="/static/images/app_icon.png" width="48" height="48">
                                 <span class="brand-title black-text hidden-sm-and-down">{{sysinfo.fullname}}</span>
                             </div>
-                            <div class="col s4 m5 l3">
-                                <v-tooltip right>
-                                    <span id="general_title" class="black-text general-title truncate" v-text="genttl.text"></span>
-                                    <span>{? genttl.tooltip?}</span>
-                                </v-tooltip>
-                                
+                            <div class="col s4 m5 l3" style="padding-top:1rem;">
+                                <template v-if="!is_tllist">
+                                    <v-tooltip right>
+                                        <span id="general_title"  class="black-text general-title truncate" v-text="genttl.text"></span>
+                                        <span>{? genttl.tooltip?}</span>
+                                    </v-tooltip>
+                                </template>
+                                <template v-else>
+                                    <v-select
+                                        :items="list_items"
+                                        item-text="text" item-value="value"
+                                        v-model="sel_listitem"
+                                        :label="translations.list"
+                                        hide-details return-masked-value
+                                        class="pa-0"
+                                    ></v-select>
+                                </template>
                             </div>
                             <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
                                 <form class=""  v-on:submit.prevent="onsubmit_search">

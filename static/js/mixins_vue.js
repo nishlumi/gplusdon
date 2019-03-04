@@ -79,6 +79,39 @@ var vue_mixin_for_account = {
 	}
 };
 //----------------------------------------------------------------------
+class TLoption {
+	constructor() {
+		this.api = {
+			exclude_replies : true,
+			only_media : false,
+		}
+		this.app = {
+			is_nomax : false,
+			is_nosince : false,
+			listid : "",
+			tlshare : "",
+			tltype : [],
+			exclude_reply : true,
+			filter : []
+		};
+
+	}
+}
+class TLpending {
+	constructor() {
+		this.above = {
+			is : false,
+			waiting : false,
+			statuses : [],
+		};
+		this.below = {
+			is : false,
+			waiting : false,
+			statuses : [],
+		};
+		
+	}
+}
 var vue_mixin_for_timeline = {
 	data(){
 		return {
@@ -87,20 +120,9 @@ var vue_mixin_for_timeline = {
 			is_opencomment : false,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
-			currentOption : {
-				api : {
-					exclude_replies : true,
-					only_media : false,
-				},
-				app : {
-					is_nomax : false,
-					is_nosince : false,
-					tlshare : "",
-					tltype : [],
-					exclude_reply : true,
-					filter : []
-				}
-			},
+			tl_tabtype : "home",
+
+			currentOption : {},
 			id : "",
 			pagetype : "",
 			info : {
@@ -121,25 +143,17 @@ var vue_mixin_for_timeline = {
 				width_2 : false,
 				width_3 : false,
 			},
-			pending : {
-				above : {
-					is : false,
-					waiting : false,
-					statuses : [],
-				},
-				below : {
-					is : false,
-					waiting : false,
-					statuses : [],
-				}
-			},
+			pending : {},
 			is_serveronly : false,
+			gallery_options : null,
 		}
 	},
 	created() {
 		if (MYAPP) {
 			this.globalInfo.staticpath = MYAPP.appinfo.staticPath;
-			
+			this.currentOption = new TLoption();
+			this.pending = new TLpending();
+			this.gallery_options = new GalleryOptions();
 		}
 	},
 	mounted() {
@@ -185,22 +199,22 @@ var vue_mixin_for_timeline = {
 				delete pastOptions.api["since_id"];
 				delete pastOptions.api["min_id"];
                 //var atab = Q(".tab .active");
-                if (this.$el.id == "tl_home") {
+                if (this.tl_tabtype == "home") {
 					tlid = "home";
-                }else if (this.$el.id == "tl_list") {
+                }else if (this.tl_tabtype == "list") {
 					tlid = "list";
 					pastOptions.app["listid"] = this.currentOption.app.listid;
-                }else if (this.$el.id == "tl_local") {
+                }else if (this.tl_tabtype == "local") {
 					tlid = "local";
 					pastOptions.api["local"] = true;
-                }else if (this.$el.id == "tl_public") {
+                }else if (this.tl_tabtype == "public") {
 					tlid = "public";
-				}else if (this.$el.id == "tl_tag") {
+				}else if (this.tl_tabtype == "tag") {
 					tlid = `tag/${this.tagname}`;
-				}else if (this.$el.id == "tl_taglocal") {
+				}else if (this.tl_tabtype == "taglocal") {
 					tlid = `tag/${this.tagname}`;
 					pastOptions.api["local"] = true;
-				}else if (this.$el.id == "tt_public") {
+				}else if (this.tl_tabtype == "user") {
 					if (this.pagetype == "account") {
 						tlid = "me";
 					}else if (this.pagetype == "user") {
@@ -250,22 +264,22 @@ var vue_mixin_for_timeline = {
 					//---page max scroll up
 					console.log("scroll up max");
 					//var atab = Q(".tab .active");
-					if (this.$el.id == "tl_home") {
+					if (this.tl_tabtype == "home") {
 						tlid = "home";
-					}else if (this.$el.id == "tl_list") {
+					}else if (this.tl_tabtype == "list") {
 						tlid = "list";
 						futureOptions.app["listid"] = this.currentOption.app.listid;
-					}else if (this.$el.id == "tl_local") {
+					}else if (this.tl_tabtype == "local") {
 						tlid = "local";
 						futureOptions.api["local"] = true;
-					}else if (this.$el.id == "tl_public") {
+					}else if (this.tl_tabtype == "public") {
 						tlid = "public";
-					}else if (this.$el.id == "tl_tag") {
+					}else if (this.tl_tabtype == "tag") {
 						tlid = `tag/${this.tagname}`;
-					}else if (this.$el.id == "tl_taglocal") {
+					}else if (this.tl_tabtype == "taglocal") {
 						tlid = `tag/${this.tagname}`;
 						futureOptions.api["local"] = true;
-					}else if (this.$el.id == "tt_public") {
+					}else if (this.tl_tabtype == "user") {
 						if (this.pagetype == "account") {
 							tlid = "me";
 						}else if (this.pagetype == "user") {
@@ -425,7 +439,7 @@ var vue_mixin_for_timeline = {
 			//TODO: during modification!!!
 			this.clearPending();
 
-			Q(".tab-content.active").scroll({top:0,behavior: "instant"});
+			Q(".tab-content").scroll({top:0,behavior: "instant"});
 		},
 		onclick_load_below : function (e) {
 			//---SAME AS page max scroll down
@@ -450,26 +464,26 @@ var vue_mixin_for_timeline = {
 				pastOptions.api[obj] = this.currentOption.api[obj];
 			}
 			//var atab = Q(".tab .active");
-			if (this.$el.id == "tl_home") {
+			if (this.tl_tabtype == "home") {
 				tlid = "home";
-			}else if (this.$el.id == "tl_list") {
+			}else if (this.tl_tabtype == "list") {
 				tlid = "list";
 				pastOptions.app["listid"] = this.currentOption.app.listid;
-			}else if (this.$el.id == "tl_local") {
+			}else if (this.tl_tabtype == "local") {
 				tlid = "local";
 				pastOptions.api["local"] = true;
-			}else if (this.$el.id == "tl_public") {
+			}else if (this.tl_tabtype == "public") {
 				tlid = "public";
-			}else if (this.$el.id == "tl_tag") {
+			}else if (this.tl_tabtype == "tag") {
 				tlid = `tag/${this.tagname}`;
-			}else if (this.$el.id == "tl_taglocal") {
+			}else if (this.tl_tabtype == "taglocal") {
 				tlid = `tag/${this.tagname}`;
 				pastOptions.api["local"] = true;
 			}
-			pastOptions.api.max_id = this.info.maxid;
+			//pastOptions.api.max_id = this.info.maxid;
 			//pastOptions.app.tlshare = this.selshare_current;
 			//pastOptions.app.tltype = this.seltype_current;
-			console.log("timeline ID=",tlid,JSON.stringify(this.info));
+			//console.log("timeline ID=",tlid,JSON.stringify(this.info));
 			this.loadTimeline(tlid,{
 				api : pastOptions.api,
 				app : pastOptions.app
@@ -483,6 +497,9 @@ var vue_mixin_for_timeline = {
 			this.pending.above.statuses.splice(0,this.pending.above.statuses.length);
 			this.pending.above.waiting = false;
 			this.pending.above.is = false;
+		},
+		clearTimeline : function () {
+			this.statuses.splice(0,this.statuses.length);
 		},
 		checkExistToot : function (id) {
 			var hit = false;
@@ -505,13 +522,13 @@ var vue_mixin_for_timeline = {
 
 			if (!options.app.is_nomax) {
 				if (paging.next != "") {
-					this.info.maxid = paging.next; //data[data.length - 1].id;
+					//this.info.maxid = paging.next; //data[data.length - 1].id;
 					this.currentOption.api.max_id = paging.next;
 				}
 			}
 			if (!options.app.is_nosince) {
 				if (paging.prev != "") {
-					this.info.sinceid = paging.prev; //data[0].id;
+					//this.info.sinceid = paging.prev; //data[0].id;
 					if (paging["raw_prev"]) {
 						this.currentOption.api[paging["raw_prev"]] = paging.prev;	
 					}else{
@@ -522,7 +539,7 @@ var vue_mixin_for_timeline = {
 			}
 			//console.log("data.length=" + data.length);
 			var generate_body = (data,options,direct) => {
-				var st = new Gpstatus(data,18);
+				var st = new Gpstatus(data,20);
 				var flag = this.filterToot("filter", st, options);
 				if (flag) {
 					flag = this.filterToot("share", st, options);
@@ -609,143 +626,116 @@ var vue_mixin_for_timeline = {
 					//---get site preview if link added
 					//console.log("st.urls.length=", st.urls.length);
 					if (st.urls.length > 0) {
-						var targeturl = st.urls[0];
-						//console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
-						//---get GPHT
-						//====> Iam, denove mi ekzameos...
-						/*loadGPHT(st.url[0],data[i].id)
-						.then((result)=>{
+						if (!MYAPP.session.config.notification["notpreview_onmedia"]) {
+							var targeturl = st.urls[0];
+							//console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
+							//---get GPHT
+							//====> Iam, denove mi ekzameos...
+							/*loadGPHT(st.url[0],data[i].id)
+							.then((result)=>{
 
-						});*/
-						//---get OGP
-						MYAPP.sns.getTootCard(st.body.id, st.id, i)
-						.then(result=>{
-							var data = result.data;
-							var tt = this.getParentToot(result.parentID);
-							//console.log("result,tt=",result,tt);
-
-							if (("url" in data)) {
-								//---if found map, hide link preview
-								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
-									this.$set(this.statuses[tt.index].mainlink, "exists", false);
-								}else{
-									this.$set(this.statuses[tt.index].mainlink, "exists", true);
-								}
-								if ("provider_name" in data) {
-									if (data.provider_name != "") {
-										this.$set(this.statuses[tt.index].mainlink, "site", data["provider_name"]);
-									}else{
-										var a = GEN("a");
-										a.href = data.url;
-										//console.log("data.url=",a.hostname);
-										this.$set(this.statuses[tt.index].mainlink, "site", a.hostname);
-									}
-								}
-								if ("url" in data) this.$set(this.statuses[tt.index].mainlink, "url", data["url"]);
-								if ("title" in data) this.$set(this.statuses[tt.index].mainlink, "title", data["title"]);
-								if ("description" in data) this.$set(this.statuses[tt.index].mainlink, "description", data["description"]);
-								if (("image" in data) && (data["image"] != null)) {
-									this.$set(this.statuses[tt.index].mainlink, "image", data["image"]);
-									this.$set(this.statuses[tt.index].mainlink, "isimage", true);
-	
-									//---final card size change
-									if (this.statuses[tt.index].medias.length > 0) {
-										var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
-										/*if (sp < 9) {
-											sp = sp + 6;
-										} else {
-											sp = sp + 2;
-										}*/
-										//this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
-									}
-								} else {
-									this.$set(this.statuses[tt.index].mainlink, "isimage", false);
-								}
-							}else{
-								return Promise.reject({url:targeturl, tootid:st.id});
-							}
-						})
-						.catch(param=>{
-							//console.log("param=",param);
-							loadOGP(param.url, param.tootid)
-							.then(result => {
-								//---if image is none and url is pixiv, re-get image url
-								var def = new Promise((resolve, reject) => {
-
-									var tt = this.getParentToot(result.index);
-
-									//console.log("catch,param,ogp=",result);
-									//console.log(tt);
-									if (tt.data.urls.length > 0) {
-										if ((!("og:image" in result.data) || (result.data["og:image"] == "")) &&
-											(tt.data.urls[0].indexOf("pixiv.net/member_illust") > -1)
-										) {
-											if ("pixiv_cards" in tt.data.body) {
-												result.data["og:image"] = tt.data.body.pixiv_cards[0].image_url;
-												resolve(result);
-											} 
-										} else {
-											resolve(result);
-										}
-
-									}else{
-										reject(false);
-									}
-								});
-								return def;
-							})
-							.then((result) => {
-								//console.log("result=", result);
+							});*/
+							//---get OGP
+							MYAPP.sns.getTootCard(st.body.id, st.id, i)
+							.then(result=>{
 								var data = result.data;
-								var tt = this.getParentToot(result.index);
-								//console.log("result.getParentToot=", tt);
-								//console.log(this.statuses[tt.index]);
+								var tt = this.getParentToot(result.parentID);
+								//console.log("result,tt=",result,tt);
 
-								this.$set(this.statuses[tt.index].mainlink, "exists", true);
-								//---if exists medias, not preview link
-								if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
-									if (this.statuses[tt.index].medias.length > 0) {
+								if (("url" in data)) {
+									//---if found map, hide link preview
+									if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+										this.$set(this.statuses[tt.index].mainlink, "exists", false);
+									}else{
+										this.$set(this.statuses[tt.index].mainlink, "exists", true);
+									}
+									if ("provider_name" in data) {
+										if (data.provider_name != "") {
+											this.$set(this.statuses[tt.index].mainlink, "site", data["provider_name"]);
+										}else{
+											var a = GEN("a");
+											a.href = data.url;
+											//console.log("data.url=",a.hostname);
+											this.$set(this.statuses[tt.index].mainlink, "site", a.hostname);
+										}
+									}
+									if ("url" in data) this.$set(this.statuses[tt.index].mainlink, "url", data["url"]);
+									if ("title" in data) this.$set(this.statuses[tt.index].mainlink, "title", data["title"]);
+									if ("description" in data) this.$set(this.statuses[tt.index].mainlink, "description", data["description"]);
+									if (("image" in data) && (data["image"] != null)) {
+										this.$set(this.statuses[tt.index].mainlink, "image", data["image"]);
+										this.$set(this.statuses[tt.index].mainlink, "isimage", true);
+		
+										//---final card size change
+										if (this.statuses[tt.index].medias.length > 0) {
+											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
+											/*if (sp < 9) {
+												sp = sp + 6;
+											} else {
+												sp = sp + 2;
+											}*/
+											//this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
+										}
+									} else {
+										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
+									}
+								}else{
+									return Promise.reject({url:targeturl, tootid:st.id});
+								}
+							})
+							.catch(param=>{
+								//console.log("param=",param);
+								loadOGP(param.url, param.tootid)
+								.then(result => {
+									//---if image is none and url is pixiv, re-get image url
+									var def = new Promise((resolve, reject) => {
+
+										var tt = this.getParentToot(result.index);
+
+										//console.log("catch,param,ogp=",result);
+										//console.log(tt);
+										if (tt.data.urls.length > 0) {
+											if ((!("og:image" in result.data) || (result.data["og:image"] == "")) &&
+												(tt.data.urls[0].indexOf("pixiv.net/member_illust") > -1)
+											) {
+												if ("pixiv_cards" in tt.data.body) {
+													result.data["og:image"] = tt.data.body.pixiv_cards[0].image_url;
+													resolve(result);
+												} 
+											} else {
+												resolve(result);
+											}
+
+										}else{
+											reject(false);
+										}
+									});
+									return def;
+								})
+								.then((result) => {
+									//console.log("result=", result);
+									var data = result.data;
+									var tt = this.getParentToot(result.index);
+									//console.log("result.getParentToot=", tt);
+									//console.log(this.statuses[tt.index]);
+
+									this.$set(this.statuses[tt.index].mainlink, "exists", true);
+									//---if exists medias, not preview link
+									if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
+										if (this.statuses[tt.index].medias.length > 0) {
+											this.$set(this.statuses[tt.index].mainlink, "exists", false);
+										}
+									}
+									//---if found map, hide link preview
+									if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
 										this.$set(this.statuses[tt.index].mainlink, "exists", false);
 									}
-								}
-								//---if found map, hide link preview
-								if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
-									this.$set(this.statuses[tt.index].mainlink, "exists", false);
-								}
-								if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
-								if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);
-								if (data["og:title"]) this.$set(this.statuses[tt.index].mainlink, "title", data["og:title"]);
-								if (data["og:description"]) this.$set(this.statuses[tt.index].mainlink, "description", data["og:description"]);
-								if (("og:image" in data) && (data["og:image"] != "")) {
-									this.$set(this.statuses[tt.index].mainlink, "image", data["og:image"]);
-									this.$set(this.statuses[tt.index].mainlink, "isimage", true);
-
-									//---final card size change
-									if (this.statuses[tt.index].medias.length > 0) {
-										var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
-										if (sp < 9) {
-											sp = sp + 10;
-										} else {
-											sp = sp + 6;
-										}
-										this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
-									}
-								} else {
-									this.$set(this.statuses[tt.index].mainlink, "isimage", false);
-								}
-							})
-							/*.catch(error=>{
-								//---to present link info from Mastodon Status Card
-								var tt = this.getParentToot(error.index);
-								var a = GEN("a");
-								var url = tt.data.body.uri.replace("users", "api");
-								url = url.replace(tt.data.account.username, "v1");
-
-								MYAPP.sns.originalGet(`${url}/card`, {})
-								.then(result_card => {
-									result.data["og:image"] = result_card.image;
-									if (result_card["image"] != null) {
-										this.$set(this.statuses[tt.index].mainlink, "image", result_card.image);
+									if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
+									if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);
+									if (data["og:title"]) this.$set(this.statuses[tt.index].mainlink, "title", data["og:title"]);
+									if (data["og:description"]) this.$set(this.statuses[tt.index].mainlink, "description", data["og:description"]);
+									if (("og:image" in data) && (data["og:image"] != "")) {
+										this.$set(this.statuses[tt.index].mainlink, "image", data["og:image"]);
 										this.$set(this.statuses[tt.index].mainlink, "isimage", true);
 
 										//---final card size change
@@ -758,15 +748,43 @@ var vue_mixin_for_timeline = {
 											}
 											this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
 										}
+									} else {
+										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
 									}
+								})
+								/*.catch(error=>{
+									//---to present link info from Mastodon Status Card
+									var tt = this.getParentToot(error.index);
+									var a = GEN("a");
+									var url = tt.data.body.uri.replace("users", "api");
+									url = url.replace(tt.data.account.username, "v1");
 
-								});
-							})*/
-							;
-							
-						});
+									MYAPP.sns.originalGet(`${url}/card`, {})
+									.then(result_card => {
+										result.data["og:image"] = result_card.image;
+										if (result_card["image"] != null) {
+											this.$set(this.statuses[tt.index].mainlink, "image", result_card.image);
+											this.$set(this.statuses[tt.index].mainlink, "isimage", true);
 
-						
+											//---final card size change
+											if (this.statuses[tt.index].medias.length > 0) {
+												var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
+												if (sp < 9) {
+													sp = sp + 10;
+												} else {
+													sp = sp + 6;
+												}
+												this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
+											}
+										}
+
+									});
+								})*/
+								;
+								
+							});
+
+						}
 					}
 				}
 			}
@@ -2266,10 +2284,132 @@ var vue_mixin_for_notification = {
 					targetpath = `/users/${changeuri}`;
 					MUtility.enterFullpath(targetpath);
 				});
+	
+			}
+			if (d.urls.length > 0) {
+				if (!MYAPP.session.config.notification["notpreview_onmedia"]) {
+					MYAPP.sns.getTootCard(d.body.id, d.id, 0)
+					.then(result=>{
+						var data = result.data;
+						//var tt = this.getParentToot(result.parentID);
+						//console.log("result,tt=",result,tt);
 
-				
+						if (("url" in data)) {
+							//---if found map, hide link preview
+							if (this.status.geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+								this.$set(this.status.mainlink, "exists", false);
+							}else{
+								this.$set(this.status.mainlink, "exists", true);
+							}
+							if ("provider_name" in data) {
+								if (data.provider_name != "") {
+									this.$set(this.status.mainlink, "site", data["provider_name"]);
+								}else{
+									var a = GEN("a");
+									a.href = data.url;
+									//console.log("data.url=",a.hostname);
+									this.$set(this.status.mainlink, "site", a.hostname);
+								}
+							}
+							if ("url" in data) this.$set(this.status.mainlink, "url", data["url"]);
+							if ("title" in data) this.$set(this.status.mainlink, "title", data["title"]);
+							if ("description" in data) this.$set(this.status.mainlink, "description", data["description"]);
+							if (("image" in data) && (data["image"] != null)) {
+								this.$set(this.status.mainlink, "image", data["image"]);
+								this.$set(this.status.mainlink, "isimage", true);
+
+								//---final card size change
+								if (this.status.medias.length > 0) {
+									var sp = parseInt(this.status.cardtypeSize["grid-row-end"].replace("span", ""));
+									/*if (sp < 9) {
+										sp = sp + 6;
+									} else {
+										sp = sp + 2;
+									}*/
+									//this.$set(this.status.cardtypeSize, "grid-row-end", `span ${sp}`);
+								}
+							} else {
+								this.$set(this.status.mainlink, "isimage", false);
+							}
+						}else{
+							return Promise.reject({url:targeturl, tootid:st.id});
+						}
+					})
+					.catch(param=>{
+						//console.log("param=",param);
+						loadOGP(param.url, param.tootid)
+						.then(result => {
+							//---if image is none and url is pixiv, re-get image url
+							var def = new Promise((resolve, reject) => {
+
+								//var tt = this.getParentToot(result.index);
+
+								//console.log("catch,param,ogp=",result);
+								//console.log(tt);
+								if (this.status.urls.length > 0) {
+									if ((!("og:image" in result.data) || (result.data["og:image"] == "")) &&
+										(this.status.urls[0].indexOf("pixiv.net/member_illust") > -1)
+									) {
+										if ("pixiv_cards" in this.status.body) {
+											result.data["og:image"] = this.status.body.pixiv_cards[0].image_url;
+											resolve(result);
+										} 
+									} else {
+										resolve(result);
+									}
+
+								}else{
+									reject(false);
+								}
+							});
+							return def;
+						})
+						.then((result) => {
+							//console.log("result=", result);
+							var data = result.data;
+							//var tt = this.getParentToot(result.index);
+							//console.log("result.getParentToot=", tt);
+							//console.log(this.status);
+
+							this.$set(this.status.mainlink, "exists", true);
+							//---if exists medias, not preview link
+							if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
+								if (this.status.medias.length > 0) {
+									this.$set(this.status.mainlink, "exists", false);
+								}
+							}
+							//---if found map, hide link preview
+							if (this.status.geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+								this.$set(this.status.mainlink, "exists", false);
+							}
+							if (data["og:site_name"]) this.$set(this.status.mainlink, "site", data["og:site_name"]);
+							if (data["og:url"]) this.$set(this.status.mainlink, "url", data["og:url"]);
+							if (data["og:title"]) this.$set(this.status.mainlink, "title", data["og:title"]);
+							if (data["og:description"]) this.$set(this.status.mainlink, "description", data["og:description"]);
+							if (("og:image" in data) && (data["og:image"] != "")) {
+								this.$set(this.status.mainlink, "image", data["og:image"]);
+								this.$set(this.status.mainlink, "isimage", true);
+
+								//---final card size change
+								if (this.status.medias.length > 0) {
+									var sp = parseInt(this.status.cardtypeSize["grid-row-end"].replace("span", ""));
+									if (sp < 9) {
+										sp = sp + 10;
+									} else {
+										sp = sp + 6;
+									}
+									this.$set(this.status.cardtypeSize, "grid-row-end", `span ${sp}`);
+								}
+							} else {
+								this.$set(this.status.mainlink, "isimage", false);
+							}
+						});
+					});
+				}
+
 			}
 
+			//---start nofitication execute
 			if (this.pagetype == "popup") {
 				this.remove_notification(account.notifications,index);
 				MYAPP.commonvue.nav_notification.notifications--;

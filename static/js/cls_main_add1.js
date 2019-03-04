@@ -10,11 +10,15 @@ function defineForMainPage(app) {
         delimiters : ["{?", "?}"],
         data : {
             //---common
+            translations : {},
             applogined : false,
             genttl : {
                 text : "",
                 tooltip : ""
             },
+            is_tllist : false,
+            sel_listitem : "",
+            list_items : [],
             
             //---#frm_navleft(=navibar)
 
@@ -35,7 +39,41 @@ function defineForMainPage(app) {
             },
             notif_badge_count : 0,
         },
+        watch: {
+            sel_listitem : function (val) {
+                if (vue_timeline.tl_tabtype == "list") {
+                    vue_timeline.funcTabtype("list",val);
+                }
+            }
+        },
         methods: {
+            //---common
+            switchListSelect : function(flag) {
+                this.is_tllist = flag;
+            },
+            loadListNames : function(){
+                var opt = {api:{},app:{}};
+                MYAPP.sns.getLists(opt)
+                .then(result=>{
+                    this.list_items.splice(0,this.list_items.length);
+                    this.list_items.push({
+                        text : "--",
+                        value : "0",
+                        selected : true
+                    });
+                    for (var i = 0; i < result.data.length; i++) {
+                        this.list_items.push({
+                            text : result.data[i].title,
+                            value : result.data[i].id,
+                            selected : false
+                        });
+                    }
+                    //this.sellisttype_current = this.sel_listtype[0].value;
+                    
+                    this.sel_listitem = this.list_items[0].value;
+                    
+                });
+            },
             //---#frm_navleft
             onclick_sidenavbtn : function (e) {
                 MYAPP.commonvue.sidebar.drawer = !MYAPP.commonvue.sidebar.drawer;
@@ -410,7 +448,9 @@ function defineForMainPage(app) {
                 //   /tl
                 if (ID("area_timeline")) {
                     barancerTimelineType(ID("hid_timelinetype").value,ID("hid_timelinetypeid").value);
-                    vue_timeline.list.loadListNames();
+                    if (Q(".timeline_body")) {
+                        vue_timeline.loadListNames();
+                    }
                 }
                 
             }
@@ -618,6 +658,7 @@ function defineForMainPage(app) {
 				staticpath : ""
 			},
             users : [],
+            gallery_options : null,
 
             tlcond : null,
 
@@ -650,7 +691,7 @@ function defineForMainPage(app) {
         },
         mounted(){
             this.globalInfo.staticpath = ID("hid_staticpath").value;
-
+            this.currentOption = new TLoption();
             //var hit = sessionStorage.getItem(this.cons_savename);
             //if (hit) {
             //    this.notifications = JSON.parse(hit);
@@ -659,6 +700,8 @@ function defineForMainPage(app) {
                     this.gpstatus.push(d);
                 }*/
             //}
+            this.gallery_options = new GalleryOptions();
+            this.gallery_options.carousel.adjustableHeight = true;
         },
         methods : {
             //---some function--------------------
@@ -1223,6 +1266,8 @@ function defineForMainPage(app) {
                 registration.unregister();
             })
         }*/
+        MYAPP.commonvue.navigation.translations = curLocale.messages;
+
         this.forms["sidenav"] = M.Sidenav.init(Q('.sidenav'),{});
         ID("sidenav_btn").addEventListener("click",function(e){
             MYAPP.forms.sidenav.open();
@@ -1290,7 +1335,8 @@ function defineForMainPage(app) {
                 if (Q(".timeline_body")) {
                     if (Q(".timelinebody")) {
                         //Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
-                        elemName = ".tab-content.active";
+                        //elemName = ".tab-content.active";
+                        elemName = ".tab-content";
                     }
                 }
                 if (Q(".hashtag_body")) {

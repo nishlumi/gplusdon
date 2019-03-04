@@ -21,6 +21,11 @@ class Gpstream {
             notifications : account.notifications
         };
         this._type = streamType;
+        this._targetTLType = streamType;
+        if (streamType == "user") this._targetTLType = "home";
+        if (streamType == "public:local") this._targetTLType = "local";
+        if (streamType == "hashtag:local") this._targetTLType = "taglocal";
+        if (streamType == "hashtag") this._targetTLType = "tag";
         this.isme = false;
         this.filter = {
             enabled : false,
@@ -67,6 +72,9 @@ class Gpstream {
         this.filter.enabled = false;
         this.filter.username = "";
         this.filter.instance = "";
+    }
+    checkTLType() {
+        return (this._targetObject.tl_tabtype == this._targetTLType);
     }
     start() {
         var mainbody = (result)=>{
@@ -179,6 +187,7 @@ class Gpstream {
     }
     _start_update(data){
         if (this._targetObject) {
+            if (!this.checkTLType()) return;
             var isOK = true;
             if (this.isme) {
                 var inst = MUtility.getInstanceFromAccount("uri" in data.account ? data.account.uri : data.account.url);
@@ -272,6 +281,7 @@ class Gpstream {
     }
     _start_delete(data) {
         if (this._targetObject) {
+            if (!this.checkTLType()) return;
             var isOK = true;
 
             if (isOK) {

@@ -248,13 +248,13 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="toot_share_range truncate" v-bind:class="toote.shareColor">
             <i class="material-icons">arrow_drop_down</i>  
             <v-img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
-            <span v-html="ch2seh(toote.translateText.visibility)" style="float:left;"></span>
+            <span v-html="ch2seh(toote.translateText.visibility)" ></span>
             <span v-html="ch2seh(toote.translateText.visibility2)"></span> 
             <input v-if="toote.reblogOriginal" type="hidden" name="sender_id" alt="boost" v-bind:value="toote.reblogOriginal.account.id">
         </div> 
 <!-----toot main content (spoiler or content)-->
         <div class="toot_content_body" v-bind:class="toot_body_stat">
-            <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>
+            <div class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></div>
             <div class="area_spoiler" v-if="toote.body.spoilered">  
                 <!--<label class="button_spoiler">
                     <input type="checkbox">
@@ -262,7 +262,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                 </label>-->
                 <details>
                     <summary>...</summary>
-                    <pre class="toote_main " v-html="ch2seh(toote.body.html)"></pre>
+                    <div class="toote_main " v-html="ch2seh(toote.body.html)"></div>
                 </details>
             </div>
         </div>  
@@ -316,11 +316,12 @@ const CONS_TEMPLATE_TOOTBODY = `
 <!-----toot media -->
     <div class="card-image" v-if="toote.medias.length > 0">
         <div class="xcarousel xcarousel-slider center"> 
-            <tootgallery-carousel
+            <tootgallery-carousel ref="gall"
                 v-bind:medias="toote.medias"
                 v-bind:sensitive="toote.body.sensitive"
                 v-bind:translation="translation"
                 v-bind:viewmode="gal_viewmode"
+                v-bind:options="local_galoption"
             ></tootgallery-carousel>
         </div> 
     </div>  

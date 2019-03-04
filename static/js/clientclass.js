@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190301-01",
+            revision : "20190304-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -186,13 +186,23 @@ class Gplusdon {
                 //---set up each page
                 if (Q(".timeline_body")) {
                     //---if timeline page, connect timeline element
-                    notifAccount.account.stream.setTargetTimeline(vue_timeline.home);
-                    notifAccount.account.streams.list.setTargetTimeline(vue_timeline.list);
+                    ///notifAccount.account.stream.setTargetTimeline(vue_timeline.home);
+                    ///notifAccount.account.streams.list.setTargetTimeline(vue_timeline.list);
                     //notifAccount.account.streams.list.start();
-                    notifAccount.account.streams.local.setTargetTimeline(vue_timeline.local);
+                    ///notifAccount.account.streams.local.setTargetTimeline(vue_timeline.local);
                     //notifAccount.account.streams.local.start();
-                    notifAccount.account.streams.public.setTargetTimeline(vue_timeline.public);
+                    ///notifAccount.account.streams.public.setTargetTimeline(vue_timeline.public);
                     //notifAccount.account.streams.public.start();
+
+                    if (vue_tltab.tl_tabtype == "home") {
+                        notifAccount.account.stream.setTargetTimeline(vue_timeline);
+                    }else if (vue_tltab.tl_tabtype == "list") {
+                        notifAccount.account.streams.list.setTargetTimeline(vue_timeline);
+                    }else if (vue_tltab.tl_tabtype == "local") {
+                        notifAccount.account.streams.local.setTargetTimeline(vue_timeline);
+                    }else if (vue_tltab.tl_tabtype == "public") {
+                        notifAccount.account.streams.public.setTargetTimeline(vue_timeline);
+                    }
                 
                 }
                 if (Q(".hashtag_body")) {
