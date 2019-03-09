@@ -442,6 +442,7 @@ var vue_mixin_for_timeline = {
 			Q(".tab-content").scroll({top:0,behavior: "instant"});
 		},
 		onclick_load_below : function (e) {
+			var tlid = "";
 			//---SAME AS page max scroll down
 			console.log("scroll down max");
 			var pastOptions = {
@@ -463,6 +464,8 @@ var vue_mixin_for_timeline = {
 			for (var obj in this.currentOption.api) {
 				pastOptions.api[obj] = this.currentOption.api[obj];
 			}
+			delete pastOptions.api["since_id"];
+			delete pastOptions.api["min_id"];
 			//var atab = Q(".tab .active");
 			if (this.tl_tabtype == "home") {
 				tlid = "home";
@@ -479,6 +482,12 @@ var vue_mixin_for_timeline = {
 			}else if (this.tl_tabtype == "taglocal") {
 				tlid = `tag/${this.tagname}`;
 				pastOptions.api["local"] = true;
+			}else if (this.tl_tabtype == "user") {
+				if (this.pagetype == "account") {
+					tlid = "me";
+				}else if (this.pagetype == "user") {
+					tlid = this.id;
+				}
 			}
 			//pastOptions.api.max_id = this.info.maxid;
 			//pastOptions.app.tlshare = this.selshare_current;
@@ -626,7 +635,10 @@ var vue_mixin_for_timeline = {
 					//---get site preview if link added
 					//console.log("st.urls.length=", st.urls.length);
 					if (st.urls.length > 0) {
-						if (!MYAPP.session.config.notification["notpreview_onmedia"]) {
+						if (
+							(!MYAPP.session.config.notification["notpreview_onmedia"]) || 
+							(MYAPP.session.config.notification["notpreview_onmedia"] && (st.medias.length == 0))
+						) {
 							var targeturl = st.urls[0];
 							//console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
 							//---get GPHT
@@ -1401,10 +1413,9 @@ var vue_mixin_for_inputtoot = {
 			return fnlarr;
 		},
 		joinStatusContent : function (){
-			var content = "";
-			if (this.selmentions.length > 0) 
-				content += this.selmentions.join(" ") + " ";
-			content += this.status_text;
+			var content = this.status_text;
+			if (this.selmentions.length > 0) content += "\n" + this.selmentions.join(" ") + " ";
+			
 			if (this.seltags.length > 0) {
 				var tags = [];
                 for (var i = 0; i < this.seltags.length; i++) {
@@ -2287,7 +2298,10 @@ var vue_mixin_for_notification = {
 	
 			}
 			if (d.urls.length > 0) {
-				if (!MYAPP.session.config.notification["notpreview_onmedia"]) {
+				if (
+					(!MYAPP.session.config.notification["notpreview_onmedia"]) || 
+					(MYAPP.session.config.notification["notpreview_onmedia"] && (d.medias.length == 0))
+				) {
 					MYAPP.sns.getTootCard(d.body.id, d.id, 0)
 					.then(result=>{
 						var data = result.data;

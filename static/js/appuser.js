@@ -39,8 +39,10 @@ function loadUserInfo_body(result) {
     vue_user.follower.setData(result.data);
 
     //---if request instance is need auth, return the instance with to call API
-    vue_user.basicinfo.id = result.data.copy.id;
-    vue_user.tootes.id = result.data.copy.id;
+    if ("copy" in result.data) {
+        vue_user.basicinfo.id = result.data.copy.id;
+        vue_user.tootes.id = result.data.copy.id;
+    }
     
     var apiopt = {
         api : {}, 

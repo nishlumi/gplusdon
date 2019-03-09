@@ -123,10 +123,13 @@ class Gpsns {
         var def = new Promise((resolve,reject)=>{
             var retdef;
             var endpoint = "";
+            var isauth = true;
             if (type == "local") {
                 endpoint = `timelines/public`;
+                isauth = false;
             }else if (type == "public") {
                 endpoint = `timelines/public`;
+                isauth = false;
             }else{
                 endpoint = `timelines/${type}`;
             }
@@ -140,7 +143,11 @@ class Gpsns {
                 //var targetid = userid == "me" ? this._accounts.id : userid;
 
                 //console.log(endpoint);
-                retdef = this._accounts.api.get(endpoint,options.api);
+                if (isauth) {
+                    retdef = this._accounts.api.get(endpoint,options.api);
+                }else{
+                    retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                }
             }
             retdef.then((data,status,xhr)=>{
                 console.log(endpoint,data,xhr.getAllResponseHeaders());

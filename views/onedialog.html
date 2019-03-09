@@ -107,33 +107,42 @@
         <v-window v-model="boarding" style="width:100%;height:100%;">
             <v-window-item >
                 <v-card class="notiflist_card">
-                    <v-list two-line>
-                        <template v-for="(item,index) in currentAccount.notifications">
-                            <v-list-tile avatar v-bind:key="item.id" v-on:click="onclick_notif_line(index)">
-                                <v-list-tile-avatar>
-                                    <img v-bind:src="item.account[0].avatar" class="userrectangle">
-                                    <v-icon  small class="notif_avatar_mark tooltipped" v-bind:class="judge_colorFromType(item.type)" data-position="right" v-bind:data-tooltip="get_translated_typename(item.type)">{? get_type_icon(item.type) ?}</v-icon>
-                                </v-list-tile-avatar>
-                                
-                                <v-list-tile-content>
-                                    <v-list-tile-title>
-                                        <!--<span style="display:inline-block;" v-bind:class="judge_colorFromType(item.type)">
-                                            <v-icon class="white-text">{? get_type_icon(item.type) ?}</v-icon>
-                                            <span >{? get_translated_typename(item.type) ?}</span>
-                                        </span>-->
-                                        <b v-html="ch2seh(get_display_name_html(item.account))"></b>
-                                    </v-list-tile-title>
-                                    <v-list-tile-sub-title>{? generate_oneline_content(item) ?}</v-list-tile-sub-title>
-                                </v-list-tile-content>
-                                <v-list-tile-action>
-                                    <v-btn flat icon v-on:click.stop="onclick_notif_linebtn(index)">
-                                        <v-icon>clear</v-icon>
-                                    </v-btn>
-                                </v-list-tile-action>
-                            </v-list-tile>
-                            <v-divider></v-divider>
-                        </template>
-                    </v-list>
+                    <template v-if="currentAccount.notifications.length > 0">
+                        <v-list two-line>
+                            <template v-for="(item,index) in currentAccount.notifications">
+                                <v-list-tile avatar v-bind:key="item.id" v-on:click="onclick_notif_line(index)">
+                                    <v-list-tile-avatar>
+                                        <img v-bind:src="item.account[0].avatar" class="userrectangle">
+                                        <v-icon  small class="notif_avatar_mark tooltipped" v-bind:class="judge_colorFromType(item.type)" data-position="right" v-bind:data-tooltip="get_translated_typename(item.type)">{? get_type_icon(item.type) ?}</v-icon>
+                                    </v-list-tile-avatar>
+                                    
+                                    <v-list-tile-content>
+                                        <v-list-tile-title>
+                                            <!--<span style="display:inline-block;" v-bind:class="judge_colorFromType(item.type)">
+                                                <v-icon class="white-text">{? get_type_icon(item.type) ?}</v-icon>
+                                                <span >{? get_translated_typename(item.type) ?}</span>
+                                            </span>-->
+                                            <b v-html="ch2seh(get_display_name_html(item.account))"></b>
+                                        </v-list-tile-title>
+                                        <v-list-tile-sub-title>{? generate_oneline_content(item) ?}</v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                    <v-list-tile-action>
+                                        <v-btn flat icon v-on:click.stop="onclick_notif_linebtn(index)">
+                                            <v-icon>clear</v-icon>
+                                        </v-btn>
+                                    </v-list-tile-action>
+                                </v-list-tile>
+                                <v-divider></v-divider>
+                            </template>
+                        </v-list>
+                    </template>
+                    <template v-else>
+                        <v-layout align-center justify-center row fill-height>
+                            <div>
+                                <img src="/static/images/app_empty_icon.png" width="52" height="52"/>
+                            </div>
+                        </v-layout>
+                    </template>
                 </v-card>
             </v-window-item>
             <v-window-item class="vwinsizing">
