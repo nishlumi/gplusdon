@@ -171,6 +171,10 @@ class AccountManager {
         var callbackurl = window.location.origin + MYAPP.appinfo.firstPath + MYAPP.siteinfo.redirect_uri;
 
         var def = new Promise((resolve, reject) => {
+            MYAPP.sns.getInstanceInfo(acc.instance)
+            .then(result=>{
+                console.log("instance info=",result);
+            });
             acc.api.registerApplication(
                 MYAPP.appinfo.name,
                 callbackurl,

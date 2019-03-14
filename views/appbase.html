@@ -5,8 +5,15 @@
     <HEAD>
         {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_gglanal.html' %}
+        {% include 'jslib_gs1meta.html' %}
         {% endif %}
-
+        {% if sysinfo.hostname  == 'gplusdon.azurewebsites.net' %}
+        {% include 'jslib_gs2meta.html' %}
+        {% endif %}
+        {% if sysinfo.hostname  == 'gpdontest.azurewebsites.net' %}
+        {% include 'jslib_gs3meta.html' %}
+        {% endif %}
+    
         <title>G+Don {% block eachtitle %}{% endblock %}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -35,7 +42,7 @@
         <meta name="twitter:description" content="{{sysinfo.oginfo.description}}" />
         <meta name="twitter:image" content="{{sysinfo.oginfo.image}}" />
 
-        <link rel="shortcut icon" href="/static/images/app_icon.png" >
+        <link rel="shortcut icon" href="/static/images/app_icon.png" active.sync="">
         <link rel="manifest" href="/static/res/manifest.json" >
         <meta content='{{sysinfo.VAPID}}' name='applicationServerKey'>
 
@@ -43,10 +50,10 @@
         <link href="/static/lib/selectize/selectize.css" rel="stylesheet" >
         -->
         
-        <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user2.css" >
+        <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user2.css" async>
         <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
-        <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet" async>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" async>
         <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
 
         <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
@@ -55,7 +62,7 @@
         <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
             integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-            crossorigin=""
+            crossorigin="" aysnc
         />
 
         <link href="/static/css/accounts.css" rel="stylesheet" >
@@ -380,7 +387,7 @@
         {% include "jslib_vue.html" %}
         <script src="/static/lib/vue-carousel.min.js"></script>
         
-        <script src="/static/lib/materialize/js/materialize.js"></script>
+        <script src="/static/lib/materialize/js/materialize.min.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>
 
 

@@ -111,6 +111,21 @@ var cls_mstdn = {
     loadAPI: function (instance) {
         return new MastodonServer(instance, "");
     },
+    originalGet: function(url, options) {
+        console.log("url=", url);
+        return request.get(url, options.api)
+            .then(result => {
+                return {
+                    data: result,
+                    options: options
+                };
+            });
+    },
+    originalPost: function(url, options) {
+        console.log("url=", url);
+        var res = request.post(url, options.api);
+        return res;
+    },
     /**
      * retrieve real user id from API with temporary mastodon account in this server
      * @param {Mastodon} api Mastodon api object

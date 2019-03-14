@@ -191,6 +191,21 @@ router.get('/srv/accounts/:instance/:id', function (req, res) {
         
     
 });
+router.get('/srv/pleroma/:instance/:version/:endpoint', function (req, res) {
+    var v = req.params.version.replace("_","/");
+    cls_mstdn.originalGet(`https://${req.params.instance}/${v}/${req.params.endpoint}`, {})
+    .then(result => {
+        res.send(result);
+    });
 
 
+
+});
+router.post('/srv/pleroma/:instance/:version/:endpoint', function (req, res) {
+    var v = req.params.version.replace("_", "/");
+    cls_mstdn.originalPost(`https://${req.params.instance}/${v}/${req.params.endpoint}`, {})
+        .then(result => {
+            res.send(result);
+        });
+});
 module.exports = router;
