@@ -13,7 +13,13 @@ var gpGLD = {
     localset : "_gp_gd_id",
     setname : "_gp_gd_ac_m",
     nextPageToken : "",
+    k : {
+        ap : "",
+        pic_ap : "",
+        cl : "",
+    },
     is_authorize : false,
+    is_pickerAuth : false,
     createFolder : function (name) {
         var fdata = AppStorage.get(MYAPP.acman.setting.NAME, null);
 
@@ -115,6 +121,24 @@ var gpGLD = {
             })
             .then((res) => {
                 resolve(res);
+            },(err)=>{
+                console.log(err);
+                reject(err);
+            });
+        });
+        return def;
+    },
+    loadFullFile : function (file) {
+        var def = new Promise((resolve,reject)=>{
+            gapi.client.drive.files.get({
+                fileId: file.id,
+                alt : "media"
+            })
+            .then((res) => {
+                resolve({
+                    file : file,
+                    data : res
+                });
             },(err)=>{
                 console.log(err);
                 reject(err);
@@ -248,17 +272,19 @@ var gpGLD = {
     },
 
     handleClientLoad : function () {
+        var hidinfo = ID("hid_appinfo").value.split(",");
+        console.log(hidinfo);
+        gpGLD.k.ap = hidinfo[4];
+        gpGLD.k.cl = hidinfo[5];
+        gpGLD.k.pic_ap = hidinfo[8];
         gapi.load('client:auth2', this.initClient);
+        gapi.load('picker', this.initPicker);
         
     },
     initClient : function () {
-        var hidinfo = ID("hid_appinfo").value.split(",");
-        var API_KEY = hidinfo[4]; //MYAPP.siteinfo.ggl.ak;
-        var CLIENT_ID = hidinfo[5]; //MYAPP.siteinfo.ggl.ci;
-
         gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
+            apiKey: gpGLD.k.ap,
+            clientId: gpGLD.k.cl,
             discoveryDocs: DISCOVERY_DOCS,
             scope: SCOPES.join(" ")
         }).then(function () {
@@ -269,10 +295,49 @@ var gpGLD = {
             gpGLD.updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             //authorizeButton.onclick = handleAuthClick;
             //signoutButton.onclick = handleSignoutClick;
-            ID("hid_appinfo").value = "";
         }, function (error) {
             console.log(error);
         });
+    },
+    // Create and render a Picker object for searching images.
+    createPicker : function (authres,usercallback) {
+        if (gpGLD.is_pickerAuth && gpGLD.is_authorize) {
+            var view = new google.picker.View(google.picker.ViewId.DOCS);
+            view.setMimeTypes("application/json");
+            //view.setMimeTypes("application/json");
+            var picker = new google.picker.PickerBuilder()
+                .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+                .setOAuthToken(authres.access_token)
+                .addView(view)
+                .setDeveloperKey(this.k.pic_ap)
+                .setCallback(usercallback)
+                .build();
+           picker.setVisible(true);
+        }
+    },
+    initPicker : function () {
+        gpGLD.is_pickerAuth = true;
+        gpGLD.createPicker();
+        ID("hid_appinfo").value = "";
+    },
+    pickerCallback : function (data) {  //---not use 
+        var url = 'nothing';
+        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+            var doc = data[google.picker.Response.DOCUMENTS][0];
+            url = doc[google.picker.Document.URL];
+            var def = new Promise(resolve=>{
+                gpGLD.loadFile(doc[google.picker.Document.ID])
+                .then(res=>{
+                    console.log(res);
+                    resolve(res);
+                });
+            });
+        }else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
+            console.log("picker canceled...");
+        }
+        var message = 'You picked: ' + url;
+        console.log(message,data);
+
     },
     updateSigninStatus : function (isSignedIn) {
         if (isSignedIn) {
@@ -303,6 +368,7 @@ var gpGLD = {
     handleSignout: function (event) {
         gapi.auth2.getAuthInstance().signOut();
         gpGLD.is_authorize = false;
+        gpGLD.is_pickerAuth = true;
         if (vue_settings != undefined) vue_settings.is_gdrive_authorize = false;
     }
 

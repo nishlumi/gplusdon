@@ -1,0 +1,126 @@
+{% extends "toolarcview.html" %}
+
+{% block eachtitle %}
+ - Archiver
+{% endblock %}
+{% block content %}
+<div id="area_archmain" class="archmain_body" v-on:scroll="onscroll_timeline">
+    <v-window v-model="onboarding">
+        <v-window-item>
+            <v-layout row wrap class="mt-1">
+                <v-flex xs12>
+                    <v-expansion-panel>
+                        <v-expansion-panel-content>
+                            <div slot="header">Log</div>
+                            <div id="arch_importlog" v-html="ch2seh(importlog)">
+                                
+                            </div>
+                            
+                            
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-flex>
+                <v-flex xs12>
+                    <div class="loaded-filelist">
+                        <v-list two-line>
+                            <template v-for="(item,index) in datalist">
+                                <v-list-tile avatar :key="index">
+                                    <v-list-tile-avatar>
+                                        <v-icon>folder</v-icon>
+                                    </v-list-tile-avatar>
+                                    <v-list-tile-content>
+                                        <v-list-tile-title>
+                                            <b>{? showServiceName(item) ?} : </b>
+                                            <span>{? showSenderName(item) ?}</span>
+                                        </v-list-tile-title>
+                                        <v-list-tile-sub-title>
+                                            {? showData_dateperiod(item) ?}
+                                        </v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                    <v-list-tile-action>
+                                        <v-layout row wrap>
+                                            <v-flex xs6>
+                                                <v-tooltip bottom>
+                                                    <v-btn fab small slot="activator" @click="onclick_downloadview(item,index)"><v-icon>save_alt</v-icon></v-btn>
+                                                    <span>{{trans.cons_download}}</span>
+                                                </v-tooltip>
+                                                
+                                            </v-flex>
+                                            <v-flex xs6>
+                                                <v-tooltip bottom>
+                                                    <v-btn fab dark small slot="activator" color="red" @click="onclick_startview(item,index)"><v-icon>send</v-icon></v-btn>
+                                                    <span>{{trans.cons_show}}</span>
+                                                </v-tooltip>
+                                                
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-list-tile-action>
+                                </v-list-tile>
+                            </template>
+                        </v-list>
+                    </div>
+                </v-flex>
+                    
+            </v-layout>
+            <v-layout row wrap>
+                
+            </v-layout>
+        </v-window-item>
+        <v-window-item>
+            <div id="tl_common" class="tab-content" v-cloak >
+                <div class="pending_above_area" v-if="pending.above.is == true">
+                    <v-layout row wrap >
+                        <v-flex xs2 offset-xs6>
+                            <v-btn round color="red" dark v-on:click="onclick_show_pending">{? _T("msg_pending",[pending.above.statuses.length]) ?}</v-btn>
+                        </v-flex>    
+                    </v-layout>
+                </div>
+                <div class="timelinebody toot_timeline_grid  " v-bind:class="timeline_gridstyle">
+                    <div class="card toot_card_base topItem" >
+                        <v-tooltip bottom>
+                            <v-btn fab slot="activator" @click="onclick_backtimeline">
+                                <v-icon>arrow_back</v-icon>
+                            </v-btn>
+                            <span>{{trans.return_gpmain}}</span>
+                        </v-tooltip>
+                        
+                    </div>
+        
+                    <timeline-toot 
+                        v-bind:translation="translations"
+                        v-bind:toote="status"
+                        v-bind:key="status.id"
+                        v-bind:globalinfo="globalInfo"
+                        v-for="(status,index) in statuses"
+                        v-bind:gallery_options="gallery_options"
+                        v-on:replied_post="onreplied_children(status,index)"
+                        v-on:delete_toot="ondelete_toot_children"
+                    ></timeline-toot>
+                </div>
+                <div class="pending_below_area common_ui_off" v-if="statuses.length < 10">
+                    <v-layout row wrap >
+                        <v-flex xs2 offset-xs6>
+                            <v-btn fab dark small color="red" v-on:click="onclick_load_below">
+                                <v-icon>expand_more</v-icon>
+                            </v-btn>
+                        </v-flex>    
+                    </v-layout>
+                </div>
+            </div>
+        </v-window-item>
+    </v-window>
+    
+
+</div>
+<input type="hidden" id="hid_timelinetype" value="{{timelinetype}}" />
+<input type="hidden" id="hid_timelinetypeid" value="{{timelinetypeid}}" />
+<input type="hidden" id="hid_instance" value="{{instance}}" />
+<input type="hidden" id="hid_uid" value="{{uid}}" />
+
+
+{% endblock %}
+
+
+{% block userinclude %}
+<script src="/static/js/apparchmain.js"></script>
+{% endblock %}

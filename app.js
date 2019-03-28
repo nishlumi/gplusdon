@@ -23,6 +23,7 @@ var instances = require('./routes/instances');
 var tl = require('./routes/tl');
 var toot = require('./routes/toot');
 var direct = require('./routes/direct');
+var arch = require('./routes/arch');
 
 var app = express();
 nunjucks.configure(path.join(__dirname, 'views'), {
@@ -88,6 +89,7 @@ app.use('/server', instances);
 app.use('/tl', tl);
 app.use('/toot', toot);
 app.use('/direct', direct);
+app.use('/arch', arch);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

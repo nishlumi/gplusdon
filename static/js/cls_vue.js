@@ -9,10 +9,16 @@ class GalleryOptions {
 			adjustableHeight : false,
 		};
 		this.first_sensitive = true;
+		this.initials = {
+			is : false,
+			value : -1
+		}
 	}
 	copy(src){
 		this.carousel.adjustableHeight = src.carousel.adjustableHeight;
 		this.first_sensitive = src.first_sensitive;
+		this.initials.is = src.initials.is;
+		this.initials.value = src.initials.value;
 	}
 }
 //===----------------------------------------------------------------------===
@@ -70,18 +76,21 @@ Vue.component("timeline-toot", {
 			issinglewindow : false,
             first_comment_stat : {
 				close : true,
-                mini : false,
+				mini : false,
+				minione : false,
                 open : false,
                 full : false
 			},
 			comment_stat : {
 				close : true,
-                mini : false,
+				mini : false,
+				minione : false,
                 open : false,
                 full : false
 			},
 			comment_list_area_stat : {
-				default : true
+				default : true,
+				scrollwithoutmini : false,
 			},
 			elementStyle : {
 				"comment-list" : {
@@ -123,6 +132,12 @@ Vue.component("timeline-toot", {
 
 			geomap : "",
 
+			//---poll variables
+			pollradio : "",
+			
+			pollchoice : [],
+			pollicon : [],
+
 			//---request each updates
 			isupdate_request : {
 				reply : false
@@ -153,7 +168,11 @@ Vue.component("timeline-toot", {
 			if (boostable.indexOf(this.toote.body.visibility) > -1) {
 				return true;
 			}else{
-				return false;
+				if (this.toote.is_archive) {
+					return true;
+				}else{
+					return false;
+				}
 			}
 		},
 		favourite_type : function() {
@@ -173,7 +192,8 @@ Vue.component("timeline-toot", {
 		},
 		gal_viewmode : function () {
 			return MYAPP.session.config.application.gallery_type;
-		}
+		},
+		
 	},
 	beforeMount(){
 
@@ -238,6 +258,19 @@ Vue.component("timeline-toot", {
 				//this.initialize_geomap();
 				this.get_mapurl(this.toote.geo.location[0],0);
 			}
+
+			if (this.toote.body.poll) {
+				var cho = "";
+				if (this.toote.body.poll.multiple) {
+					cho = "check_box_outline_blank";
+				}else{
+					cho = "radio_button_unchecked";
+				}
+				for (var i = 0; i < this.toote.body.poll.options.length; i++) {
+					this.pollicon.push(cho);
+					this.pollchoice.push(false);
+				}
+			}
 			
 		}
 		
@@ -260,9 +293,14 @@ Vue.component("timeline-toot", {
 		if ((this.toote) && ("descendants" in this.toote)) {
 			if (this.toote.descendants.length > 0) {
 				if (this.isfirst) {
-					this.comment_stat.mini = true;
+					if (this.toote.descendants.length == 1) {
+						this.comment_stat.minione = true;
+						this.first_comment_stat.minione = true;
+					}else{
+						this.comment_stat.mini = true;
+						this.first_comment_stat.mini = true;
+					}
 					this.comment_stat.close = false;
-					this.first_comment_stat.mini = true;
 					this.first_comment_stat.close = false;
 
 					if (this.comment_viewstyle) {
@@ -375,6 +413,39 @@ Vue.component("timeline-toot", {
 				marker.bindPopup(ll.name);
 			}
 		},
+		counting_vote : function (poll,allcount) {
+			var tmp = "";
+			var v = poll.votes_count;
+			if (allcount > 0) {
+				v = v / allcount;
+			}else{
+				v = 0;
+			}
+			var percent = Math.round(v * 100);
+			return percent;
+		},
+		is_off_vote : function (poll) {
+			return poll.voted || poll.expired;
+		},
+		voteicon_styling : function (choice,multiple) {
+			if (multiple) {
+				if (this.pollchoice[choice] === true) {
+					return "check_box";
+				}else{
+					return "check_box_outline_blank";
+				}
+			}else{
+				if (this.pollchoice[choice] === true) {
+					return "radio_button_checked";
+				}else{
+					return "radio_button_unchecked";
+				}
+				//voteicon_styling(polindex,toote.body.poll.multiple)
+			}
+		},
+		is_off_mini : function () {
+			return !this.comment_stat.mini && !this.comment_stat.minione;
+		},
 		//---event handler----------------------------------------
 		onclick_toot_ancestor : function (e) {
 			var ans = this.toote.ancestors[this.toote.ancestors.length-1];
@@ -401,11 +472,13 @@ Vue.component("timeline-toot", {
 			//console.log(e);
 
 			//---reload some information
-			MYAPP.sns.getToot(this.toote.id,{})
-			.then(result=>{
-				this.toote.body.favourites_count = result.data.favourites_count;
-				this.toote.body.reblogs_count = result.data.reblogs_count;
-			});
+			if (!this.toote.is_archive) {
+				MYAPP.sns.getToot(this.toote.id,{})
+				.then(result=>{
+					this.toote.body.favourites_count = result.data.favourites_count;
+					this.toote.body.reblogs_count = result.data.reblogs_count;
+				});
+			}
 			
 			if (this.issinglewindow) return;
 
@@ -417,6 +490,8 @@ Vue.component("timeline-toot", {
 			MYAPP.commonvue.tootecard.status = null;
 			MYAPP.commonvue.tootecard.status = this.toote;
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
+			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.scrollwithoutmini = true;
+
 
 			this.reply_data = this.generateReplyObject(this.toote);
 			MYAPP.commonvue.tootecard.$nextTick(()=>{
@@ -452,6 +527,7 @@ Vue.component("timeline-toot", {
 	
 		},
 		onclick_morevert: function (e) {
+			
 			var parent = e.target.parentElement.parentElement.parentElement;
 			if (e.target.tagName.toLowerCase() == "i") {
 				parent = e.target.parentElement.parentElement.parentElement.parentElement;
@@ -461,19 +537,42 @@ Vue.component("timeline-toot", {
 			var userid = parent.querySelector("input[name='userid']");
 			//console.log(target, userid);
 			if (this.toote.relationship.isme) {
-				target.classList.add("is-veal");
-				target.classList.remove("un-veal");
-			}else{
-				MYAPP.sns.getRelationship(userid.value)
-				.then((data) => {
-					for (var i = 0; i < data.data.length; i++) {
-						for (var obj in data.data[i]) {
-							this.toote.relationship[obj] = Object.assign({}, data.data[i][obj]);
-						}
-					}
+				if (this.$vuetify.breakpoint.smAndDown) {
+					MYAPP.commonvue.mobilemenu.toote = this.toote;
+					MYAPP.commonvue.mobilemenu.show(!MYAPP.commonvue.mobilemenu.isShow());
+					return;
+				}else{
 					target.classList.add("is-veal");
 					target.classList.remove("un-veal");
-				});
+				}
+			}else{
+				if (this.toote.is_archive) {
+					if (this.$vuetify.breakpoint.smAndDown) {
+						MYAPP.commonvue.mobilemenu.toote = this.toote;
+						MYAPP.commonvue.mobilemenu.show(!MYAPP.commonvue.mobilemenu.isShow());
+						return;
+					}else{
+						target.classList.add("is-veal");
+						target.classList.remove("un-veal");
+					}
+				}else{
+					MYAPP.sns.getRelationship(userid.value)
+					.then((data) => {
+						for (var i = 0; i < data.data.length; i++) {
+							for (var obj in data.data[i]) {
+								this.toote.relationship[obj] = data.data[i][obj];
+							}
+						}
+						if (this.$vuetify.breakpoint.smAndDown) {
+							MYAPP.commonvue.mobilemenu.toote = this.toote;
+							MYAPP.commonvue.mobilemenu.show(!MYAPP.commonvue.mobilemenu.isShow());
+							return;
+						}else{
+							target.classList.add("is-veal");
+							target.classList.remove("un-veal");
+						}
+					});
+				}
 			}
 		},
 		onclick_vealclose: function (e) {
@@ -519,17 +618,27 @@ Vue.component("timeline-toot", {
 					this.comment_stat.open = !this.comment_stat.open;	
 
 				}
-				if (this.first_comment_stat.mini) {
-					this.comment_stat.mini = !this.comment_stat.mini;
-					this.comment_stat.open = !this.comment_stat.open;	
+				if (this.toote.descendants.length == 1) {
+					if (this.first_comment_stat.minione) {
+						this.comment_stat.minione = !this.comment_stat.minione;
+						this.comment_stat.open = !this.comment_stat.open;
+					}
+					this.comment_stat.mini = false;
+				}else{
+					if (this.first_comment_stat.mini) {
+						this.comment_stat.mini = !this.comment_stat.mini;
+						this.comment_stat.open = !this.comment_stat.open;
+					}
+					this.comment_stat.minione = false;
 				}
+				this.comment_list_area_stat.scrollwithoutmini = !this.comment_list_area_stat.scrollwithoutmini;
 				//target.classList.toggle("mini");
 				//if (!target.classList.contains("full")) {
 				//	target.classList.toggle("open");
 				//}
 				var num_row = parseInt(rootParent.style.gridRowEnd.replace("span", ""));
 				//if (target.classList.contains("mini")) {
-				if (this.comment_stat.mini) {
+				if (this.comment_stat.mini || this.comment_stat.minione) {
 					num_row = num_row -4;
 					rootParent.style.gridRowEnd = `span ${num_row}`;
 				//} else if (target.classList.contains("open")) {
@@ -544,70 +653,74 @@ Vue.component("timeline-toot", {
 
 			if (this.comment_stat.open || this.comment_stat.full) {
 				this.is_opencomment = true;
-				MYAPP.sns.getConversation(this.toote.body.id, this.toote.body.id, "")
-				.then((condata) => {
-					var tt = this.toote; //this.getParentToot(condata.parentID);
-					for (var a = 0; a < condata.data.ancestors.length; a++) {
-						var ance = condata.data.ancestors[a];
-						var gcls = new Gpstatus(ance,14);
+				if (!this.toote.is_archive) {
+					MYAPP.sns.getConversation(this.toote.body.id, this.toote.body.id, "")
+					.then((condata) => {
+						var tt = this.toote; //this.getParentToot(condata.parentID);
+						for (var a = 0; a < condata.data.ancestors.length; a++) {
+							var ance = condata.data.ancestors[a];
+							var gcls = new Gpstatus(ance,14);
 
-						condata.data.ancestors[a] = gcls;
+							condata.data.ancestors[a] = gcls;
 
-					}
-					for (var a = 0; a < condata.data.descendants.length; a++) {
-						var desce = condata.data.descendants[a];
-						var gcls = new Gpstatus(desce,14);
-
-
-						condata.data.descendants[a] = gcls;
-					}
-					//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
-
-					if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
-						this.toote.ancestors.splice(0,this.toote.ancestors.length);
-						this.toote.descendants.splice(0,this.toote.descendants.length);
-						this.toote.ancestors = this.toote.ancestors.concat(condata.data.ancestors);
-						this.toote.descendants = this.toote.descendants.concat(condata.data.descendants);
-						this.toote.body.replies_count = condata.data.descendants.length;
-						if (!this.comment_stat.full) {
-							this.first_comment_stat.close = false;
-							this.first_comment_stat.mini = true;
-							this.comment_stat.mini = false;
-							this.comment_stat.open = true;
-							
-							/*this.$nextTick(function () {
-								return;
-							});*/
 						}
-					}
-					return condata;
-				})
-				.then((result)=> {
-					
+						for (var a = 0; a < condata.data.descendants.length; a++) {
+							var desce = condata.data.descendants[a];
+							var gcls = new Gpstatus(desce,14);
 
-					var basetoote = this.toote;
-					for (var i = 0; i < basetoote.descendants.length; i++) {
-						var toote = basetoote.descendants[i];
-						if (("relationship" in toote) && ("following" in toote.relationship)) {
-							
-						}else{
-							MYAPP.sns.getRelationship(toote.account.id)
-							.then((result) => {
-								for (var i = 0; i < result.data.length; i++) {
-									for (var obj in result.data[i]) {
-										toote.relationship[obj] = Object.assign({}, result.data[i][obj]);
-									}
+
+							condata.data.descendants[a] = gcls;
+						}
+						//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
+
+						if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
+							this.toote.ancestors.splice(0,this.toote.ancestors.length);
+							this.toote.descendants.splice(0,this.toote.descendants.length);
+							this.toote.ancestors = this.toote.ancestors.concat(condata.data.ancestors);
+							this.toote.descendants = this.toote.descendants.concat(condata.data.descendants);
+							this.toote.body.replies_count = condata.data.descendants.length;
+							if (!this.comment_stat.full) {
+								this.first_comment_stat.close = false;
+								if (this.toote.descendants.length == 1) {
+									this.first_comment_stat.minione = true;
+									this.comment_stat.minione = false;
+								}else{
+									this.first_comment_stat.mini = true;
+									this.comment_stat.mini = false;
 								}
-							});
+								this.comment_stat.open = true;
+								
+							}
 						}
-					}
+						return condata;
+					})
+					.then((result)=> {
+						
 
-				})
-				.finally( () => {
-					//e.target.classList.toggle("lighten-3");
-					//this.isshow_replyinput = !this.isshow_replyinput;
-					//target.querySelector("div.template_reply_box").classList.toggle("common_ui_off");	
-				});
+						var basetoote = this.toote;
+						for (var i = 0; i < basetoote.descendants.length; i++) {
+							var toote = basetoote.descendants[i];
+							if (("relationship" in toote) && ("following" in toote.relationship)) {
+								
+							}else{
+								MYAPP.sns.getRelationship(toote.account.id)
+								.then((result) => {
+									for (var i = 0; i < result.data.length; i++) {
+										for (var obj in result.data[i]) {
+											toote.relationship[obj] = Object.assign({}, result.data[i][obj]);
+										}
+									}
+								});
+							}
+						}
+
+					})
+					.finally( () => {
+						//e.target.classList.toggle("lighten-3");
+						//this.isshow_replyinput = !this.isshow_replyinput;
+						//target.querySelector("div.template_reply_box").classList.toggle("common_ui_off");	
+					});
+				}
 				this.isshow_replyinput = true;
 				e.target.classList.remove("lighten-3");
 			}else{
@@ -621,6 +734,7 @@ Vue.component("timeline-toot", {
 
 		},
 		onclick_ttbtn_fav: function(e) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				//console.log("target=",e.target);
 				e.target.parentElement.classList.add("pulse");
@@ -642,6 +756,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_ttbtn_bst: function(e) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				//console.log("target=",e.target);
 				e.target.parentElement.classList.add("pulse");
@@ -664,32 +779,51 @@ Vue.component("timeline-toot", {
 		},
 		onclick_reaction_fav : function (toote) {
 			this.reaction_dialog_title = this.favourite_reaction_msg();
-			MYAPP.sns.getFavBy(toote.body.id,{
-				api : {},
-				app : {}
-			},"")
-			.then(result => {
-				//console.log("result.data=",result.data);
+
+			if (this.toote.is_archive) {
 				this.reaction_accounts.splice(0,this.reaction_accounts.length);
-				for (var i = 0; i < result.data.length; i++) {
-					this.reaction_accounts.push(result.data[i]);
+				for (var i = 0; i < toote.body.favourite_users.length; i++) {
+					this.reaction_accounts.push(toote.body.favourite_users[i]);
 				}
 				this.is_reactiondialog = !this.is_reactiondialog;
-			});
+			}else{
+				MYAPP.sns.getFavBy(toote.body.id,{
+					api : {},
+					app : {}
+				},"")
+				.then(result => {
+					//console.log("result.data=",result.data);
+					this.reaction_accounts.splice(0,this.reaction_accounts.length);
+					for (var i = 0; i < result.data.length; i++) {
+						this.reaction_accounts.push(result.data[i]);
+					}
+					this.is_reactiondialog = !this.is_reactiondialog;
+				});
+
+			}
 		},
-		onclick_reaction_bst : function (e) {
+		onclick_reaction_bst : function (toote) {
 			this.reaction_dialog_title = this.reblog_reaction_msg();
-			MYAPP.sns.getBoostBy(this.toote.body.id,{
-				api : {},
-				app : {}
-			},"")
-			.then(result => {
+
+			if (this.toote.is_archive) {
 				this.reaction_accounts.splice(0,this.reaction_accounts.length);
-				for (var i = 0; i < result.data.length; i++) {
-					this.reaction_accounts.push(result.data[i]);
+				for (var i = 0; i < toote.body.reblog_users.length; i++) {
+					this.reaction_accounts.push(toote.body.reblog_users[i]);
 				}
 				this.is_reactiondialog = !this.is_reactiondialog;
-			});
+			}else{
+				MYAPP.sns.getBoostBy(this.toote.body.id,{
+					api : {},
+					app : {}
+				},"")
+				.then(result => {
+					this.reaction_accounts.splice(0,this.reaction_accounts.length);
+					for (var i = 0; i < result.data.length; i++) {
+						this.reaction_accounts.push(result.data[i]);
+					}
+					this.is_reactiondialog = !this.is_reactiondialog;
+				});
+			}
 		},
 		/*onfocus_dv_inputcontent: function (e) {
 			e.target.nextElementSibling.classList.remove("common_ui_off");
@@ -782,6 +916,7 @@ Vue.component("timeline-toot", {
 			//this.status_text = "@"+des.account.acct; 
 		},
 		onclick_fav_to_reply: function (e) {
+			if (this.toote.is_archive) return;
 			var tgt = e.target;
 			if (e.target.tagName.toLowerCase() == "i") {
 				tgt = e.target.parentElement;
@@ -813,6 +948,7 @@ Vue.component("timeline-toot", {
 
 		},
 		onclick_bst_to_reply: function(e) {
+			if (this.toote.is_archive) return;
 			var tgt = e.target;
 			if (e.target.tagName.toLowerCase() == "i") {
 				tgt = e.target.parentElement;
@@ -842,6 +978,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_toote_pinn : function (toote) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				MYAPP.sns.setPin(toote.body.id, !toote.body.pinned)
 				.then(result=>{
@@ -865,6 +1002,7 @@ Vue.component("timeline-toot", {
 			MUtility.copyClipboard(this.toote.body.html);
 		},
 		onclick_toote_delete : function (toote,commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",toote,commentIndex);
 				MYAPP.sns.deleteStatus(toote.body.id)
@@ -892,6 +1030,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_toote_mute : function (toote, commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",toote,commentIndex);
 				MYAPP.sns.setMute(toote.body.id, !toote.body.muted)
@@ -919,6 +1058,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_user_mute : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",user,commentIndex);
 				MYAPP.sns.setMuteUser(user.id, !user.relationship.muted)
@@ -946,6 +1086,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_user_block : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",user,commentIndex);
 				MYAPP.sns.setBlockUser(user.id, !user.relationship.blocking)
@@ -973,6 +1114,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_user_endorse : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",user,commentIndex);
 				var isendorse = false;
@@ -1005,6 +1147,7 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_user_report : function (user, toot, commentIndex) {
+			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				console.log("target=",user,commentIndex);
 				MYAPP.sns.setReportUser(user.id,[toot.id],)
@@ -1074,6 +1217,52 @@ Vue.component("timeline-toot", {
 				window.open(url,"_blank");
 			}
 		},
+		onclick_pollrefresh : function (poll) {
+
+		},
+		onclick_pollchoice : function (choice,poll) {
+			if (this.toote.is_archive) return;
+			if (poll.multiple) {
+				this.pollchoice[choice] = !this.pollchoice[choice];
+				if (this.pollchoice[choice]) {
+					this.$set(this.pollicon, choice, "check_box");
+				}else{
+					this.$set(this.pollicon, choice, "check_box_outline_blank");
+				}
+			}else{
+				for (var i = 0; i < this.pollchoice.length; i++) {
+					this.pollchoice[i] = false;
+					//this.pollicon[i] = "radio_button_unchecked";
+					this.$set(this.pollicon, i, "radio_button_unchecked");
+				}
+				this.pollchoice[choice] = true;
+				this.$set(this.pollicon, choice, "radio_button_checked");
+				//this.pollicon[choice] = "radio_button_checked";
+			}
+		},
+		onclick_pollvote : function (poll) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				var choices = [];
+				for (var i = 0; i < this.pollchoice.length; i++) {
+					if (this.pollchoice[i] === true) {
+						choices.push(i);
+					}
+				}
+				MYAPP.sns.votesPolls(poll.id,{
+					api : {
+						choices : choices
+					}
+				});
+			}
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				msg = _T("msg_voting");
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		}
 	}
 });
 //===----------------------------------------------------------------------===
@@ -1235,6 +1424,9 @@ Vue.component("tootgallery-carousel", {
 				});
 				this.onclick_sensitive_ingrid();
 		   	}
+		}
+		if (this.options.initials.is) {
+			this.value.carousel = this.options.initials.value;
 		}
 	},
 	beforeUpdate() {

@@ -221,7 +221,8 @@ var ucommon = {
         mab_id: sysconst.mab_id,
         VAPID: sysconst.vap_id(),
         gdaky: sysconst.gdrive.web.api_key,
-        gdid: sysconst.gdrive.web.client_id
+        gdid: sysconst.gdrive.web.client_id,
+        gdaky_pic: sysconst.gdrive.web.picker_api_key
     },
     load_translation: load_translation,
     /**

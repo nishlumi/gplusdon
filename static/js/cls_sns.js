@@ -1479,7 +1479,47 @@ class Gpsns {
         });
         return def;
     }
-
+    /**=================================================================
+     *   Poll API
+     * =================================================================
+     */
+    getPolls(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            this._accounts.api.get(`polls/${id}`,options.api)
+            .then((data,status,xhr)=>{
+                console.log(`polls/${id}`,data);
+                resolve({data: data, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
+    votePolls(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            var options = {
+                api : {
+                    account_ids : accounts
+                }
+            };
+            this._accounts.api.post(`poll/${id}/votes`,options.api)
+            .then((data,status,xhr)=>{
+                console.log(`poll/${id}/votes`,data);
+                resolve({data: data, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
 }
 
 
@@ -1690,6 +1730,14 @@ class Gpsns {
             //---owner of ancestor toot(limited using)
             this.translateText.visibility3 = _T("tt_share_name",[this.account.display_name]);
         }
+        this.visibility_helper = {
+            "text" : "",
+            "tooltip" : ""
+        };
+        if (this.body.visibility_str) {
+            this.translateText.visibility2  = this.body.visibility_str;
+            this.visibility_helper.tooltip = this.body.visibility_desc;
+        }
 
         //---other information setup
         referContent = ch2seh(referContent);
@@ -1808,6 +1856,12 @@ class Gpsns {
         }*/
         this.cardtypeSize["grid-row-end"] = `span ${num_cardSize}`;
         //console.log(this.cardtypeSize);
+
+        if ("is_archive" in status) {
+            this.is_archive = true;
+        }else{
+            this.is_archive = false;
+        }
 
     }
 }

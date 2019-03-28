@@ -118,6 +118,7 @@ var vue_mixin_for_timeline = {
 			is_asyncing : false,
 			is_scrolltop : true,
 			is_opencomment : false,
+			is_archivemode : false,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
 			tl_tabtype : "home",
@@ -225,6 +226,10 @@ var vue_mixin_for_timeline = {
 				//pastOptions.app.tlshare = this.selshare_current;
 				//pastOptions.app.tltype = this.seltype_current;
 				//console.log("timeline ID=",tlid,JSON.stringify(this.info));
+				if (this.is_archivemode) {
+					this.apply_filter(this.currentFilter);
+					return;
+				}
 				this.loadTimeline(tlid,{
 					api : pastOptions.api,
 					app : pastOptions.app
@@ -289,10 +294,14 @@ var vue_mixin_for_timeline = {
 					//futureOptions.api.since_id = this.info.sinceid;
 					//futureOptions.app.tlshare = this.selshare_current;
 					//futureOptions.app.tltype = this.seltype_current;
-					this.loadTimeline(tlid,{
-						api : futureOptions.api,
-						app : futureOptions.app
-					});
+					if (this.is_archivemode) {
+
+					}else{
+						this.loadTimeline(tlid,{
+							api : futureOptions.api,
+							app : futureOptions.app
+						});
+					}
 					this.is_scrolltop = true;
 					this.pending.above.waiting = false;
 					this.pending.above.is = false;
@@ -493,10 +502,14 @@ var vue_mixin_for_timeline = {
 			//pastOptions.app.tlshare = this.selshare_current;
 			//pastOptions.app.tltype = this.seltype_current;
 			//console.log("timeline ID=",tlid,JSON.stringify(this.info));
-			this.loadTimeline(tlid,{
-				api : pastOptions.api,
-				app : pastOptions.app
-			});
+			if (this.is_archivemode) {
+
+			}else{
+				this.loadTimeline(tlid,{
+					api : pastOptions.api,
+					app : pastOptions.app
+				});
+			}
 		},
 		//---some function----------------------------------------------
 		hide_on_noauth : function () {
@@ -1075,6 +1088,218 @@ var vue_mixin_for_timeline = {
 	}
 };
 //----------------------------------------------------------------------
+var vue_mixin_for_tootmenu = {
+	methods: {
+		get_instance_original_url : function (toote) {
+			return MUtility.generate_instanceOriginalURL(MYAPP.commonvue.cur_sel_account.account,toote);
+		},
+		get_tagurl : function (tag) {
+			return MUtility.generate_hashtagpath(tag);
+		},
+		onclick_vealclose : function (e) {
+			this.show(false);
+		},
+		onclick_toote_pinn : function (toote) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				MYAPP.sns.setPin(toote.body.id, !toote.body.pinned)
+				.then(result=>{
+					console.log("bst after=",result);
+					toote.body.pinned = !toote.body.pinned;
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg = "";
+				if (toote.body.pinned) {
+					msg = _T("msg_confirm_unpin");
+				}else{
+					msg = _T("msg_confirm_pin");
+				}
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_copytext : function (toote) {
+			MUtility.copyClipboard(this.toote.body.html);
+		},
+		onclick_toote_delete : function (toote,commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",toote,commentIndex);
+				MYAPP.sns.deleteStatus(toote.body.id)
+				.then(result=>{
+					console.log("del after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						this.toote.descendants.splice(commentIndex,1);
+						if (this.toote.descendants.length < 1) {
+							this.comment_stat.close = true;
+							this.comment_stat.mini = false;
+							this.comment_stat.open = false;
+						}
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("delete_toot",toote.body.id);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg = _T("msg_delete_toot");
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_toote_mute : function (toote, commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",toote,commentIndex);
+				MYAPP.sns.setMute(toote.body.id, !toote.body.muted)
+				.then(result=>{
+					console.log("mute after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("mute_toot",toote.body.muted);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				if (toote.body.muted) {
+					msg = _T("msg_confirm_unmute");
+				}else{
+					msg = _T("msg_confirm_mute");
+				}
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_user_mute : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",user,commentIndex);
+				MYAPP.sns.setMuteUser(user.id, !user.relationship.muted)
+				.then(result=>{
+					console.log("mute after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("mute_user",result.muting);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				if (user.relationship.muting) {
+					msg = _T("msg_confirm_unmute");
+				}else{
+					msg = _T("msg_confirm_mute");
+				}
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_user_block : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",user,commentIndex);
+				MYAPP.sns.setBlockUser(user.id, !user.relationship.blocking)
+				.then(result=>{
+					console.log("block after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("block user",result.blocking);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				if (user.relationship.blocking) {
+					msg = _T("msg_confirm_unblock");
+				}else{
+					msg = _T("msg_confirm_block");
+				}
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_user_endorse : function (user, commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",user,commentIndex);
+				var isendorse = false;
+				//---for example, pawoo.net don't has "endorsed" 
+				if ("endorsed" in user.relationship) {
+					isendorse = user.relationship.endorsed;
+				}
+				MYAPP.sns.setPinUser(user.id, !isendorse)
+				.then(result=>{
+					console.log("endorse after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("endorse user",result);
+					}
+				});
+			};
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				if (user.relationship.blocking) {
+					msg = _T("msg_confirm_unendorse");
+				}else{
+					msg = _T("msg_confirm_endorse");
+				}
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_user_report : function (user, toot, commentIndex) {
+			if (this.toote.is_archive) return;
+			var mainfunc = () => {
+				console.log("target=",user,commentIndex);
+				MYAPP.sns.setReportUser(user.id,[toot.id],)
+				.then(result=>{
+					console.log("block after=",result);
+					if (commentIndex > -1) {
+						//---if comment, delete this in here
+						
+					}else{
+						//---if toot own, to connect to parent component
+						this.$emit("block user",result.blocking);
+					}
+				});
+			};
+			//TODO: create report dialog !!!
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				msg = _T("msg_confirm_report");
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		},
+		onclick_any_link : function (toote) {
+			var url = `/server/${toote.account.instance}`;
+			location.href = url;
+		},	
+	}
+}
+//----------------------------------------------------------------------
 var vue_mixin_for_inputtoot = {
 	props : {
 		accounts : {
@@ -1412,9 +1637,29 @@ var vue_mixin_for_inputtoot = {
 			}
 			return fnlarr;
 		},
+		/**
+		 * 
+		 * @param {Boolean} is_virtualfull Virtualy full content of status text(text, mention)
+		 */
 		joinStatusContent : function (){
 			var content = this.status_text;
-			if (this.selmentions.length > 0) content += "\n" + this.selmentions.join(" ") + " ";
+
+			//---get and cut Contents-Warning word
+			var cwpos = content.indexOf("-cw-");
+			var post_opt = {"sp":"","main":""};	
+            if (cwpos > -1) {
+                post_opt.sp = content.substr(0,cwpos);
+				post_opt.main = content.substr(cwpos+4,content.length);
+				
+				//---formed mention, prepend top of status text.
+				if (this.selmentions.length > 0) {
+					post_opt.main = this.selmentions.join(" ") + " " + post_opt.main;
+				}
+				//---recover to raw text
+				content = post_opt.sp + "-cw-" + post_opt.main;
+			}else{
+				if (this.selmentions.length > 0) content = this.selmentions.join(" ") + " " + content;
+			}
 			
 			if (this.seltags.length > 0) {
 				var tags = [];
@@ -1768,7 +2013,7 @@ var vue_mixin_for_inputtoot = {
 					for (var m = 0; m < this.medias.length; m++) {
 						mediaids.push(this.medias[m][account.acct].id);
 					}
-					var text = this.joinStatusContent();
+					var text = this.joinStatusContent(true);
 					//---check text limit
 					if (MYAPP.session.status.toot_max_character >  MYAPP.appinfo.config.toot_max_character) {
 						var ishit = null;
@@ -1792,6 +2037,7 @@ var vue_mixin_for_inputtoot = {
 						}
 	
 					}
+
 					var pr = MYAPP.executePost(text,{
 						"account" : account,
 						"scope" : this.selsharescope,
@@ -2471,3 +2717,392 @@ var vue_mixin_for_notification = {
 
 	}
 };
+
+//----------------------------------------------------------------------
+var vue_mixin_for_archiveoption =  {
+	data : () => {
+		return {
+			is_show_archoption : true,
+			is_inputdialog : false,
+			optionpanel_index : 0,
+			filterpanel_index : 0,
+			options : {
+				service : "g",
+				refertype : "l",
+			},
+			filter : {
+				items : {
+					yymm : [], //year,month
+					postacl : "",
+				},
+				current : {
+					year : -1,
+					month : -1,
+					yymm : -1,
+					share_only : "al",
+				}
+			},
+			cssclass : {
+				localrefer : {
+					beforedrag_indicate : true,               
+					dragover_indicate : false,
+				}
+			},
+			jsdata : [],
+			originaldata : [],
+			logs : [],
+		};
+	},
+	methods : {
+		/**
+		 * Click event of Refer button
+		 * @param {Event} e event object
+		 */
+		onclick_refer : function (e) {
+			if (this.options.refertype == "g") {
+				gpGLD.handleAuth()
+				.then(result=>{
+					var authres = result.getAuthResponse();
+					MYAPP.siteinfo.ggl.act = authres.access_token;
+					MYAPP.saveSessionStorage();
+					
+
+					gpGLD.createPicker(authres,(data)=>{
+						//---get file(s) from Google Picker
+						if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+							var doc = data[google.picker.Response.DOCUMENTS];
+							MUtility.loadingON();
+							this.load_gdrivefile(doc);
+						}else{
+							MUtility.loadingOFF();
+						}
+					});
+				});
+	
+			}else if (this.options.refertype == "l") {
+				ID("fl_localrefer").click();
+			}
+		},
+		onclick_inputdirect : function (e) {
+			this.is_inputdialog = true;
+			//appPrompt2("URLを入力してくだされ。",(param,val)=>{
+			//	console.log(val);
+			//},[],"");
+		},
+		onclick_backtimeline : function (e) {
+			vue_archmain.onclick_backtimeline(e);
+		},
+		/**
+		 * Drag over event of drop here area
+		 * @param {Event} e event object
+		 */
+		ondragover_localrefer : function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "copy";
+			this.cssclass.localrefer.dragover_indicate = true;
+			this.cssclass.localrefer.beforedrag_indicate = false;
+		},
+		ondragleave_localrefer : function(e){
+			this.cssclass.localrefer.dragover_indicate = false;
+			this.cssclass.localrefer.beforedrag_indicate = true;
+		},
+		/**
+		 * Drop event of drop here area
+		 * @param {Event} e event object
+		 */
+		ondrop_localrefer : async function(e){
+			
+
+			e.stopPropagation();
+			e.preventDefault();
+			MUtility.loadingON();
+			this.cssclass.localrefer.dragover_indicate = false;
+			this.cssclass.localrefer.beforedrag_indicate = true;
+			console.log(e.dataTransfer);
+			console.log(e.dataTransfer.files,e.dataTransfer.items);
+
+			this.load_droplocalfile(e.dataTransfer.items);
+
+		},
+		/**
+		 * Select event of File box
+		 * @param {Event} e event object
+		 */
+		onchange_fl_localrefer : function (e) {
+			console.log(e.target.files);
+			this.load_referlocalfile(e.target.files);
+		},
+		/**
+		 * Click event of to apply filter button
+		 * @param {Event} e event object
+		 */
+		onclick_apply_filter : function (e) {
+			console.log(this.filter.current);
+			vue_archmain.clearTimeline();
+			delete vue_archmain.currentOption["api"]["max_id"];
+			vue_archmain.apply_filter(this.filter);
+			
+		},
+		/**
+		 * (re-)generate data of filter combobox
+		 * @param {JSON} item {service:object, data:object}
+		 * @return {JSON} first filter value
+		 */
+		reload_filterdata : function (item) {
+			var ys = [];
+			var ms = [];
+			for (var i = 0; i < item.data.length; i++) {
+				var gobj = item.data[i];
+				var y = gobj.body.created_at.getFullYear().toString();
+				var m = (gobj.body.created_at.getMonth()+1).toString();
+				if (m.length == 1) m = "0" + m;
+
+				if (ys.indexOf(y+","+m) == -1) {
+					ys.push(y+","+m);
+				}
+			}
+			ys.sort();
+			//ms.sort();
+			this.$set(this.filter.items,"yymm",ys);
+			//this.$set(this.filter.items,"month",ms);
+			this.filter.current.yymm = ys[0];
+			return {
+				current : {
+					yymm : ys[0],
+					share_only : this.filter.current.share_only,
+				}
+			}
+		},
+		/**
+		 * finalize function for loaded files
+		 * @param {Promise[]} filepromise Promise array
+		 */
+		finalize_loadedFile : function (filepromise) {
+			Promise.all(filepromise)
+			.then(values=>{
+				
+				this.jsdata.sort(function(a,b){
+					if(a.body.created_at.valueOf() > b.body.created_at.valueOf()) return -1;
+					if(a.body.created_at.valueOf() < b.body.created_at.valueOf()) return 1;
+					return 0;
+				});
+				if (this.logs.length == 0) {
+					vue_archmain.appendDatalist(this.options.service,this.jsdata,this.originaldata);
+				}
+			})
+			.finally(()=>{
+				vue_archmain.writeLog(this.logs.join("\n"));
+				if (this.logs.length > 0) {
+					appAlert(_T("msg_archive_error2"));
+				}
+				MUtility.loadingOFF();
+			})
+		},
+		scanFiles : async function (entry, tmpObject) {
+			switch (true) {
+				case (entry.isDirectory) :
+					const entryReader = entry.createReader();
+					const entries = await new Promise(resolve => {
+						entryReader.readEntries(entries => resolve(entries));
+					});
+					await Promise.all(entries.map(entry => scanFiles(entry, tmpObject)));
+					break;
+				case (entry.isFile) :
+					if (entry.fullPath.indexOf(".json") > -1) {
+						tmpObject.push(entry);
+					}
+					break;
+			}
+		},
+		importbody_service : function (js) {
+			var gobj = null;
+			if (this.options.service == "g") {
+				var gobj = SNSCONV.convertFromGplus(js);
+				
+			}
+			console.log(gobj);
+			return gobj;
+		},
+		/**
+		 * Main function for dropping file
+		 * @param {Array} items 
+		 */
+		load_droplocalfile : async function (items) {
+			
+			var result = [];
+			var pros = [];
+			for (var i = 0; i < items.length; i++) {
+				var it = items[i];
+				console.log(it,it.webkitGetAsEntry());
+				
+				pros.push(this.scanFiles(it.webkitGetAsEntry(),result));
+				
+			}
+			await Promise.all(pros);
+			console.log(result);
+			this.logs.splice(0,this.logs.length);
+			this.jsdata.splice(0,this.jsdata.length);
+			this.originaldata.splice(0,this.originaldata.length);
+
+			var filepros = [];
+			for(let rslt of result) {
+				var pro = new Promise((resolve,reject)=>{
+					rslt.file(file => {
+						const reader = new FileReader();
+						reader.readAsText(file);
+						reader.onload = () => {
+							var js = JSON.parse(reader.result);
+							//console.log(rslt.fullPath);
+							//console.log(file);
+							//console.log(reader.result);
+							//console.log(js);
+							var garr = [];
+
+							if (js.length) {
+								for (var j = 0; j < js.length; j++) {
+									var jo = js[j];
+									var gobj = this.importbody_service(jo);
+									if (gobj) {
+										this.jsdata.push(gobj);
+										this.originaldata.push(jo);
+										garr.push(gobj);
+									}else{
+										this.logs.push(_T("msg_archive_error1")+rslt.fullPath);
+									}
+								}
+							}else{
+								var gobj = null;
+								gobj = this.importbody_service(js);
+								if (gobj) {
+									this.jsdata.push(gobj);
+									this.originaldata.push(js);
+									garr.push(gobj);
+								}else{
+									this.logs.push(_T("msg_archive_error1")+rslt.fullPath);
+								}
+								
+							}
+
+							resolve(garr);
+						};
+					});
+				});
+				filepros.push(pro);
+			}
+			this.finalize_loadedFile(filepros);
+		},
+		/**
+		 * Main function for selecting file
+		 * @param {Array} items 
+		 */
+		load_referlocalfile : function (files) {
+			this.logs.splice(0,this.logs.length);
+			this.jsdata.splice(0,this.jsdata.length);
+			this.originaldata.splice(0,this.originaldata.length);
+			var filepros = [];
+			for(var i = 0; i < files.length; i++) {
+				var pro = new Promise((resolve,reject)=>{
+					const reader = new FileReader();
+					reader.readAsText(files[i]);
+					reader.onload = () => {
+						var js = JSON.parse(reader.result);
+						//console.log(rslt.fullPath);
+						//console.log(file);
+						//console.log(reader.result);
+						//console.log(js);
+						var garr = [];
+
+						if (js.length) {
+							for (var j = 0; j < js.length; j++) {
+								var jo = js[j];
+								var gobj = this.importbody_service(jo);
+								if (gobj) {
+									this.jsdata.push(gobj);
+									this.originaldata.push(jo);
+									garr.push(gobj);
+								}else{
+									this.logs.push(_T("msg_archive_error1")+rslt.fullPath);
+								}
+							}
+						}else{
+							var gobj = null;
+							gobj = this.importbody_service(js);
+							if (gobj) {
+								this.jsdata.push(gobj);
+								this.originaldata.push(js);
+								garr.push(gobj);
+							}else{
+								this.logs.push(_T("msg_archive_error1")+rslt.fullPath);
+							}
+						}
+
+						resolve(garr);
+					}
+				});
+				filepros.push(pro);
+			}
+			this.finalize_loadedFile(filepros);
+
+		},
+		/**
+		 * Main function for selecting file in Google Drive
+		 * @param {Array} items 
+		 */
+		load_gdrivefile : async function (items) {
+			var result = [];
+			var pros = [];
+			this.logs.splice(0,this.logs.length);
+			this.jsdata.splice(0,this.jsdata.length);
+			this.originaldata.splice(0,this.originaldata.length);
+			console.log("gitems=",items);
+
+			var filepros = [];
+			for (var i = 0; i < items.length; i++) {
+				var pro = new Promise((resolve,reject)=>{
+					
+					gpGLD.loadFullFile(items[i])
+					.then(res => {
+						var js = res.data.result;
+
+						var garr = [];
+
+						if (js.length) {
+							for (var j = 0; j < js.length; j++) {
+								var jo = js[j];
+								var gobj = this.importbody_service(jo);
+								if (gobj) {
+									this.jsdata.push(gobj);
+									this.originaldata.push(jo);
+									garr.push(gobj);
+								}else{
+									this.logs.push(_T("msg_archive_error1")+res.file.name);
+								}
+								
+							}
+						}else{
+							var gobj = null;
+							
+							gobj = this.importbody_service(js);
+							if (gobj) {
+								this.jsdata.push(gobj);
+								this.originaldata.push(js);
+								garr.push(gobj);
+							}else{
+								this.logs.push(_T("msg_archive_error1")+res.file.name);
+							}
+							
+						}
+						if (this.logs.length > 0) {
+							reject(this.logs);
+						}else{
+							resolve(garr);
+						}
+					});
+				});
+				filepros.push(pro);
+			}
+			this.finalize_loadedFile(filepros);
+		}
+	}
+}

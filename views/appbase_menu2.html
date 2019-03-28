@@ -1,0 +1,197 @@
+<v-list dense>
+    <!--<v-tooltip right>
+        <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/dashboard')" v-ripple>
+            <v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
+            <v-list-tile-content class="{{menustat.dashboard}}">
+                <v-list-tile-title>
+                    <span class="menulst_row title">{{trans.dashboard}}</span></v-list-tile-title>
+            </v-list-tile-content>
+        </v-list-tile>
+    
+        <span>{{trans.dashboard}}</span>
+    </v-tooltip>-->
+
+    <v-tooltip right>
+        <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink('/')" v-ripple>
+            <v-list-tile-action><v-icon>public</v-icon></v-list-tile-action>
+            <v-list-tile-content>
+                <v-list-tile-title><span class="menulst_row title">{{trans.startpage}}</span></v-list-tile-title>
+            </v-list-tile-content>
+        </v-list-tile>
+        <span>{{trans.startpage}}</span>
+    </v-tooltip>
+    <v-tooltip right>
+        <v-list-tile slot="activator"  class="menulst_tile"  >
+            <v-list-tile-action><v-icon>help</v-icon></v-list-tile-action>
+            <v-list-tile-content>
+                <a id="sm_help" href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank"><span>{{trans.help}}</span></a>
+            </v-list-tile-content>
+        </v-list-tile>
+        <span>{{trans.help}}</span>
+    </v-tooltip>
+    <v-tooltip right>
+        <v-list-tile slot="activator" class="menulst_tile" v-on:click="onclick_menulink2">
+            <v-list-tile-action><v-icon>check</v-icon></v-list-tile-action>
+            <v-list-tile-content>
+                <v-list-tile-title>
+                    <span class="title">{{trans.about_app}}</span>
+                </v-list-tile-title>
+            </v-list-tile-content>
+        </v-list-tile>
+        <span>{{trans.about_app}}(version, etc)</span>
+    </v-tooltip>
+</v-list>
+<v-layout row wrap class="mt-1" v-if="is_show_archoption">
+    <v-flex xs12>
+        <v-expansion-panel v-model="optionpanel_index">
+            <v-expansion-panel-content :key="0">
+                <div slot="header">{{trans.lab_archive_about}}</div>
+                <v-layout row wrap class="panel-archive-helpbox">
+                    <v-flex xs12 class="pl-2">
+                        <p class="mt-2 mb-1 body-1">
+                            {{trans.msg_arch_title}}<br>
+                            <br>
+                            {{trans.msg_arch_desc}}
+                        </p>
+                    </v-flex>
+                    <v-flex xs12 class="mt-2 pl-2">
+                        <details>
+                            <summary class="list_summary2"><b class="title red--text">{{trans.msg_archive_man_title}}</b></summary>
+                            <div class="body-2">
+                                <ul class="browser-default">
+                                    <li>{{trans.msg_archive_man_1}}</li>
+                                    <li>{{trans.msg_archive_note_6}}</li>
+                                    <li>{{trans.msg_archive_man_2}}</li>
+                                    <li>{{trans.msg_archive_man_3}}</li>
+                                    <li>{{trans.msg_archive_man_4}}</li>
+                                </ul>
+                            </div>
+                        </details>
+                    </v-flex>
+                    <v-flex xs12 class="mt-2 pl-2">
+                        <details>
+                            <summary class="list_summary2"><b class="title red--text">{{trans.msg_archive_note_title}}</b></summary>
+                            <div class="body-2">
+                                <ul class="browser-default">
+                                    <li>{{trans.msg_archive_note_1}}</li>
+                                    <li>{{trans.msg_archive_note_2}}</li>
+                                    <li>{{trans.msg_archive_note_3}}</li>
+                                    <li>{{trans.msg_archive_note_4}}</li>
+                                    <li>{{trans.msg_archive_note_5}}</li>
+                                </ul>
+                            </div>
+                        </details>
+                        
+                        
+                    </v-flex>
+                </v-layout>
+            </v-expansion-panel-content>
+            <v-expansion-panel-content :key="1">
+                <div slot="header">{{trans.lab_source_service}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-radio-group v-model="options.service">
+                            <v-radio label="Google+" value="g"></v-radio>
+                            <v-radio label="Twitter" value="t" disabled></v-radio>
+                            <v-radio label="Mastodon" value="m" disabled></v-radio>
+                        </v-radio-group>
+                    </v-card-text>
+                </v-card>
+            </v-expansion-panel-content>
+            <v-expansion-panel-content :key="2">
+                <div slot="header">{{trans.lab_archive_datapath}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-radio-group v-model="options.refertype">
+                            <v-radio label="Google Drive" value="g"></v-radio>
+                            <v-radio label="PC, etc..." value="l"></v-radio>
+                        </v-radio-group>
+                        <v-layout row wrap>
+                            <v-flex xs12>
+                                <v-btn color="yellow" @click="onclick_refer">{{trans.lab_archive_refer}}</v-btn>
+                                <v-btn color="white" class="common_ui_off" @click="onclick_inputdirect">{{trans.btn_handspchar}}</v-btn>
+                                <input type="file" id="fl_localrefer" multiple @change="onchange_fl_localrefer" class="common_ui_off" >
+                                <v-layout row justify-center>
+                                    
+                                </v-layout>
+                            </v-flex>
+                            <v-flex xs12>
+                                <div id="area_localrefer" 
+                                    class="body-1" v-bind:class="cssclass.localrefer" style="width:100%;height:4rem;z-index:10"
+                                    v-on:dragover="ondragover_localrefer"
+                                    v-on:dragleave="ondragleave_localrefer"
+                                    v-on:drop="ondrop_localrefer"
+                                >
+                                    {{trans.lab_archive_dropfile}}
+                                </div>
+                            </v-flex>
+                        </v-layout>
+                    </v-card-text>
+                </v-card>
+            </v-expansion-panel-content>
+        </v-expansion-panel>
+        
+    </v-flex>
+    
+    <v-flex xs12 class="mt-2 mb-2" text-xs-center>
+        <v-divider></v-divider>
+    </v-flex>
+    <v-flex xs12>
+        <v-expansion-panel v-model="filterpanel_index">
+            <v-expansion-panel-content :key="0">
+                <div slot="header">{{trans.filter}}</div>
+                <v-card>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-flex xs5>
+                                <!--<v-select
+                                    v-model="filter.current.year"
+                                    :items="filter.items.year"
+                                ></v-select>-->
+                                <select id="sel_filter_year" v-model="filter.current.yymm" class="browser-default filter-box">
+                                    <option value="0">---</option>
+                                    <option v-for="(item,index) in filter.items.yymm" :key="index" :value="item">{?item.replace(",","/")?}</option>
+                                </select>
+                            </v-flex>
+                            <v-flex xs6 offset-xs1>
+                                <select id="sel_filter_share" v-model="filter.current.share_only" class="browser-default filter-box">
+                                    <option value="al">{{trans.tt_all}}</option>
+                                    <option value="pu">{{trans.tt_public}}</option>
+                                    <option value="pr">{{trans.tt_private}}</option>
+                                    <option value="cl">{{trans.collection}}</option>
+                                    <option value="cm">{{trans.community}}</option>
+                                </select>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-layout row wrap justify-end>
+                                    <v-btn color="blue" class="white--text" @click="onclick_apply_filter">{{trans.cons_apply}}</v-btn>
+                                </v-layout>
+                            </v-flex>
+                        </v-layout>
+                    </v-card-text>
+                </v-card>
+            </v-expansion-panel-content>
+        </v-expansion-panel>
+            
+    </v-flex>
+</v-layout>
+<v-dialog v-model="is_inputdialog" hide-overlay>
+    <v-card>
+        <v-card-title class="headline">headline</v-card-title>
+        <v-card-text>
+            <v-textarea
+                outline box
+                rows="5"
+                height="6rem"
+                label="Content"
+                
+            ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" flat @click.native="is_inputdialog = false">{{trans.cons_cancel}}</v-btn>
+            <v-btn color="primary" flat @click.native="is_inputdialog = false">OK</v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
+

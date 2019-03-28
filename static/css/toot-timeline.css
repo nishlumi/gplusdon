@@ -572,11 +572,16 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 }
 .toot_card_base .toot_comment.open {
     transition: 0.2s;
-    min-height : 8rem;
+    min-height : 10rem;
     max-height : 35.5rem;
 }
 .toot_card_base .toot_comment.mini {
-    height : 8rem;
+    height : 15rem;
+    overflow: auto;
+}
+.toot_card_base .toot_comment.minione {
+    height : 10rem;
+    overflow: auto;
 }
 .toot_card_base .toot_comment.full {
     height : auto;
@@ -589,11 +594,14 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 }
 .toot_card_base .toot_comment .comment-list-area {
     min-height : 0;
-    overflow : auto;
+    /*overflow : auto;*/
     -webkit-overflow-scrolling: touch;
 }
 .toot_card_base .toot_comment .comment-list-area.default {
-    max-height : calc(30rem - 8rem);
+    max-height : calc(30rem - 5rem);
+}
+.toot_card_base .toot_comment .comment-list-area.scrollwithoutmini {
+    overflow : auto;
 }
 .collection .collection-item.avatar i.replycircle {
     width : 32px !important;
@@ -612,6 +620,12 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     position : absolute;
     bottom : 1rem;
     right : 2rem;
+}
+.toot_comment .announce_fullview {
+    width : 100%;
+    position: absolute;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.85);
 }
 
 
@@ -641,9 +655,27 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 .btn_vealclose {
     cursor : pointer;
 }
-
-
-
+.panel-mobile-detailmenu {
+    z-index : 1005;
+    width : 100%;
+    height : 100%;
+    position: fixed;
+    top : 0;
+    transform: translateX(100%);
+}
+.panel-mobile-detailmenu > div {
+    height : 100%;
+}
+.panel-mobile-moved {
+    transform: translateX(0%);
+}
+.panel-mobile-detailmenu .mbl_title {
+    height : 89px;
+}
+.panel-mobile-detailmenu .mbl_body {
+    height : calc(100% - 89px);
+    overflow: auto;
+}
 /*====================================================
   hashtag timeline UI
 =====================================================*/

@@ -498,7 +498,7 @@ class AccountManager {
                             ac.load(fdata[i]);
                             //console.log("ac.api=",ac.api,values[ac.instance]);
                             ac.api.setConfig("stream_url",values[ac.instance].info.urls.streaming_api);
-                            if ((location.pathname != "/toot/new") && (location.pathname != "/")) {
+                            if ((location.pathname != "/toot/new") && (location.pathname != "/") && (location.pathname != "/arch")) {
                                 ac.stream.start();
                                 ac.direct.start();
                             }

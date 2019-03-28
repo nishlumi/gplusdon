@@ -259,3 +259,120 @@
         </v-card>
     </v-dialog>
 </div>
+<div id="mbl_detailmenu">
+    <!--<v-navigation-drawer v-model="is_show" right absolute temporary >-->
+            <!-----reveal menu for the toot-->
+        <v-card class="panel-mobile-detailmenu" :class="cssclass.paneling">
+            <div v-if="toote">
+                <v-card-title primary-title class="mbl_title">
+                    <v-layout row wrap>
+                        <v-flex xs11>
+                                <span class="title">{{ trans.detail }}</span>
+                        </v-flex>
+                        <v-flex xs1>
+                            <span class="right" v-on:click="onclick_vealclose"><i class="material-icons btn_vealclose">close</i></span>        
+                        </v-flex>
+                    </v-layout>                    
+                </v-card-title>
+                <v-card-text class="mbl_body">
+                    <v-list>
+                            <v-divider></v-divider>
+                        <v-list-tile>
+                            <v-list-tile-title><a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ trans.thistoot_original }}</a></v-list-tile-title>
+                        </v-list-tile>
+                            <v-divider></v-divider>
+                        <v-list-tile v-on:click="onclick_copytext(toote)">
+                            <v-list-tile-title>{{trans.thistoot_copy}}</v-list-tile-title>
+                        </v-list-tile>
+                            <v-divider></v-divider>
+                        <template v-if="toote.relationship.isme">
+                            <v-list-tile v-on:click="onclick_toote_pinn(toote)">
+                                <v-list-tile-title>{? toote.body.pinned ? translation.thistoot_unpinned : translation.thistoot_pinned ?}</v-list-tile-title>
+                            </v-list-tile>
+                                <v-divider></v-divider>
+                            <v-list-tile v-on:click="onclick_toote_delete(toote,-1)">
+                                    <v-list-tile-title>{{ trans.thistoot_delete }}</v-list-tile-title>
+                            </v-list-tile>
+                                <v-divider></v-divider>
+                        </template>
+                        <v-list-tile v-on:click="onclick_toote_mute(toote,-1)">
+                            <v-list-tile-title>{? toote.body.muted ? translation.thistoot_unmute : translation.thistoot_mute ?}</v-list-tile-title>
+                        </v-list-tile>
+                            <v-divider></v-divider>
+                        <template v-if="!toote.relationship.isme">
+                            <v-list-tile v-on:click="onclick_user_mute(toote.account,-1)">
+                                <v-list-tile-title v-html="ch2seh(toote.relationship.muting ? toote.translateText.thisuser_unmute : toote.translateText.thisuser_mute)"></v-list-tile-title>
+                            </v-list-tile>
+                                <v-divider></v-divider>
+                            <v-list-tile v-on:click="onclick_user_block(toote.account,-1)">
+                                <v-list-tile-title v-html="ch2seh(toote.relationship.blocking ? toote.translateText.thisuser_unblock : toote.translateText.thisuser_block)"></v-list-tile-title>
+                            </v-list-tile>
+                                <v-divider></v-divider>
+                            <v-list-tile v-on:click="onclick_user_endorse(toote.account,-1)">
+                                <v-list-tile-title v-html="ch2seh(toote.body.pinned ? toote.translateText.thisuser_unendorse : toote.translateText.thisuser_endorse)"></v-list-tile-title>
+                            </v-list-tile>
+                                <v-divider></v-divider>
+                            <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)">
+                                <v-list-tile-title v-html="ch2seh(toote.translateText.thisuser_report)"></v-list-tile-title>
+                            </v-list-tile>
+                            <v-divider></v-divider>
+                        </template>
+                        <v-list-tile v-on:click="onclick_any_link(toote)">
+                            <v-list-tile-title>{{ trans.to_show_their_instance }}</v-list-tile-title>
+                        </v-list-tile>
+
+                    </v-list>
+                    <dl>
+                        <dt>{{trans.lab_each_info}}</dt>
+                        <dd>
+                            <v-layout row wrap>
+                                <v-flex xs12>
+                                    <a :href="get_instance_original_url(toote)" target="_blank">{{trans.lab_instance_original}}</a>
+                                </v-flex>
+                                <v-flex xs4>
+                                        {{trans.lab_original_postdate}}
+                                    </v-flex>
+                                    <v-flex xs8>
+                                        <span>{?toote.body.created_at?}</span>
+                                    </v-flex>
+                                    <v-flex xs4>
+                                        {{trans.lab_language}}
+                                    </v-flex>
+                                    <v-flex xs8>
+                                        <span>{?toote.body.language?}</span>
+                                    </v-flex>
+                                    <v-flex xs4>
+                                        {{trans.lab_source_app}}
+                                    </v-flex>
+                                    <v-flex xs8>
+                                        <template v-if="toote.body.application">
+                                            <template v-if="toote.body.application.website != ''">
+                                                <a :href="toote.body.application.website" target="_blank">{?toote.body.application.name?}</a>
+                                            </template>
+                                            <template v-else>
+                                                <span>{?toote.body.application.name?}</span>
+                                            </template>
+                                        </template>
+                                        <template v-else>
+                                            {{trans.lab_unknown}}
+                                        </template>
+                                    </v-flex>
+                                </v-layout>
+                        </dd>
+                        <dt>{{ trans.mentions }}</dt>  
+                        <dd>  
+                        <a class="chip" v-for="men in toote.body.mentions" :href="men.url" rel="noopener" target="_blank">{? men.acct ?}</a>  
+                        </dd>  
+                        <dt>{{ trans.tags }}</dt>  
+                        <dd>
+                        <a class="chip" v-for="tag in toote.body.tags" :href="tag.url" rel="noopener">{? tag.name ?}</a>
+                        </dd>  
+                    </dl>
+                </v-card-text>  
+            
+                <input type="hidden" name="tootid" v-bind:value="toote.body.id">
+                <input type="hidden" name="userid" v-bind:value="toote.account.id">
+            </div>
+        </v-card>
+    <!--</v-navigation-drawer>-->
+</div>

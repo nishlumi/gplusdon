@@ -19,6 +19,12 @@ function defineForMainPage(app) {
             is_tllist : false,
             sel_listitem : "",
             list_items : [],
+            css : {
+                bgred : {
+                    "black--text" : true,
+                    "red--text" : false,
+                }
+            },
             
             //---#frm_navleft(=navibar)
 
@@ -77,6 +83,25 @@ function defineForMainPage(app) {
             //---#frm_navleft
             onclick_sidenavbtn : function (e) {
                 MYAPP.commonvue.sidebar.drawer = !MYAPP.commonvue.sidebar.drawer;
+            },
+            onclick_brandicon : function (e) {
+                /*var elems = document.querySelectorAll("#maincol_leftmenu div.collection a.collection-item span");
+                for (var i = 0; i < elems.length; i++) {
+                    elems[i].classList.toggle("user-slideOutLeft");
+                }*/
+                MYAPP.commonvue.cur_sel_account.menu_text = !MYAPP.commonvue.cur_sel_account.menu_text;
+                MYAPP.commonvue.cur_sel_account.css.colwidth.l3 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l3;
+                MYAPP.commonvue.cur_sel_account.css.colwidth.l1 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l1;
+                //ID("maincol_leftmenu").classList.toggle("l3");
+                //ID("maincol_leftmenu").classList.toggle("l1");
+                ID("maincol_rightmain").classList.toggle("l9");
+                ID("maincol_rightmain").classList.toggle("l11");
+
+                MYAPP.commonvue.cur_sel_account.is_show_archoption = !MYAPP.commonvue.cur_sel_account.is_show_archoption;
+    
+                MYAPP.session.config.application.show_menutext = !MYAPP.session.config.application.show_menutext;
+                MYAPP.session.save(true);
+                e.stopPropagation();
             },
 
             //---#frm_search
@@ -246,7 +271,7 @@ function defineForMainPage(app) {
 
     app.commonvue["cur_sel_account"] = new Vue({
         el : "#maincol_leftmenu",
-        mixins: [vue_mixin_base],
+        mixins: [vue_mixin_base,vue_mixin_for_archiveoption],
         delimiters : ["{?", "?}"],
         data : {
             applogined : false,
@@ -262,6 +287,7 @@ function defineForMainPage(app) {
                     red : false,
                 }
             },
+
             menu_text : true
         },
         mounted : function(){
@@ -318,6 +344,9 @@ function defineForMainPage(app) {
                 MYAPP.forms.sidenav.close();
                 MYAPP.commonvue.appdialog.isappdialog = true;
             },
+
+            
+
         }
     });
     /*app.commonvue["leftmenu"] = new Vue({
@@ -330,13 +359,15 @@ function defineForMainPage(app) {
     });*/
     app.commonvue["sidebar"] = new Vue({
         el : "#slide-out",
-        mixins: [vue_mixin_base],
+        mixins: [vue_mixin_base,vue_mixin_for_archiveoption],
         delimiters : ["{?", "?}"],
         data : {
             drawer : false,
             applogined : false,
             account : {},   //---This app's Account
             whole_notification : false,
+
+
         },
         computed : {
             acct : function(){
@@ -369,6 +400,9 @@ function defineForMainPage(app) {
                 MYAPP.forms.sidenav.close();
                 MYAPP.commonvue.appdialog.isappdialog = true;
             },
+
+
+
         }
     });
     app.commonvue["nav_sel_account"] = new Vue({
@@ -423,6 +457,8 @@ function defineForMainPage(app) {
                 MYAPP.commonvue.cur_sel_account.whole_notification = ishit;
                 MYAPP.commonvue.cur_sel_account.css.bgred.red = ishit;
                 MYAPP.commonvue.sidebar.whole_notification = ishit;
+                MYAPP.commonvue.navigation.css.bgred["red--text"] = ishit;
+                MYAPP.commonvue.navigation.css.bgred["black--text"] = !ishit;
             },
             fullname : function (ac) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
@@ -640,6 +676,7 @@ function defineForMainPage(app) {
             comment_viewstyle : {
                 close : false,
                 mini : true,
+                minione : false,
                 open : false,
                 full : false
             },
@@ -1114,6 +1151,7 @@ function defineForMainPage(app) {
             comment_viewstyle : {
                 close : false,
                 mini : false,
+                minione : false,
                 open : false,
                 full : true
             },
@@ -1255,6 +1293,39 @@ function defineForMainPage(app) {
             
         }
     });
+    app.commonvue["mobilemenu"] = new Vue({
+        el : "#mbl_detailmenu",
+        delimiters : ["{?", "?}"],
+        mixins : [vue_mixin_base,vue_mixin_for_tootmenu],
+
+        data : {
+            is_show : false,
+
+            fullscreen : false,
+            isfull_toolbar : false,
+            activewidth : "80%",
+            cssclass : {
+                paneling : {
+                    "panel-mobile-moved" : false
+                }
+            },
+            
+            translation : curLocale.messages,
+            toote : null,
+            globalInfo : {
+                staticpath : app.appinfo.staticPath
+            },
+        },
+        methods : {
+            show : function (flag) {
+                this.is_show = flag;
+                this.cssclass.paneling["panel-mobile-moved"] = flag;
+            },
+            isShow : function () {
+                return this.is_show;
+            },
+        }
+    });
 
     app["setupMainPageElement"] = function() {
         //------------------------------------------------
@@ -1273,11 +1344,9 @@ function defineForMainPage(app) {
             MYAPP.forms.sidenav.open();
             e.stopPropagation();
         });
+        /*
         ID("img_brand").addEventListener("click", function (e) {
-            /*var elems = document.querySelectorAll("#maincol_leftmenu div.collection a.collection-item span");
-            for (var i = 0; i < elems.length; i++) {
-                elems[i].classList.toggle("user-slideOutLeft");
-            }*/
+            
             MYAPP.commonvue.cur_sel_account.menu_text = !MYAPP.commonvue.cur_sel_account.menu_text;
             MYAPP.commonvue.cur_sel_account.css.colwidth.l3 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l3;
             MYAPP.commonvue.cur_sel_account.css.colwidth.l1 = !MYAPP.commonvue.cur_sel_account.css.colwidth.l1;
@@ -1290,6 +1359,7 @@ function defineForMainPage(app) {
             MYAPP.session.save(true);
             e.stopPropagation();
         });
+        */
         /*var menu = document.querySelector("#maincol_leftmenu div.collection a.menu_parent, #slide-out");
         if (menu) {
             menu.addEventListener("click", function (e) {
@@ -1348,6 +1418,12 @@ function defineForMainPage(app) {
                 //---/notifications
                 if (Q(".notifcation_body")) {
                     elemName = ".notifcation_body";
+                }
+                //---/arch
+                if (Q(".archmain_body")) {
+                    
+                    elemName = ".archmain_body";
+                    
                 }
                 if (elemName != "") {
                     Q(elemName).scroll({top:0,behavior: "smooth"});

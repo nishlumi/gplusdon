@@ -1,5 +1,6 @@
 'use strict';
 var express = require('express');
+const path = require("path");
 const fs = require("fs");
 var cls_mstdn = require("../apps/cls_mstdn");
 
@@ -187,9 +188,18 @@ router.get('/srv/accounts/:instance/:id', function (req, res) {
         .then(result => {
             res.send(result);
         });
-    
-        
-    
+});
+router.get('/.well-known/assetlinks.json', function (req, res) {
+    var asfile = "/static/well-known/assetlinks.json";
+    var fpath = path.join(__user_dirname + "/..", asfile);
+    var ret = {};
+    if (fs.existsSync(fpath)) {
+        ret = fs.readFileSync(fpath, "utf-8");
+        res.send(JSON.parse(ret));
+    } else {
+        res.send(ret);
+    }
+
 });
 router.get('/srv/pleroma/:instance/:version/:endpoint', function (req, res) {
     var v = req.params.version.replace("_","/");

@@ -20,6 +20,7 @@ var sysconst = {
     gdrive: {
         "web": {
             "api_key": '-E',
+            "picker_api_key": "",
             "client_id": "",
             "project_id": "gplus-mastodon-webclient",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",

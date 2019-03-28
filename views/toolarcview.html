@@ -84,13 +84,13 @@
                                 <a id="sidenav_btn" href="#" class="sidenav-trigger show-on-medium-and-down"><i class="material-icons" v-bind:class="css.bgred">menu</i></a>
                                     
                                 
-                                <img id="img_brand" class="brand-image hidden-sm-and-down" src="/static/images/app_icon.png" width="48" height="48">
+                                <img id="img_brand" @click="onclick_brandicon" class="brand-image hidden-sm-and-down" src="/static/images/app_icon.png" width="48" height="48">
                                 <span class="brand-title black-text hidden-sm-and-down">{{sysinfo.fullname}}</span>
                             </div>
-                            <div class="col s4 m5 l3" >
+                            <div class="col s4 m5 l3">
                                 <template v-if="!is_tllist">
                                     <v-tooltip right>
-                                        <span id="general_title" slot="activator"  class="black-text general-title truncate" v-text="genttl.text"></span>
+                                        <div id="general_title" slot="activator" class="black-text general-title truncate" v-text="genttl.text"></div>
                                         <span>{? genttl.tooltip?}</span>
                                     </v-tooltip>
                                 </template>
@@ -105,7 +105,7 @@
                                     ></v-select>
                                 </template>
                             </div>
-                            <div id="frm_search"  class="col l4 hide-on-med-and-down" v-cloak>
+                            <div id="frm_search"  class="col l4 hide-on-med-and-down common_ui_off" v-cloak>
                                 <form class=""  v-on:submit.prevent="onsubmit_search">
                                     <!--<div id="box_search" class="input-field col s12" style="padding:2px 0 2px 0;">
                                         <input id="inp_search" type="search" v-bind:value="findtext" class="navsearch grey lighten-3 black-text" style="margin:5px;border-radius:10px;" placeholder="search any">
@@ -141,7 +141,7 @@
                                             <span slot="badge">{? notif_badge_count ?}</span> 
                                             <a id="navbtn_notification" v-on:click.stop="onclick_notification"><i class="material-icons black-text" id="navbtn_icon_notification">notifications_none</i></a>
                                         </v-badge>-->
-                                        <v-btn :flat="ntf_stat.flat" :icon="ntf_stat.icon"
+                                        <v-btn :flat="ntf_stat.flat" :icon="ntf_stat.icon" class="common_ui_off"
                                             :fab="ntf_stat.fab" :dark="ntf_stat.dark" small
                                             :color="ntf_stat.color"
                                             v-on:click.stop="onclick_notification"
@@ -155,7 +155,7 @@
                                         </v-btn>
                                         
                                     </li>
-                                    <li><a id="navbtn_refresh" class="hidden-sm-and-down" v-on:click.stop="onclick_refresh"><i class="material-icons black-text">refresh</i></a></li>
+                                    <li><a id="navbtn_refresh" class="hidden-sm-and-down common_ui_off" v-on:click.stop="onclick_refresh"><i class="material-icons black-text">refresh</i></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -170,7 +170,7 @@
             <div id="mainpanel">
                 <div class="row inherited_body_range">
                     <div id="maincol_leftmenu" class="col hide-on-med-and-down" v-bind:class="css.colwidth" v-cloak>
-                        <div id="cur_sel_account" v-if="'rawdata' in account">
+                        <div id="cur_sel_account" v-if="'rawdata' in account" class="common_ui_off">
                             <!--<ul class="collection cursel-accountbox z-depth-1">
                                 <li class="collection-item avatar">
                                     <a  v-on:click="onclick_current_selaccount">
@@ -196,8 +196,8 @@
                                 </v-card-text>
                             </v-card>
                         </div>
-                        <div id="leftmenu_main" class="collection">
-                            {% include "appbase_menu.html" %}
+                        <div id="leftmenu_main" class="">
+                            {% include "appbase_menu2.html" %}
                         </div>
                         
                     </div>
@@ -265,7 +265,7 @@
                 <li><a id="sm_startpage" href="/" class="collection-item maincol_menu"><i class="material-icons">public</i><span>{{trans.startpage}}</span></a></li>
                 -->
                 <li>
-                        {% include "appbase_menu.html" %}
+                        {% include "appbase_menu2.html" %}
                 </li>
             <!--
             <template v-else>
@@ -398,6 +398,7 @@
         <script src="/static/lib/jtimeago/locales/jquery.timeago.{{ lang }}.js"></script>
         <script src="/static/lib/paste.js"></script>
         <script src="/static/lib/push.min.js"></script>
+        <script src="/static/lib/FileSaver.min.js"></script>
 
         <script src="/static/lib/cke/ckeditor.js"></script>
 
@@ -417,6 +418,7 @@
     <script src="/static/js/cls_ck_inputbox.js"></script>
     
     <script src="/static/js/util.js"></script>
+    <script src="/static/js/util_arch.js"></script>
     <script src="/static/js/mixins_vue.js"></script>
     <script src="/static/js/cls_vue.js"></script>
     <script src="/static/js/cls_vue2.js"></script>
