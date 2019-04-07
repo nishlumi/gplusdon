@@ -699,37 +699,11 @@ div.post_card_above2 {
 }
 */
 .card.fitcontent {
-    height : -moz-fit-content;
-    height : fit-content;
-}
-/*
-.card .card-comment {
-    overflow : hidden;
-}
-.card .card-comment.open {
-    max-height : 27rem;
-}
-.card .card-comment.mini {
-    height : 6rem;
-    overflow: hidden;
-}
-.card .card-comment.full {
+    /*height : -moz-fit-content;
+    height : fit-content;*/
     height : auto;
 }
-.card-comment .comment-list.sizing {
-    max-height: 20rem;
-    overflow : auto;
-}
-*/
-.template_reply_box {
-    position: relative;
-}
-.template_reply_box .reply_icon {
-    float : left;
-}
-.template_reply_box .layout.row {
-    margin-left : 0;
-}
+
 .inputcontent_div {
 	background-color: #FFFFFF;
 	font-size : 1.2rem;
@@ -1401,7 +1375,7 @@ div.instances_body .card .card-content.card-account-content p {
     color : #000000;
     overflow : auto;
     -webkit-overflow-scrolling: touch;
-    width : 100%;
+    width : 99%;
     height : calc(1.7rem * 6);
     border-bottom : 0.1rem solid #C7C7C7;
     margin-bottom : 0.5rem;
@@ -1413,7 +1387,7 @@ div.instances_body .card .card-content.card-account-content p {
     color : #000000;
     overflow : auto;
     -webkit-overflow-scrolling: touch;
-    width : 100%;
+    width : 99%;
     height : calc(1.7rem * 3);
     border-bottom : 0.1rem solid #C7C7C7;
     margin-bottom : 0.5rem;

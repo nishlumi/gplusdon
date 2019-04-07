@@ -251,6 +251,8 @@ class AccountManager {
                                     //---if exists, not register but update.
                                     MYAPP.acman.set(key,acc);
                                 }
+                                //---no neccesary https// (add automatically)
+                                result.uri = result.uri.replace("https://","");
 
                                 MYAPP.acman.instances[result.uri] = {
                                     info : result,
@@ -265,6 +267,9 @@ class AccountManager {
                                 });
                             })
                             .then(result2=> {
+                                if (result2.instancedata.info.version.indexOf("Pleroma") > -1) {
+
+                                }
                                 return MYAPP.sns.getInstanceEmoji(result2.instance)
                                 .then(emojiresult => {
                                     result2.instancedata["emoji"] = emojiresult;
@@ -323,6 +328,35 @@ class AccountManager {
         }
 
     }
+    getInstance(key) {
+        if (this.instances[key]) {
+            return this.instances[key];
+        }else{
+            return null;
+        }
+    }
+    checkInstanceVersion(instance) {
+        var inst = this.getInstance(instance);
+		if (inst) {
+			if (inst.info.version) {
+                if (inst.info.version.indexOf("Pleroma") > -1) {
+                    return {
+                        service : "pleroma",
+                        version : inst.info.version
+                    };
+                }else{
+                    return {
+                        service : "mastodon",
+                        version : inst.info.version
+                    };
+                }
+            }else{
+                return null;
+            }
+		}else{
+			return null;
+		}
+	}
     set(key,item) {
         var olditem = this.getIndex(key);
         this.items[olditem] = item;
@@ -528,6 +562,8 @@ class AccountManager {
                             promises.push(
                                 MYAPP.sns.getInstanceInfo(ac.instance)
                                 .then(result=> {
+                                    //---no neccesary https// (add automatically)
+                                    result.uri = result.uri.replace("https://","");
                                     this.instances[result.uri] = {
                                         info : result,
                                         instance : result.uri

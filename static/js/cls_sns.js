@@ -186,34 +186,85 @@ class Gpsns {
         });
         return def;
     }
-    getConversation(id,parentTootID, parentIndex) {
+    getConversation(id,options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
                 reject(false);
                 return;
             }
-            this._accounts.api.get(`statuses/${id}/context`)
-            .then((data)=>{
+            var retdef;
+            var isauth = true;
+            var endpoint = `statuses/${id}/context`;
+            if ("noauth" in options.app) {
+                retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
+            }else{
+                if (this._accounts == null) {
+                    reject(false);
+                    return;
+                }
+                //var targetid = userid == "me" ? this._accounts.id : userid;
+                if ("public" in options.app) {
+                    isauth = false;
+                }
+
+                //console.log(endpoint);
+                if (isauth) {
+                    retdef = this._accounts.api.get(endpoint,options.api);
+                }else{
+                    retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                }
+            }
+            //this._accounts.api.get(`statuses/${id}/context`)
+            retdef.then((data)=>{
                 //console.log(`statuses/${id}/context`,
                 //    id,parentTootID, parentIndex,data);
-                resolve({data: data, id: id, parentID : parentTootID, index: parentIndex});
+                var idsort = function (a,b) {
+                    if(a.id < b.id) return -1;
+                    if(a.id > b.id) return 1;
+                    return 0;
+                }
+                data.descendants.sort(idsort);
+                data.ancestors.sort(idsort);
+                resolve({data: data, id: id, options : options});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
             });
         });
         return def;
     }
-    getTootCard(id,parentTootID, parentIndex) {
+    getTootCard(id,options) {
         var def = new Promise((resolve,reject)=>{
             if (this._accounts == null) {
                 reject(false);
                 return;
             }
-            this._accounts.api.get(`statuses/${id}/card`)
-            .then((data)=>{
+            var retdef;
+            var isauth = true;
+            var endpoint = `statuses/${id}/card`;
+            if ("noauth" in options.app) {
+                retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
+            }else{
+                if (this._accounts == null) {
+                    reject(false);
+                    return;
+                }
+                //var targetid = userid == "me" ? this._accounts.id : userid;
+                if ("public" in options.app) {
+                    isauth = false;
+                }
+
+                //console.log(endpoint);
+                if (isauth) {
+                    retdef = this._accounts.api.get(endpoint,options.api);
+                }else{
+                    retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                }
+            }
+            //this._accounts.api.get(`statuses/${id}/card`)
+            retdef.then((data)=>{
                 //console.log(`statuses/${id}/card`,
                 //    id,parentTootID, parentIndex,data);
-                resolve({data: data, id: id, parentID : parentTootID, index: parentIndex});
+                resolve({data: data, id: id, options: options});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
             });
@@ -1615,7 +1666,12 @@ class Gpsns {
             */
            
         }
-        
+        var imghas = {
+            applygrid : false,
+            landscape : false,
+            portrait : false,
+            aspect : 0.75,
+        };
         if (this.medias) {
             for (var i = 0; i < this.medias.length; i++) {
                 if (this.medias[i].meta == null) {
@@ -1624,6 +1680,7 @@ class Gpsns {
                     var asp = img.width / img.height;
                     if (img.height > img.width) {
                         asp = img.height / img.width;
+                        imghas.portrait = true;
                     }
                     this.medias[i].meta = {
                         small : {
@@ -1633,6 +1690,13 @@ class Gpsns {
                             size : `${img.width}x${img.height}`
                         }
                     };
+                }else{
+                    if (imghas.aspect > this.medias[i].meta.small.aspect) {
+                        imghas.aspect = this.medias[i].meta.small.aspect;
+                    }
+                    if (this.medias[i].meta.small.height >= this.medias[i].meta.small.width) {
+                        imghas.portrait = true;
+                    }
                 }
             }
         }
@@ -1666,7 +1730,7 @@ class Gpsns {
 
         //---card css style class setup
         this.cardtypeSize = {
-            "grid-row-end" : "span ",
+            "grid-row-start" : "span ",
             "border-top" : ""
         }
 
@@ -1828,7 +1892,7 @@ class Gpsns {
         };
 
         //---decide final card size.
-        var num_cardSize = 2;
+        var num_cardSize = 5;
         /*if (this.body.content.length <= 49) {
             num_cardSize += 0;
         }else if (this.body.content.length >= 50) {
@@ -1842,19 +1906,51 @@ class Gpsns {
         }else{
             num_cardSize += 5;
         }*/
+        
         if (this.medias) {
             if (this.medias.length > 0) {
-                num_cardSize += 3;
+                if (imghas.portrait) {
+                    if (imghas.aspect < 0.51) {
+                        num_cardSize += 15;
+                    }else if (imghas.aspect <= 0.57) {
+                        num_cardSize += 14;
+                    }else if (imghas.aspect <= 0.68) {
+                        num_cardSize += 13;
+                    }else if (imghas.aspect <= 0.74) {
+                        num_cardSize += 12;
+                    }else if (imghas.aspect <= 0.89) {
+                        num_cardSize += 10;
+                    }else if (imghas.aspect == 1) {
+                        num_cardSize += 7;
+                    }else{
+                        num_cardSize += 8;
+                    }
+                }else{
+                    if (imghas.aspect <=  1.31) {
+                        num_cardSize += 8;
+                    }else{
+                        num_cardSize += 6;
+                    }
+                }
+                imghas.applygrid = true;
             }
         }
         //---change card size if available a link
-        if (this.urls.length > 0) {
-            num_cardSize += 3;
+        if (imghas.applygrid) {
+            if (!(MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true))) {
+                if (this.urls.length > 0) {
+                    num_cardSize += 5;
+                }
+            }
+        }else{
+            if (this.urls.length > 0) {
+                num_cardSize += 5;
+            }
         }
         /*if ((this.medias.length > 0) && (this.urls.length > 0)) {
             num_cardSize = 28;
         }*/
-        this.cardtypeSize["grid-row-end"] = `span ${num_cardSize}`;
+        this.cardtypeSize["grid-row-start"] = `span ${num_cardSize}`;
         //console.log(this.cardtypeSize);
 
         if ("is_archive" in status) {

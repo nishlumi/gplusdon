@@ -323,58 +323,76 @@ var vue_mixin_for_timeline = {
         },
 		onreplied_children : function (status,index) {
 			//---this status.body.id is toot context OWN id, not view id for this app!
-			MYAPP.sns.getConversation(status.body.id, status.body.id, index)
+			return;
+			/*
+			var options = {
+				api : {
+
+				},
+				app : {
+					parent : {
+						ID : status.body.id,
+						index : index
+					}
+				}
+			};
+			if ((this.tl_tabtype == "public") || (this.tl_tabtype == "local")) {
+				options.app["noauth"] = true;
+			}
+			//MYAPP.sns.getConversation(status.body.id, status.body.id, index)
+			MYAPP.sns.getConversation(status.body.id, options)
 			.then((condata) => {
 				//console.log("getConversation", condata);
-				var tt = this.getParentToot(condata.parentID);
+				//var tt = this.getParentToot(condata.parentID);
+				var tt = this.getParentToot(condata.options.app.parent.ID);
 				//console.log(condata.index, tt);
-				if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
-					/*var tmptt = Object.assign({}, tt.data, {
-						ancestors : condata[0].ancestors,
-						descendants : condata[0].descendants
-					});*/
-					var check_mediameta = function (toot) {
-						for (var i = 0; i < toot.media_attachments.length; i++) {
-							var data = toot.media_attachments[i];
-							if (data.meta == null) {
-								var img = GEN("img");
-								img.src = data.preview_url;
-								var asp = img.width / img.height;
-								if (img.height > img.width) {
-									asp = img.height / img.width;
-								}
-								data.meta = {
-									small: {
-										aspect: asp,
-										width: img.width,
-										height: img.height,
-										size: `${img.width}x${img.height}`
-									}
-								};
+				var check_mediameta = function (toot) {
+					for (var i = 0; i < toot.media_attachments.length; i++) {
+						var data = toot.media_attachments[i];
+						if (data.meta == null) {
+							var img = GEN("img");
+							img.src = data.preview_url;
+							var asp = img.width / img.height;
+							if (img.height > img.width) {
+								asp = img.height / img.width;
 							}
+							data.meta = {
+								small: {
+									aspect: asp,
+									width: img.width,
+									height: img.height,
+									size: `${img.width}x${img.height}`
+								}
+							};
 						}
-						return toot;
 					}
-					//console.log("ancester & descendants=", condata.data);
-					for (var a = 0; a < condata.data.ancestors.length; a++) {
-						var ance = condata.data.ancestors[a];
-						var gcls = new Gpstatus(ance,14);
+					return toot;
+				}
+				//console.log("ancester & descendants=", condata.data);
+				for (var a = 0; a < condata.data.ancestors.length; a++) {
+					var ance = condata.data.ancestors[a];
+					var gcls = new Gpstatus(ance,14);
+					condata.data.ancestors[a] = gcls;
 
+				}
+				for (var a = 0; a < condata.data.descendants.length; a++) {
+					var desce = condata.data.descendants[a];
+					var gcls = new Gpstatus(desce,14);
+					condata.data.descendants[a] = gcls;
+				}
 
-						condata.data.ancestors[a] = gcls;
-
-					}
-					for (var a = 0; a < condata.data.descendants.length; a++) {
-						var desce = condata.data.descendants[a];
-						var gcls = new Gpstatus(desce,14);
-
-
-						condata.data.descendants[a] = gcls;
-					}
+				if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
+					var toote = this.statuses[tt.index];
 					//console.log(this.statuses[baseIndex]);
 					//this.statuses[baseIndex].comment_stat.iszero = condata.data.descendants.length == 0 ? true : false;
-					this.statuses[tt.index].comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
+					if (condata.data.descendants.length == 0) {
 
+					}else if (condata.data.descendants.length <= 1) {
+
+					}else{
+						this.statuses[tt.index].comment_stat.mini = true;
+						this.statuses[tt.index].elementStyle.toot_action_class.has_comment_pos_mini = this.statuses[tt.index].comment_stat.mini;	
+					}
 
 					this.$set(this.statuses[tt.index], "ancestors", condata.data.ancestors);
 					this.$set(this.statuses[tt.index], "descendants", condata.data.descendants);
@@ -393,8 +411,11 @@ var vue_mixin_for_timeline = {
 						jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 						$("time.timeago").timeago();
 					});
+
+
+					
 				}
-			});
+			});*/
 		},
 		ondelete_toot_children : function (tootid) {
 			var target = -1;
@@ -597,10 +618,26 @@ var vue_mixin_for_timeline = {
 						ascendantData = data.reblog;
 					}
 					if ((st.body.in_reply_to_id != null) || (st.body.replies_count < 0) || (st.body.replies_count > 0) )  {
-						MYAPP.sns.getConversation(st.body.id, st.id, tmpid)
+						var conversa_opt = {
+							api : {
+			
+							},
+							app : {
+								parent : {
+									ID : st.id,
+									index : tmpid
+								}
+							}
+						};
+						if ((this.tl_tabtype == "public") || (this.tl_tabtype == "local")) {
+							conversa_opt.app["public"] = true;
+						}			
+						//MYAPP.sns.getConversation(st.body.id, st.id, tmpid)
+						MYAPP.sns.getConversation(st.body.id, conversa_opt)
 						.then((condata) => {
 							//console.log("getConversation", condata);
-							var tt = this.getParentToot(condata.parentID);
+							//var tt = this.getParentToot(condata.parentID);
+							var tt = this.getParentToot(condata.options.app.parent.ID);
 							//console.log(condata.index, tt);
 							if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
 								
@@ -621,7 +658,7 @@ var vue_mixin_for_timeline = {
 								//console.log(this.statuses[baseIndex]);
 								//this.statuses[baseIndex].comment_stat.iszero = condata.data.descendants.length == 0 ? true : false;
 								this.statuses[tt.index].comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
-
+								//this.statuses[tt.index].elementStyle.toot_action_class.has_comment_pos_mini = this.statuses[tt.index].comment_stat.mini;
 
 								this.$set(this.statuses[tt.index], "ancestors", condata.data.ancestors);
 								this.$set(this.statuses[tt.index], "descendants", condata.data.descendants);
@@ -642,6 +679,19 @@ var vue_mixin_for_timeline = {
 									$("time.timeago").timeago();
 									
 								});*/
+								//---if available comment, add space 1 ~ 3
+								var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-start"].replace("span", ""));
+								if (condata.data.descendants.length == 1) {
+									sp = sp + 1;
+								}else{
+									sp = sp + 3;
+								}
+								//---if available link, remove extra space.
+								if ((this.statuses[tt.index].urls.length > 0) && (this.statuses[tt.index].medias.length > 0)) {
+									sp = sp - 1;
+								}
+								
+								this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-start", `span ${sp}`);
 							}
 						});
 					}
@@ -661,10 +711,25 @@ var vue_mixin_for_timeline = {
 
 							});*/
 							//---get OGP
-							MYAPP.sns.getTootCard(st.body.id, st.id, i)
+							var card_opt = {
+								api : {
+				
+								},
+								app : {
+									parent : {
+										ID : st.id,
+										index : i
+									}
+								}
+							};
+							if ((this.tl_tabtype == "public") || (this.tl_tabtype == "local")) {
+								card_opt.app["public"] = true;
+							}		
+							//MYAPP.sns.getTootCard(st.body.id, st.id, i)
+							MYAPP.sns.getTootCard(st.body.id, card_opt)
 							.then(result=>{
 								var data = result.data;
-								var tt = this.getParentToot(result.parentID);
+								var tt = this.getParentToot(result.options.app.parent.ID);
 								//console.log("result,tt=",result,tt);
 
 								if (("url" in data)) {
@@ -693,7 +758,7 @@ var vue_mixin_for_timeline = {
 		
 										//---final card size change
 										if (this.statuses[tt.index].medias.length > 0) {
-											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
+											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-start"].replace("span", ""));
 											/*if (sp < 9) {
 												sp = sp + 6;
 											} else {
@@ -765,13 +830,13 @@ var vue_mixin_for_timeline = {
 
 										//---final card size change
 										if (this.statuses[tt.index].medias.length > 0) {
-											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-end"].replace("span", ""));
+											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-start"].replace("span", ""));
 											if (sp < 9) {
 												sp = sp + 10;
 											} else {
 												sp = sp + 6;
 											}
-											this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
+											this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-start", `span ${sp}`);
 										}
 									} else {
 										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
@@ -1349,6 +1414,7 @@ var vue_mixin_for_inputtoot = {
 			mentions : [],
 			mention_loading : false,
 			mention_search : null,
+			is_set_mention_checkbox : true,
 			
 			//---status textarea data
             status_text : "",
@@ -1458,7 +1524,23 @@ var vue_mixin_for_inputtoot = {
 							tmparr.push(lim.limit);
 						}
 					}else{
-						tmparr.push(MYAPP.appinfo.config.toot_max_character);
+						var ainhit = false;
+						//---if available max_toot_chars in instance information ??? (ex: Pleroma, etc...)
+						for (var ain in MYAPP.acman.instances) {
+							if (v.indexOf(ain) > -1) {
+								if (MYAPP.acman.instances[ain].info.max_toot_chars) {
+									MYAPP.session.status.toot_max_character = MYAPP.acman.instances[ain].info.max_toot_chars;
+									MYAPP.session.status.toot_warning_number = MYAPP.acman.instances[ain].info.max_toot_chars - 10;
+									tmparr.push(MYAPP.acman.instances[ain].info.max_toot_chars);
+									ainhit = true;
+									break;
+								}
+							}
+							
+						}
+						if (!ainhit) {
+							tmparr.push(MYAPP.appinfo.config.toot_max_character);
+						}
 					}
 				}
 				//---check media
@@ -1493,7 +1575,9 @@ var vue_mixin_for_inputtoot = {
 				}
 			}
 			//---re check
-			this.calc_fulltext(this.status_text);
+			this.calc_fulltext(this.status_text,{
+				counting_firstmention : this.is_set_mention_checkbox
+			});
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
 				this.strlength_class["red-text"] = true;
@@ -1567,7 +1651,9 @@ var vue_mixin_for_inputtoot = {
 				return false;
 			}else{
 			}
-			this.calc_fulltext(this.status_text);
+			this.calc_fulltext(this.status_text,{
+				counting_firstmention : this.is_set_mention_checkbox
+			});
 
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
@@ -1588,7 +1674,9 @@ var vue_mixin_for_inputtoot = {
 		},
 		status_text : function(val) {
 
-			this.calc_fulltext(val);
+			this.calc_fulltext(val,{
+				counting_firstmention : this.is_set_mention_checkbox
+			});
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
 				this.strlength_class["red-text"] = true;
@@ -1608,7 +1696,11 @@ var vue_mixin_for_inputtoot = {
 				"length" : this.strlength
 			});
 		},
-
+		is_set_mention_checkbox : function (val) {
+			this.calc_fulltext(this.status_text,{
+				counting_firstmention : this.is_set_mention_checkbox
+			});
+		}
 	},
 	mounted() {
 		//M.FormSelect.init(ID("keymaptitle"), {});
@@ -1639,9 +1731,10 @@ var vue_mixin_for_inputtoot = {
 		},
 		/**
 		 * 
-		 * @param {Boolean} is_virtualfull Virtualy full content of status text(text, mention)
+		 * @param {JSON} options statuses text's options
+		 * counting_firstmention : Boolean
 		 */
-		joinStatusContent : function (){
+		joinStatusContent : function (options){
 			var content = this.status_text;
 
 			//---get and cut Contents-Warning word
@@ -1653,12 +1746,16 @@ var vue_mixin_for_inputtoot = {
 				
 				//---formed mention, prepend top of status text.
 				if (this.selmentions.length > 0) {
-					post_opt.main = this.selmentions.join(" ") + " " + post_opt.main;
+					if (options.counting_firstmention) {
+						post_opt.main = this.selmentions.join(" ") + " " + post_opt.main;
+					}
 				}
 				//---recover to raw text
 				content = post_opt.sp + "-cw-" + post_opt.main;
 			}else{
-				if (this.selmentions.length > 0) content = this.selmentions.join(" ") + " " + content;
+				if (options.counting_firstmention) {
+					if (this.selmentions.length > 0) content = this.selmentions.join(" ") + " " + content;
+				}
 			}
 			
 			if (this.seltags.length > 0) {
@@ -1676,12 +1773,22 @@ var vue_mixin_for_inputtoot = {
 			
 			return content;
 		},
-		calc_fulltext : function (val) {
+		/**
+		 * 
+		 * @param {String} val status text
+		 * @param {JSON} options calculate options
+		 *   counting_firstmention : Boolean
+		 */
+		calc_fulltext : function (val,options) {
 			var cont = MYAPP.extractTootInfo(val);
 			var textWithoutMentions = cont.text;
 			var mentions = [];
+			var mentionlength = 0;
 			if (this.selmentions.length > 0) {
 				mentions = MYAPP.calcMentionLength(this.selmentions);
+				if (options.counting_firstmention) {
+					mentionlength = mentions.join(" ").length;
+				}
 			}
 			if (cont.mentions) {
 				for (var i = 0; i < cont.mentions.length; i++) {
@@ -1696,7 +1803,7 @@ var vue_mixin_for_inputtoot = {
 
 			//console.log(textWithoutMentions,mentions,tags);
 			this.strlength = twttr.txt.getUnicodeTextLength(textWithoutMentions)
-				+ mentions.join(" ").length + tags.length + this.geouris.join(" ").length;
+				+ mentionlength + tags.length + this.geouris.join(" ").length;
 		},
 		generate_geouri : function (item) {
 			var name = item.Name.replace(/\s/g,"");
@@ -1773,9 +1880,17 @@ var vue_mixin_for_inputtoot = {
 			this.ckeditor.editable().insertText(text);
 			this.status_text = this.ckeditor.editable().getText();
 		},
+		setText : function (text) {
+			this.status_text = text;
+			this.ckeditor.editable().setText(this.status_text);
+		},
+		setHTML : function (text) {
+			this.status_text = text;
+			this.ckeditor.editable().setHtml(this.status_text);
+		},
 		generate_showable_mention : function () {
 			var men = this.selmentions[0];
-			return `To:${men}`;
+			return `${men}`;
 		},
 		//---event handler---------------------------------------------
 		onchange_autocomp : function (e) {
@@ -2013,7 +2128,9 @@ var vue_mixin_for_inputtoot = {
 					for (var m = 0; m < this.medias.length; m++) {
 						mediaids.push(this.medias[m][account.acct].id);
 					}
-					var text = this.joinStatusContent(true);
+					var text = this.joinStatusContent({
+						counting_firstmention : true
+					});
 					//---check text limit
 					if (MYAPP.session.status.toot_max_character >  MYAPP.appinfo.config.toot_max_character) {
 						var ishit = null;
@@ -2469,7 +2586,19 @@ var vue_mixin_for_notification = {
 			}else{
 				var d = new Gpstatus(this.saveitem.status,16);
 				this.status = d;
-				MYAPP.sns.getConversation(this.status.body.id, this.status.body.id, "")
+				var conversa_opt = {
+					api : {
+	
+					},
+					app : {
+						parent : {
+							ID : this.status.body.id,
+							index : ""
+						}
+					}
+				};
+				//MYAPP.sns.getConversation(this.status.body.id, this.status.body.id, "")
+				MYAPP.sns.getConversation(this.status.body.id, conversa_opt)
 				.then((condata) => {
 					var tt = this.status; //this.getParentToot(condata.parentID);
 					for (var a = 0; a < condata.data.ancestors.length; a++) {
@@ -2548,7 +2677,19 @@ var vue_mixin_for_notification = {
 					(!MYAPP.session.config.notification["notpreview_onmedia"]) || 
 					(MYAPP.session.config.notification["notpreview_onmedia"] && (d.medias.length == 0))
 				) {
-					MYAPP.sns.getTootCard(d.body.id, d.id, 0)
+					var card_opt = {
+						api : {
+		
+						},
+						app : {
+							parent : {
+								ID : d.id,
+								index : 0
+							}
+						}
+					};
+					//MYAPP.sns.getTootCard(d.body.id, d.id, 0)
+					MYAPP.sns.getTootCard(d.body.id, card_opt)
 					.then(result=>{
 						var data = result.data;
 						//var tt = this.getParentToot(result.parentID);
@@ -2652,13 +2793,13 @@ var vue_mixin_for_notification = {
 
 								//---final card size change
 								if (this.status.medias.length > 0) {
-									var sp = parseInt(this.status.cardtypeSize["grid-row-end"].replace("span", ""));
+									var sp = parseInt(this.status.cardtypeSize["grid-row-start"].replace("span", ""));
 									if (sp < 9) {
 										sp = sp + 10;
 									} else {
 										sp = sp + 6;
 									}
-									this.$set(this.status.cardtypeSize, "grid-row-end", `span ${sp}`);
+									this.$set(this.status.cardtypeSize, "grid-row-start", `span ${sp}`);
 								}
 							} else {
 								this.$set(this.status.mainlink, "isimage", false);
@@ -2760,12 +2901,26 @@ var vue_mixin_for_archiveoption =  {
 		 */
 		onclick_refer : function (e) {
 			if (this.options.refertype == "g") {
+				if ("access_token" in MYAPP.siteinfo.ggl.act) {
+					if (!gpGLD.isExpired()) {
+						gpGLD.createPicker(MYAPP.siteinfo.ggl.act,(data)=>{
+							//---get file(s) from Google Picker
+							if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+								var doc = data[google.picker.Response.DOCUMENTS];
+								MUtility.loadingON();
+								this.load_gdrivefile(doc);
+							}else{
+								MUtility.loadingOFF();
+							}
+						});
+						return;
+					}
+				}
 				gpGLD.handleAuth()
 				.then(result=>{
 					var authres = result.getAuthResponse();
-					MYAPP.siteinfo.ggl.act = authres.access_token;
-					MYAPP.saveSessionStorage();
-					
+					MYAPP.siteinfo.ggl.act = authres;
+					MYAPP.saveSessionStorage();					
 
 					gpGLD.createPicker(authres,(data)=>{
 						//---get file(s) from Google Picker
@@ -2784,10 +2939,31 @@ var vue_mixin_for_archiveoption =  {
 			}
 		},
 		onclick_inputdirect : function (e) {
-			this.is_inputdialog = true;
+			//this.is_inputdialog = true;
 			//appPrompt2("URLを入力してくだされ。",(param,val)=>{
 			//	console.log(val);
 			//},[],"");
+			if ("access_token" in MYAPP.siteinfo.ggl.act) {
+				if (!gpGLD.isExpired()) {
+					gpGLD.createPhotoPicker(MYAPP.siteinfo.ggl.act,(data)=>{
+						//---get file(s) from Google Picker
+						console.log(data);
+					});
+					return;
+				}
+			}
+			gpGLD.handleAuth()
+			.then(result=>{
+				var authres = result.getAuthResponse();
+				MYAPP.siteinfo.ggl.act = authres;
+				MYAPP.saveSessionStorage();
+				
+				gpGLD.createPhotoPicker(MYAPP.siteinfo.ggl.act,(data)=>{
+					//---get file(s) from Google Picker
+					console.log(data);
+				});					
+			});
+			
 		},
 		onclick_backtimeline : function (e) {
 			vue_archmain.onclick_backtimeline(e);
@@ -2918,11 +3094,11 @@ var vue_mixin_for_archiveoption =  {
 		importbody_service : function (js) {
 			var gobj = null;
 			if (this.options.service == "g") {
-				var gobj = SNSCONV.convertFromGplus(js);
+				var gobj = SNSCONV.convertFromGplus(js,{});
 				
 			}
 			console.log(gobj);
-			return gobj;
+			return gobj.gpdata;
 		},
 		/**
 		 * Main function for dropping file

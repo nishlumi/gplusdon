@@ -74,6 +74,8 @@ Vue.component("timeline-toot", {
 			},
 			isfirst : true,
 			issinglewindow : false,
+			isboostmenu : false,
+			isboost_hover : false,
             first_comment_stat : {
 				close : true,
 				mini : false,
@@ -96,7 +98,17 @@ Vue.component("timeline-toot", {
 				"comment-list" : {
 					sizing : true
 				},
-				"toot_avatar_imgsize" : "32px"
+				"toot_avatar_imgsize" : "32px",
+				"toot_action_class" : {
+					has_comment_pos_close : true,
+					has_comment_pos_mini : false,
+					has_comment_pos_minione : false,
+					has_comment_pos_open : false,
+					has_comment_pos_full : false,
+				},
+				"instanceticker_class" : {
+					"display-name" : true,
+				}
 
 			},
 			isshow_replyinput : false,
@@ -129,6 +141,7 @@ Vue.component("timeline-toot", {
 				since_id : "",
 			},
 			reaction_accounts : [],
+			is_reply_boostmenu : [],
 
 			geomap : "",
 
@@ -161,20 +174,7 @@ Vue.component("timeline-toot", {
                 return this.popuping + "toot_" + this.toote.id;
             }
 		},
-		isBoostable : function () {
-			var boostable = [
-				"private", "direct"
-			];
-			if (boostable.indexOf(this.toote.body.visibility) > -1) {
-				return true;
-			}else{
-				if (this.toote.is_archive) {
-					return true;
-				}else{
-					return false;
-				}
-			}
-		},
+		
 		favourite_type : function() {
 			return _T("favourite_"+MYAPP.session.config.application.showMode);
 		},
@@ -193,12 +193,19 @@ Vue.component("timeline-toot", {
 		gal_viewmode : function () {
 			return MYAPP.session.config.application.gallery_type;
 		},
+		boost_actiontype : function() {
+			if ("boost_actiontype" in MYAPP.session.config.action) {
+				return MYAPP.session.config.action.boost_actiontype;
+			}else{
+				return "0";
+			}
+		}
 		
 	},
 	beforeMount(){
 
 		//---from commonvue.tootcard
-		if (!this.datastyle) {
+		if (this.datastyle) {
 			this.elementStyle = Object.assign({},this.datastyle);
 		}
 		if (this.comment_viewstyle) {
@@ -227,6 +234,12 @@ Vue.component("timeline-toot", {
 				}
 			}
 		}
+
+		//---for applying InstanceTicker css class
+		if ((MYAPP) && ("show_instanceticker" in MYAPP.session.config.application)) {
+			this.elementStyle.instanceticker_class["display-name"] = MYAPP.session.config.application.show_instanceticker;
+		}
+
 		
 		
 	},
@@ -235,14 +248,20 @@ Vue.component("timeline-toot", {
 		if (this.toote) {
 			var pcnt = this.toote.body.html.match(/<p/g) || [];
 			var brcnt = this.toote.body.html.match(/<br/g) || [];
-			var fnlcnt = pcnt.length + brcnt.length;
+			var fnlcnt = pcnt.length + brcnt.length + (this.toote.body.spoiler_text.length > 0 ? 1 : 0);
+			var gridsp = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
+			var contentlength = this.toote.body.content.length + this.toote.body.spoiler_text.length;
+
 			//console.log("created cnt=",pcnt,brcnt);
-			if ((fnlcnt < 3) && (this.toote.body.content.length < 40)) {
+			if ((fnlcnt < 3) && (contentlength < 40)) {
 				this.toot_body_stat["sizing-min"] = true;
 			}else if ((fnlcnt < 5)) {
-				if ((checkRange(1,this.toote.body.content.length,100))) {
+				if ((checkRange(1,contentlength,50))) {
+					this.toot_body_stat["sizing-min"] = true;
+				}else if ((checkRange(50,contentlength,100))) {
 					this.toot_body_stat["sizing-mid"] = true;
 				}else{
+					gridsp += 1;
 					if (this.toote.urls.length > 0) {
 						this.toot_body_stat["sizing-mid"] = true;
 					}else{
@@ -251,7 +270,10 @@ Vue.component("timeline-toot", {
 				}
 			}else{
 				this.toot_body_stat["sizing-max"] = true;
+				gridsp += 2;
 			}
+
+			this.toote.cardtypeSize["grid-row-start"] = `span ${gridsp}`;
 
 			
 			if (this.toote.geo.enabled) {  //
@@ -293,15 +315,23 @@ Vue.component("timeline-toot", {
 		if ((this.toote) && ("descendants" in this.toote)) {
 			if (this.toote.descendants.length > 0) {
 				if (this.isfirst) {
-					if (this.toote.descendants.length == 1) {
-						this.comment_stat.minione = true;
-						this.first_comment_stat.minione = true;
-					}else{
-						this.comment_stat.mini = true;
-						this.first_comment_stat.mini = true;
+					if (!this.elementStyle.toot_action_class.has_comment_pos_full &&
+						!this.elementStyle.toot_action_class.has_comment_pos_open
+					) {
+						if (this.toote.descendants.length <= 1) {
+							this.comment_stat.minione = true;
+							this.first_comment_stat.minione = true;
+							this.elementStyle.toot_action_class.has_comment_pos_minione = true;
+						}else{
+							this.comment_stat.mini = true;
+							this.first_comment_stat.mini = true;
+							this.elementStyle.toot_action_class.has_comment_pos_mini = true;
+						}
+
 					}
 					this.comment_stat.close = false;
 					this.first_comment_stat.close = false;
+					this.elementStyle.toot_action_class.has_comment_pos_close = false;
 
 					if (this.comment_viewstyle) {
 						for (var obj in this.comment_stat) {
@@ -333,6 +363,9 @@ Vue.component("timeline-toot", {
 	},
 	methods: {
 		//---some function----------------------------------------
+		generate_userlink: function (data) {
+			return `/users/${data.instance}/${data.username}`;
+		},
 		hide_on_noauth : function () {
 			return !this.globalinfo.is_serveronly;
 		},
@@ -363,7 +396,9 @@ Vue.component("timeline-toot", {
 		},
 		apply_initialReplyInputCounter : function () {
 			if (this.$refs.replyinput) {
-				this.$refs.replyinput.calc_fulltext("");
+				this.$refs.replyinput.calc_fulltext("",{
+					counting_firstmention : true
+				});
 			}
 		},
 		favourite_reaction_msg : function() {
@@ -427,6 +462,20 @@ Vue.component("timeline-toot", {
 		is_off_vote : function (poll) {
 			return poll.voted || poll.expired;
 		},
+		isBoostable : function (toote) {
+			var boostable = [
+				"private", "direct"
+			];
+			if (boostable.indexOf(toote.body.visibility) > -1) {
+				return true;
+			}else{
+				if (toote.is_archive) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		},
 		voteicon_styling : function (choice,multiple) {
 			if (multiple) {
 				if (this.pollchoice[choice] === true) {
@@ -445,6 +494,125 @@ Vue.component("timeline-toot", {
 		},
 		is_off_mini : function () {
 			return !this.comment_stat.mini && !this.comment_stat.minione;
+		},
+		/**
+		 * 
+		 * @param {JSON} options options after to get conversation
+		 *  options = {
+		 *    mode : boolean (r - read, p - posted)
+		 *    descendants {before : integer, after : integer}
+		 *  }
+		 */
+		reload_tootcontext_body : function (options) {
+			var def = new Promise((resolve,reject)=>{
+				if (!this.toote.is_archive) {
+					var conversa_opt = {
+						api : {
+		
+						},
+						app : {
+							parent : {
+								ID : this.toote.body.id,
+								index : ""
+							},
+							descendants : options.descendants
+						}
+					};
+					//MYAPP.sns.getConversation(this.toote.body.id, this.toote.body.id, "")
+					MYAPP.sns.getConversation(this.toote.body.id, conversa_opt)
+					.then((condata) => {
+						var tt = this.toote; //this.getParentToot(condata.parentID);
+						for (var a = 0; a < condata.data.ancestors.length; a++) {
+							var ance = condata.data.ancestors[a];
+							var gcls = new Gpstatus(ance,14);
+
+							condata.data.ancestors[a] = gcls;
+
+						}
+						for (var a = 0; a < condata.data.descendants.length; a++) {
+							var desce = condata.data.descendants[a];
+							var gcls = new Gpstatus(desce,14);
+
+
+							condata.data.descendants[a] = gcls;
+						}
+						//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
+
+						if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
+							this.toote.ancestors.splice(0,this.toote.ancestors.length);
+							this.toote.descendants.splice(0,this.toote.descendants.length);
+							this.toote.ancestors = this.toote.ancestors.concat(condata.data.ancestors);
+							this.toote.descendants = this.toote.descendants.concat(condata.data.descendants);
+							this.toote.body.replies_count = condata.data.descendants.length;
+							if (!this.comment_stat.full) {
+								//---normal to read comment
+								this.first_comment_stat.close = false;
+								this.elementStyle.toot_action_class.has_comment_pos_close = false;
+								if (this.toote.descendants.length <= 1) {
+									this.first_comment_stat.minione = true;
+									this.comment_stat.minione = false;
+									this.elementStyle.toot_action_class.has_comment_pos_minione = this.comment_stat.minione;
+								}else{
+									this.first_comment_stat.mini = true;
+									this.comment_stat.mini = false;
+									this.elementStyle.toot_action_class.has_comment_pos_mini = this.comment_stat.mini;
+								}
+								this.comment_stat.open = true;
+								this.elementStyle.toot_action_class.has_comment_pos_open = this.comment_stat.open;
+								if (condata.options.app.descendants) {
+									//---if initial get 0, but reget is N, append span 3 to grid-row-start
+									if ((condata.options.app.descendants.before == 0) && (condata.options.app.descendants.before < condata.data.descendants.length)) {
+										var sp = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
+										sp = sp + 3;
+										this.$set(this.toote.cardtypeSize, "grid-row-start", `span ${sp}`);
+		
+									}
+								}
+							}
+							this.$nextTick(function () {
+								jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
+								$("time.timeago").timeago();
+							});
+		
+						}
+						return condata;
+					})
+					.then((result)=> {
+						
+
+						var basetoote = this.toote;
+						for (var i = 0; i < basetoote.descendants.length; i++) {
+							var toote = basetoote.descendants[i];
+							if (("relationship" in toote) && ("following" in toote.relationship)) {
+								
+							}else{
+								MYAPP.sns.getRelationship(toote.account.id)
+								.then((result2) => {
+									for (var i = 0; i < result2.data.length; i++) {
+										for (var obj in result2.data[i]) {
+											toote.relationship[obj] = Object.assign({}, result2.data[i][obj]);
+										}
+									}
+								});
+							}
+						}
+						resolve({
+							condata : result,
+							first_comment_stat : this.first_comment_stat,
+							comment_stat : this.comment_stat,
+							toot_action_class : this.toot_action_class
+						});
+
+					})
+					.finally( () => {
+						//e.target.classList.toggle("lighten-3");
+						//this.isshow_replyinput = !this.isshow_replyinput;
+						//target.querySelector("div.template_reply_box").classList.toggle("common_ui_off");	
+					});
+				}
+				this.isshow_replyinput = true;
+			});
+			return def;
 		},
 		//---event handler----------------------------------------
 		onclick_toot_ancestor : function (e) {
@@ -491,7 +659,7 @@ Vue.component("timeline-toot", {
 			MYAPP.commonvue.tootecard.status = this.toote;
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.scrollwithoutmini = true;
-
+			MYAPP.commonvue.tootecard.datastyle.toot_action_class.has_comment_pos_full = true;
 
 			this.reply_data = this.generateReplyObject(this.toote);
 			MYAPP.commonvue.tootecard.$nextTick(()=>{
@@ -615,113 +783,77 @@ Vue.component("timeline-toot", {
 			}else{
 				if (this.first_comment_stat.close) {
 					this.comment_stat.close = !this.comment_stat.close;
-					this.comment_stat.open = !this.comment_stat.open;	
-
+					this.comment_stat.open = !this.comment_stat.open;
+					this.elementStyle.toot_action_class.has_comment_pos_close = !this.elementStyle.toot_action_class.has_comment_pos_close;
+					this.elementStyle.toot_action_class.has_comment_pos_open = !this.elementStyle.toot_action_class.has_comment_pos_open;
 				}
-				if (this.toote.descendants.length == 1) {
+				if (this.toote.descendants.length <= 1) {
 					if (this.first_comment_stat.minione) {
 						this.comment_stat.minione = !this.comment_stat.minione;
 						this.comment_stat.open = !this.comment_stat.open;
+						this.elementStyle.toot_action_class.has_comment_pos_minione = !this.elementStyle.toot_action_class.has_comment_pos_minione;
+						this.elementStyle.toot_action_class.has_comment_pos_open = !this.elementStyle.toot_action_class.has_comment_pos_open;
 					}
 					this.comment_stat.mini = false;
+					this.elementStyle.toot_action_class.has_comment_pos_mini = false;
 				}else{
 					if (this.first_comment_stat.mini) {
 						this.comment_stat.mini = !this.comment_stat.mini;
 						this.comment_stat.open = !this.comment_stat.open;
+						this.elementStyle.toot_action_class.has_comment_pos_mini = !this.elementStyle.toot_action_class.has_comment_pos_mini;
+						this.elementStyle.toot_action_class.has_comment_pos_open = !this.elementStyle.toot_action_class.has_comment_pos_open;
 					}
 					this.comment_stat.minione = false;
+					this.elementStyle.toot_action_class.has_comment_pos_minione = false;
 				}
 				this.comment_list_area_stat.scrollwithoutmini = !this.comment_list_area_stat.scrollwithoutmini;
 				//target.classList.toggle("mini");
 				//if (!target.classList.contains("full")) {
 				//	target.classList.toggle("open");
 				//}
-				var num_row = parseInt(rootParent.style.gridRowEnd.replace("span", ""));
+				//var style = window.getComputedStyle(rootParent);
+				//var num_row = parseInt(style.gridRowStart.replace("span", ""));
+				var num_row = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
+				let SIZE4COMMENT = 4;
 				//if (target.classList.contains("mini")) {
 				if (this.comment_stat.mini || this.comment_stat.minione) {
-					num_row = num_row -4;
-					rootParent.style.gridRowEnd = `span ${num_row}`;
+					num_row = num_row - SIZE4COMMENT;
 				//} else if (target.classList.contains("open")) {
 				}else if (this.comment_stat.close) {
-					num_row = num_row - 4;
-					rootParent.style.gridRowEnd = `span ${num_row}`;
+					num_row = num_row - SIZE4COMMENT;
 				}else if (this.comment_stat.open) {
-					num_row = num_row + 4;
-					rootParent.style.gridRowEnd = `span ${num_row}`;
+					num_row = num_row + SIZE4COMMENT;
 				}
+				//rootParent.style.gridRowStart = `span ${num_row}`;
+				this.toote.cardtypeSize["grid-row-start"] = `span ${num_row}`;
+				
 			}
 
 			if (this.comment_stat.open || this.comment_stat.full) {
 				this.is_opencomment = true;
-				if (!this.toote.is_archive) {
-					MYAPP.sns.getConversation(this.toote.body.id, this.toote.body.id, "")
-					.then((condata) => {
-						var tt = this.toote; //this.getParentToot(condata.parentID);
-						for (var a = 0; a < condata.data.ancestors.length; a++) {
-							var ance = condata.data.ancestors[a];
-							var gcls = new Gpstatus(ance,14);
-
-							condata.data.ancestors[a] = gcls;
-
-						}
-						for (var a = 0; a < condata.data.descendants.length; a++) {
-							var desce = condata.data.descendants[a];
-							var gcls = new Gpstatus(desce,14);
-
-
-							condata.data.descendants[a] = gcls;
-						}
-						//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
-
-						if ((tt) && ((condata.data.ancestors.length > 0) || (condata.data.descendants.length > 0))) {
-							this.toote.ancestors.splice(0,this.toote.ancestors.length);
-							this.toote.descendants.splice(0,this.toote.descendants.length);
-							this.toote.ancestors = this.toote.ancestors.concat(condata.data.ancestors);
-							this.toote.descendants = this.toote.descendants.concat(condata.data.descendants);
-							this.toote.body.replies_count = condata.data.descendants.length;
-							if (!this.comment_stat.full) {
-								this.first_comment_stat.close = false;
-								if (this.toote.descendants.length == 1) {
-									this.first_comment_stat.minione = true;
-									this.comment_stat.minione = false;
-								}else{
-									this.first_comment_stat.mini = true;
-									this.comment_stat.mini = false;
-								}
-								this.comment_stat.open = true;
-								
-							}
-						}
-						return condata;
-					})
-					.then((result)=> {
-						
-
-						var basetoote = this.toote;
-						for (var i = 0; i < basetoote.descendants.length; i++) {
-							var toote = basetoote.descendants[i];
-							if (("relationship" in toote) && ("following" in toote.relationship)) {
-								
-							}else{
-								MYAPP.sns.getRelationship(toote.account.id)
-								.then((result) => {
-									for (var i = 0; i < result.data.length; i++) {
-										for (var obj in result.data[i]) {
-											toote.relationship[obj] = Object.assign({}, result.data[i][obj]);
-										}
-									}
-								});
-							}
-						}
-
-					})
-					.finally( () => {
-						//e.target.classList.toggle("lighten-3");
-						//this.isshow_replyinput = !this.isshow_replyinput;
-						//target.querySelector("div.template_reply_box").classList.toggle("common_ui_off");	
-					});
-				}
-				this.isshow_replyinput = true;
+				this.reload_tootcontext_body({
+					mode:"r",
+					descendants : {
+						before :this.toote.descendants.length || 0, 
+						after : 0,
+					}
+				})
+				.then(result=>{
+					/*var num_row = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
+					let SIZE4COMMENT = 4;
+					//if (target.classList.contains("mini")) {
+					if (this.comment_stat.mini || this.comment_stat.minione) {
+						num_row = num_row - SIZE4COMMENT;
+					//} else if (target.classList.contains("open")) {
+					}else if (this.comment_stat.close) {
+						num_row = num_row - SIZE4COMMENT;
+					}else if (this.comment_stat.open) {
+						num_row = num_row + SIZE4COMMENT;
+					}
+					//rootParent.style.gridRowStart = `span ${num_row}`;
+					this.toote.cardtypeSize["grid-row-start"] = `span ${num_row}`;
+					*/
+				});
 				e.target.classList.remove("lighten-3");
 			}else{
 				this.is_opencomment = false;
@@ -776,6 +908,112 @@ Vue.component("timeline-toot", {
 			}else{
 				mainfunc();
 			}
+		},
+		onclick_ttbtn_otherbst: function (toote) {
+			if (!MYAPP.commonvue.nav_sel_account.isdialog_selaccount) {
+				if (this.$vuetify.breakpoint.xs) {
+					MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
+				}else if (this.$vuetify.breakpoint.sm) {
+					MYAPP.commonvue.nav_sel_account.dialog_width = "100%";
+				}else if (this.$vuetify.breakpoint.md) {
+					MYAPP.commonvue.nav_sel_account.dialog_width = "50%";
+				}else if (this.$vuetify.breakpoint.lgAndUp) {
+					MYAPP.commonvue.nav_sel_account.dialog_width = "40%";
+				}
+
+			}
+			MYAPP.commonvue.nav_sel_account.mode = "b";
+			MYAPP.commonvue.nav_sel_account.callbackAfterMode = (result) => {
+				var tmpac = MYAPP.acman.get(result);
+				if (tmpac) {
+					var bkup = MYAPP.sns._accounts;
+					MYAPP.sns.setAccount(tmpac);
+					MYAPP.sns.search(toote.body.url,{api:{},app:{tmpaccount:tmpac}})
+					.then(result=>{
+						console.log(result);
+						if (result.data.statuses.length > 0) {
+							var toot = result.data.statuses[0];
+							console.log(toot.account.acct,toot.id, toot.content);
+
+							return {
+								toot : toot,
+								options : result.options,
+								bkupaccount : bkup
+							};
+						}else{
+							throw new Error("notoot");
+						}
+
+					})
+					.then(result2=>{
+						var mainfunc = () => {
+							//console.log("target=",e.target);
+							
+							MYAPP.sns.setAccount(result2.options.app.tmpaccount);
+							MYAPP.sns.setBoost(result2.toot.id, true, {api:{},app:{}})
+							.then(result=>{
+								//console.log("bst after=",result);
+								toote.body.reblogs_count = toote.body.reblogs_count + result.reblogs_count;
+								//---this user can be another I, therefore not change button state.
+								//---change color for favourited state.
+								//this.toote.reactions.reb["lighten-3"] = result.reblogged ? false : true;
+							})
+							.catch(error=>{
+								appAlert(_T("msg_error_otherboost"));
+							})
+							.finally(()=>{
+								MYAPP.sns.setAccount(result2.bkupaccount);
+							});
+						};
+						if (MYAPP.session.config.action.confirmBefore) {
+							var msg = _T("msg_confirm_bst_"+MYAPP.session.config.application.showMode);
+							appConfirm(msg,mainfunc);
+						}else{
+							mainfunc();
+						}
+					})
+					.catch(error=>{
+						appAlert(_T("msg_error_otherboost"));
+					})
+					.finally(()=>{
+						MYAPP.sns.setAccount(bkup);
+					});
+
+				}
+			};
+			MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
+			
+		},
+		onclick_ttbtn_quotedbst: function(toote) {
+			if (toote.is_archive) return;
+			var defsel = MYAPP.session.status.selectedAccount.idname + "@" + MYAPP.session.status.selectedAccount.instance;
+            MYAPP.commonvue.inputtoot.selaccounts.splice(0,MYAPP.commonvue.inputtoot.selaccounts.length);
+            MYAPP.commonvue.inputtoot.selaccounts.push(defsel);
+            MYAPP.commonvue.inputtoot.$refs.inputbox.clear_selectaccount();
+			MYAPP.commonvue.inputtoot.$refs.inputbox.set_selectaccount();
+			var tmpac = this.toote.account.display_name+"@"+this.toote.account.instance;
+			var quotext = `<br>${_T("tt_share_name",[tmpac])}:<br>
+			${toote.body.url}<br>
+			---<br>
+			${toote.body.content.substr(0,100)}...<br>
+			`;
+
+			//MYAPP.commonvue.inputtoot.tootIB.text = quotext;
+			MYAPP.commonvue.inputtoot.$refs.inputbox.setHTML(quotext);
+            if (MYAPP.session.config.action.popupNewtoot_always) {
+                MYAPP.commonvue.inputtoot.onclick_openInNew();
+                return;
+            }
+            
+            MYAPP.commonvue.inputtoot.sizing_window();
+
+            MYAPP.commonvue.inputtoot.dialog = true;
+            MYAPP.commonvue.inputtoot.$nextTick(()=>{
+                var chk = checkBrowser();
+                if (chk.platform != "ios") {
+                    Q(".onetoot_inputcontent").focus();
+                }
+            });
 		},
 		onclick_reaction_fav : function (toote) {
 			this.reaction_dialog_title = this.favourite_reaction_msg();
@@ -977,6 +1215,12 @@ Vue.component("timeline-toot", {
 				mainfunc();
 			}
 		},
+		onclick_otherbst_to_reply : function (toote) {
+			this.onclick_ttbtn_otherbst(toote);
+		},
+		onclick_quotedbst_to_reply : function (toote) {
+			this.onclick_ttbtn_quotedbst(toote);
+		},
 		onclick_toote_pinn : function (toote) {
 			if (this.toote.is_archive) return;
 			var mainfunc = () => {
@@ -1015,6 +1259,9 @@ Vue.component("timeline-toot", {
 							this.comment_stat.close = true;
 							this.comment_stat.mini = false;
 							this.comment_stat.open = false;
+							this.elementStyle.toot_action_class.has_comment_pos_mini = false;
+							this.elementStyle.toot_action_class.has_comment_pos_minione = false;
+							this.elementStyle.toot_action_class.has_comment_pos_open = false;
 						}
 					}else{
 						//---if toot own, to connect to parent component
@@ -1200,7 +1447,32 @@ Vue.component("timeline-toot", {
 			this.comment_stat.close = false;
 			this.comment_stat.open = false;
 			*/
-			this.toote.body.replies_count++;
+			this.reload_tootcontext_body({
+				mode:"r",
+				descendants : {
+					before :this.toote.descendants.length || 0, 
+					after : 0,
+				}
+			})
+			.then(result=>{
+				/*var num_row = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
+				let SIZE4COMMENT = 4;
+				//if (target.classList.contains("mini")) {
+				if (this.comment_stat.mini || this.comment_stat.minione) {
+					num_row = num_row - SIZE4COMMENT;
+				//} else if (target.classList.contains("open")) {
+				}else if (this.comment_stat.close) {
+					num_row = num_row - SIZE4COMMENT;
+				}else if (this.comment_stat.open) {
+					if (result.condata.data.descendants.length == 1) {
+						num_row = num_row + SIZE4COMMENT;
+					}
+				}
+				//rootParent.style.gridRowStart = `span ${num_row}`;
+				this.toote.cardtypeSize["grid-row-start"] = `span ${num_row}`;
+				*/
+			});
+			
 			//this.$el.querySelector("div.template_reply_box").classList.toggle("common_ui_off");
 			this.$emit('replied_post');
 		},
@@ -1498,7 +1770,12 @@ Vue.component("dmessage-item", {
 				"comment-list" : {
 					sizing : true
 				},
-				"toot_avatar_imgsize" : "32px"
+				"toot_avatar_imgsize" : "32px",
+				"toot_action_class" : {
+					has_comment_pos_mini : false,
+					has_comment_pos_minione : false,
+					has_comment_pos_open : false,
+				}
 
 			},
 
@@ -1586,6 +1863,9 @@ Vue.component("dmessage-item", {
 							this.comment_stat.close = true;
 							this.comment_stat.mini = false;
 							this.comment_stat.open = false;
+							this.elementStyle.toot_action_class.has_comment_pos_mini = false;
+							this.elementStyle.toot_action_class.has_comment_pos_minione = false;
+							this.elementStyle.toot_action_class.has_comment_pos_open = false;
 						}
 					}else{
 						//---if toot own, to connect to parent component

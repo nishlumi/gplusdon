@@ -216,7 +216,7 @@ const CONS_TEMPLATE_TLCONDITION = `
 
 
 const CONS_TEMPLATE_TOOTBODY = `
-<div v-bind:id="tootElementId" class="card fitcontent toot_card_base sizing" v-if="toote != null" v-bind:style="toote.cardtypeSize"><!-- v-if="'body' in toote"-->
+<div v-bind:id="tootElementId" class="card fitcontent status toot_card_base sizing" v-if="toote != null" v-bind:style="toote.cardtypeSize"><!-- v-if="'body' in toote"-->
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
         <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].visibility)" style="float:left;"></span>
@@ -233,7 +233,9 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="toot_sender truncate">  
             <v-img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <b v-bind:title="toote.account.acct" v-html="ch2seh(toote.account.display_name)"></b>
-            <b class="toot_sender_id">@{{ toote.account.username }}<b class="red-text">@{{ toote.account.instance }}</b></b>
+            <a target="_blank" :href="toote.account.url" class="toot_sender_id">
+                <span :class="elementStyle.instanceticker_class" class="black--text">@{{ toote.account.username }}<b>@{{ toote.account.instance }}</b></span>
+            </a>
             <input type="hidden" name="sender_id" alt="thistoot" v-bind:value="toote.account.id">
         </div>
 <!----toot date and time-->
@@ -393,7 +395,7 @@ const CONS_TEMPLATE_TOOTBODY = `
 
     </div>
 <!-----reaction for the toot-->
-    <div class="toot_content_action toot_action bottom" v-if="hide_on_noauth"> 
+    <div class="toot_content_action toot_action" :class="elementStyle.toot_action_class" v-if="hide_on_noauth"> 
         <v-tooltip bottom>
             <v-btn icon slot="activator" v-on:click="onclick_ttbtn_reply">
                 <v-icon>reply</v-icon>
@@ -405,18 +407,96 @@ const CONS_TEMPLATE_TOOTBODY = `
         </v-tooltip>
         <span class="reaction-count" v-show="toote.body.replies_count > 0" v-bind:class="{zero:(toote.descendants.length==0)}">{{ toote.body.replies_count }}</span>  
         
-        <div class="right">  
-            <i class="material-icons black-text" v-show="toote.body.muted">volume_off</i>
-            <v-tooltip bottom>
-                <button slot="activator" :disabled="toote.is_archive"  class="ttbtn_fav btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.fav" v-on:click="onclick_ttbtn_fav"><i class="material-icons black-text">{{ favourite_icon }}</i></button>  
-                <span>{{ favourite_type }}</span>
-            </v-tooltip>
-            <a v-on:click="onclick_reaction_fav(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.favourites_count==0)}">{{ toote.body.favourites_count }}</span></a>
-            <v-tooltip bottom>
-                <button slot="activator" class="ttbtn_bst btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.reb" v-on:click="onclick_ttbtn_bst" v-bind:disabled="isBoostable"><i class="material-icons black-text">share</i></button>
-                <span>{{ reblog_type }}</span>
-            </v-tooltip>
-            <a v-on:click="onclick_reaction_bst(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.reblogs_count==0)}">{{ toote.body.reblogs_count }}</span></a>
+        <div class="right">
+            <v-layout row wrap>
+                <v-flex xs1>
+                    <i class="material-icons black-text" v-show="toote.body.muted">volume_off</i>
+                    
+                </v-flex>
+                <v-flex xs3>
+                    <v-tooltip bottom>
+                        <!--<button slot="activator" :disabled="toote.is_archive"  class="ttbtn_fav btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.fav" v-on:click="onclick_ttbtn_fav"><i class="material-icons black-text">{{ favourite_icon }}</i></button>  
+                            -->
+                        <v-btn fab small dark color="grey" class="black--text" slot="activator" :disabled="toote.is_archive" v-bind:class="toote.reactions.fav"  v-on:click="onclick_ttbtn_fav"><v-icon>{{ favourite_icon }}</v-icon></v-btn>
+                        <span>{{ favourite_type }}</span>
+                    </v-tooltip>
+                    
+                </v-flex>
+                <v-flex xs2 class="pt-3">
+                    <a v-on:click="onclick_reaction_fav(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.favourites_count==0)}">{{ toote.body.favourites_count }}</span></a>
+                    
+                </v-flex>
+                <v-flex xs3>
+                    <template v-if="boost_actiontype == '0'">
+                        <v-tooltip bottom>
+                            <!--<button slot="activator" class="ttbtn_bst btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.reb" v-on:click="onclick_ttbtn_bst" v-bind:disabled="isBoostable(toote)"><i class="material-icons black-text">share</i></button>
+                                -->
+                            <v-btn slot="activator"
+                                    v-bind:disabled="isBoostable(toote)"
+                                    color="grey" class="black--text"  v-bind:class="toote.reactions.reb"
+                                    dark fab small v-on:click="onclick_ttbtn_bst"
+                                >
+                                <v-icon>share</v-icon>
+                            </v-btn>
+                            <span>{{ reblog_type }}</span>
+                        </v-tooltip>
+                    </template>
+                    <template v-else>
+                        <v-speed-dial
+                            v-model="isboostmenu"
+                            direction="left"
+                            
+                            transition="fade-transition" open-on-hover
+                        >
+                            <template slot="activator">
+                                <v-btn v-model="isboostmenu"
+                                    v-bind:disabled="isBoostable(toote)"
+                                    color="grey" class="black--text"  v-bind:class="toote.reactions.reb"
+                                    dark fab small
+                                >
+                                    <v-icon>share</v-icon>
+                                    <v-icon>close</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-tooltip top>
+                                <v-btn
+                                    fab dark small slot="activator" v-bind:disabled="isBoostable(toote)"
+                                    color="indigo" :title="translation.lab_exboost_0"
+                                    v-on:click="onclick_ttbtn_bst"
+                                >
+                                    <v-icon>share</v-icon>
+                                </v-btn>
+                                <span>{{translation.lab_exboost_0}}</span>
+                            </v-tooltip>
+                            <v-tooltip top>
+                                <v-btn
+                                    fab dark small slot="activator" v-bind:disabled="isBoostable(toote)"
+                                    color="red" :title="translation.lab_exboost_1"
+                                    v-on:click="onclick_ttbtn_otherbst(toote)"
+                                >
+                                    <v-icon>share</v-icon>
+                                </v-btn>
+                                <span>{{translation.lab_exboost_1}}</span>
+                            </v-tooltip>
+                            <v-tooltip top>
+                                <v-btn
+                                    fab dark small slot="activator" v-bind:disabled="isBoostable(toote)"
+                                    color="red" :title="translation.lab_exboost_2"
+                                    v-on:click="onclick_ttbtn_quotedbst(toote)"
+                                >
+                                    <v-icon>add_comment</v-icon>
+                                </v-btn>
+                                <span>{{translation.lab_exboost_2}}</span>
+                            </v-tooltip>
+                        </v-speed-dial>
+                    </template>
+                    
+                </v-flex>
+                <v-flex xs2 class="pt-3">
+                    <a v-on:click="onclick_reaction_bst(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.reblogs_count==0)}">{{ toote.body.reblogs_count }}</span></a>
+                    
+                </v-flex>
+            </v-layout>
         </div>
         <v-dialog v-model="is_reactiondialog" scrollable max-width="340px">
             <v-card>
@@ -455,7 +535,9 @@ const CONS_TEMPLATE_TOOTBODY = `
                 <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
-                    <span class="subtitle reply_usertitle truncate" v-html='ch2seh(reply_usertitle(reply))'></span>  
+                    <a target="_blank" :href="reply.account.url" class="subtitle reply_usertitle truncate">
+                        <span :class="elementStyle.instanceticker_class" class="black--text" v-html='ch2seh(reply_usertitle(reply))'></span>
+                    </a>
                     <!--<p style="width:90%" v-html="reply.body.html">-->
                     <div class="toote_spoiler_or_main"  style="width:90%;margin-top:5px;" v-html="ch2seh(reply.body.spoilered ? reply.body.spoiler_text : reply.body.html)"></div>  
                     <div class="area_spoiler" v-if="reply.body.spoilered">  
@@ -529,20 +611,92 @@ const CONS_TEMPLATE_TOOTBODY = `
                         </v-menu>
                     </div>
                     <div class="third-content" v-if="is_off_mini()">
-                        <v-btn icon v-on:click="onclick_comment_to_reply(index)" :disabled="toote.is_archive">
-                            <v-icon>reply</v-icon>
-                        </v-btn>
-                        <!--<a class="btn-flat btn_reply_each waves-effect" v-bind:click.stop="onclick_comment_to_reply(index)"><i class="material-icons">reply</i></a>-->
-                        <a class="btn-flat btn_reply_each waves-effect" :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply"><i class="material-icons">{{ favourite_icon }}</i></a>
-                        <a v-on:click="onclick_reaction_fav(reply)"><span class="reaction-count" v-bind:class="{zero:(reply.body.favourites_count==0)}">{{ reply.body.favourites_count }}</span></a>
-                        <a class="btn-flat btn_reply_each waves-effect" :disabled="toote.is_archive"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply"><i class="material-icons">share</i></a>
-                        <span class="reaction-count(reply)" v-bind:class="{zero:(reply.body.reblogs_count==0)}">{{ reply.body.reblogs_count }}</span>  
+                        <v-layout row wrap>
+                            <v-flex xs2>
+                                <v-btn icon v-on:click="onclick_comment_to_reply(index)" :disabled="toote.is_archive">
+                                    <v-icon>reply</v-icon>
+                                </v-btn>
+                            </v-flex>
+                            
+                            <v-flex xs2 offset-xs2>
+                                <!--<a class="btn-flat btn_reply_each waves-effect" v-bind:click.stop="onclick_comment_to_reply(index)"><i class="material-icons">reply</i></a>-->
+                                <v-btn icon :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply">
+                                    <v-icon>{{ favourite_icon }}</v-icon>
+                                </v-btn>
+                                <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply"><i class="material-icons">{{ favourite_icon }}</i></a>-->
+                            </v-flex>
+                            <v-flex xs2 class="pt-3">
+                                <a v-on:click="onclick_reaction_fav(reply)"><span class="reaction-count" v-bind:class="{zero:(reply.body.favourites_count==0)}">{{ reply.body.favourites_count }}</span></a>
+                            </v-flex>
+                            <v-flex xs2>
+                                <template v-if="boost_actiontype == '0'">
+                                    <v-btn icon :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply">
+                                        <v-icon>share</v-icon>
+                                    </v-btn>
+                                    <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply"><i class="material-icons">share</i></a>-->
+                                </template>
+                                <template v-else>
+                                    <v-speed-dial
+                                        v-model="reply.isboostmenu"
+                                        direction="left"
+                                        
+                                        transition="fade-transition" open-on-hover
+                                    >
+                                        <template slot="activator">
+                                            <!--<a class="btn-flat btn_reply_each waves-effect" 
+                                                :disabled="toote.is_archive"  
+                                                v-bind:class="reply.reactions.reb" 
+                                                v-bind:data-index="index" 
+                                                
+                                            >
+                                                <i class="material-icons">share</i>
+                                            </a>-->
+                                            <v-btn icon v-model="reply.isboostmenu" :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index">
+                                                <v-icon>share</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <v-tooltip top>
+                                            <v-btn
+                                                fab dark small slot="activator" v-bind:disabled="isBoostable(reply)"
+                                                color="indigo" 
+                                                v-on:click="onclick_bst_to_reply"
+                                            >
+                                                <v-icon>share</v-icon>
+                                            </v-btn>
+                                            <span>{{translation.lab_exboost_0}}</span>
+                                        </v-tooltip>
+                                        <v-tooltip top>
+                                            <v-btn
+                                                fab dark small slot="activator" v-bind:disabled="isBoostable(reply)"
+                                                color="red" 
+                                                v-on:click="onclick_otherbst_to_reply(reply)"
+                                            >
+                                                <v-icon>share</v-icon>
+                                            </v-btn>
+                                            <span>{{translation.lab_exboost_1}}</span>
+                                        </v-tooltip>
+                                        <v-tooltip top>
+                                            <v-btn
+                                                fab dark small slot="activator" v-bind:disabled="isBoostable(reply)"
+                                                color="red" 
+                                                v-on:click="onclick_otherbst_to_reply(reply)"
+                                            >
+                                                <v-icon>add_comment</v-icon>
+                                            </v-btn>
+                                            <span>{{translation.lab_exboost_2}}</span>
+                                        </v-tooltip>
+                                    </v-speed-dial>
+                                </template>
+                            </v-flex>
+                            <v-flex xs2 class="pt-3">
+                                <span class="reaction-count(reply)" v-bind:class="{zero:(reply.body.reblogs_count==0)}">{{ reply.body.reblogs_count }}</span>
+                            </v-flex>
+                        </v-layout>
+                        
+                        
                     </div>
                 </li> 
             </ul>
-        </div>
-        <div class="toot_comment announce_fullview" v-if="!is_off_mini()">
-            <v-btn flat small class="red--text" v-on:click="onclick_ttbtn_reply">{{translation.lab_showallreply}}</v-btn>
         </div>
         <!-----reply input box-->
         <div class="toot_comment root_reply" v-if="hide_on_noauth">
@@ -560,6 +714,9 @@ const CONS_TEMPLATE_TOOTBODY = `
             ></reply-inputbox>
         </div>      
     </div>  
+    <div class="announce_fullview" v-if="!is_off_mini()">
+        <v-btn flat small class="red--text" v-on:click="onclick_ttbtn_reply">{{translation.lab_showallreply}}</v-btn>
+    </div>
 <!-----reveal menu for the toot-->
     <div class="card-userreveal un-veal">  
         <span class="card-title grey-text text-darken-4">{{ translation.detail }}<span class="right" v-on:click="onclick_vealclose"><i class="material-icons btn_vealclose">close</i></span></span>  

@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
             methods: {
                 clearInfo : function() {
                     this.info.maxid = "";
-                    this.info.since = "";
+                    this.info.sinceid = "";
                 },
                 setData : function (data) {
                     this.id = data.id;
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
             methods: {
                 clearInfo : function() {
                     this.info.maxid = "";
-                    this.info.since = "";
+                    this.info.sinceid = "";
                 },
                 setData : function (data) {
                     this.id = data.id;
@@ -787,6 +787,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(e.id);
             ID("area_user").scroll({top:0})
             if (e.id == "basicinfo") {
+                vue_user.basicinfo.clearInfo();
                 vue_user.basicinfo.statuses.splice(0,vue_user.basicinfo.statuses.length);
                 vue_user.basicinfo.loadPinnedToot(vue_user.basicinfo.id,{
                     api : {},
@@ -796,6 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var et = ID("area_user");
                 var sa = et.scrollHeight - et.clientHeight;
                 var fnlsa = sa - Math.round(et.scrollTop);
+                vue_user.tootes.clearInfo();
                 if ((vue_user.tootes.info.maxid == "") && (vue_user.tootes.info.sinceid == "")) {
                     /*vue_user.tootes.info.tltype = ID("sel_tltype").selectedOptions[0].value;
                     vue_user.tootes.statuses.splice(0,vue_user.tootes.statuses.length);
@@ -821,6 +823,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var fnlsa = sa - Math.round(et.scrollTop);
                 console.log(sa,fnlsa);
                 //if (fnlsa > 2) {
+                    vue_user.following.clearInfo();
                     vue_user.following.accounts.splice(0,vue_user.following.accounts.length);
                     vue_user.following.load_following(vue_user.basicinfo.id,{api:{},app:{}});
                 //}
@@ -830,6 +833,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var fnlsa = sa - Math.round(et.scrollTop);
                 console.log(sa,fnlsa);
                 //if (fnlsa > -1) {
+                    vue_user.follower.clearInfo();
                     vue_user.follower.accounts.splice(0,vue_user.follower.accounts.length);
                     vue_user.follower.load_follower(vue_user.basicinfo.id,{api:{},app:{}});
                 //}

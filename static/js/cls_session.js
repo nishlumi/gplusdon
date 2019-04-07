@@ -35,9 +35,11 @@ class Gpsession {
                     gallery_type : "slide", //slide, grid
                     skip_startpage : false,
                     map_type : "yahoo",
+                    show_instanceticker : true,
                 },
                 action : {
                     confirmBefore : true,
+                    boost_actiontype : "0", //0 - current user only, 1 - choosable
                     image_everyNsfw : false,
                     add_nsfw_force_instance : false,
                     nsfw_force_instances : [],

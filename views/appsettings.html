@@ -7,9 +7,9 @@
 <div id="area_settings" class="setting_body">
     <div id="settingview" class="setting-view" v-cloak>
         <v-expansion-panel>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content class="{{sysinfo.color.bg_first}}">
                 <div slot="header">{{trans.cfg_panel_application}}</div>
-                <v-card>
+                <v-card color="{{sysinfo.color.bg_first}}">
                     <v-card-text>
                         <v-layout row wrap align-center>
                             <v-flex xs12 sm12 md4>
@@ -51,13 +51,14 @@
                                     label="{{trans.app_lab_timelineview}}"
                                 ></v-select>-->
                                 <div class="input-field xs6">
-                                    <select v-model="type_app.timeline_view">
+                                    <select id="sel_timeline_view" v-model="type_app.timeline_view">
                                         <template v-for="item in vals_timeline_view">
-                                            <option v-bind:value="item.value">{? item.text ?}</option>
+                                            <option v-bind:value="item.value" v-bind:selected="item.selected">{? item.text ?}</option>
                                         </template>
                                     </select>
                                     <label>{{trans.app_lab_timelineview}}</label>
                                 </div>
+                                
                                 <span class="red-text">{{ trans.app_lab_timelineview_exception }}</span>
                             </v-flex>
                             <v-flex xs12 sm12 md6 lg6 offset-md2 offset-lg2>
@@ -76,6 +77,7 @@
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_app.skip_startpage" label="{{trans.app_lab_skip_startpage}}"></v-checkbox>
+                                <v-checkbox v-model="type_app.show_instanceticker" label="{{trans.app_lab_show_instanceticker}}"></v-checkbox>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 
@@ -131,13 +133,24 @@
 
                 </v-dialog>
             </v-expansion-panel-content>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content class="{{sysinfo.color.bg_first}}">
                 <div slot="header">{{trans.cfg_panel_action}}</div>
                 <v-card>
                     <v-card-text>
                         <v-layout row wrap>
                             <v-flex xs12 sm12 md6>
-                                <v-checkbox hide-details v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_action.confirmBefore" label="{{trans.act_lab_confirmbefore}}"></v-checkbox><br>
+                                <span class="title black-text">{{trans.act_lab_boost_actiontype}}</span>
+                                <div class="input-field xs6">
+                                    <select id="sel_boost_actiontype" v-model="type_action.boost_actiontype">
+                                        <template v-for="item in vals_boost_actiontype">
+                                            <option v-bind:value="item.value" v-bind:selected="item.selected">{? item.text ?}</option>
+                                        </template>
+                                    </select>
+                                    <label></label>
+                                </div>
+                                <span class="red-text">{{trans.act_lab_boost_actiontype_help}}</span>
+
                                 <v-checkbox hide-details v-model="type_action.image_everyNsfw" label="{{trans.act_lab_image_everyNsfw}}" v-bind:disabled="type_action.add_nsfw_force_instance||type_action.remove_nsfw_remove_instance"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_action.add_nsfw_force_instance" label="{{trans.act_lab_add_nsfw_force_instance}}" v-bind:disabled="type_action.image_everyNsfw"></v-checkbox>
                                 <v-textarea v-model="type_action.nsfw_force_instances" label="{{trans.tbl_acc_col3}}"
@@ -198,6 +211,9 @@
                             <v-flex xs12 sm12 md6>
                                 <v-container fluid grid-list-md>
                                     <v-layout row wrap>
+                                        <v-flex xs12>
+                                            <span class="title">{{trans.tags}}</span>
+                                        </v-flex>
                                         <v-flex xs10>
                                             <v-textarea
                                                 outline box
@@ -229,7 +245,7 @@
                     </v-card-text>
                 </v-card>                
             </v-expansion-panel-content>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content class="{{sysinfo.color.bg_first}}">
                 <div slot="header">{{trans.cfg_panel_notification}}</div>
                 <v-card>
                     <v-card-text>

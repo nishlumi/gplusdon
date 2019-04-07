@@ -23,13 +23,17 @@ document.addEventListener('DOMContentLoaded', function() {
             //return {
                 //---setting choosable values
                 vals_timeline_view : [
-                    {text:_T("app_item_timelineview_auto"),value:"auto"},
-                    {text:_T("app_item_timelineview_1"),value:"1"},
-                    {text:_T("app_item_timelineview_2"),value:"2"},
-                    {text:_T("app_item_timelineview_3"),value:"3"},
+                    {text:_T("app_item_timelineview_auto"),value:"auto",selected:false},
+                    {text:_T("app_item_timelineview_1"),value:"1",selected:false},
+                    {text:_T("app_item_timelineview_2"),value:"2",selected:false},
+                    {text:_T("app_item_timelineview_3"),value:"3",selected:false},
                 ],
                 cons_timeline_viewcont : [
                     20, 30, 40
+                ],
+                vals_boost_actiontype : [
+                    {text:_T("act_lab_boost_actiontype_0"),value:"0",selected:false},
+                    {text:_T("act_lab_boost_actiontype_1"),value:"1",selected:false},
                 ],
 
                 //---setting panel values
@@ -40,9 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     gallery_type : "slide",
                     skip_startpage : false,
                     map_type : "yahoo",
+                    show_instanceticker : true,
                 },
                 type_action : {
                     confirmBefore : true,
+                    boost_actiontype : "0",
                     image_everyNsfw : false,
                     add_nsfw_force_instance : false,
                     nsfw_force_instances : [],
@@ -169,6 +175,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     this.temp_toot_limit = tmp.join("\n");
                 }
+                //---temporary form (futurely to change vuetify...)
+                var ishit = -1;
+                for (var i = 0; i < this.vals_timeline_view.length; i++) {
+                    if (this.type_app.timeline_view == this.vals_timeline_view[i].value) {
+                        ishit = i;
+                        ID("sel_timeline_view").selectedIndex = i;
+                        M.FormSelect.init(ID("sel_timeline_view"),{});
+                        break;
+                    }
+                }
+                for (var i = 0; i < this.vals_boost_actiontype.length; i++) {
+                    if (this.type_action.boost_actiontype == this.vals_boost_actiontype[i].value) {
+                        ishit = i;
+                        ID("sel_boost_actiontype").selectedIndex = i;
+                        M.FormSelect.init(ID("sel_boost_actiontype"),{});
+                        break;
+                    }
+                }
                 console.log("type_action=",MYAPP.session.config.action,this.type_action);
             },
             onclick_savetag : function (e) {
@@ -227,7 +251,11 @@ document.addEventListener('DOMContentLoaded', function() {
             onclick_authorize_drive_btn : function (e) {
                 MUtility.loadingON();
                 gpGLD.handleAuth()
-                .then(flag=>{
+                .then(result=>{
+                    var authres = result.getAuthResponse();
+					MYAPP.siteinfo.ggl.act = authres;
+                    MYAPP.saveSessionStorage();
+                    
                     gpGLD.loadFromFolder()
                     .then(files=>{
                         var ret = null;

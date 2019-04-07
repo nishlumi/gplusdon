@@ -49,7 +49,7 @@
         <!--<link href="/static/lib/selectize/selectize.bootstrap3.css" rel="stylesheet" >
         <link href="/static/lib/selectize/selectize.css" rel="stylesheet" >
         -->
-        
+        <link rel="stylesheet" media="all" href="https://wee.jp/css/0.css">
         <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user2.css" async>
         <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
         <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet" async>
@@ -74,9 +74,9 @@
         {% if sysinfo.hostname  == 'gplusdon.net' %}
         {% include 'jslib_ggltag.html' %}
         {% endif %}
-        <div id="toppanel" class="grey lighten-3">
+        <div id="toppanel" class="{{sysinfo.color.bg_second}}">
             <div class="navbar-fixed">
-                <nav id="navibar" class="white">
+                <nav id="navibar" class="{{sysinfo.color.bg_first}}">
                     <div class="nav-wrapper">
 
                         <div class="row">
@@ -90,7 +90,7 @@
                             <div class="col s4 m5 l3" >
                                 <template v-if="!is_tllist">
                                     <v-tooltip right>
-                                        <span id="general_title" slot="activator"  class="black-text general-title truncate" v-text="genttl.text"></span>
+                                        <span id="general_title" slot="activator"  class="black-text general-title truncate" v-html="ch2seh(genttl.text)"></span>
                                         <span>{? genttl.tooltip?}</span>
                                     </v-tooltip>
                                 </template>
@@ -101,7 +101,7 @@
                                         v-model="sel_listitem"
                                         :label="translations.list"
                                         hide-details return-masked-value
-                                        class="pa-0"
+                                        class="pa-3"
                                     ></v-select>
                                 </template>
                             </div>
@@ -214,7 +214,7 @@
                     :active.sync="activeBtn"
                     :value="showNav"
                     absolute
-                    color="white"
+                    color="{{sysinfo.color.bg_first}}"
                     style="z-index:200;"
                 >
                     <v-btn flat color="red" v-on:click="onclick_accounts">
@@ -282,7 +282,7 @@
         </ul>
         <div id="ov_toote">
             <v-app>
-            <v-dialog v-model="is_overlaying" :hide-overlay="false" class="white" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+            <v-dialog v-model="is_overlaying" :hide-overlay="false" class="{{sysinfo.color.bg_first}}" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
                 <v-card>
                     <v-card-title class="onetoote_cardtitle">
                         <v-btn icon  @click="onclick_close" >
@@ -337,7 +337,7 @@
         </div>
         <div id="ov_inputtoot" class="dmy_inputtoot" v-if="accounts.length > 0">
             
-                <v-dialog v-model="dialog" class="white" :persistent="persistent" v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
+                <v-dialog v-model="dialog" class="{{sysinfo.color.bg_first}}" :persistent="persistent" v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
             <!--% include  "onetoote.html"  %}-->
                     <v-card>
                     <toot-inputbox  ref="inputbox"
@@ -349,6 +349,7 @@
                         :popuping="tootIB.popuping"
                         :toolbtn="tootIB.btns"
                         :accounts="accounts"
+                        :firsttext="tootIB.text"
                         :initialaccounts="selaccounts"
                         :tags="tags"
                         v-on:close="onclick_close"

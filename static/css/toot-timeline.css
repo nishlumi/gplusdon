@@ -55,11 +55,11 @@
 /*=== grid panel === */
 div.toot_timeline_grid {
     display : grid;
-    row-gap:  1rem;
+    row-gap:  2vmin;
     column-gap : 2rem;
-    grid-template-rows: minmax(2rem,auto);
+    grid-template-rows: auto; /*minmax(2rem,auto);*/
     grid-auto-flow: dense;
-    grid-auto-rows : minmax(2rem,auto);
+    grid-auto-rows : auto; /*minmax(2rem,auto);*/
     width : 100%;
     height : -moz-fit-content;
     height : fit-content;
@@ -83,7 +83,18 @@ div.toot_timeline_grid.width_3 {
 
 /*=== Sizing define of each screen ===*/
 @media only screen and (min-width: 601px) {
-
+    div.toot_timeline_grid {
+        display : grid;
+        row-gap:  1vmin;
+        column-gap : 2rem;
+        grid-template-rows: auto; /*minmax(2rem,auto);*/
+        grid-auto-flow: dense;
+        grid-auto-rows : auto; /*minmax(2rem,auto);*/
+        width : 100%;
+        height : -moz-fit-content;
+        height : fit-content;
+        
+    }
     div.toot_timeline_grid.width_count {
         grid-template-columns: 48% 48%;
         padding-left : 1%;
@@ -100,7 +111,18 @@ div.toot_timeline_grid.width_3 {
     
 }
 @media only screen and (min-width: 993px) {
-
+    div.toot_timeline_grid {
+        display : grid;
+        row-gap:  1vmin;
+        column-gap : 2rem;
+        grid-template-rows: auto; /*minmax(2rem,auto);*/
+        grid-auto-flow: dense;
+        grid-auto-rows : auto; /*minmax(2rem,auto);*/
+        width : 100%;
+        height : -moz-fit-content;
+        height : fit-content;
+        
+    }
     div.toot_timeline_grid.width_count {
         grid-template-columns: 47% 47%;
         padding-left : 3%;
@@ -116,7 +138,18 @@ div.toot_timeline_grid.width_3 {
 
 }
 @media only screen and (min-width: 1500px) {
-
+    div.toot_timeline_grid {
+        display : grid;
+        row-gap:  1vmin;
+        column-gap : 2rem;
+        grid-template-rows: auto; /*minmax(2rem,auto);*/
+        grid-auto-flow: dense;
+        grid-auto-rows : auto; /*minmax(2rem,auto);*/
+        width : 100%;
+        height : -moz-fit-content;
+        height : fit-content;
+        
+    }
     div.toot_timeline_grid.width_count {
         grid-template-columns: 31% 31% 31%;
         padding-left : 3%;
@@ -151,8 +184,9 @@ div.toot_card_base.sizing {
 }
 div.toot_card_base.topItem {
     grid-column : 1;
-    grid-row : 1 / span 1;
-    height: 9rem;
+    grid-row-start : span 2;
+    grid-row-end : span 1;
+    height: auto;
 }
 div.toot_card_base.g1 {
     grid-row-end: span 1;
@@ -236,6 +270,7 @@ div.toot_card_base.g30 {
     grid-auto-rows: 32px;
     position : relative;
     margin : 1rem;
+    overflow: hidden;
 }
 
 /*=== parent toot ===*/
@@ -279,6 +314,7 @@ div.toot_card_base.g30 {
 .toot_sender_id .instance_name {
     text-decoration: underline solid blue;
 }
+
 /*=== toot date time ===*/
 .toot_card_base .toot_datetime {
     position: absolute;
@@ -329,22 +365,22 @@ div.toot_card_base.g30 {
     grid-row-start: 4;
 }
 .toot_card_base .toot_content_body.sizing-min {
-    grid-row-end : span 2;
+    grid-row-start : span 5;
     /*height : 10rem;
     max-height : 15rem;*/
 }
 .toot_card_base .toot_content_body.sizing-mid {
-    grid-row-end : span 4;
+    grid-row-start : span 5;
     /*height : 12rem;
     max-height : 15rem;*/
 }
 .toot_card_base .toot_content_body.sizing-max {
-    grid-row-end : span 6;
+    grid-row-start : span 6;
     /*height : 15rem;
     max-height : 17rem;*/
 }
 .toot_card_base .toot_content_body.sizing-fullmax {
-    grid-row-end : span 6;
+    grid-row-start : span 7;
     /*height : 15rem;
     max-height : 17rem;*/
 }
@@ -550,9 +586,33 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 }
 
 .toot_card_base .toot_action {
-    height : 5rem;
-    position : relative;
+    /*height : 5rem;*/
+    width : 100%;
+    /*position : absolute;
+    bottom : 0;*/
     padding-top : 0;
+    background-color: #FFFFFF;
+}
+.toot_card_base .toot_action.has_comment_pos_close {
+    position : absolute;
+    bottom : 0;
+}
+.toot_card_base .toot_action.has_comment_pos_mini {
+    position : relative;
+    /*bottom : 15rem;*/
+}
+.toot_card_base .toot_action.has_comment_pos_minione {
+    position : relative;
+    /*bottom : 10rem;*/
+}
+.toot_card_base .toot_action.has_comment_pos_open {
+    position : relative;
+    bottom : 0rem;
+}
+.toot_card_base .toot_action.has_comment_pos_full {
+    position : relative;
+    bottom : 0rem;
+    
 }
 .reaction-count {
     padding : 0 1rem 0 1rem;
@@ -564,8 +624,9 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 
 /*=== toot reply and comment ===*/
 .toot_card_base .toot_comment {
-    /*max-height: 20rem;*/
-    overflow : hidden;
+    max-height: 20rem;
+    /*overflow : auto;*/
+    width : 100%;
 }
 .toot_card_base .toot_comment.close {
     height : 0rem;
@@ -574,17 +635,26 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     transition: 0.2s;
     min-height : 10rem;
     max-height : 35.5rem;
+    position : relative;
+    bottom : 0;
 }
 .toot_card_base .toot_comment.mini {
-    height : 15rem;
+    height : auto; /*15rem;*/
     overflow: auto;
+    position : relative;
+    bottom : 0;
 }
 .toot_card_base .toot_comment.minione {
-    height : 10rem;
+    height : auto; /*10rem;*/
     overflow: auto;
+    position : relative;
+    bottom : 0;
 }
 .toot_card_base .toot_comment.full {
     height : auto;
+}
+.toot_card_base .toot_comment .comment-list {
+    border : none;
 }
 .toot_card_base .toot_comment .comment-list.sizing {
     max-height: 16rem;
@@ -621,11 +691,45 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     bottom : 1rem;
     right : 2rem;
 }
-.toot_comment .announce_fullview {
+.announce_fullview {
     width : 100%;
     position: absolute;
     bottom: 0;
     background-color: rgba(255,255,255,0.85);
+}
+/*
+============================================
+  reply box UI
+============================================
+*/
+.template_reply_box {
+    position: relative;
+    overflow : auto;
+    /*height : 10rem;*/
+
+}
+.template_reply_box .reply_icon {
+    float : left;
+}
+.template_reply_box .layout.row {
+    margin-left : 0;
+}
+div.reply_mediamenu_card {
+    width : 100%;
+}
+@media only screen and (min-width: 601px) {
+    div.reply_mediamenu_card {
+        width : 100%;
+    }
+}
+@media only screen and (min-width: 993px) {
+    div.reply_mediamenu_card {
+        width : 100%;
+    }
+}
+.showable_mention {
+    margin-top : 0;
+    padding-top : 0;
 }
 
 

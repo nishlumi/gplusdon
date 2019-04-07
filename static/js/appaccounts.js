@@ -197,6 +197,14 @@ document.addEventListener('DOMContentLoaded', function() {
             fullname : function (ac) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
+            getInstanceTitle : function (instance) {
+                var inst = MYAPP.acman.instances[instance];
+                if (inst) {
+                    return inst.info.title || instance;
+                }else{
+                    return instance;
+                }
+            },
             doRegister : function(ac) {
                 MYAPP.sns.permissionPushSubscription()
                 .then(result=>{
@@ -312,13 +320,13 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem("callback_code");
             MYAPP.acman.afterAddInstance(authCode)
             .then(result=>{
-                MYAPP.afterLoadAccounts(data);
                 var ac = MYAPP.acman.get({
                     "instance":MYAPP.session.status.selectedAccount.instance,
                     "idname" : MYAPP.session.status.selectedAccount.idname
                 });
                 if (!ac) ac = result.users[0];
                 MYAPP.selectAccount(ac);
+                MYAPP.afterLoadAccounts(result.users);
     
                 for (var i = 0; i < result.users.length; i++) {
                     var tmpac = Object.assign({},result.users[i]);

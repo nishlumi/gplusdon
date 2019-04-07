@@ -39,11 +39,11 @@ var MastodonAPI = function (config) {
 
     function onAjaxSuccess(url, op, callback, logData) {
         return function (data, textStatus, xhr) {
-            console.log("Successful " + op + " API request to " + url,
+            /*console.log("Successful " + op + " API request to " + url,
                       ", status: " + textStatus,
                       ", HTTP status: " + xhr.status,
                       ", data: " + (logData ? JSON.stringify(data) : "<skipped>"),
-                      data);
+                      data);*/
 
             if (typeof callback !== "undefined") {
                 callback(data, textStatus);
@@ -308,10 +308,21 @@ var MastodonAPI = function (config) {
             var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
                 + "streaming/?access_token=" + this.config.api_user_token + "&stream=" + streamType);
             var listener = function (event) {
-                console.log("Got Data from Stream " + streamType);
-                event = JSON.parse(event.data);
-                event.payload = JSON.parse(event.payload);
-                onData(event);
+            	/*if (event.data != "") {
+                    console.log(event.origin +":", "Got Data from Stream " + streamType, event);
+                }*/
+                var paramevent = {};
+                if (event.data == "") {
+                    paramevent.origin = event.origin;
+                    paramevent.datalength = event.data.length;
+                    paramevent.payload = {};
+                }else{
+	                paramevent = JSON.parse(event.data);
+	                paramevent.origin = event.origin;
+	                paramevent.datalength = event.data.length;
+	                paramevent.payload = JSON.parse(paramevent.payload);
+	            }
+                onData(paramevent);
             };
             es.onmessage = listener;
             es.onclose = function (e) {

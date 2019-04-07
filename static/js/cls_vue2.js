@@ -292,6 +292,10 @@ Vue.component("toot-inputbox", {
 			this.status_text = text;
 			this.ckeditor.editable().setText(this.status_text);
 		},
+		setHTML : function (text) {
+			this.status_text = text;
+			this.ckeditor.editable().setHtml(this.status_text);
+		},
 		clearEditor : function () {
 			this.status_text = "";
 			this.mainlink.exists = false;
@@ -446,6 +450,7 @@ Vue.component("reply-inputbox", {
 			reply_to_id : "",
 			//mention_to_id : "",
 			isfirst : true,
+			ismediamenu : false,
 			wasset_replydata : false,
 			ckeditor : {},
 			btnflags : {
@@ -552,6 +557,8 @@ Vue.component("reply-inputbox", {
 			this.isfirst = false;
 		}
 	},
+	watch: {
+	},
 	computed : {
 
 	},
@@ -571,7 +578,9 @@ Vue.component("reply-inputbox", {
 		select_mention: function (mention) {
 			this.selmentions.splice(0,this.selmentions.length);
 			if (this.replydata.reply_account) this.selmentions.push("@"+this.replydata.reply_account.acct);
-			this.calc_fulltext(this.status_text);
+			this.calc_fulltext(this.status_text,{
+				counting_firstmention : this.is_set_mention_checkbox
+			});
 		},
 		select_sender_account : function (e) {
 			this.selaccounts.splice(0,this.selaccounts.length);
@@ -616,7 +625,10 @@ Vue.component("reply-inputbox", {
 				for (var m = 0; m < this.medias.length; m++) {
 					mediaids.push(this.medias[m][account.acct].id);
 				}
-				var pr = MYAPP.executePost(this.joinStatusContent(),{
+				var maintext = this.joinStatusContent({
+					counting_firstmention : this.is_set_mention_checkbox
+				});
+				var pr = MYAPP.executePost(maintext,{
 					"in_reply_to_id" : this.reply_to_id,
 					"account" : account,
 					"scope" : this.selsharescope,

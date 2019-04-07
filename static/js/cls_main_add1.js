@@ -335,6 +335,7 @@ function defineForMainPage(app) {
                     }
 
                 }
+                MYAPP.commonvue.nav_sel_account.mode = "n";
                 MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
             },
             onclick_menulink : function (url) {
@@ -390,6 +391,7 @@ function defineForMainPage(app) {
                     }
 
                 }
+                MYAPP.commonvue.nav_sel_account.mode = "n";
                 MYAPP.commonvue.nav_sel_account.isdialog_selaccount = !MYAPP.commonvue.nav_sel_account.isdialog_selaccount;
             },
             onclick_menulink : function (url) {
@@ -414,6 +416,8 @@ function defineForMainPage(app) {
             dialog_width : "50%",
             accounts : [],
             isdialog_selaccount : false,
+            mode : "n",  //n - normal use(menu etc), b - for boost account,
+            callbackAfterMode : null,
             uistyle : {
                 primary : "red",
                 bgcolor :  {
@@ -443,6 +447,13 @@ function defineForMainPage(app) {
                     MYAPP.commonvue.cur_sel_account.account = newac;
                 }
             },
+            isCurrentAccount : function (ac) {
+                if (MYAPP.commonvue.cur_sel_account.account.acct == ac.acct) {
+                    return true;
+                }else{
+                    return false;
+                }
+            },
             /**
              * to check the count of all accounts notification 
              */
@@ -468,6 +479,11 @@ function defineForMainPage(app) {
                 var title = e.target.title;
                 console.log(title);
                 var v = title.split(",");*/
+                if (this.mode == "b") {
+                    if (this.callbackAfterMode) (this.callbackAfterMode)({"idname":idname, "instance":instance});
+                    this.isdialog_selaccount = false;
+                    return;
+                }
 
                 MYAPP.selectAccount({"idname":idname, "instance":instance});
                 //MYAPP.forms.modal1.close();
@@ -1164,7 +1180,17 @@ function defineForMainPage(app) {
             datastyle : {
                 "comment-list" : {
                     sizing : false
-                }
+                },
+                "toot_action_class" : {
+                    has_comment_pos_close : false,
+					has_comment_pos_mini : false,
+					has_comment_pos_minione : false,
+					has_comment_pos_open : false,
+					has_comment_pos_full : false,
+                },
+                "instanceticker_class" : {
+					"display-name" : true,
+				}
             },
             globalInfo : {
                 staticpath : app.appinfo.staticPath

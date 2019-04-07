@@ -113,8 +113,24 @@ var gpGLD = {
     /**
      * Print files.
     */
+   loadFileBase : function (id,alt) {
+    var def = new Promise((resolve,reject)=>{
+        gapi.client.drive.files.get({
+            fileId: id,
+            alt : alt,
+        })
+        .then((res) => {
+            resolve(res);
+        },(err)=>{
+            console.log(err);
+            reject(err);
+        });
+    });
+    return def;
+    },
     loadFile : function (id) {
-        var def = new Promise((resolve,reject)=>{
+        return this.loadFileBase(id,"media");
+        /*var def = new Promise((resolve,reject)=>{
             gapi.client.drive.files.get({
                 fileId: id,
                 alt : "media"
@@ -126,7 +142,7 @@ var gpGLD = {
                 reject(err);
             });
         });
-        return def;
+        return def;*/
     },
     loadFullFile : function (file) {
         var def = new Promise((resolve,reject)=>{
@@ -273,7 +289,7 @@ var gpGLD = {
 
     handleClientLoad : function () {
         var hidinfo = ID("hid_appinfo").value.split(",");
-        console.log(hidinfo);
+        //console.log(hidinfo);
         gpGLD.k.ap = hidinfo[4];
         gpGLD.k.cl = hidinfo[5];
         gpGLD.k.pic_ap = hidinfo[8];
@@ -304,15 +320,61 @@ var gpGLD = {
         if (gpGLD.is_pickerAuth && gpGLD.is_authorize) {
             var view = new google.picker.View(google.picker.ViewId.DOCS);
             view.setMimeTypes("application/json");
+            var vuemode = MYAPP.commonvue.cur_sel_account.$vuetify.breakpoint;
+
+            var picker = new google.picker.PickerBuilder();
+            picker.enableFeature(google.picker.Feature.MULTISELECT_ENABLED);
+            picker.setOAuthToken(authres.access_token);
+            picker.addView(view);
+            if (docCookies.hasItem(MYAPP.siteinfo.lancke)) {
+                picker.setLocale(docCookies.getItem(MYAPP.siteinfo.lancke));
+            }
+            //picker.addViewGroup(group);
+            picker.hideTitleBar();
+            picker.setDeveloperKey(this.k.pic_ap);
+            picker.setCallback(usercallback);
+            if (vuemode.smAndDown) {
+                picker.setSize(vuemode.height*0.8,vuemode.width);
+                if (vuemode.xs) {
+                    picker.setSize(vuemode.height,vuemode.width);
+                }
+            }
+            var mypicker = picker.build();
+            mypicker.setVisible(true);
+        }
+    },
+    createPhotoPicker : function (authres,usercallback) {
+        if (gpGLD.is_pickerAuth && gpGLD.is_authorize) {
+            var group = new google.picker.ViewGroup(google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS);
+            group.addView(new google.picker.PhotoAlbumsView());
+            group.addView(new google.picker.ImageSearchView()
+                .setLicense(google.picker.ImageSearchView.License.NONE)
+            );
+            
+            var view = new google.picker.View(google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS);
             //view.setMimeTypes("application/json");
-            var picker = new google.picker.PickerBuilder()
-                .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-                .setOAuthToken(authres.access_token)
-                .addView(view)
-                .setDeveloperKey(this.k.pic_ap)
-                .setCallback(usercallback)
-                .build();
-           picker.setVisible(true);
+            var vuemode = MYAPP.commonvue.cur_sel_account.$vuetify.breakpoint;
+            var picker = new google.picker.PickerBuilder();
+            picker.enableFeature(google.picker.Feature.MULTISELECT_ENABLED);
+            picker.setOAuthToken(authres.access_token);
+            picker.addView(view)
+            //    .addView(new google.picker.PhotoAlbumsView())
+                .addView(new google.picker.ImageSearchView());
+            //picker.addViewGroup(group);
+            if (docCookies.hasItem(MYAPP.siteinfo.lancke)) {
+                picker.setLocale(docCookies.getItem(MYAPP.siteinfo.lancke));
+            }
+            picker.hideTitleBar();
+            picker.setDeveloperKey(this.k.pic_ap);
+            picker.setCallback(usercallback);
+            if (vuemode.smAndDown) {
+                picker.setSize(vuemode.height*0.8,vuemode.width);
+                if (vuemode.xs) {
+                    picker.setSize(vuemode.height,vuemode.width);
+                }
+            }
+            var mypicker = picker.build();
+            mypicker.setVisible(true);
         }
     },
     initPicker : function () {
@@ -354,6 +416,13 @@ var gpGLD = {
             //authorizeButton.style.display = 'block';
             //signoutButton.style.display = 'none';
         }
+    },
+    isExpired : function () {
+        var expiredate = new Date(MYAPP.siteinfo.ggl.act.expires_at);
+        var curdate = new Date();
+        var sa = expiredate.valueOf() - curdate.valueOf();
+        return (sa <= 0);
+
     },
     /**
      *  Sign in the user upon button click.

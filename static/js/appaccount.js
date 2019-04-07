@@ -190,6 +190,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 datastyle : {
                     "comment-list" : {
                         sizing : false
+                    },
+                    "toot_action_class" : {
+                        has_comment_pos_close : false,
+                        has_comment_pos_mini : false,
+                        has_comment_pos_minione : false,
+                        has_comment_pos_open : false,
+                        has_comment_pos_full : false,
+                    },
+                    "instanceticker_class" : {
+                        "display-name" : true,
                     }
                 },
             },
@@ -511,12 +521,14 @@ document.addEventListener('DOMContentLoaded', function() {
             methods : {
                 load_setting : function (item) {
                     this.user = JSON.original(item);
-                    for (var i = 0; i < item.rawdata.source.fields.length; i++) {
-                        this.saves.fields[i].name = item.rawdata.source.fields[i].name;
-                        this.saves.fields[i].value = item.rawdata.source.fields[i].value;
-                        if (i == 0) {
-                            this.field_name = item.rawdata.source.fields[i].name;
-                            this.field_value = item.rawdata.source.fields[i].value;
+                    if (item.rawdata.source.fields) {
+                        for (var i = 0; i < item.rawdata.source.fields.length; i++) {
+                            this.saves.fields[i].name = item.rawdata.source.fields[i].name;
+                            this.saves.fields[i].value = item.rawdata.source.fields[i].value;
+                            if (i == 0) {
+                                this.field_name = item.rawdata.source.fields[i].name;
+                                this.field_value = item.rawdata.source.fields[i].value;
+                            }
                         }
                     }
                     this.bkup = JSON.original(item);

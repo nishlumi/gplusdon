@@ -70,7 +70,7 @@
                             </a>
                         </td>
                         <td>{? "@" + item.account.idname ?}</td>
-                        <td>{? "@" + item.account.instance ?}</td>
+                        <td>{? getInstanceTitle(item.account.instance) ?}</td>
                         <!--<td class="righted">{? item.account.rawdata.statuses_count ?}</td>-->
                         <td class="righted">{? item.account.rawdata.following_count ?}</td>
                         <td class="righted">{? item.account.rawdata.followers_count ?}</td>

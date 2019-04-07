@@ -57,6 +57,7 @@
                     <v-list dense v-bind:class="uistyle.bgcolor">
                         <v-list-tile avatar v-bind:key="i" v-for="(ac,i) in accounts" v-on:click.stop="onclick_item(ac.idname,ac.instance)">
                             <v-list-tile-avatar >
+                                <span v-if="isCurrentAccount(ac)" class="red">[</span>
                                 <v-img v-bind:src="ac.rawdata.avatar" class="userrectagnle" v-bind:title="ac.idname">
                             </v-list-tile-avatar>
                             <v-list-tile-content v-bind:title="ac.idname" v-html="ch2seh(fullname(ac))"></v-list-tile-content>

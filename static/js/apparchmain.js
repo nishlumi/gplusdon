@@ -336,6 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     MYAPP.setGeneralTitle(_T("lab_archive_title"));
+    vue_archmain.translations = curLocale.messages;
+    if ("navibar" in MYAPP.commonvue) MYAPP.commonvue.navibar.applogined = true;
+    if ("nav_btnbar" in MYAPP.commonvue) MYAPP.commonvue.nav_btnbar.applogined = true;
+    if ("navigation" in MYAPP.commonvue) MYAPP.commonvue.navigation.applogined = true;
+
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {
         MYAPP.acman.checkVerify();
@@ -372,7 +377,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ///vue_timeline.tag.tagname = tltypeid;
         ///vue_timeline.taglocal.tagname = tltypeid;
 
-        vue_archmain.translations = curLocale.messages;
         vue_archmain.tagname = tltypeid;
 
         ///for (var obj in vue_timeline) {
@@ -392,10 +396,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     }, function (flag) {
-        appAlert(_T("msg_notlogin_myapp"), function () {
+        /*appAlert(_T("msg_notlogin_myapp"), function () {
             var newurl = window.location.origin + MYAPP.appinfo.firstPath + "/";
             window.location.replace(newurl);
-        });
+        });*/
     });
     console.log("hash=",location.hash);
     location.hash = "";

@@ -57,7 +57,7 @@ G+Don は Mastodon のためのウェブアプリです。
  * paste
  * mastodon
  * twitter-text.js -> modified to mastodon-text.js
-
+ * InstanceTicker (developed by weepjp)
 
 ***Eternal TODO***
 

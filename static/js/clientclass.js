@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190328-01",
+            revision : "20190407-02",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -36,7 +36,7 @@ class Gplusdon {
                 ak : hidinfo[4],
                 ci : hidinfo[5],
                 pic_ak : hidinfo[8],
-                act : "",
+                act : {},
             },
             yh : hidinfo[6],
             mab : hidinfo[7]
@@ -346,8 +346,8 @@ class Gplusdon {
             //popup_ovuser.options.startingTop = rect.y;
             this.commonvue.usercard.$nextTick(function(){
 
-                ID("ov_user").style.top = rect.y + "px";
-                ID("ov_user").style.left = rect.x + "px";
+                ID("ov_user").style.top = rect.top + "px";
+                ID("ov_user").style.left = rect.left + "px";
                 ID("ov_user").classList.remove("common_ui_off");
                 ID("ov_user").classList.add("scale-up-tl");
             });

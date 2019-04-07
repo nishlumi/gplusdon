@@ -1,7 +1,14 @@
 const SNSCONV = {
-    convertFromGplus : function (js) {
-        if (!js["activityId"] && !js["commentActivityId"]) {
-            return null;
+    /**
+     * convert Google+ post to G+Don Gpstatus
+     * @param {JSON} js G+ JSON Data
+     * @param {JSON} options is_reshared:boolean, 
+     */
+    convertFromGplus : function (js,options) {
+        if (!options.is_reshared) {
+            if (!js["activityId"] && !js["commentActivityId"]) {
+                return null;
+            }
         }
         var ret = {};
 		ret["emojis"] = [];
@@ -32,6 +39,36 @@ const SNSCONV = {
         ret["url"] = js.url;
 
         ret["content"] = js.content;
+        ret["reblog"] = null;
+        if (js.resharedPost) {
+            var reblog = {};
+            js.resharedPost["creationTime"] = js.creationTime;
+            js.resharedPost["activityId"] = js.resharedPost.resourceName;
+            reblog = SNSCONV.convertFromGplus(js.resharedPost,{is_reshared:true});
+            ret["reblog"] = reblog.original;
+            /*
+            var a = GEN("a");
+            a.href = js.resharedPost.author.profilePageUrl;
+            reblog["account"] = {
+                "display_name" : js.resharedPost.author.displayName,
+                "url" : js.resharedPost.author.profilePageUrl,
+                "uri" : js.resharedPost.author.profilePageUrl,
+                "username" : a.pathname.replace("/","").replace("+",""),
+                "instance" : "plus.google.com",
+                "note" : "",
+                "avatar" : js.resharedPost.author.avatarImageUrl
+            };
+            reblog["visibility"] = "public";
+            reblog["content"] = js.resharedPost.content;
+            a.href = js.resharedPost.url;
+            reblog["gp_linkobject"] = {
+                title : js.resharedPost.title,
+                site : a.hostname,
+                url : js.resharedPost.url,
+                image : js.resharedPost.imageUrl,
+            };*/
+
+        }
         ret["visibility_str"] = "";
         ret["visibility_desc"] = "";
         if (js.postAcl) {
@@ -157,7 +194,7 @@ const SNSCONV = {
             }
             ret["reblogs_count"] = ret.reblog_users.length;
         }
-
+        console.log(ret);
         //---first converting...
         var gobj = new Gpstatus(ret,14);
 
@@ -165,8 +202,8 @@ const SNSCONV = {
         if (js.comments) {
             //ret["descendants"] = [];
             for (var i = 0; i < js.comments.length; i++) {
-                var com = SNSCONV.convertFromGplus(js.comments[i]);
-                gobj.descendants.push(com);
+                var com = SNSCONV.convertFromGplus(js.comments[i],{});
+                gobj.descendants.push(com.gpdata);
             }
             gobj.body["replies_count"] = js.comments.length;
         }
@@ -187,7 +224,10 @@ const SNSCONV = {
 
         }
 
-        return gobj;
+        return {
+            gpdata : gobj,
+            original : ret
+        };
     },
     convertG2G : function (html) {
 		var div = GEN("div");

@@ -78,19 +78,22 @@ class Gpstream {
     }
     start() {
         var mainbody = (result)=>{
+            if (result.datalength > 0) { 
+                console.log(result.origin, ": got stream: ",result);
+            }
             if (result.event === "notification") {
                 console.log(this._targetAccount.acct,`during stream:${this._type}?${this._query}`,result);
                 // result.payload is a notification
-                this._start_nofitication(result.payload);
+                this._start_nofitication(result);
             } else if (result.event === "update") {
                 // status update for one of your timelines
                 if (this._targetObject || this._targetDirect) {
-                    this._start_update(result.payload);
+                    this._start_update(result);
                 }
             } else if (result.event === "delete") {
                 // status delete from your timelines
                 if (this._targetObject || this._targetDirect) {
-                    this._start_delete(result.payload);
+                    this._start_delete(result);
                 }
             } else {
                 // probably an error
@@ -135,7 +138,8 @@ class Gpstream {
     logger(text) {
         console.log(`The staream [${this._type}] operation:${text}`);
     }
-    _start_nofitication(data) {
+    _start_nofitication(streaming) {
+        var data = streaming.payload;
         data.created_at = new Date(data.created_at);
         data.account["instance"] = MUtility.getInstanceFromAccount(data.account.url);
         data.account = [data.account];
@@ -185,7 +189,8 @@ class Gpstream {
         }
         MYAPP.acman.save();
     }
-    _start_update(data){
+    _start_update(streaming){
+        var data = streaming.payload;
         if (this._targetObject) {
             if (!this.checkTLType()) return;
             var isOK = true;
@@ -279,7 +284,8 @@ class Gpstream {
             },options);
         }
     }
-    _start_delete(data) {
+    _start_delete(streaming) {
+        var data = streaming.payload;
         if (this._targetObject) {
             if (!this.checkTLType()) return;
             var isOK = true;

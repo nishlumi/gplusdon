@@ -12,7 +12,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
         
         <template  v-if="toolbtn.open_in_new">
             <v-tooltip bottom>
-                <v-btn icon slot="activator" hidden-sm-and-down v-on:click="onclick_openInNew">
+                <v-btn icon slot="activator" class="hidden-sm-and-down" v-on:click="onclick_openInNew">
                     <v-icon>open_in_new</v-icon>
                 </v-btn>
                 <span>{{translation.toolbtn_openinnew}}</span>    
@@ -31,7 +31,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
         <span class="headline">{{title}}</span>
         <v-spacer></v-spacer>
         <v-tooltip bottom>
-            <v-btn id="btn_addcw" slot="activator" icon v-if="toolbtn.addcw" v-on:click="onclick_addcw"><v-icon>visibility</v-icon></v-btn><input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+            <v-btn id="btn_addcw" slot="activator" icon v-if="toolbtn.addcw" v-on:click="onclick_addcw"><v-icon>visibility</v-icon></v-btn>
             <span>{{translation.toolbtn_addcw}}</span>  
         </v-tooltip>
         <v-tooltip bottom>
@@ -39,7 +39,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
             <span>{{translation.toolbtn_addimage}}</span>  
         </v-tooltip>
         <v-tooltip bottom>
-            <v-btn id="btn_addgeo" slot="activator" icon v-if="toolbtn.addgeo" v-on:click="onclick_addgeo"><v-icon>map</v-icon></v-btn>
+            <v-btn id="btn_addgeo" slot="activator" icon v-if="toolbtn.addgeo" v-on:click="onclick_addgeo"><v-icon>gps_fixed</v-icon></v-btn>
             <span>{{translation.toolbtn_addgeo}}</span>  
         </v-tooltip>
         <v-tooltip bottom>
@@ -173,7 +173,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                 v-on:dragleave="ondragleave_inputcontent"
                                 v-on:drop="ondrop_inputcontent"
 
-                            >{{ status_text || firsttext }}</div>
+                            >{{ status_text  }}</div>
                         
                         
                             <p id="toot_input_help" class="common_ui_off">

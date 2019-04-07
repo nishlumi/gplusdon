@@ -145,8 +145,8 @@ async function loadWebsiteOGP(request, info, url) {
                 //console.log("web.get=", error, response, body);
                 const dom = new JSDOM(body);
                 var info = dom.window.document.head;
-
-                resolve(sanhtml(info.innerHTML));
+                var ht = (info.innerHTML);
+                resolve(ht);
             });
         }
 
@@ -222,7 +222,12 @@ var ucommon = {
         VAPID: sysconst.vap_id(),
         gdaky: sysconst.gdrive.web.api_key,
         gdid: sysconst.gdrive.web.client_id,
-        gdaky_pic: sysconst.gdrive.web.picker_api_key
+        gdaky_pic: sysconst.gdrive.web.picker_api_key,
+        color: {
+            bg_first: "white",
+            bg_second: "grey lighten-3",
+            fw: "black--text"
+        }
     },
     load_translation: load_translation,
     /**
