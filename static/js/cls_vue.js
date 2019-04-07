@@ -661,10 +661,11 @@ Vue.component("timeline-toot", {
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.scrollwithoutmini = true;
 			MYAPP.commonvue.tootecard.datastyle.toot_action_class.has_comment_pos_full = true;
 
-			this.reply_data = this.generateReplyObject(this.toote);
+			MYAPP.commonvue.tootecard.$refs.tootview.reply_data = this.generateReplyObject(this.toote);
 			MYAPP.commonvue.tootecard.$nextTick(()=>{
 				MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
 				MYAPP.commonvue.tootecard.$refs.tootview.apply_childReplyInput();
+				MYAPP.commonvue.tootecard.$refs.tootview.$refs.replyinput.select_sender_account();
 			});
 
 			//---change each states
@@ -770,7 +771,7 @@ Vue.component("timeline-toot", {
 			//---set up data for reply
 			this.reply_data = this.generateReplyObject(this.toote);
 			this.$refs.replyinput.enable_wasReplyInput(false);
-			//this.replyinput.select_sender_account();
+			//this.$refs.replyinput.replyinput.select_sender_account();
 			//this.call_replySetup();
 
 			//---set up view layout for reply

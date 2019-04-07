@@ -108,7 +108,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
                             </v-menu>
                             
                         </template>
-                        <input type="file" id="dmy_openmdia" class="common_ui_off" v-on:change="onchange_openmedia">
+                        <input type="file" :id="movingElementID('replyopenmedia_')" class="common_ui_off" v-on:change="onchange_openmedia">
                     </v-flex>
                     <v-flex xs5>
                         <v-checkbox :label="generate_showable_mention()" class="showable_mention truncate" v-model="is_set_mention_checkbox"></v-checkbox>

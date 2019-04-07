@@ -2032,7 +2032,7 @@ var vue_mixin_for_inputtoot = {
 			this.insertText("-cw-");
 		},
 		onclick_addimage : function(e) {
-			ID("dmy_openmdia").click();
+			ID(this.movingElementID('replyopenmedia_')).click();
 		},
 		onclick_addgeo : function (e) {
 			if (this.is_geo) {
