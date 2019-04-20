@@ -38,6 +38,7 @@ function defineForTootPage(app) {
                     open_in_browser : false,
                     addcw : true,
                     addimage : true,
+                    addpoll : true,
                     addgeo : true,
                     emoji : true,
                     send : true
@@ -373,6 +374,9 @@ function defineForTootPage(app) {
                 }else{
                     this.isopen_mention = true;
                 }
+            },    
+            select_window : function (index) {
+                this.$refs.inputbox.select_window(index);
             },    
             remove (item) {
                 var index = -1;

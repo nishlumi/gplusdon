@@ -163,6 +163,25 @@ var MastodonAPI = function (config) {
                 error: onAjaxError(url, "POST", callback_fail)
             });
         },
+        post_content: function (endpoint) {
+            // for POST API calls
+            var args = checkArgs(arguments);
+            var postData = args.data;
+            var callback = args.callback;
+            var callback_fail = args.callback_fail || function() {};
+            var url = apiBase + endpoint;
+
+            return $.ajax({
+                url: url,
+                type: "POST",
+                data: JSON.stringify(postData),
+                //contentType: "application/json",
+                dataType : "json",
+                headers: addAuthorizationHeader({}, this.config.api_user_token),
+                success: onAjaxSuccess(url, "POST", callback, false),
+                error: onAjaxError(url, "POST", callback_fail)
+            });
+        },
         postMedia: function (endpoint) {
             // for POST API calls
             var args = checkArgs(arguments);
@@ -193,11 +212,19 @@ var MastodonAPI = function (config) {
             var callback = args.callback;
             var callback_fail = args.callback_fail || function() {};
             var url = apiBase + endpoint;
+            var fd = new FormData();
+            
+            for (var obj in postData) {
+                fd.append(obj,postData[obj]);
+            }
 
             return $.ajax({
                 url: url,
                 type: "PUT",
-                data: postData,
+                //data: postData,
+                data : fd,
+                contentType: false,
+                processData: false,
                 headers: addAuthorizationHeader({}, this.config.api_user_token),
                 success: onAjaxSuccess(url, "PUT", callback, false),
                 error: onAjaxError(url, "PUT", callback_fail)
@@ -219,8 +246,8 @@ var MastodonAPI = function (config) {
             return $.ajax({
                 url: url,
                 type: "PATCH",
-                //data: postData,
-                data : fd,
+                data: postData,
+                //data : fd,
                 contentType: false,
                 processData: false,
                 headers: addAuthorizationHeader({}, this.config.api_user_token),
@@ -306,7 +333,7 @@ var MastodonAPI = function (config) {
             	wss = "wss://" + apiBase.substr(8);
             }
             var es = new WebSocket(wss		//"wss://" + apiBase.substr(8)
-                + "streaming/?access_token=" + this.config.api_user_token + "&stream=" + streamType);
+                + "streaming/?stream=" + streamType + "&access_token=" + this.config.api_user_token);
             var listener = function (event) {
             	/*if (event.data != "") {
                     console.log(event.origin +":", "Got Data from Stream " + streamType, event);

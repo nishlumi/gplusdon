@@ -92,6 +92,9 @@
                                 <v-btn small color="primary" v-if="!is_gdrive_authorize" v-on:click="onclick_authorize_drive_btn">{{trans.app_lab_sync_gdrive_authorize}}</v-btn>
                                 <v-btn small color="yellow" v-if="is_gdrive_authorize" v-on:click="onclick_forget_drive_btn">{{trans.app_lab_sync_gdrive_forget}}</v-btn>
                                 <v-btn small  v-if="is_gdrive_authorize" v-on:click="onclick_organization_account_btn">{{trans.app_lab_sync_gdrive_integrate}}</v-btn>
+                                <v-btn small color="primary" v-if="is_gdrive_authorize" v-on:click="onclick_googlesave_btn">{{trans.cons_save}}</v-btn>
+                                <br>
+                                <v-checkbox v-model="type_app.cloud_manualy_save" label="{{trans.app_item_sync_gdrive_hand}}"></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-card-text>
@@ -295,6 +298,7 @@
                                 <v-checkbox hide-details v-model="type_notification.notpreview_onmap" label="{{trans.ntf_lab_notpreview_onmap}}"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_notification.notpreview_onmedia" label="{{trans.ntf_lab_notpreview_onmedia}}" :disabled="type_notification.minimumize_media_onlink"></v-checkbox>
                                 <v-checkbox class="common_ui_off" hide-details v-model="type_notification.minimumize_media_onlink" label="{{trans.ntf_lab_minimumize_media_onlink}}" :disabled="type_notification.notpreview_onmedia"></v-checkbox>
+                                <v-checkbox class="common_ui_off" hide-details v-model="type_notification.show_mention_as_name" label="{{trans.ntf_lab_show_mention_as_name}}" :disabled="type_notification.minimumize_media_onlink"></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-card-text>

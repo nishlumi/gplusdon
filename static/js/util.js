@@ -559,8 +559,9 @@ function loadOGP(url,index) {
 	});
 	var def = new Promise((resolve,reject)=>{
 		return fetch(req).then((res)=>{
-			return res.text().then((data)=>{
-				//console.log("ogp rawdata=",data);
+			return res.json().then((result)=>{
+				console.log("ogp rawdata=",result);
+				var data = result.html;
 				var ret = {};
 				if (data == "") {
 					var tmpa = GEN("a");
@@ -679,9 +680,13 @@ function loadIAPI() {
 	});
 	return def;
 }
-function loadGeoLoco(lat,lng) {
+function loadGeoLoco(geo,option) {
 	var def = new Promise((resolve,reject)=>{
-		var srvurl = `/srv/geolocation?lat=${lat}&lng=${lng}&dist=1`;
+		var apitype = "0";
+		if ("apitype" in option) {
+			apitype = option.apitype;
+		}
+		var srvurl = `/srv/geolocation?lat=${geo.lat}&lng=${geo.lng}&dist=1&apitype=${apitype}`;
 		$.ajax({
 			url : srvurl,
 			type : "GET",

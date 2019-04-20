@@ -32,7 +32,7 @@
                                 v-bind:class="cssstyle_unreadNotification(account.account,item)"
                             >
                                 <v-list-tile-avatar>
-                                    <v-icon class="tooltipped" v-bind:class="judge_colorFromType(item.type)" data-position="right" v-bind:data-tooltip="get_translated_typename(item.type)">{? get_type_icon(item.type) ?}</v-icon>
+                                    <v-icon class="tooltipped" v-bind:class="judge_colorFromType(item.type)" v-bind:title="get_translated_typename(item.type)">{? get_type_icon(item.type) ?}</v-icon>
                                 </v-list-tile-avatar>
                                 
                                 <v-list-tile-content>

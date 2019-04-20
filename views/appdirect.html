@@ -174,9 +174,7 @@
                                     <span class="subheading toottext_length" v-bind:class="strlength_class" >{? strlength ?}</span>
                                 </v-flex>
                                 <v-flex xs2>
-                                    <v-btn fab dark small
-                                        style="margin-top:20%"
-                                        depressed
+                                    <v-btn icon dark color="red"
                                         v-on:click="onsubmit_comment"
                                     ><v-icon>send</v-icon></v-btn>
                                 </v-flex>
@@ -200,7 +198,7 @@
                 </v-toolbar>
                 <v-card>
                     <v-card-text class="timeline_cardlist_mobile" v-on:scroll="onscroll_dmsg">
-                        <v-timeline dense clipped>
+                        <v-timeline dense >
                             <v-slide-x-transition group>
                                 <template v-if="show_user">
                                     <v-timeline-item
@@ -213,9 +211,10 @@
                                         <span slot="icon" v-if="msg.user_direction.type == 'me'">
                                             <img v-bind:src="msg.toote.account.avatar" class="toot_prof userrectangle"></img>
                                         </span>
-                                        <dmessage-item
+                                        <dmessage-item :ref="`dmsg${index}`"
                                             v-bind:translation="translations"
                                             v-bind:user_direction="msg.user_direction"
+                                            v-bind:gallery_options="gallery_options"
                                             v-bind:toote="msg.toote"
                                         ></dmessage-item>
                                     </v-timeline-item>
@@ -242,11 +241,11 @@
                                                         </v-flex>
                                                     </v-layout>
                                                     <v-layout
-                                                    slot="placeholder"
-                                                    fill-height
-                                                    align-center
-                                                    justify-center
-                                                    ma-0
+                                                        slot="placeholder"
+                                                        fill-height
+                                                        align-center
+                                                        justify-center
+                                                        ma-0
                                                     >
                                                         <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>  
                                                     </v-layout>
@@ -296,9 +295,9 @@
                                 >{? status_text ?}</div>
                             </v-flex>
                             <v-flex xs2>
-                                <v-btn fab dark small
-                                    style="margin-top:20%"
-                                    depressed
+                                <v-btn icon dark color="red"
+                                    
+                                    
                                     v-on:click="onsubmit_comment"
                                 ><v-icon>send</v-icon></v-btn>
                             </v-flex>

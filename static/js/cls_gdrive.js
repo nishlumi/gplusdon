@@ -1,4 +1,16 @@
-var SCOPES = ['https://www.googleapis.com/auth/drive',"https://www.googleapis.com/auth/drive.appfolder", "https://www.googleapis.com/auth/drive.appdata"];
+/**================================================================
+ * 
+ *   Google service API connection and function
+ * 
+ * 
+ * ================================================================
+ */
+
+var SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+    "https://www.googleapis.com/auth/drive.appfolder", 
+    "https://www.googleapis.com/auth/drive.appdata",
+];
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
@@ -365,6 +377,7 @@ var gpGLD = {
                 picker.setLocale(docCookies.getItem(MYAPP.siteinfo.lancke));
             }
             picker.hideTitleBar();
+            picker.setMaxItems(4);
             picker.setDeveloperKey(this.k.pic_ap);
             picker.setCallback(usercallback);
             if (vuemode.smAndDown) {

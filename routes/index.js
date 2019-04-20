@@ -164,6 +164,9 @@ router.post('/srv/ogp', function (req, res) {
     text.then(result => {
         //console.log("text=", result);
         res.send(result);
+    })
+    .catch(error=>{
+        res.send(error);
     });
 });
 router.get('/srv/iapi', function (req, res) {
@@ -200,6 +203,14 @@ router.get('/.well-known/assetlinks.json', function (req, res) {
         res.send(ret);
     }
 
+});
+
+router.get("/srv/test1", function (req, res) {
+    var url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=35.6694071,139.88545969999998&radius=1000&&key=AIzaSyBHu1tNzOJp1R5qaP8SNiItQig5iIq5gC4";
+    cls_mstdn.originalGet(url, { api: {}, app: {}})
+    .then(result => {
+        res.send(result);
+    });
 });
 router.get('/srv/pleroma/:instance/:version/:endpoint', function (req, res) {
     var v = req.params.version.replace("_","/");

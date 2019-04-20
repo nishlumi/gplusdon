@@ -419,6 +419,35 @@ class AccountManager {
             AppStorage.set(this.setting.INSTANCEEMOJI,tmpinst);
         }
     }
+    checkInstanceInfo() {
+        for (var obj in this.instances) {
+            MYAPP.sns.getInstanceInfo(obj)
+            .then(result=> {
+                //---no neccesary https// (add automatically)
+                result.uri = result.uri.replace("https://","");
+                this.instances[result.uri] = {
+                    info : result,
+                    instance : result.uri
+                };
+                for (var ainx = 0; ainx < this.items.length; ainx++) {
+                    if (this.items[ainx].instance == result.uri) {
+                        this.items[ainx].token["stream_url"] = result.urls.streaming_api;
+                        this.items[ainx].api.setConfig("stream_url",result.urls.streaming_api);
+                    }
+                }
+                return {data:this.instances[result.uri],
+                    instance : result.uri
+                };
+            })
+            .then(result2=> {
+                return MYAPP.sns.getInstanceEmoji(result2.instance)
+                .then(emojiresult => {
+                    return result2.data["emoji"] = emojiresult;
+                    
+                });
+            })
+        }
+    }
     checkVerify() {
         var pros = [];
         for (var i = 0; i < this.items.length; i++) {
@@ -461,12 +490,8 @@ class AccountManager {
         }
         return Promise.all(pros)
         .then(values=>{
-            /*for (var i = values.length-1; i >= 0; i--) {
-                if (values[i].data.status == "err") {
-                    this.items.splice(values.index,1);
-                }
-            }*/
-            if (gpGLD.is_authorize) {
+            /*
+            if (gpGLD.is_authorize && !MYAPP.session.config.application.cloud_manualy_save) {
                 //---save to google drive
                 //---count config file in google drive
                 gpGLD.loadFromFolder()
@@ -489,8 +514,34 @@ class AccountManager {
                 });
 
             }
+            */
             return this.items;
         });
+    }
+    syncCloud() {
+        if (gpGLD.is_authorize && !MYAPP.session.config.application.cloud_manualy_save) {
+            //---save to google drive
+            //---count config file in google drive
+            gpGLD.loadFromFolder()
+            .then(files=>{
+                var ret = null;
+                for (var i = 0; i < files.length; i++) {
+                    ret = files[i];
+                }
+                return ret;
+            })
+            .then(file=>{
+                if (file) {
+                    var tmparr = [];
+                    for (var i = 0; i < this.items.length; i++) {
+                        tmparr.push(this.items[i].getRaw());
+                    }
+                    //---overwrite existing config file (because it already exists at here!!) 
+                    gpGLD.updateFile(file.id,JSON.stringify(tmparr));
+                }
+            });
+
+        }
     }
     /**
      * load Account data  (JSON to Account)

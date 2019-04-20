@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var tltype = ID("hid_timelinetype").value;
         if (tltype == "") {
-            tltype = "home";
+            tltype = "user";  //---user is "home".
             ID("hid_timelinetype").value = tltype;
         }
         var tltypeid = ID("hid_timelinetypeid").value;

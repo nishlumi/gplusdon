@@ -1353,7 +1353,11 @@ div.instances_body .card .card-content.card-account-content p {
     -webkit-overflow-scrolling: touch;
 }
 .dmy_inputtoot div.v-dialog--fullscreen {
-    background-color : white;
+    background-color : rgb(194, 82, 82);
+}
+.v-toolbar .v-btn.input-toot-textbtn .v-btn__content {
+    height : 36px;
+    line-height : 36px;
 }
 .dmy_inputtoot .v-toolbar .v-btn .v-btn__content .v-icon {
     height : 24px;
@@ -1389,7 +1393,7 @@ div.instances_body .card .card-content.card-account-content p {
     -webkit-overflow-scrolling: touch;
     width : 99%;
     height : calc(1.7rem * 3);
-    border-bottom : 0.1rem solid #C7C7C7;
+    /*border-bottom : 0.1rem solid #C7C7C7;*/
     margin-bottom : 0.5rem;
     outline : none;
 }
@@ -1582,7 +1586,12 @@ div.setting_body {
     box-shadow: 1px -2px 4px 0 grey;
 
 }
+.dmsg_messageframe {
+    border:1px solid rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding : 3px
 
+}
 
 /*====================================================
   archiver main UI

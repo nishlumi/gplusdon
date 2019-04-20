@@ -3,6 +3,9 @@ const path = require('path');
 const web = require("request");
 const weburl = require("url");
 const webreq = require("request-promise");
+const Iconv = require('iconv-lite');
+const jschardet = require('jschardet');
+const mimelib = require("mimelib-noiconv");
 const sanhtml = require("sanitize-html");
 var cls_mstdn = require("./cls_mstdn");
 var res_langs = require("./res_langs");
@@ -141,19 +144,96 @@ async function loadWebsiteOGP(request, info, url) {
             }
         } else {
 
-            web({ url: url, method: "GET" },(error, response, body) => {
+            web({ url: url, method: "GET", encoding: null },(error, response, body) => {
                 //console.log("web.get=", error, response, body);
-                const dom = new JSDOM(body);
-                var info = dom.window.document.head;
-                var ht = (info.innerHTML);
-                resolve(ht);
+                if (error) {
+                    reject({
+                        cd: -1,
+                        err: "noget"
+                    });
+                } else {
+                    if (response.statusCode === 200) {
+                        var encoding = null;
+                        //var iconv = new Iconv('EUC-JP', 'UTF-8//TRANSLIT//IGNORE');
+                        if (response.headers["content-type"]) {
+                            encoding = mimelib.parseHeaderLine(response.headers['content-type']).charset;
+                        }
+                        if (!encoding) {
+                            encoding = jschardet.detect(body).encoding;
+                        }
+                        if (encoding && Iconv.encodingExists(encoding)) {
+                            body = Iconv.decode(body, encoding);
+
+                            var dom = new JSDOM(body);
+                            var info = dom.window.document.head;
+                            var ht = (info.innerHTML);
+                            resolve({
+                                raw: body,
+                                html: ht
+                            });
+
+                        } else {
+                            reject({
+                                cd: -1,
+                                err: "nofinish"
+                            });
+                        
+                        }
+                        
+                    } else {
+                        reject({
+                            cd: -1,
+                            err: "nofinish"
+                        });
+                    }
+
+                }
             });
         }
 
     });
     return def;
 }
-async function getGeolocation(request,param) {
+/*
+ * 
+ * @param {Rquest} request 
+ * @param {JSON} param 
+ *   lat : 9.99,
+ *   lng : 9.99,
+ *   dist : 9
+ *   apitype : 9 (0 - placeinfo, 1 - localsearch)
+ */
+async function getGeolocation(request, param) {
+    var getLatLngRange = function (lat, lng, dist) {
+        let lat_len = 30.9;
+        let lng_len = 20.5;
+        //---km -> m
+        var rad = dist * 1000;
+
+        var lat_scope = (rad / lat_len) / 3600;
+        var lng_scope = (rad / lng_len) / 3600;
+
+        var ret = {
+            ne: {
+                lat: lat + lat_scope,
+                lng: lng - lng_scope
+            },
+            nw: {
+                lat: lat + lat_scope,
+                lng: lng + lng_scope
+            },
+            se: {
+                lat: lat - lat_scope,
+                lng: lng - lng_scope
+            },
+            sw: {
+                lat: lat - lat_scope,
+                lng: lng + lng_scope
+            }
+        };
+        return ret;
+
+    };
     var def = new Promise((resolve, reject) => {
         var ishit = false;
         //console.log("refer=",request.headers.referer);
@@ -163,7 +243,19 @@ async function getGeolocation(request,param) {
                 break;
             }
         }
-        var yolpurl = `https://map.yahooapis.jp/search/local/V1/localSearch?appid=${sysconst.yh_id}&lat=${param.lat}&lon=${param.lng}&dist=${param.dist}&output=json`;
+        var endpoint = "";
+        var yolpurl = "";
+        if (param.apitype == "0") {
+            var coord = getLatLngRange(param.lat, param.lng, parseFloat(param.dist));
+            var precision = 25;
+            var zoom = 13;
+            endpoint = "https://map.yahooapis.jp/spatial/V1/shapeSearch";
+            yolpurl = `${endpoint}?appid=${sysconst.yh_id}&coordinates=${coord.ne.lng},${coord.ne.lat} ${coord.nw.lng},${coord.nw.lat} ${coord.sw.lng},${coord.sw.lat} ${coord.se.lng},${coord.se.lat}&output=json&precision=${precision}&z=${zoom}`;
+        }else{
+            endpoint = "https://map.yahooapis.jp/search/local/V1/localSearch";
+            yolpurl = `${endpoint}?appid=${sysconst.yh_id}&lat=${param.lat}&lon=${param.lng}&dist=${param.dist}&output=json`;
+        }
+        console.log(yolpurl);
         //console.log("ishit=",ishit);
         if (!ishit) reject("");
 

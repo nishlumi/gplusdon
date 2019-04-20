@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `maxid=[${this.accounts[itemID].info.maxid}]`,
                 `sinceid=[${this.accounts[itemID].sinceid}]`);
 
+                MYAPP.commonvue.nav_sel_account.onclick_item(this.accounts[itemID].account.idname,this.accounts[itemID].account.instance);
                 if ((this.accounts[itemID].info.maxid == "") && (this.accounts[itemID].info.sinceid == "")) {
                     this.loadNotifications(this.accounts[itemID],{
                         api:{

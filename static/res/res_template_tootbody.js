@@ -335,25 +335,45 @@ const CONS_TEMPLATE_TOOTBODY = `
         <v-layout row wrap>
             <v-flex xs12>
                 <template v-if="toote.body.poll.expired">
-                    <b class="headline">{{translation.lab_expired}}</b>
+                    <b class="subheading">{{translation.lab_expired}}</b>
                 </template>
                 <template v-else>
-                    <b class="headline" v-if="toote.body.poll.voted">{{translation.lab_voted}}</b>
+                    <b class="subheading" v-if="toote.body.poll.voted">{{translation.lab_voted}}</b>
                 </template>
             </v-flex>
             <v-flex xs12>
                 <template v-if="toote.body.poll.multiple">
-                    
-                </template>
-                <template v-else>
-                        
-                    
                     <v-list two-line>
                         <template v-for="(poll,polindex) in toote.body.poll.options">
                             <v-divider></v-divider>
-                            <v-list-tile avatar :key="polindex" :disabled="is_off_vote(toote.body.poll)" @click="onclick_pollchoice(polindex,toote.body.poll)">
+                            <v-list-tile avatar :key="polindex" :disabled="is_off_vote(toote.body.poll)" @click="onclick_pollchoice(polindex,toote.body.poll,toote)">
                                 <v-list-tile-avatar>
-                                    <i class="material-icons">{{pollicon[polindex]}}</i>
+                                    <i class="material-icons">{{voteicon_styling(polindex,poll,toote)}}</i>
+                                </v-list-tile-avatar>
+                                <v-list-tile-content>
+                                    <v-list-tile-title>
+                                        {{poll.title}}
+                                    </v-list-tile-title>
+                                    <v-list-tile-sub-title>
+                                        <v-layout row>
+                                            <v-flex xs2><span v-text="poll.votes_count"></span></v-flex>
+                                            <v-flex xs10>
+                                                <v-progress-linear :value="counting_vote(poll,toote.body.poll.votes_count)"></v-progress-linear>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-list-tile-sub-title>    
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </template>
+                <template v-else>
+                    <v-list two-line>
+                        <template v-for="(poll,polindex) in toote.body.poll.options">
+                            <v-divider></v-divider>
+                            <v-list-tile avatar :key="polindex" :disabled="is_off_vote(toote.body.poll)" @click="onclick_pollchoice(polindex,toote.body.poll,toote)">
+                                <v-list-tile-avatar>
+                                    <i class="material-icons">{{voteicon_styling(polindex,poll,toote)}}</i>
                                 </v-list-tile-avatar>
                                 <v-list-tile-content>
                                     <v-list-tile-title>
@@ -375,13 +395,13 @@ const CONS_TEMPLATE_TOOTBODY = `
             </v-flex>
             <v-flex xs4 offset-xs1>
                 <v-tooltip bottom>
-                    <v-btn flat icon color="pink"  slot="activator" @click="onclick_pollrefresh(toote.body.poll)">
+                    <v-btn flat icon slot="activator" @click="onclick_pollrefresh(toote.body.poll,toote)">
                         <v-icon>refresh</v-icon>
                     </v-btn>
                     <span>{{translation.acc_toolbar_reload}}</span>
                 </v-tooltip>
                 <v-tooltip bottom>
-                    <v-btn flat icon color="pink" :disabled="is_off_vote(toote.body.poll)" slot="activator" @click="onclick_pollvote(toote.body.poll)">
+                    <v-btn flat icon color="pink" :disabled="is_off_vote(toote.body.poll)" slot="activator" @click="onclick_pollvote(toote.body.poll,toote)">
                         <v-icon>send</v-icon>
                     </v-btn>
                     <span>{{translation.vote}}</span>
@@ -532,7 +552,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="comment-list-area" v-bind:class="comment_list_area_stat">
 
             <ul class="collection comment-list" v-bind:class="elementStyle.commentList"> 
-                <li class="collection-item avatar" v-bind:id="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
+                <li class="collection-item avatar" :class="reply.reactions.mentionsPickup" v-bind:id="replyElementId(reply.body)" :ref="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
                     <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
                     <a target="_blank" :href="reply.account.url" class="subtitle reply_usertitle truncate">
@@ -550,7 +570,6 @@ const CONS_TEMPLATE_TOOTBODY = `
                     
                     
                     <div class="xcarousel xcarousel-slider center" v-if="reply.medias.length > 0"> 
-                        
                         <tootgallery-carousel
                             v-bind:medias="reply.medias"
                             v-bind:sensitive="reply.body.sensitive"
@@ -558,7 +577,92 @@ const CONS_TEMPLATE_TOOTBODY = `
                             v-bind:viewmode="gal_viewmode"
                         ></tootgallery-carousel>
                     </div> 
-                    </p>
+                <!-----toot poll -->
+                    <div class="card-poll" v-if="reply.body.poll">
+                        <v-layout row wrap>
+                            <v-flex xs12>
+                                <template v-if="reply.body.poll.expired">
+                                    <b class="subheading">{{translation.lab_expired}}</b>
+                                </template>
+                                <template v-else>
+                                    <b class="subheading" v-if="reply.body.poll.voted">{{translation.lab_voted}}</b>
+                                </template>
+                            </v-flex>
+                            <v-flex xs12>
+                                <template v-if="reply.body.poll.multiple">
+                                    <v-list two-line>
+                                        <template v-for="(poll,polindex) in reply.body.poll.options">
+                                            <v-divider></v-divider>
+                                            <v-list-tile avatar :key="polindex" :disabled="is_off_vote(reply.body.poll)" @click="onclick_pollchoice(polindex,reply.body.poll,reply)">
+                                                <v-list-tile-avatar>
+                                                    <i class="material-icons">{{voteicon_styling(polindex,poll,reply)}}</i>
+                                                </v-list-tile-avatar>
+                                                <v-list-tile-content>
+                                                    <v-list-tile-title>
+                                                        {{poll.title}}
+                                                    </v-list-tile-title>
+                                                    <v-list-tile-sub-title>
+                                                        <v-layout row>
+                                                            <v-flex xs2><span v-text="poll.votes_count"></span></v-flex>
+                                                            <v-flex xs10>
+                                                                <v-progress-linear :value="counting_vote(poll,reply.body.poll.votes_count)"></v-progress-linear>
+                                                            </v-flex>
+                                                        </v-layout>
+                                                    </v-list-tile-sub-title>    
+                                                </v-list-tile-content>
+                                            </v-list-tile>
+                                        </template>
+                                    </v-list>
+                                </template>
+                                <template v-else>
+                                    <v-list two-line>
+                                        <template v-for="(poll,polindex) in reply.body.poll.options">
+                                            <v-divider></v-divider>
+                                            <v-list-tile avatar :key="polindex" :disabled="is_off_vote(reply.body.poll)" @click="onclick_pollchoice(polindex,reply.body.poll,reply)">
+                                                <v-list-tile-avatar>
+                                                    <i class="material-icons">{{voteicon_styling(polindex,poll,reply)}}</i>
+                                                </v-list-tile-avatar>
+                                                <v-list-tile-content>
+                                                    <v-list-tile-title>
+                                                        {{poll.title}}
+                                                    </v-list-tile-title>
+                                                    <v-list-tile-sub-title>
+                                                        <v-layout row>
+                                                            <v-flex xs2><span v-text="poll.votes_count"></span></v-flex>
+                                                            <v-flex xs10>
+                                                                <v-progress-linear :value="counting_vote(poll,reply.body.poll.votes_count)"></v-progress-linear>
+                                                            </v-flex>
+                                                        </v-layout>
+                                                    </v-list-tile-sub-title>    
+                                                </v-list-tile-content>
+                                            </v-list-tile>
+                                        </template>
+                                    </v-list>
+                                </template>
+                            </v-flex>
+                            <v-flex xs4 offset-xs1>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon slot="activator" @click="onclick_pollrefresh(reply.body.poll,reply)">
+                                        <v-icon>refresh</v-icon>
+                                    </v-btn>
+                                    <span>{{translation.acc_toolbar_reload}}</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon color="pink" :disabled="is_off_vote(reply.body.poll)" slot="activator" @click="onclick_pollvote(reply.body.poll,reply)">
+                                        <v-icon>send</v-icon>
+                                    </v-btn>
+                                    <span>{{translation.vote}}</span>
+                                </v-tooltip>
+                            </v-flex>
+                            <v-flex xs7>
+                                <span class="body-1">{{translation.lab_allvotes}}</span><b class="body-2" v-text="reply.body.poll.votes_count"></b><br>
+                                <span class="body-1">{{translation.lab_expiresat}}</span><b class="body-2" v-text="new Date(reply.body.poll.expires_at).toLocaleString()"></b>
+                            </v-flex>
+                        </v-layout>
+                
+                    </div>
+                    
+                    <!--</p>-->
                     <div class="secondary-content-ex" v-if="is_off_mini()">
                         <!--<a href="#!" class="tt_datetime" v-bind:title="reply.body.created_at.toLocaleString()" v-on:click="onclick_tt_datetime">{{ reply.body.diff_created_at.text }}</a>-->
                         <a href="#" class="tt_datetime"><time class="timeago" v-bind:datetime="reply.body.created_at.toISOString()" v-on:click="onclick_tt_datetime">{{reply.body.created_at.toLocaleString()}}</time></a>
@@ -842,7 +946,7 @@ const CONS_TEMPLATE_DMSGBODY = `
             </v-tooltip>
         </template>
     </v-flex>-->
-    <v-flex xs11 style="border-top:1px solid rgba(0,0,0,0.2)">
+    <v-flex xs11 class="dmsg_messageframe">
         <div class="dmsg_onebody">
             <div class="toot_content_body">
                 <pre class="toote_spoiler_or_main" v-html="ch2seh(toote.body.spoilered ? toote.body.spoiler_text : toote.body.html)"></pre>  
@@ -884,31 +988,120 @@ const CONS_TEMPLATE_DMSGBODY = `
                         v-bind:viewmode="gal_viewmode"
                     ></tootgallery-carousel>
                 </div> 
-            </div>  
+            </div>
+            <!-----toot poll -->
+            <div class="card-poll" v-if="toote.body.poll">
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <template v-if="toote.body.poll.expired">
+                            <b class="subheading">{{translation.lab_expired}}</b>
+                        </template>
+                        <template v-else>
+                            <b class="subheading" v-if="toote.body.poll.voted">{{translation.lab_voted}}</b>
+                        </template>
+                    </v-flex>
+                    <v-flex xs12>
+                        <template v-if="toote.body.poll.multiple">
+                            <v-list two-line>
+                                <template v-for="(poll,polindex) in toote.body.poll.options">
+                                    <v-divider></v-divider>
+                                    <v-list-tile avatar :key="polindex" :disabled="is_off_vote(toote.body.poll)" @click="onclick_pollchoice(polindex,toote.body.poll,toote)">
+                                        <v-list-tile-avatar>
+                                            
+                                            <i class="material-icons">{{voteicon_styling(toote.body.pollchoices[polindex],toote)}}</i>
+                                        </v-list-tile-avatar>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title>
+                                                {{poll.title}}
+                                            </v-list-tile-title>
+                                            <v-list-tile-sub-title>
+                                                <v-layout row>
+                                                    <v-flex xs2><span v-text="poll.votes_count"></span></v-flex>
+                                                    <v-flex xs10>
+                                                        <v-progress-linear :value="counting_vote(poll,toote.body.poll.votes_count)"></v-progress-linear>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-list-tile-sub-title>    
+                                        </v-list-tile-content>
+                                    </v-list-tile>
+                                </template>
+                            </v-list>
+                        </template>
+                        <template v-else>
+                            <v-list two-line>
+                                <template v-for="(poll,polindex) in toote.body.poll.options">
+                                    <v-divider></v-divider>
+                                    <v-list-tile avatar :key="polindex" :disabled="is_off_vote(toote.body.poll)" @click="onclick_pollchoice(polindex,toote.body.poll,toote)">
+                                        <v-list-tile-avatar>
+                                            <i class="material-icons">{{voteicon_styling(toote.body.pollchoices[polindex],toote)}}</i>
+                                            
+                                        </v-list-tile-avatar>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title>
+                                                {{poll.title}}
+                                            </v-list-tile-title>
+                                            <v-list-tile-sub-title>
+                                                <v-layout row>
+                                                    <v-flex xs2><span v-text="poll.votes_count"></span></v-flex>
+                                                    <v-flex xs10>
+                                                        <v-progress-linear :value="counting_vote(poll,toote.body.poll.votes_count)"></v-progress-linear>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-list-tile-sub-title>    
+                                        </v-list-tile-content>
+                                    </v-list-tile>
+                                </template>
+                            </v-list>
+                        </template>
+                    </v-flex>
+                    <v-flex xs4 offset-xs1>
+                        <v-tooltip bottom>
+                            <v-btn flat icon slot="activator" @click="onclick_pollrefresh(toote.body.poll,toote)">
+                                <v-icon>refresh</v-icon>
+                            </v-btn>
+                            <span>{{translation.acc_toolbar_reload}}</span>
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                            <v-btn flat icon color="pink" :disabled="is_off_vote(toote.body.poll)" slot="activator" @click="onclick_pollvote(toote.body.poll,toote)">
+                                <v-icon>send</v-icon>
+                            </v-btn>
+                            <span>{{translation.vote}}</span>
+                        </v-tooltip>
+                    </v-flex>
+                    <v-flex xs7>
+                        <span class="body-1">{{translation.lab_allvotes}}</span><b class="body-2" v-text="toote.body.poll.votes_count"></b><br>
+                        <span class="body-1">{{translation.lab_expiresat}}</span><b class="body-2" v-text="new Date(toote.body.poll.expires_at).toLocaleString()"></b>
+                    </v-flex>
+                </v-layout>
+        
+            </div>
     
         </div>
-        <span>
-            <a v-bind:href="toote.body.url" target="_blank">
-                <time class="timeago" v-bind:datetime="toote.body.created_at.toISOString()">{{ toote.body.created_at.toLocaleString() }}</time>
-            </a>
-            <v-tooltip bottom v-if="user_direction.type == 'me'">
-                <v-btn flat icon color="primary" slot="activator"
-                    v-on:click="onclick_toote_delete(toote,-1)"
-                >
-                    <v-icon>delete</v-icon>
-                </v-btn>
-                <span>{{translation.acc_toolbar_remove}}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-                <v-btn flat icon color="primary" slot="activator" 
-                    v-bind:class="toote.reactions.fav" 
-                    v-on:click="onclick_ttbtn_fav">
-                    <v-icon>{{ favourite_icon }}</v-icon>
-                </v-btn>
-                <span>{{ favourite_type }}</span>
-            </v-tooltip>
-            <a v-on:click="onclick_reaction_fav(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.favourites_count==0)}">{{ toote.body.favourites_count }}</span></a>
-        </span>
+        <v-layout justify-end row wrap>
+            <span>
+                <a v-bind:href="toote.body.url" target="_blank">
+                    <time class="timeago" v-bind:datetime="toote.body.created_at.toISOString()">{{ toote.body.created_at.toLocaleString() }}</time>
+                </a>
+                <v-tooltip bottom v-if="user_direction.type == 'me'">
+                    <v-btn flat icon color="primary" slot="activator"
+                        v-on:click="onclick_toote_delete(toote,-1)"
+                    >
+                        <v-icon>delete</v-icon>
+                    </v-btn>
+                    <span>{{translation.acc_toolbar_remove}}</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                    <v-btn flat icon color="primary" slot="activator" 
+                        v-bind:class="toote.reactions.fav" 
+                        v-on:click="onclick_ttbtn_fav">
+                        <v-icon>{{ favourite_icon }}</v-icon>
+                    </v-btn>
+                    <span>{{ favourite_type }}</span>
+                </v-tooltip>
+                <a v-on:click="onclick_reaction_fav(toote)"><span class="reaction-count" v-bind:class="{zero:(toote.body.favourites_count==0)}">{{ toote.body.favourites_count }}</span></a>
+            </span>
+            
+        </v-layout>
         <v-dialog v-model="is_reactiondialog" scrollable max-width="340px">
             <v-card>
                 <v-card-title>{{ reaction_dialog_title }}</v-card-title>

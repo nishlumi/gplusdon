@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     skip_startpage : false,
                     map_type : "yahoo",
                     show_instanceticker : true,
+                    cloud_manualy_save : false,
                 },
                 type_action : {
                     confirmBefore : true,
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     notpreview_onmap : false,
                     notpreview_onmedia : false,
                     minimumize_media_onlink : false,
+                    show_mention_as_name : false,
                 },
                 temp_tags : "",
                 temp_toot_limit : "",
@@ -287,6 +289,37 @@ document.addEventListener('DOMContentLoaded', function() {
                         alertify.message(_T("msg_login_service",["Google"]));
                     });
                 });
+            },
+            onclick_googlesave_btn : function (e) {
+                if (gpGLD.is_authorize) {
+                    MUtility.loadingON();
+                    //---save to google drive
+                    //---count config file in google drive
+                    gpGLD.loadFromFolder()
+                    .then(files=>{
+                        var ret = null;
+                        for (var i = 0; i < files.length; i++) {
+                            ret = files[i];
+                        }
+                        return ret;
+                    })
+                    .then(file=>{
+                        if (file) {
+                            var items = MYAPP.acman.items;
+                            var tmparr = [];
+                            for (var i = 0; i < items.length; i++) {
+                                tmparr.push(items[i].getRaw());
+                            }
+                            //---overwrite existing config file (because it already exists at here!!) 
+                            gpGLD.updateFile(file.id,JSON.stringify(tmparr));
+                        }
+                    })
+                    .finally(() =>{
+                        MUtility.loadingOFF();
+                        alertify.message(_T("msg_login_service",["Google"]));
+                    });
+    
+                }
             },
             onclick_organization_account_btn : function (e) {
                 MUtility.loadingON();

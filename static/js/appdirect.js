@@ -40,14 +40,14 @@ function loadTimelineCommon(user,options){
     console.log("loadTimelineCommon",options);
     if (this.is_asyncing) return false;
 
-    var meacct = this.account.rawdata.url;
-    options["app"]["acct"] = meacct;
-    options["app"]["user"] = user;
-    var useracct = user.url;
+    //var meacct = this.account.rawdata.url;
+    //options["app"]["acct"] = meacct;
+    //options["app"]["user"] = user;
+    //var useracct = user.url;
 
     MUtility.loadingON();
     this.is_asyncing = true;
-    MYAPP.sns.getTimeline("direct",options)
+    return MYAPP.sns.getTimeline("direct",options)
     .then((result)=>{
         console.log("getTimeline",result);
         if (result.data.length == 0) {
@@ -78,8 +78,14 @@ function loadTimelineCommon(user,options){
         }
         console.log("direct msg=",ret.data);*/
 
-        this.generate_toot_detail(result,options);
+        return this.generate_toot_detail(result,options);
         
+    })
+    .then(result2=>{
+        MUtility.loadingOFF();
+        this.is_asyncing = false;
+
+        return result2;
     })
     .catch(error=>{
         MUtility.loadingOFF();
@@ -87,19 +93,7 @@ function loadTimelineCommon(user,options){
         alertify.error("読み込みに失敗しました。");
         console.log("loadTimelineCommonにて不明なエラーです。",error);
     })
-    .finally(()=>{
-        MUtility.loadingOFF();
-        this.is_asyncing = false;
-        this.$nextTick(()=>{
-            //var e = Q(".timeline_cardlist_mobile");
-            ////e.scroll({top:e.scrollHeight});
-            //e.scrollTop = e.scrollHeight;
-            //e = Q(".timeline_cardlist")
-            ////e.scroll({top:e.scrollHeight});
-            //console.log("e.scrollHeight;=",e.scrollHeight);
-            //e.scrollTop = e.scrollHeight;
-        });
-    });
+    
 }
 function load_for_contact() {
     if (this.is_asyncing) return false;
@@ -216,164 +210,172 @@ function load_for_contact() {
  * }
  */
 function generate_toot_detail(rawdata,options) {
-    var data = rawdata.data;
-    var paging = rawdata.paging;
-    var meacct = this.account.rawdata.url;
+    var glodef = new Promise((gloresolve,gloreject)=>{
 
-    if (!options.app.is_nomax) {
-        if (paging.next != "") {
-            this.msginfo.maxid = paging.next; //data[data.length - 1].id;
+        var data = rawdata.data;
+        var paging = rawdata.paging;
+        var meacct = this.account.rawdata.url;
+
+        var direction;
+        if (!options.app.is_nomax) {
+            if (paging.next != "") {
+                this.msginfo.maxid = paging.next; //data[data.length - 1].id;
+                direction = "max";
+            }
         }
-    }
-    if (!options.app.is_nosince) {
-        if (paging.prev != "") {
-            this.msginfo.sinceid = paging.prev; //data[0].id;
+        if (!options.app.is_nosince) {
+            if (paging.prev != "") {
+                this.msginfo.sinceid = paging.prev; //data[0].id;
+                direction = "since";
+            }
         }
-    }
-    for (var i = 0; i < data.length; i++) {
-        var dataacct = data[i].account.url;
-        /*  condition
-            he: account.url
-            me: account.url , mentions[0].url == his account.url
-        */
-        if (this.checkExistToot(data[i].id)) continue;
+        for (var i = 0; i < data.length; i++) {
+            var dataacct = data[i].account.url;
+            /*  condition
+                he: account.url
+                me: account.url , mentions[0].url == his account.url
+            */
+            if (this.checkExistToot(data[i].id)) continue;
 
-        var st = new Gpstatus(data[i],18);
-        if ((dataacct == options.app.user.url) ||
-            ((dataacct == meacct) && (st.mentions.indexOf("@"+options.app.user.username) > -1))
-        ) {
+            var st = new Gpstatus(data[i],18);
+            if ((dataacct == options.app.user.url) ||
+                ((dataacct == meacct) && (st.mentions.indexOf("@"+options.app.user.username) > -1))
+            ) {
 
-            var useracct = st.body.account.url;
+                var useracct = st.body.account.url;
 
-            var ret = {
-                toote : st,
-                user_direction : {
-                    type : (meacct == useracct) ? "me" : "they",
-                },
-                options : {
-                    hideDot : (meacct == useracct) ? false : true,
-                    color : "",
+                var ret = {
+                    toote : st,
+                    user_direction : {
+                        type : (meacct == useracct) ? "me" : "they",
+                    },
+                    options : {
+                        hideDot : (meacct == useracct) ? false : true,
+                        color : "",
+                    }
+                }
+                if (direction == "since")  {  
+                    this.msgs.unshift(ret);
+                }else if (direction == "max") { 
+                    this.msgs.push(ret);
+                }
+                //---get link preview
+                if (st.urls.length > 0) {
+                    var targeturl = st.urls[0];
+                    //console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
+                    //---get GPHT
+                    /*loadGPHT(st.url[0],data[i].id)
+                    .then((result)=>{
+
+                    });*/
+                    //---get OGP
+                    MYAPP.sns.getTootCard(st.body.id, st.id, i)
+                    .then(result=>{
+                        var data = result.data;
+                        var tt = this.getParentToot(result.parentID);
+                        //console.log("result,tt=",result,tt);
+
+                        if (("url" in data)) {
+                            var thistoote = this.msgs[tt.index].toote;
+                            this.$set(thistoote.mainlink, "exists", true);
+                            if ("provider_name" in data) {
+                                if (data.provider_name != "") {
+                                    this.$set(thistoote.mainlink, "site", data["provider_name"]);
+                                }else{
+                                    var a = GEN("a");
+                                    a.href = data.url;
+                                    //console.log("data.url=",a.hostname);
+                                    this.$set(thistoote.mainlink, "site", a.hostname);
+                                }
+                            }
+                            if ("url" in data) this.$set(thistoote.mainlink, "url", data["url"]);
+                            if ("title" in data) this.$set(thistoote.mainlink, "title", data["title"]);
+                            if ("description" in data) this.$set(thistoote.mainlink, "description", data["description"]);
+                            if (("image" in data) && (data["image"] != null)) {
+                                this.$set(thistoote.mainlink, "image", data["image"]);
+                                this.$set(thistoote.mainlink, "isimage", true);
+
+                                //---final card size change
+                                //if (thistoote.medias.length > 0) {
+                                //    var sp = parseInt(thistoote.cardtypeSize["grid-row-end"].replace("span", ""));
+                                //}
+                            } else {
+                                this.$set(thistoote.mainlink, "isimage", false);
+                            }
+                        }else{
+                            return Promise.reject({url:targeturl, tootid:st.id});
+                        }
+                    })
+                    .catch(param=>{
+                        console.log("param=",param);
+                        loadOGP(param.url, param.tootid)
+                        .then(result => {
+                            //---if image is none and url is pixiv, re-get image url
+                            var def = new Promise((resolve, reject) => {
+
+                                var tt = this.getParentToot(result.index);
+
+                                //console.log("catch,param,ogp=",result);
+                                console.log(tt);
+                                if ((tt) && (tt.data.toote.urls.length > 0)) {
+                                    if ((!("og:image" in result.data) || (result.data["og:image"] == "")) &&
+                                        (tt.data.toote.urls[0].indexOf("pixiv.net/member_illust") > -1)
+                                    ) {
+                                        if ("pixiv_cards" in tt.data.body) {
+                                            result.data["og:image"] = tt.data.toote.body.pixiv_cards[0].image_url;
+                                            resolve(result);
+                                        } 
+                                    } else {
+                                        resolve(result);
+                                    }
+
+                                }else{
+                                    reject(false);
+                                }
+                            });
+                            return def;
+                        })
+                        .then((result) => {
+                            //console.log("result=", result);
+                            var data = result.data;
+                            var tt = this.getParentToot(result.index);
+                            var thistoote = this.msgs[tt.index].toote;
+
+                            this.$set(thistoote.mainlink, "exists", true);
+                            if (data["og:site_name"]) this.$set(thistoote.mainlink, "site", data["og:site_name"]);
+                            if (data["og:url"]) this.$set(thistoote.mainlink, "url", data["og:url"]);
+                            if (data["og:title"]) this.$set(thistoote.mainlink, "title", data["og:title"]);
+                            if (data["og:description"]) this.$set(thistoote.mainlink, "description", data["og:description"]);
+                            if (("og:image" in data) && (data["og:image"] != "")) {
+                                this.$set(thistoote.mainlink, "image", data["og:image"]);
+                                this.$set(thistoote.mainlink, "isimage", true);
+
+                                //---final card size change
+                                /*if (thistoote.medias.length > 0) {
+                                    var sp = parseInt(thistoote.cardtypeSize["grid-row-end"].replace("span", ""));
+                                    if (sp < 9) {
+                                        sp = sp + 10;
+                                    } else {
+                                        sp = sp + 6;
+                                    }
+                                    this.$set(thistoote.cardtypeSize, "grid-row-end", `span ${sp}`);
+                                }*/
+                            } else {
+                                this.$set(thistoote.mainlink, "isimage", false);
+                            }
+                        })
+                        
+                        ;
+                        
+                    });
+
+                    
                 }
             }
-            if (paging.next != "")  {
-                this.msgs.unshift(ret);
-            }else{
-                this.msgs.push(ret);
-            }
-            //---get link preview
-            if (st.urls.length > 0) {
-                var targeturl = st.urls[0];
-                //console.log("urls>0=",st.body.id, st.id, i, JSON.original(st.urls))
-                //---get GPHT
-                /*loadGPHT(st.url[0],data[i].id)
-                .then((result)=>{
-
-                });*/
-                //---get OGP
-                MYAPP.sns.getTootCard(st.body.id, st.id, i)
-                .then(result=>{
-                    var data = result.data;
-                    var tt = this.getParentToot(result.parentID);
-                    //console.log("result,tt=",result,tt);
-
-                    if (("url" in data)) {
-                        var thistoote = this.msgs[tt.index].toote;
-                        this.$set(thistoote.mainlink, "exists", true);
-                        if ("provider_name" in data) {
-                            if (data.provider_name != "") {
-                                this.$set(thistoote.mainlink, "site", data["provider_name"]);
-                            }else{
-                                var a = GEN("a");
-                                a.href = data.url;
-                                //console.log("data.url=",a.hostname);
-                                this.$set(thistoote.mainlink, "site", a.hostname);
-                            }
-                        }
-                        if ("url" in data) this.$set(thistoote.mainlink, "url", data["url"]);
-                        if ("title" in data) this.$set(thistoote.mainlink, "title", data["title"]);
-                        if ("description" in data) this.$set(thistoote.mainlink, "description", data["description"]);
-                        if (("image" in data) && (data["image"] != null)) {
-                            this.$set(thistoote.mainlink, "image", data["image"]);
-                            this.$set(thistoote.mainlink, "isimage", true);
-
-                            //---final card size change
-                            //if (thistoote.medias.length > 0) {
-                            //    var sp = parseInt(thistoote.cardtypeSize["grid-row-end"].replace("span", ""));
-                            //}
-                        } else {
-                            this.$set(thistoote.mainlink, "isimage", false);
-                        }
-                    }else{
-                        return Promise.reject({url:targeturl, tootid:st.id});
-                    }
-                })
-                .catch(param=>{
-                    console.log("param=",param);
-                    loadOGP(param.url, param.tootid)
-                    .then(result => {
-                        //---if image is none and url is pixiv, re-get image url
-                        var def = new Promise((resolve, reject) => {
-
-                            var tt = this.getParentToot(result.index);
-
-                            //console.log("catch,param,ogp=",result);
-                            console.log(tt);
-                            if (tt.data.toote.urls.length > 0) {
-                                if ((!("og:image" in result.data) || (result.data["og:image"] == "")) &&
-                                    (tt.data.toote.urls[0].indexOf("pixiv.net/member_illust") > -1)
-                                ) {
-                                    if ("pixiv_cards" in tt.data.body) {
-                                        result.data["og:image"] = tt.data.toote.body.pixiv_cards[0].image_url;
-                                        resolve(result);
-                                    } 
-                                } else {
-                                    resolve(result);
-                                }
-
-                            }else{
-                                reject(false);
-                            }
-                        });
-                        return def;
-                    })
-                    .then((result) => {
-                        //console.log("result=", result);
-                        var data = result.data;
-                        var tt = this.getParentToot(result.index);
-                        var thistoote = this.msgs[tt.index].toote;
-
-                        this.$set(thistoote.mainlink, "exists", true);
-                        if (data["og:site_name"]) this.$set(thistoote.mainlink, "site", data["og:site_name"]);
-                        if (data["og:url"]) this.$set(thistoote.mainlink, "url", data["og:url"]);
-                        if (data["og:title"]) this.$set(thistoote.mainlink, "title", data["og:title"]);
-                        if (data["og:description"]) this.$set(thistoote.mainlink, "description", data["og:description"]);
-                        if (("og:image" in data) && (data["og:image"] != "")) {
-                            this.$set(thistoote.mainlink, "image", data["og:image"]);
-                            this.$set(thistoote.mainlink, "isimage", true);
-
-                            //---final card size change
-                            /*if (thistoote.medias.length > 0) {
-                                var sp = parseInt(thistoote.cardtypeSize["grid-row-end"].replace("span", ""));
-                                if (sp < 9) {
-                                    sp = sp + 10;
-                                } else {
-                                    sp = sp + 6;
-                                }
-                                this.$set(thistoote.cardtypeSize, "grid-row-end", `span ${sp}`);
-                            }*/
-                        } else {
-                            this.$set(thistoote.mainlink, "isimage", false);
-                        }
-                    })
-                    
-                    ;
-                    
-                });
-
-                
-            }
         }
-    }
+        gloresolve(this.msgs);
+    });
+    return glodef;
 }
 
 
@@ -450,11 +452,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				is_nosince : false, 
             },
             msgs : [],
+            gallery_options : null,
+            currentOption : {},
+
         },
         created : function() {
             //---if normaly indicate "active" class in html, it is shiftted why digit position
             //   the workarround for this.
-            
+            this.currentOption = new TLoption();
+            this.gallery_options = new GalleryOptions();
+
         },
         mounted() {
             if (this.$vuetify.breakpoint.smAndDown) {
@@ -649,20 +656,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 item.info.selected.grey = true;
                 item.info.selected["lighten-2"] = true;
+                
                 this.show_user = item.user;
+                this.currentOption.app.acct = this.account.rawdata.url;
+                this.currentOption.app.user = this.show_user;
+                this.currentOption.api = {
+                    limit : 40
+                };
                 this.selmentions.splice(0,this.selmentions.length);
                 this.selmentions.push("@"+item.user.acct);
                 this.msgs.splice(0,this.msgs.length);
-                this.loadTimeline(this.show_user,{
-                    api : {
-                        limit : 40,
-                    },
-                    app : {}
-                });
-                if (this.mode == "mobile") {
-                    this.is_turn = 1;
-                }
+                this.loadTimeline(this.show_user,this.currentOption)
+                .then(result=>{
 
+                })
+                .finally(()=>{
+                    MUtility.loadingOFF();
+                    this.is_asyncing = false;
+            
+                    if (this.mode == "mobile") {
+                        this.is_turn = 1;
+                    }
+                    this.$nextTick(()=>{
+                        var tm = Q(".timeline_cardlist");
+                        tm.scrollTop = tm.scrollHeight;
+                        
+                    }); 
+                });
             },
             onclick_addContact : function (e) {
                 this.is_show_autocom = !this.is_show_autocom;
@@ -705,11 +725,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (var m = 0; m < this.medias.length; m++) {
                     mediaids.push(this.medias[m][account.acct].id);
                 }
-                MYAPP.executePost(this.joinStatusContent(),{
+                var text = this.joinStatusContent({
+                    counting_firstmention : true
+                });
+                //---check text limit
+                if (MYAPP.session.status.toot_max_character >  MYAPP.appinfo.config.toot_max_character) {
+                    var ishit = null;
+                    for (var st = 0; st < MYAPP.session.config.notification.toot_limit_instance.length; st++) {
+                        var lim = MYAPP.session.config.notification.toot_limit_instance[st];
+                        if (account.instance == lim.instance) {
+                            ishit = lim;
+                            break;
+                        }
+                    }
+                    if (ishit) {
+                        //---trim custom limit
+                        if (text.length > ishit.limit) {
+                            text = text.substr(0,ishit.limit);
+                        }
+                    }else{
+                        //---trim default mastodon limit
+                        if (text.length > MYAPP.appinfo.config.toot_max_character) {
+                            text = text.substr(0,MYAPP.appinfo.config.toot_max_character);
+                        }
+                    }
+
+                }
+                var scheduledate = null;
+                if (this.is_panel_sched && this.is_available_sched && this.is_enable_schedule) {
+                    var tmpd = this.sched.date.split("-");
+                    var tmpt = this.sched.time.split(":");
+                    if ((tmpd.length > 2) && (tmpt.length > 1)){
+                        var dt = new Date(
+                            parseInt(tmpd[0]),parseInt(tmpd[1])-1,parseInt(tmpd[2]),
+                            parseInt(tmpt[0]),parseInt(tmpt[1])
+                        );
+                        //var tmzn = dt.getTimezoneOffset() / -60;
+                        //dt.setHours(dt.getHours() + tmzn);
+                        
+                        scheduledate = dt.toISOString();
+
+                    }
+                }
+                var poll = null;
+                if (this.is_enable_poll) {
+                    poll = {
+                        expires_in : this.inputpoll.expire_at,
+                        options : this.inputpoll.choices,
+                        multiple : this.inputpoll.multiple
+                    };
+                }
+
+                MYAPP.executePost(text,{
                     "in_reply_to_id" : this.reply_to_id,
                     "account" : account,
                     "scope" : this.selsharescope,
-                    "media" : mediaids
+                    "media" : mediaids,
+                    "nsfw" : this.switch_NSFW,
+                    "schedule" : scheduledate,
+                    "poll" : poll
                 })
                 .then(values=>{
                     //---clear input and close popup
@@ -719,7 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.selmedias.splice(0,this.selmedias.length);
     
                     //---get lastest conversation
-                    this.loadTimeline(this.show_user,{
+                    /*this.loadTimeline(this.show_user,{
                         api : {
                             limit : 40,
                             since_id : this.msginfo.sinceid,
@@ -728,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             is_nomax : true,
                             is_nosince : false,
                         }
-                    });
+                    });*/
     
                     if (!this.fullscreen) {
                         this.dialog = false;
@@ -756,28 +830,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 var fnlsa = sa - Math.round(e.target.scrollTop);
                 if (fnlsa < 10) {
                     //---get past toot conversation
+                    this.currentOption.api =  {
+                        limit : 40,
+                        since_id : this.msginfo.sinceid,
+                    };
+                    this.currentOption.app.is_nomax = false; //different for TL
+                    this.currentOption.app.is_nosince = true;
                     this.loadTimeline(this.show_user,{
                         api : {
                             limit : 40,
                             since_id : this.msginfo.sinceid,
                         },
-                        app : {
-                            is_nomax : true,
-                            is_nosince : false,
-                        }
+                        app : this.currentOption.app
                     });
                 }
                 if (e.target.scrollTop == 0) {
                     //---get past toot conversation
+                    this.currentOption.api =  {
+                        limit : 40,
+                        max_id : this.msginfo.maxid,
+                    };
+                    this.currentOption.app.is_nomax = true; //different for TL
+                    this.currentOption.app.is_nosince = false;
                     this.loadTimeline(this.show_user,{
                         api : {
                             limit : 40,
                             max_id : this.msginfo.maxid,
                         },
-                        app : {
-                            is_nomax : false,
-                            is_nosince : true,        
-                        }
+                        app : this.currentOption.app
                     });
 
                 }    
@@ -883,7 +963,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //vue_direct.load_for_contact();
 
         var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
-        notifAccount.account.direct.setTargetDirect(vue_direct);
+        //notifAccount.account.direct.setTargetDirect(vue_direct);
         notifAccount.account.direct.start();
 
     }, function (flag) {

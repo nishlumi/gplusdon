@@ -271,6 +271,7 @@ div.toot_card_base.g30 {
     position : relative;
     margin : 1rem;
     overflow: hidden;
+    scroll-padding-bottom : 72px;
 }
 
 /*=== parent toot ===*/
@@ -594,7 +595,7 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     background-color: #FFFFFF;
 }
 .toot_card_base .toot_action.has_comment_pos_close {
-    position : absolute;
+    position : position;
     bottom : 0;
 }
 .toot_card_base .toot_action.has_comment_pos_mini {
@@ -624,8 +625,8 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 
 /*=== toot reply and comment ===*/
 .toot_card_base .toot_comment {
-    max-height: 20rem;
-    /*overflow : auto;*/
+    /*max-height: 20rem;
+    overflow : auto;*/
     width : 100%;
 }
 .toot_card_base .toot_comment.close {

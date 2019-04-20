@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             //---load config from google drive
                             return gpGLD.loadFile(file.id)
                             .then(result=>{
+                                localStorage.removeItem(MYAPP.acman.setting.INSTANCEEMOJI);
                                 localStorage.setItem(MYAPP.acman.setting.NAME,result.body);
                                 return result.result;
                             });

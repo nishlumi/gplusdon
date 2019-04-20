@@ -42,21 +42,25 @@ const CONS_TEMPLATE_REPLYINPUT = `
         <v-flex xs12>
             <div class="dv_inputoperation ">
                 <v-layout row wrap>
-                    <v-flex xs2>
+                    <v-flex xs3>
                         <template v-if="selmedias.length == 0">
-                            <a class="waves-effect waves-red btn-flat" v-on:click="onclick_addimage"><i class="material-icons medium">add_photo_alternate</i></a>  
+                            <a class="waves-effect waves-red btn-flat" v-on:click="onclick_addimage" :title="translation.toolbtn_addimage"><i class="material-icons medium">add_photo_alternate</i></a>  
+                            <a class="waves-effect waves-red btn-flat" v-on:click="onclick_imagefromdrive" :title="translation.toolbtn_imagefromdrive"><i class="material-icons medium">cloud_upload</i></a>  
                         </template>
                         <template v-else>
                             <v-menu offset-y open-on-hover v-model="ismediamenu">
                                 <a class="waves-effect waves-red btn-flat " slot="activator"><i class="material-icons medium red--text">add_photo_alternate</i></a>
                                 <v-card class="reply_mediamenu_card">
                                     <v-layout row wrap>
-                                        <v-flex xs2 class="pt-2">
-                                            <v-btn flat icon small color="black" dark v-on:click="onclick_addimage" v-bind:title="selsharescope.text">
+                                        <v-flex xs3 class="pt-2">
+                                            <v-btn flat icon small color="black" dark v-on:click="onclick_addimage" v-bind:title="translation.toolbtn_addimage">
                                                 <v-icon>add_photo_alternate</v-icon>
                                             </v-btn>
+                                            <v-btn flat icon small color="black" dark v-on:click="onclick_imagefromdrive" v-bind:title="translation.toolbtn_imagefromdrive">
+                                                <v-icon>cloud_upload</v-icon>
+                                            </v-btn>
                                         </v-flex>
-                                        <v-flex xs10>
+                                        <v-flex xs9>
                                             <v-switch
                                                 v-bind:label="translation.image_confirm_msg02"
                                                 v-model="switch_NSFW"
@@ -69,8 +73,8 @@ const CONS_TEMPLATE_REPLYINPUT = `
                                                     <v-flex xs3 v-for="(item,index) in selmedias" :key="index">
                                                         <v-card flat tile>
                                                             <v-img 
-                                                                v-bind:src="item.src" 
-                                                                v-bind:lazy-src="item.src" 
+                                                                v-bind:src="item.preview_url" 
+                                                                v-bind:lazy-src="item.preview_url" 
                                                                 aspect-ratio="1"
                                                                 width="64px"
                                                             >
@@ -108,9 +112,9 @@ const CONS_TEMPLATE_REPLYINPUT = `
                             </v-menu>
                             
                         </template>
-                        <input type="file" :id="movingElementID('replyopenmedia_')" class="common_ui_off" v-on:change="onchange_openmedia">
+                        <input type="file" :id="movingElementID('openmedia_')" class="common_ui_off" v-on:change="onchange_openmedia">
                     </v-flex>
-                    <v-flex xs5>
+                    <v-flex xs4>
                         <v-checkbox :label="generate_showable_mention()" class="showable_mention truncate" v-model="is_set_mention_checkbox"></v-checkbox>
                         <!--<span class="truncate">{{generate_showable_mention()}}</span>-->
                     </v-flex>

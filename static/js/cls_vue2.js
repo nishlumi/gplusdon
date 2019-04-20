@@ -29,6 +29,7 @@ Vue.component("toot-inputbox", {
 				addcw : true,
 				addimage : true,
 				addgeo : true,
+				addpoll: true,
 				emoji : true,
 				send : true
 			}
@@ -47,6 +48,7 @@ Vue.component("toot-inputbox", {
 		return {
 			isfirst : true,
 			isfirsttext : true,
+			inputtoot_win : 0, //0 - normal input toot, 1 - scheduled status list
 			show_openInNew : false,
             CNS_SAVENAME : "gp_inpt_conn",
 
@@ -74,6 +76,9 @@ Vue.component("toot-inputbox", {
             //---tag box data
             seltags : [],
 			//tags: [],
+
+			//---scheduled status screen
+			schedules : [],
         };
 	},
 	watch: {
@@ -171,9 +176,11 @@ Vue.component("toot-inputbox", {
 		$("#"+newid).pastableContenteditable();
 		$("#"+newid).on('pasteImage',  (ev, data) => {
 			console.log(ev,data);
-			//if (this.dialog || this.otherwindow) {
+			if (this.is_enable_poll) {
+				appAlert(_T("msg_error_poll1"));
+			}else{
 				this.loadMediafiles("blob",[data.dataURL]);
-			//}
+			}
 		}).on('pasteImageError', (ev, data) => {
 			alert('error paste:',data.message);
 			if(data.url){
@@ -181,7 +188,7 @@ Vue.component("toot-inputbox", {
 			}
 		}).on('pasteText',  (ev, data) => {
 			console.log("text: " + data.text);
-			this.status_text = data.text;
+			this.status_text = this.status_text + data.text;
 		});
 	},
 	beforeUpdate() {
@@ -225,6 +232,9 @@ Vue.component("toot-inputbox", {
 		//---Some function------------------------------------
 		movingElementID : function (text) {
 			return this.popuping + text + this.id;
+		},
+		select_window : function (index) {
+			this.inputtoot_win = index;
 		},
 		select_scope: function (item) {
 			for (var i = 0; i < this.sharescopes.length; i++) {
@@ -296,33 +306,6 @@ Vue.component("toot-inputbox", {
 			this.status_text = text;
 			this.ckeditor.editable().setHtml(this.status_text);
 		},
-		clearEditor : function () {
-			this.status_text = "";
-			this.mainlink.exists = false;
-
-			this.selaccounts.splice(0,this.selaccounts.length);
-			this.ckeditor.editable().setText("");
-			this.selmentions.splice(0,this.selmentions.length);
-			if (!MYAPP.session.config.action.noclear_tag) {
-				this.seltags.splice(0,this.seltags.length);
-			}
-			this.selmedias.splice(0,this.selmedias.length);
-			this.medias.splice(0,this.medias.length);
-			this.switch_NSFW = false;
-			this.btnflags.loading = false;
-			if (this.is_geo) {
-				this.is_geo = false;
-				this.css.geo.common_ui_off = true;
-				this.geo.lat = 0;
-				this.geo.lng = 0;
-				this.geo.zoom = 1;
-				this.geo.locos.splice(0,this.geo.locos.length);
-				this.geouris.splice(0,this.geouris.length);
-				this.geotext = "";
-			}
-
-			MYAPP.commonvue.emojisheet.is_sheet = false;
-		},
 		onclick_close : function (e) {
 			var msg = _T("msg_cancel_post");
 			var chkedit = false;
@@ -368,11 +351,49 @@ Vue.component("toot-inputbox", {
 		},
 		onclick_help : function (e) {
 			appAlert(ID("toot_input_help").innerHTML);
+
+		},
+		onclick_sched : function (e) {
+			this.is_panel_sched = !this.is_panel_sched;
+		},
+		onclick_turn_win : function (e) {
+			if (this.inputtoot_win == 0) {
+				//---normal input -> scheduled statuses list
+				this.onclick_reloadsched(e);
+				this.inputtoot_win = 1;
+			}else{
+				//---scheduled statuses list -> normal input
+				this.inputtoot_win = 0;
+			}
+		},
+		onclick_reloadsched : function (e) {
+			var hitac = this.getTextAccount2Object(0);
+			if (hitac) {
+				var backupAC = MYAPP.sns._accounts;
+				MYAPP.sns.setAccount(hitac);
+
+				var options = {
+					api : {},
+					app : {}
+				};
+				MYAPP.sns.getScheduledPost(null,options)
+				.then(result=>{
+					this.schedules = result.data;
+				})
+				.catch(err => {
+					console.log(err);
+				})
+				.finally(()=>{
+					MYAPP.sns.setAccount(backupAC);
+				});
+			}
+		},
+		onclick_schedline : function (item) {
+
 		},
 		onclick_moodbtn : function (e) {
 			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
 			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
-
 
 			if (!MYAPP.commonvue.emojisheet.is_sheet) {
 				return;
@@ -541,7 +562,9 @@ Vue.component("reply-inputbox", {
 			$("#"+elemid).pastableContenteditable();
 			$("#"+elemid).on('pasteImage',  (ev, data) => {
 				console.log(ev,data);
-				if (this.dialog || this.otherwindow) {
+				if (this.is_enable_poll) {
+					appAlert(_T("msg_error_poll1"));
+				}else{
 					this.loadMediafiles("blob",[data.dataURL]);
 				}
 			}).on('pasteImageError', (ev, data) => {
@@ -551,7 +574,7 @@ Vue.component("reply-inputbox", {
 				}
 			}).on('pasteText',  (ev, data) => {
 				console.log("text: " + data.text);
-				this.status_text = data.text;
+				this.status_text = this.status_text + data.text;
 			});
 
 			this.isfirst = false;

@@ -43,6 +43,13 @@ class Gpstream {
     }
     setTargetTimeline(tl) {
         this._targetObject = tl;
+        if (tl) {
+            if (tl.tl_tabtype == "home") {
+                this._targetTLType = "home";
+            }else if (tl.tl_tabtype == "user") {
+                this._targetTLType = "user";
+            }
+        }
     }
     setTargetDirect(tl) {
         this._targetDirect = tl;
@@ -79,7 +86,7 @@ class Gpstream {
     start() {
         var mainbody = (result)=>{
             if (result.datalength > 0) { 
-                console.log(result.origin, ": got stream: ",result);
+                //console.log(result.origin, ": got stream: ",result);
             }
             if (result.event === "notification") {
                 console.log(this._targetAccount.acct,`during stream:${this._type}?${this._query}`,result);
@@ -94,6 +101,11 @@ class Gpstream {
                 // status delete from your timelines
                 if (this._targetObject || this._targetDirect) {
                     this._start_delete(result);
+                }
+            } else if (result.event === "conversation") {
+                // status update for one of your timelines
+                if (this._targetDirect) {
+                    this._start_conversation(result);
                 }
             } else {
                 // probably an error
@@ -216,70 +228,104 @@ class Gpstream {
             }
 
             if (isOK) {
-                if (this._targetObject.pending.above.waiting) {
-                    this._targetObject.pending.above.statuses.unshift(data);
-                    this._targetObject.pending.above.is = true;
-                }else{
-                    this._targetObject.currentOption.app.is_nomax = true;
-                    this._targetObject.currentOption.app.is_nosince = false;
-                    /*
-                    {
-                        api : {
-                            exclude_replies : true,
-                            since_id : "",
-                        },
-                        app : {
-                            is_nomax : true,
-                            is_nosince : false,
-                            tlshare : "",
-                            tltype : "",
-                            exclude_reply : true,
-                        }
-                    }
-                    */
-                    this._targetObject.generate_toot_detail({
-                            data:[data],
-                            paging : {
-                                prev : data.id
-                            }
-                        },{
+                if (this._targetObject) {
+                    if (this._targetObject.pending.above.waiting) {
+                        this._targetObject.pending.above.statuses.unshift(data);
+                        this._targetObject.pending.above.is = true;
+                    }else{
+                        this._targetObject.currentOption.app.is_nomax = true;
+                        this._targetObject.currentOption.app.is_nosince = false;
+                        /*
+                        {
                             api : {
                                 exclude_replies : true,
                                 since_id : "",
                             },
-                            app : this._targetObject.currentOption.app
-                        });
-                    //---finish get update from stream, remove old loaded tootes
-                    if (this._targetObject.is_scrolltop) {
-                        if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                            while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-                                this._targetObject.statuses.pop();
+                            app : {
+                                is_nomax : true,
+                                is_nosince : false,
+                                tlshare : "",
+                                tltype : "",
+                                exclude_reply : true,
                             }
                         }
-                    }
-    
-                }    
+                        */
+                        this._targetObject.generate_toot_detail({
+                                data:[data],
+                                paging : {
+                                    prev : data.id
+                                }
+                            },{
+                                api : {
+                                    exclude_replies : true,
+                                    since_id : "",
+                                },
+                                app : this._targetObject.currentOption.app
+                            });
+                        //---finish get update from stream, remove old loaded tootes
+                        if (this._targetObject.is_scrolltop) {
+                            if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                                while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+                                    this._targetObject.statuses.pop();
+                                }
+                            }
+                        }
+        
+                    } 
+                }else if (this._targetDirect) {
+                    this._targetDirect.generate_toot_detail({
+                        data:[data],
+                        paging : {
+                            prev : data.id
+                        }
+                    },{
+                        api : {
+                            exclude_replies : true,
+                            since_id : "",
+                        },
+                        app : this._targetDirect.currentOption.app
+                    });
+                }
             }
         }else if (this._targetDirect) {
+            if (this._targetTLType != "direct") return;
             var meacct = this._targetDirect.account.rawdata.url;
             var options = {
                 api : {
                     since_id : "",
                 },
-                app : {
-                    is_nomax : true,
-                    is_nosince : false,
-                    acct : meacct,
-                    user : this._targetDirect.show_user
-                    
-                }
+                app : this._targetDirect.currentOption.app
             };
+            options.app.is_nomax = true;
+            options.app.is_nosince = false;
         
             this._targetDirect.generate_toot_detail({
                 data:[data],
                 paging : {
                     next : "",
                     prev : data.id
+                }
+            },options);
+        }
+    }
+    _start_conversation(streaming) {
+        var data = streaming.payload;
+        if (this._targetDirect) {
+            var meacct = this._targetDirect.account.rawdata.url;
+            var options = {
+                api : {
+                    since_id : "",
+                },
+                app : this._targetDirect.currentOption.app
+            };
+            options.app.is_nomax = false;
+            options.app.is_nosince = true;
+        
+            this._targetDirect.generate_toot_detail({
+                data:[data.last_status],
+                paging : {
+                    next : data.last_status.id,
+                    prev : ""
                 }
             },options);
         }

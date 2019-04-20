@@ -498,7 +498,65 @@ class Gpsns {
         });
         return def;
     }
+    getScheduledPost(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            var endpoint = "scheduled_statuses";
+            if (id != null) {
+                endpoint += `/${id}`;
+            }
+            this._accounts.api.get(endpoint,options.api)
+            .then((data,status,xhr)=>{
+                console.log(endpoint,data,xhr.getAllResponseHeaders());
+                var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
+                
+                resolve({data: data, paging: hlink});
+            },(xhr,status,err)=>{
+                console.log(xhr,status,err);
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
+    updateScheduledPost(id,options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
 
+            var endpoint = `scheduled_statuses/${id}`;
+
+            this._accounts.api.put(endpoint,options.api)
+            .then((data)=>{
+                
+                resolve({data: data});
+            },(xhr,status,err)=>{
+                console.log(xhr,status,err);
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
+    deleteScheduledPost(id) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+
+            var endpoint = `scheduled_statuses/${id}`;
+
+            this._accounts.api.delete(endpoint)
+            .then((data)=>{
+                
+                resolve({data: data});
+            },(xhr,status,err)=>{
+                console.log(xhr,status,err);
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
 /**=================================================================
  *   Post API
  * =================================================================
@@ -1556,14 +1614,10 @@ class Gpsns {
                 reject(false);
                 return;
             }
-            var options = {
-                api : {
-                    account_ids : accounts
-                }
-            };
-            this._accounts.api.post(`poll/${id}/votes`,options.api)
+            
+            this._accounts.api.post(`polls/${id}/votes`,options.api)
             .then((data,status,xhr)=>{
-                console.log(`poll/${id}/votes`,data);
+                console.log(`polls/${id}/votes`,data);
                 resolve({data: data, options: options});
             },(xhr,status,err)=>{
                 reject({xhr:xhr,status:status});
@@ -1764,6 +1818,10 @@ class Gpsns {
             reb : {
                 "red-text" : (this.body.reblogged ? true : false),
                 "lighten-3" : (this.body.reblogged ? false : true)
+            },
+            mentionsPickup : {
+                "yellow" : false,
+                "lighten-3" : false
             }
         }
 
@@ -1826,6 +1884,22 @@ class Gpsns {
             var href = qa[i].href;
             var name = qa[i].children[0].textContent;
             var fnlhref = `/users/${qa[i].hostname}/${name}`;
+            if (MYAPP.session.config.notification.show_mention_as_name) {
+                /*var dispqa = qa[i].querySelector("span");
+                if (dispqa) {
+                    MYAPP.sns.getUser(name,qa[i].hostname,{
+                        api:{},
+                        app:{"targetElement":dispqa}
+                    })
+                    .then(result => {
+                        if (result.data) {
+                            dispqa.innerHTML = result.data.display_name;
+                            dispqa.title = result.data.acct;
+                        }
+                    });
+                    
+                }*/
+            }
             qa[i].href = fnlhref;
         }
         qa = tmp.querySelectorAll("p a.hashtag");
@@ -1890,6 +1964,14 @@ class Gpsns {
             image : "",
             isimage : false
         };
+        //---poll check
+        if (this.body.poll) {
+            //---add column "choies" for current selected.
+            this.body["pollchoices"] = [];
+            for (var i = 0; i < this.body.poll.options.length; i++) {
+                this.body["pollchoices"].push(false);
+            }
+        }
 
         //---decide final card size.
         var num_cardSize = 5;
@@ -1909,22 +1991,26 @@ class Gpsns {
         
         if (this.medias) {
             if (this.medias.length > 0) {
+                var bishosei = 0;
                 if (imghas.portrait) {
-                    if (imghas.aspect < 0.51) {
-                        num_cardSize += 15;
+                    if (imghas.aspect < 0.36) {
+                        num_cardSize += 13; //18;
+                    }else if (imghas.aspect <= 0.51) {
+                        num_cardSize += 12; //15;
                     }else if (imghas.aspect <= 0.57) {
-                        num_cardSize += 14;
+                        num_cardSize += 12; //14;
                     }else if (imghas.aspect <= 0.68) {
-                        num_cardSize += 13;
+                        num_cardSize += 11; //13;
                     }else if (imghas.aspect <= 0.74) {
-                        num_cardSize += 12;
+                        num_cardSize += 10; //12;
                     }else if (imghas.aspect <= 0.89) {
-                        num_cardSize += 10;
+                        num_cardSize += 9; //10;
                     }else if (imghas.aspect == 1) {
                         num_cardSize += 7;
                     }else{
                         num_cardSize += 8;
                     }
+                    
                 }else{
                     if (imghas.aspect <=  1.31) {
                         num_cardSize += 8;
@@ -1932,6 +2018,7 @@ class Gpsns {
                         num_cardSize += 6;
                     }
                 }
+                num_cardSize = num_cardSize - bishosei;
                 imghas.applygrid = true;
             }
         }
@@ -1946,6 +2033,9 @@ class Gpsns {
             if (this.urls.length > 0) {
                 num_cardSize += 5;
             }
+        }
+        if (this.body.poll) {
+            num_cardSize += 2;
         }
         /*if ((this.medias.length > 0) && (this.urls.length > 0)) {
             num_cardSize = 28;

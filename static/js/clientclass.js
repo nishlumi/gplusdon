@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190407-03",
+            revision : "20190420-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -218,6 +218,10 @@ class Gplusdon {
                 if (Q("#area_account")) {
                     notifAccount.account.stream.setTargetTimeline(vue_user.tootes);
                     notifAccount.account.stream.isme = true;
+                }
+                if (Q("#area_dmsg")) {
+                    notifAccount.account.direct.setTargetDirect(vue_direct);
+                    notifAccount.account.stream.setTargetDirect(vue_direct);
                 }
                 if (Q("#area_user")) {
                     //---rapidly open and show user data
@@ -653,6 +657,16 @@ class Gplusdon {
             //---if reply
             if ("in_reply_to_id" in options) {
                 post_opt["in_reply_to_id"] = options.in_reply_to_id;
+            }
+
+            //---scheduled post
+            if (("schedule" in options) && (options.schedule != null)) {
+                post_opt["scheduled_at"] = options.schedule;
+            }
+
+            //---poll
+            if (("poll" in options) && (options.poll != null)) {
+                post_opt["poll"] = options.poll;
             }
 
             //---start post

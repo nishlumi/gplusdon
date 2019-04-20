@@ -147,9 +147,7 @@ Vue.component("timeline-toot", {
 
 			//---poll variables
 			pollradio : "",
-			
-			pollchoice : [],
-			pollicon : [],
+			currentPoll : {},
 
 			//---request each updates
 			isupdate_request : {
@@ -167,6 +165,13 @@ Vue.component("timeline-toot", {
                 + mentions.length + tags.length;
             
         },
+		toote : function (val) {
+			if (val.body.poll) {
+				var tmppoll = this.initialize_poll(val.body.poll);
+				this.currentPoll[val.body.id] = tmppoll;
+			}
+
+		}
     },
 	computed: {
 		tootElementId: function () {
@@ -241,7 +246,6 @@ Vue.component("timeline-toot", {
 		}
 
 		
-		
 	},
 	mounted(){
 		//console.log("created html=",this.toote.body.html)
@@ -273,7 +277,7 @@ Vue.component("timeline-toot", {
 				gridsp += 2;
 			}
 
-			this.toote.cardtypeSize["grid-row-start"] = `span ${gridsp}`;
+			//this.toote.cardtypeSize["grid-row-start"] = `span ${gridsp}`;
 
 			
 			if (this.toote.geo.enabled) {  //
@@ -282,18 +286,10 @@ Vue.component("timeline-toot", {
 			}
 
 			if (this.toote.body.poll) {
-				var cho = "";
-				if (this.toote.body.poll.multiple) {
-					cho = "check_box_outline_blank";
-				}else{
-					cho = "radio_button_unchecked";
-				}
-				for (var i = 0; i < this.toote.body.poll.options.length; i++) {
-					this.pollicon.push(cho);
-					this.pollchoice.push(false);
-				}
+				var tmppoll = this.initialize_poll(this.toote.body.poll);
+				this.currentPoll[this.toote.body.id] = tmppoll;
 			}
-			
+	
 		}
 		
 		//console.log(this.$el);
@@ -448,6 +444,27 @@ Vue.component("timeline-toot", {
 				marker.bindPopup(ll.name);
 			}
 		},
+		initialize_poll : function (poll){
+			var cho = "";
+			var tmppoll = {
+				original : {},
+				icon : [],
+				choice : [],
+			};
+			for (var obj in poll) {
+				tmppoll.original[obj] = poll[obj];
+			}
+			if (tmppoll.original.multiple) {
+				cho = "check_box_outline_blank";
+			}else{
+				cho = "radio_button_unchecked";
+			}
+			for (var i = 0; i < tmppoll.original.options.length; i++) {
+				tmppoll.icon.push(cho);
+				tmppoll.choice.push(false);
+			}
+			return tmppoll;
+		},
 		counting_vote : function (poll,allcount) {
 			var tmp = "";
 			var v = poll.votes_count;
@@ -476,20 +493,23 @@ Vue.component("timeline-toot", {
 				}
 			}
 		},
-		voteicon_styling : function (choice,multiple) {
-			if (multiple) {
-				if (this.pollchoice[choice] === true) {
-					return "check_box";
+		voteicon_styling : function (choice,poll,toote) {
+			if (toote && this.currentPoll[toote.body.id]) {
+				if (poll.multiple) {
+					if (this.currentPoll[toote.body.id].choice[choice] === true) {
+						return "check_box";
+					}else{
+						return "check_box_outline_blank";
+					}
 				}else{
-					return "check_box_outline_blank";
+					if (this.currentPoll[toote.body.id].choice[choice] === true) {
+						return "radio_button_checked";
+					}else{
+						return "radio_button_unchecked";
+					}
 				}
 			}else{
-				if (this.pollchoice[choice] === true) {
-					return "radio_button_checked";
-				}else{
-					return "radio_button_unchecked";
-				}
-				//voteicon_styling(polindex,toote.body.poll.multiple)
+				return "radio_button_unchecked";
 			}
 		},
 		is_off_mini : function () {
@@ -528,6 +548,12 @@ Vue.component("timeline-toot", {
 
 							condata.data.ancestors[a] = gcls;
 
+							if (gcls.body.poll) {
+								var tmppoll = this.initialize_poll(gcls.body.poll);
+								this.currentPoll[gcls.body.id] = tmppoll;
+							}
+			
+
 						}
 						for (var a = 0; a < condata.data.descendants.length; a++) {
 							var desce = condata.data.descendants[a];
@@ -535,6 +561,10 @@ Vue.component("timeline-toot", {
 
 
 							condata.data.descendants[a] = gcls;
+							if (gcls.body.poll) {
+								var tmppoll = this.initialize_poll(gcls.body.poll);
+								this.currentPoll[gcls.body.id] = tmppoll;
+							}
 						}
 						//this.toote.comment_stat.mini = condata.data.descendants.length == 0 ? false : true;
 
@@ -619,17 +649,32 @@ Vue.component("timeline-toot", {
 			var ans = this.toote.ancestors[this.toote.ancestors.length-1];
 
 			MYAPP.commonvue.tootecard.status = ans;
+
+			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
+			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.scrollwithoutmini = true;
+			MYAPP.commonvue.tootecard.datastyle.toot_action_class.has_comment_pos_full = true;
+			//MYAPP.commonvue.tootecard.comment_stat.full = true;
+
+			MYAPP.commonvue.tootecard.$refs.tootview.reply_data = this.generateReplyObject(this.toote);
+			MYAPP.commonvue.tootecard.$nextTick(()=>{
+				MYAPP.commonvue.tootecard.$refs.tootview.set_replydata();
+				MYAPP.commonvue.tootecard.$refs.tootview.apply_childReplyInput();
+				MYAPP.commonvue.tootecard.$refs.tootview.$refs.replyinput.select_sender_account();
+			});
+
+			MYAPP.commonvue.tootecard.sizing_window();
 			MYAPP.commonvue.tootecard.is_overlaying = true;
 			//---change URL
 			if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
 				MUtility.returnPathToList(MYAPP.session.status.currentLocation);
 			}
 			var targetpath = "";
-			var changeuri = ans.body.uri.replace("https://","");
+			/*var changeuri = ans.body.uri.replace("https://","");
 			changeuri = changeuri.replace("statuses","toots");
 			changeuri = changeuri.replace("users/","");
 			//---when each screen existable toot
-			targetpath = `/users/${changeuri}`;
+			targetpath = `/users/${changeuri}`;*/
+			targetpath = MUtility.generate_tootpath(ans);
 			MUtility.enterFullpath(targetpath);
 		},
 		/**
@@ -660,6 +705,7 @@ Vue.component("timeline-toot", {
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.default = false;
 			MYAPP.commonvue.tootecard.comment_list_area_viewstyle.scrollwithoutmini = true;
 			MYAPP.commonvue.tootecard.datastyle.toot_action_class.has_comment_pos_full = true;
+			//MYAPP.commonvue.tootecard.comment_stat.full = true;
 
 			MYAPP.commonvue.tootecard.$refs.tootview.reply_data = this.generateReplyObject(this.toote);
 			MYAPP.commonvue.tootecard.$nextTick(()=>{
@@ -815,7 +861,7 @@ Vue.component("timeline-toot", {
 				//var style = window.getComputedStyle(rootParent);
 				//var num_row = parseInt(style.gridRowStart.replace("span", ""));
 				var num_row = parseInt(this.toote.cardtypeSize["grid-row-start"].replace("span", ""));
-				let SIZE4COMMENT = 4;
+				let SIZE4COMMENT = 2;
 				//if (target.classList.contains("mini")) {
 				if (this.comment_stat.mini || this.comment_stat.minione) {
 					num_row = num_row - SIZE4COMMENT;
@@ -1491,41 +1537,56 @@ Vue.component("timeline-toot", {
 			}
 		},
 		onclick_pollrefresh : function (poll) {
-
+			MUtility.loadingON();
+			MYAPP.sns.getPolls(poll.id,{
+				api : {
+					
+				}
+			})
+			.then(result => {
+				poll = result.data;
+				MUtility.loadingOFF();
+			});
 		},
-		onclick_pollchoice : function (choice,poll) {
-			if (this.toote.is_archive) return;
+		onclick_pollchoice : function (choice,poll,toote) {
+			if (toote.is_archive) return;
+			var targetpoll = this.currentPoll[toote.body.id];
 			if (poll.multiple) {
-				this.pollchoice[choice] = !this.pollchoice[choice];
-				if (this.pollchoice[choice]) {
-					this.$set(this.pollicon, choice, "check_box");
+				targetpoll.choice[choice] = !targetpoll.choice[choice];
+				if (this.targetpoll.choice[choice]) {
+					this.$set(targetpoll.icon, choice, "check_box");
 				}else{
-					this.$set(this.pollicon, choice, "check_box_outline_blank");
+					this.$set(th.targetpoll.icon, choice, "check_box_outline_blank");
 				}
 			}else{
-				for (var i = 0; i < this.pollchoice.length; i++) {
-					this.pollchoice[i] = false;
+				for (var i = 0; i < targetpoll.choice.length; i++) {
+					targetpoll.choice[i] = false;
 					//this.pollicon[i] = "radio_button_unchecked";
-					this.$set(this.pollicon, i, "radio_button_unchecked");
+					this.$set(targetpoll.icon, i, "radio_button_unchecked");
 				}
-				this.pollchoice[choice] = true;
-				this.$set(this.pollicon, choice, "radio_button_checked");
+				targetpoll.choice[choice] = true;
+				this.$set(targetpoll.icon, choice, "radio_button_checked");
 				//this.pollicon[choice] = "radio_button_checked";
 			}
 		},
-		onclick_pollvote : function (poll) {
-			if (this.toote.is_archive) return;
+		onclick_pollvote : function (poll,toote) {
+			if (toote.is_archive) return;
 			var mainfunc = () => {
 				var choices = [];
-				for (var i = 0; i < this.pollchoice.length; i++) {
-					if (this.pollchoice[i] === true) {
-						choices.push(i);
+				var targetpoll = this.currentPoll[toote.body.id];
+				for (var i = 0; i < targetpoll.choice.length; i++) {
+					if (targetpoll.choice[i] === true) {
+						choices.push(String(i));
+						//choices[String(i)] = String(i);
 					}
 				}
-				MYAPP.sns.votesPolls(poll.id,{
+				MYAPP.sns.votePolls(poll.id,{
 					api : {
-						choices : choices
+						"choices" : choices
 					}
+				})
+				.then(result => {
+					poll = result.data;
 				});
 			}
 			if (MYAPP.session.config.action.confirmBefore) {
@@ -1760,6 +1821,12 @@ Vue.component("dmessage-item", {
 		 * 
 		 */
 		user_direction : Object,
+		gallery_options : {
+			type: GalleryOptions,
+			default : function() {
+				return new GalleryOptions();
+			},
+		},
 		toote: {
 			type : Object,
 			default : null
@@ -1789,12 +1856,64 @@ Vue.component("dmessage-item", {
 			},
 			reaction_accounts : [],
 			
-			is_pause : false
+			is_pause : false,
+
+			geomap : "",
+
+			//---poll variables
+			pollradio : "",
+			currentPoll : {},
+
+			//---request each updates
+			isupdate_request : {
+				reply : false
+			},
+			local_galoption : this.gallery_options,
         }
-    },
+	},
+	beforeMount(){
+		//---for media object(tootgallery-carousel)
+		this.local_galoption = new GalleryOptions();
+		if (this.gallery_options) {
+			this.local_galoption.copy(this.gallery_options);
+		}
+
+		//---option: remove nsfw, if specified instance
+		if ((MYAPP) && (MYAPP.session.config.action.remove_nsfw_remove_instance === true)) {
+			if (this.toote) {
+				if (MYAPP.session.config.action.nsfw_remove_instances.indexOf(this.toote.account.instance) > -1) {
+					this.local_galoption.first_sensitive = false;
+				}
+			}
+		}
+
+		
+
+	},
     mounted(){
 		jQuery.timeago.settings.cutoff = (1000*60*60*24) * 3;
 		$("time.timeago").timeago();
+
+		if (this.toote) {
+			if (this.toote.geo.enabled) {  //
+				//this.initialize_geomap();
+				this.get_mapurl(this.toote.geo.location[0],0);
+			}
+
+			if (this.toote.body.poll) {
+				var tmppoll = this.initialize_poll(this.toote.body.poll);
+				this.currentPoll[this.toote.body.id] = tmppoll;
+			}
+		}
+	},
+	watch : {
+		toote : function (val) {
+			if (val.body.poll) {
+				var tmppoll = this.initialize_poll(this.toote.body.poll);
+				this.currentPoll[this.toote.body.id] = tmppoll;
+			}
+
+		}
 	},
 	computed : {
 		favourite_type : function() {
@@ -1809,11 +1928,127 @@ Vue.component("dmessage-item", {
 				return "star";
 			}
 		},
-
+		gal_viewmode : function () {
+			return MYAPP.session.config.application.gallery_type;
+		},
 	},
     methods : {
 		full_display_name : function(user) {
 			return MUtility.replaceEmoji(user.display_name,user.instance,user.emojis,18) + `@${user.instance}`;
+		},
+		get_instance_original_url : function (toote) {
+			return MUtility.generate_instanceOriginalURL(MYAPP.commonvue.cur_sel_account.account,toote);
+		},
+		get_tagurl : function (tag) {
+			return MUtility.generate_hashtagpath(tag);
+		},
+		get_mapurl : function (location,index) {
+			this.geomap =  MUtility.getStaticMap(location,MYAPP.session.config.application.map_type,index);
+		},
+		initialize_geomap : function () {
+			var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
+			latlng = L.latLng(this.toote.geo.location[0].lat, this.toote.geo.location[0].lng);
+
+			//---$children is Vue.component
+			//   But, $children[0] is parent of the array timeline-toot
+			//   So, [1] is real start.
+			var oneelem = this.$el;
+			//oneelem.querySelector('.here_map')
+			var geomap = L.map(
+				ID("heremap"+this.toote.id), {
+					center: latlng, 
+					dragging : true, 
+					zoom: this.toote.geo.location[0].zoom,
+					layers: [Osm]
+				}
+			);
+			this.geomap = geomap;
+			this.curLocation = null;
+
+			for (var i = 0; i < this.toote.geo.location.length; i++) {
+				var ll = this.toote.geo.location[i];
+				var marker = L.marker({lat:ll.lat,lng:ll.lng}).addTo(geomap);
+				marker.on("click",(ev)=>{
+					//ev.sourceTarget.remove();
+					//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
+				});
+				marker.bindPopup(ll.name);
+			}
+		},
+		initialize_poll : function (poll){
+			var cho = "";
+			var tmppoll = {
+				original : {},
+				icon : [],
+				choice : [],
+			};
+			for (var obj in poll) {
+				tmppoll.original[obj] = poll[obj];
+			}
+			if (tmppoll.original.multiple) {
+				cho = "check_box_outline_blank";
+				tmppoll.choice = [];
+			}else{
+				cho = "radio_button_unchecked";
+				tmppoll.choice = "";
+			}
+			for (var i = 0; i < tmppoll.original.options.length; i++) {
+				tmppoll.icon.push(cho);
+				//tmppoll.choice.push(false);
+			}
+			return tmppoll;
+		},
+		counting_vote : function (poll,allcount) {
+			var tmp = "";
+			var v = poll.votes_count;
+			if (allcount > 0) {
+				v = v / allcount;
+			}else{
+				v = 0;
+			}
+			var percent = Math.round(v * 100);
+			return percent;
+		},
+		is_off_vote : function (poll) {
+			return poll.voted || poll.expired;
+		},
+		isBoostable : function (toote) {
+			var boostable = [
+				"private", "direct"
+			];
+			if (boostable.indexOf(toote.body.visibility) > -1) {
+				return true;
+			}else{
+				if (toote.is_archive) {
+					return true;
+				}else{
+					return false;
+				}
+			}
+		},
+		voteicon_styling : function (choice,toote) {
+			if (toote.body.poll) {
+				if (toote.body.poll.multiple) {
+					if (choice === true) {
+						return "check_box";
+					}else{
+						return "check_box_outline_blank";
+					}
+				}else{
+					if (choice === true) {
+						return "radio_button_checked";
+					}else{
+						return "radio_button_unchecked";
+					}
+				}
+			}else{
+				return "radio_button_unchecked";
+			}
+		},
+		is_off_mini : function () {
+			return !this.comment_stat.mini && !this.comment_stat.minione;
 		},
 		onclick_ttbtn_fav: function(e) {
 			var mainfunc = () => {
@@ -1881,6 +2116,85 @@ Vue.component("dmessage-item", {
 				mainfunc();
 			}
 		},
+		onclick_selloco : function (item,index) {
+			//this.geomap.setView({ lat:item.lat, lng: item.lng });
+			this.geomap = MUtility.getStaticMap(item,MYAPP.session.config.application.map_type,index);
+			this.curLocation = item;
+		},
+		onclick_map : function (e) {
+			//MYAPP.commonvue.mapviewer.set_data(this.toote);
+			//MYAPP.commonvue.mapviewer.dialog = true;
+			if (this.curLocation) {
+				var url = this.curLocation.url; //`https://www.openstreetmap.org/#map=${this.curLocation.zoom}/${this.curLocation.lat}/${this.curLocation.lng}`;
+				window.open(url,"_blank");
+			}
+		},
+		onclick_pollrefresh : function (poll) {
+			MUtility.loadingON();
+			MYAPP.sns.getPolls(poll.id,{
+				api : {
+					
+				}
+			})
+			.then(result => {
+				poll = result.data;
+				this.$set(this.toote.body,"poll",result.data);
+				MUtility.loadingOFF();
+			});
+		},
+		onclick_pollchoice : function (choice,poll,toote) {
+			if (toote.is_archive) return;
+			var targetpoll = toote.body.pollchoices;
+			if (poll.multiple) {
+				//targetpoll[choice] = !targetpoll[choice];
+				this.$set(targetpoll, choice, targetpoll[choice]);
+				/*if (this.targetpoll.choice[choice]) {
+					this.$set(targetpoll.icon, choice, "check_box");
+				}else{
+					this.$set(th.targetpoll.icon, choice, "check_box_outline_blank");
+				}*/
+			}else{
+				for (var i = 0; i < targetpoll.length; i++) {
+					//targetpoll[i] = false;
+					this.$set(targetpoll, i, false);
+					//this.pollicon[i] = "radio_button_unchecked";
+					//this.$set(targetpoll.icon, i, "radio_button_unchecked");
+				}
+				//targetpoll[choice] = true;
+				//targetpoll.icon[choice] = "radio_button_checked";
+				this.$set(targetpoll, choice, true);
+				//this.pollicon[choice] = "radio_button_checked";
+			}
+		},
+		onclick_pollvote : function (poll,toote) {
+			if (toote.is_archive) return;
+			var mainfunc = () => {
+				var choices = [];
+				var targetpoll = this.currentPoll[toote.body.id];
+				for (var i = 0; i < toote.body.pollchoices.length; i++) {
+					if (toote.body.pollchoices[i] === true) {
+						choices.push(String(i));
+						//choices[String(i)] = String(i);
+					}
+				}
+				MYAPP.sns.votePolls(poll.id,{
+					api : {
+						"choices" : choices
+					}
+				})
+				.then(result => {
+					//toote.body.poll = result.data;
+					this.$set(toote.body,"poll",result.data);
+				});
+			}
+			if (MYAPP.session.config.action.confirmBefore) {
+				var msg;
+				msg = _T("msg_voting");
+				appConfirm(msg,mainfunc);
+			}else{
+				mainfunc();
+			}
+		}
     }
 });
 

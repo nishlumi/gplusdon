@@ -31,6 +31,7 @@ class Gpsession {
                     applogin : {
                         type : "google", //google, twitter
                     },
+                    cloud_manualy_save : false,
                     show_menutext : true,
                     gallery_type : "slide", //slide, grid
                     skip_startpage : false,
@@ -65,6 +66,7 @@ class Gpsession {
                     notpreview_onmap : false,
                     notpreview_onmedia : false,
                     minimumize_media_onlink : false,
+                    show_mention_as_name : false,
                 }
             },
             gadgets : []
@@ -129,11 +131,13 @@ class Gpsession {
                 //---status
                 this.data.status = tmp.status;
                 //---config (probably add after)
-                for (var obj in this.data.config) {
-                    if (obj in tmp.config) {
+                for (var obj in this.data.config) { //---original setting
+                    if (obj in tmp.config) { //---saved setting
                         for (var setone in tmp.config[obj]) {
                             var so = tmp.config[obj][setone];
-                            this.data.config[obj][setone] = so;
+                            if (setone in this.data.config[obj]) {
+                                this.data.config[obj][setone] = so;
+                            }
                         }
                     }
                 }

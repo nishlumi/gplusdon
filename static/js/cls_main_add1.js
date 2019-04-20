@@ -185,6 +185,19 @@ function defineForMainPage(app) {
                 MYAPP.commonvue.mbl_search.dialog = true;
             },
             onclick_refresh : function (e) {
+                //---/accounts
+                if (Q(".accounts_body") || Q(".setting_body")) {
+                    MUtility.loadingON();
+                    MYAPP.acman.checkInstanceInfo();
+                    MYAPP.acman.checkVerify()
+                    .then(result => {
+                        MUtility.loadingOFF();
+                    });
+                }
+                //---/account/*
+                if (Q(".account_body")) {
+                    
+                }
                 //---/tl
                 if (Q(".timeline_body")) {
                     if (Q(".timelinebody")) {
@@ -691,10 +704,10 @@ function defineForMainPage(app) {
             popuping : "ov_",
             comment_viewstyle : {
                 close : false,
-                mini : true,
+                mini : false,
                 minione : false,
                 open : false,
-                full : false
+                full : true
             },
             comment_list_area_viewstyle : {
 				default : false
@@ -705,6 +718,16 @@ function defineForMainPage(app) {
             datastyle : {
 				"comment-list" : {
 					sizing : false
+				},
+                "toot_action_class" : {
+                    has_comment_pos_close : false,
+					has_comment_pos_mini : false,
+					has_comment_pos_minione : false,
+					has_comment_pos_open : false,
+					has_comment_pos_full : false,
+                },
+                "instanceticker_class" : {
+					"display-name" : true,
 				}
 			},
             globalInfo : {
@@ -956,13 +979,51 @@ function defineForMainPage(app) {
                         //var d = new Gpstatus(this.saveitem.status,16);
                         //this.status = d;
                         this.statuses.splice(0,this.statuses.length);
-                        this.currentOption.app.tlshare = "tt_all";
-                        this.currentOption.app.exclude_reply = false;
-                        this.currentOption.app["notify_direct"] = true;
-                        var tmpsta = this.generate_toot_detail({
-                            data : [this.saveitem.status],
-                            paging : {prev:"",next:""}
-                        },this.currentOption);
+                        MYAPP.sns.getConversation(this.saveitem.status.id,{
+                            api : {},
+                            app : {
+                                parent : {
+                                    ID : this.saveitem.status.in_reply_to_id,
+                                    index : ""
+                                }
+                            }
+                        })
+                        .then(parent_toot=> {
+                            var ancestor = parent_toot.data.ancestors[0];
+                            var d;
+                            if (parent_toot.data.ancestors.length == 0)  {
+                                d = this.saveitem.status;
+                            }else{
+                                d = ancestor;
+                            }
+
+                            this.boarding++;
+                            this.$nextTick(() => {
+                                this.currentOption.app.tlshare = "tt_all";
+                                this.currentOption.app.exclude_reply = false;
+                                this.currentOption.app["notify_direct"] = true;
+                                var tmpsta = this.generate_toot_detail({
+                                    data : [d],
+                                    paging : {prev:"",next:""},
+                                    options : {
+                                        mentionsPickupID : this.saveitem.status.id
+                                    }
+                                },this.currentOption);
+                                tmpsta.then(result=>{
+                                    this.status = result[0];
+                                    this.$refs.tootview.$nextTick(()=>{
+                                        this.$refs.tootview.reply_data = this.$refs.tootview.generateReplyObject(this.status);
+                                        this.$refs.tootview.apply_childReplyInput();
+        
+                                    });
+                        
+
+                                });
+
+                            });
+    
+                        });
+
                         //this.$refs.tootview.toote = this.status;
                         //this.$refs.tootview.set_replydata(this.status);
                         //this.$nextTick(()=>{
@@ -993,10 +1054,6 @@ function defineForMainPage(app) {
                                 
                             });
                         });*/
-                        tmpsta.then(result=>{
-                            this.status = result[0];
-                            this.boarding++;
-                        });
                     }
                 }
             },
@@ -1370,6 +1427,10 @@ function defineForMainPage(app) {
             MYAPP.forms.sidenav.open();
             e.stopPropagation();
         });
+
+        window.addEventListener("beforeunload",function (e){
+            MYAPP.acman.syncCloud();
+        });
         /*
         ID("img_brand").addEventListener("click", function (e) {
             
@@ -1518,6 +1579,7 @@ function defineForMainPage(app) {
             
             MYAPP.commonvue.inputtoot.sizing_window();
 
+            MYAPP.commonvue.inputtoot.select_window(0);
             MYAPP.commonvue.inputtoot.dialog = true;
             MYAPP.commonvue.inputtoot.$nextTick(()=>{
                 var chk = checkBrowser();
