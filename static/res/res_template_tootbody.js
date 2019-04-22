@@ -466,7 +466,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             v-model="isboostmenu"
                             direction="left"
                             
-                            transition="fade-transition" open-on-hover
+                            transition="fade-transition" 
                         >
                             <template slot="activator">
                                 <v-btn v-model="isboostmenu"
@@ -744,7 +744,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                                         v-model="reply.isboostmenu"
                                         direction="left"
                                         
-                                        transition="fade-transition" open-on-hover
+                                        transition="fade-transition" 
                                     >
                                         <template slot="activator">
                                             <!--<a class="btn-flat btn_reply_each waves-effect" 

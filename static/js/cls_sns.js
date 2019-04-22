@@ -2013,9 +2013,9 @@ class Gpsns {
                     
                 }else{
                     if (imghas.aspect <=  1.31) {
-                        num_cardSize += 8;
+                        num_cardSize += 5;
                     }else{
-                        num_cardSize += 6;
+                        num_cardSize += 3;
                     }
                 }
                 num_cardSize = num_cardSize - bishosei;
