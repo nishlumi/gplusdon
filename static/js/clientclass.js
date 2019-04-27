@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190422-01",
+            revision : "20190427-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -343,7 +343,9 @@ class Gplusdon {
 
     }
     showUserCard(rect,userdata){
+        
         //if (ID("ov_user").classList.contains("common_ui_off")) {
+        var mainbody = () => {
             //var rect = e.currentTarget.getBoundingClientRect();
             this.commonvue.usercard.selected = userdata.account;
             this.commonvue.usercard.relationship = userdata.relationship;
@@ -356,7 +358,10 @@ class Gplusdon {
                 ID("ov_user").classList.add("scale-up-tl");
             });
         //popup_ovuser.open();
-        //}
+        };
+        
+        mainbody();
+        
     }
     showPostCtrl(flag) {
         if (flag) {

@@ -1584,7 +1584,8 @@ function defineForMainPage(app) {
             MYAPP.commonvue.inputtoot.$nextTick(()=>{
                 var chk = checkBrowser();
                 if (chk.platform != "ios") {
-                    Q(".onetoot_inputcontent").focus();
+                    //Q(".onetoot_inputcontent").focus();
+                    MYAPP.commonvue.inputtoot.$refs.inputbox.ckeditor.focus();
                 }
             });
             

@@ -76,6 +76,9 @@ Vue.component("timeline-toot", {
 			issinglewindow : false,
 			isboostmenu : false,
 			isboost_hover : false,
+			timerid : 0,
+			timerparam : null,
+
             first_comment_stat : {
 				close : true,
 				mini : false,
@@ -122,15 +125,15 @@ Vue.component("timeline-toot", {
 			
 			//---share scope box and mention box data
             sharescopes : [
-                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
-                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
-                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
+                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red--text":true}},
+                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red--text":false}},
+                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red--text":false}},
             ],
 			selsharescope : {
 				text : _T("sel_tlpublic"),
 				value : "tt_public",
 				avatar : "public",
-				selected:{"red-text":true}
+				selected:{"red--text":true}
 			},
 
 			//---reaction dialog: favorite, boost
@@ -916,19 +919,24 @@ Vue.component("timeline-toot", {
 			if (this.toote.is_archive) return;
 			var mainfunc = () => {
 				//console.log("target=",e.target);
-				e.target.parentElement.classList.add("pulse");
+				//e.target.parentElement.classList.add("pulse");
 				MYAPP.sns.setFav(this.toote.id, !this.toote.body.favourited, {api:{},app:{}})
 				.then(result=>{
-					e.target.parentElement.classList.remove("pulse");
+					//e.target.parentElement.classList.remove("pulse");
 					//console.log("fav after=",result);
 					this.toote.body.favourites_count = result.favourites_count;
+					this.toote.body.favourited = result.favourited;
 					//---change color for favourited state.
 					this.toote.reactions.fav["lighten-3"] = result.favourited ? false : true;
+					this.toote.reactions.fav["red--text"] = result.favourited ? false : true;
 				});
 			};
 			//console.log("onclick_ttbtn_fav=",e,JSON.original(this.toote),!this.toote.body.favourited);
 			if (MYAPP.session.config.action.confirmBefore) {
 				var msg = _T("msg_confirm_fav_"+MYAPP.session.config.application.showMode);
+				if (this.toote.body.favourited) {
+					msg = _T("msg_confirm_unfav_"+MYAPP.session.config.application.showMode);
+				}
 				appConfirm(msg,mainfunc);
 			}else{
 				mainfunc();
@@ -944,6 +952,7 @@ Vue.component("timeline-toot", {
 					e.target.parentElement.classList.remove("pulse");
 					//console.log("bst after=",result);
 					this.toote.body.reblogs_count = this.toote.body.reblogs_count + result.reblogs_count;
+					this.toote.body.reblogged = result.reblogged;
 					//---change color for favourited state.
 					this.toote.reactions.reb["lighten-3"] = result.reblogged ? false : true;
 				});
@@ -951,6 +960,9 @@ Vue.component("timeline-toot", {
 			//console.log("onclick_ttbtn_bst=",e,JSON.original(this.toote),!this.toote.body.favourited);
 			if (MYAPP.session.config.action.confirmBefore) {
 				var msg = _T("msg_confirm_bst_"+MYAPP.session.config.application.showMode);
+				if (this.toote.body.reblogged) {
+					msg = _T("msg_confirm_unbst_"+MYAPP.session.config.application.showMode);
+				}
 				appConfirm(msg,mainfunc);
 			}else{
 				mainfunc();
@@ -997,7 +1009,7 @@ Vue.component("timeline-toot", {
 							//console.log("target=",e.target);
 							
 							MYAPP.sns.setAccount(result2.options.app.tmpaccount);
-							MYAPP.sns.setBoost(result2.toot.id, true, {api:{},app:{}})
+							MYAPP.sns.setBoost(result2.toot.id, !result2.toot.reblogged, {api:{},app:{}})
 							.then(result=>{
 								//console.log("bst after=",result);
 								toote.body.reblogs_count = toote.body.reblogs_count + result.reblogs_count;
@@ -1120,9 +1132,15 @@ Vue.component("timeline-toot", {
 			console.log(elem_reply_box);
 			target.innerHTML = target.innerHTML + "<a href=#!>@hoge</a>&nbsp;";
 		},*/
+		onleave_avatar: function (e) {
+			clearTimeout(this.timerid);
+			this.timerparam = null;
+			this.timerid = setTimeout(()=>{},500);
+		},
 		onenter_avatar: function (e) {
 			var parent = e.target.parentElement;
 			var userid = parent.querySelector("input[name='sender_id']");
+			console.log(e,parent, userid);
 			var toote = null;
 			if (userid.alt == "thistoot") {
 				toote = this.toote;
@@ -1145,47 +1163,54 @@ Vue.component("timeline-toot", {
 				return;
 			}
 
-			//console.log(e,parent,userid);
-			if (("relationship" in toote) && ("following" in toote.relationship)) {
-				MYAPP.showUserCard(e.currentTarget.getBoundingClientRect(), 
-					JSON.original({
-						"account" : toote.account,
-						"relationship" : toote.relationship,
-					})
-				);
-			}else{
-				var hit = MYAPP.userstore.getIndex({
-					username : toote.account.username,
-					instance : toote.account.instance
-				});
-				if (hit > -1) {
-					var hitdata = MYAPP.userstore.items[hit];
-					for (var obj in hitdata.relationship) {
-						toote.relationship[obj] = hitdata.relationship[obj];
-					}
-					MYAPP.showUserCard(e.target.getBoundingClientRect(), hitdata);
+			clearTimeout(this.timerid);
+			this.timerparam = e;
+
+			this.timerid = setTimeout(()=>{
+				var e = this.timerparam;
+				//console.log(e,parent,userid);
+				if (("relationship" in toote) && ("following" in toote.relationship)) {
+					MYAPP.showUserCard(e.target.getBoundingClientRect(), 
+						JSON.original({
+							"account" : toote.account,
+							"relationship" : toote.relationship,
+						})
+					);
 				}else{
-					MYAPP.sns.getRelationship(userid.value)
-					.then((result) => {
-						for (var i = 0; i < result.data.length; i++) {
-							for (var obj in result.data[i]) {
-								toote.relationship[obj] = result.data[i][obj];
-							}
-						}
-						MYAPP.userstore.add({
-							account : toote.account,
-							relationship : toote.relationship
-						});
-						//console.log(JSON.original(toote));
-						MYAPP.showUserCard(e.target.getBoundingClientRect(), 
-							JSON.original({
-								"account" : toote.account,
-								"relationship" : toote.relationship,
-							})
-						);
+					var hit = MYAPP.userstore.getIndex({
+						username : toote.account.username,
+						instance : toote.account.instance
 					});
+					if (hit > -1) {
+						var hitdata = MYAPP.userstore.items[hit];
+						for (var obj in hitdata.relationship) {
+							toote.relationship[obj] = hitdata.relationship[obj];
+						}
+						MYAPP.showUserCard(e.target.getBoundingClientRect(), hitdata);
+					}else{
+						MYAPP.sns.getRelationship(userid.value)
+						.then((result) => {
+							for (var i = 0; i < result.data.length; i++) {
+								for (var obj in result.data[i]) {
+									toote.relationship[obj] = result.data[i][obj];
+								}
+							}
+							MYAPP.userstore.add({
+								account : toote.account,
+								relationship : toote.relationship
+							});
+							//console.log(JSON.original(toote));
+							MYAPP.showUserCard(e.target.getBoundingClientRect(), 
+								JSON.original({
+									"account" : toote.account,
+									"relationship" : toote.relationship,
+								})
+							);
+						});
+					}
 				}
-			}
+				this.timerparam = null;
+			},MYAPP.session.config.action.usercard_delay);
 		},
 		onclick_comment_to_reply: function (index) {
 			if (!checkRange(0,index,this.toote.descendants.length-1)) return;
@@ -1200,63 +1225,73 @@ Vue.component("timeline-toot", {
 			//editor.editable().editor.insertText("@"+des.account.acct);
 			//this.status_text = "@"+des.account.acct; 
 		},
-		onclick_fav_to_reply: function (e) {
+		onclick_fav_to_reply: function (reply) {
 			if (this.toote.is_archive) return;
-			var tgt = e.target;
+			/*var tgt = e.target;
 			if (e.target.tagName.toLowerCase() == "i") {
 				tgt = e.target.parentElement;
-			}
+			}*/
 			//console.log(tgt,tgt.getAttribute("data-index"));
-			var index = Number(tgt.getAttribute("data-index"));
+			//var index = Number(tgt.getAttribute("data-index"));
 
-			if (!checkRange(0,index,this.toote.descendants.length-1)) return;
-			var des = this.toote.descendants[index];
+			//if (!checkRange(0,index,this.toote.descendants.length-1)) return;
+			var des = reply; //this.toote.descendants[index];
 			
 			var mainfunc = () => {
-				tgt.classList.add("pulse");
+				//tgt.classList.add("pulse");
 				MYAPP.sns.setFav(des.body.id, !des.body.favourited, {api:{},app:{}})
 				.then(result=>{
-					tgt.classList.remove("pulse");
+					//tgt.classList.remove("pulse");
 					//console.log("fav after=",result);
 					des.body.favourites_count = result.favourites_count;
+					des.body.favourited = result.favourited;
 					//---change color for favourited state.
 					des.reactions.fav["lighten-3"] = result.favourited ? false : true;
+					des.reactions.fav["red--text"] = result.favourited ? true : false;
 				});
 			};
 			//console.log("onclick_ttbtn_fav=",e,JSON.original(des),!des.body.favourited);
 			if (MYAPP.session.config.action.confirmBefore) {
 				var msg = _T("msg_confirm_fav_"+MYAPP.session.config.application.showMode);
+				if (des.body.favourited) {
+					msg = _T("msg_confirm_unfav_"+MYAPP.session.config.application.showMode);
+				}
 				appConfirm(msg,mainfunc);
 			}else{
 				mainfunc();
 			}
 
 		},
-		onclick_bst_to_reply: function(e) {
+		onclick_bst_to_reply: function(reply) {
 			if (this.toote.is_archive) return;
-			var tgt = e.target;
+			/*var tgt = e.target;
 			if (e.target.tagName.toLowerCase() == "i") {
 				tgt = e.target.parentElement;
 			}
 			var index = Number(tgt.getAttribute("data-index"));
-
-			if (!checkRange(0,index,this.toote.descendants.length-1)) return;
-			var des = this.toote.descendants[index];
+			*/
+			//if (!checkRange(0,index,this.toote.descendants.length-1)) return;
+			var des = reply; //this.toote.descendants[index];
 
 			var mainfunc = () => {
-				tgt.classList.add("pulse");
+				//tgt.classList.add("pulse");
 				MYAPP.sns.setBoost(des.body.id, !des.body.reblogged, {api:{},app:{}})
 				.then(result=>{
-					tgt.classList.remove("pulse");
+					//tgt.classList.remove("pulse");
 					//console.log("bst after=",result);
 					des.body.reblogs_count = result.reblogs_count;
+					des.body.reblogged = result.reblogged;
 					//---change color for favourited state.
 					des.reactions.reb["lighten-3"] = result.reblogged ? false : true;
+					des.reactions.reb["red--text"] = result.reblogged ? true : false;
 				});
 			};
 			//console.log("onclick_ttbtn_bst=",e,JSON.original(des),!des.body.favourited);
 			if (MYAPP.session.config.action.confirmBefore) {
 				var msg = _T("msg_confirm_bst_"+MYAPP.session.config.application.showMode);
+				if (des.body.reblogged) {
+					msg = _T("msg_confirm_unbst_"+MYAPP.session.config.application.showMode);
+				}
 				appConfirm(msg,mainfunc);
 			}else{
 				mainfunc();
@@ -2053,10 +2088,10 @@ Vue.component("dmessage-item", {
 		onclick_ttbtn_fav: function(e) {
 			var mainfunc = () => {
 				//console.log("target=",e.target);
-				e.target.parentElement.classList.add("pulse");
+				//e.target.parentElement.classList.add("pulse");
 				MYAPP.sns.setFav(this.toote.id, !this.toote.body.favourited, {api:{},app:{}})
 				.then(result=>{
-					e.target.parentElement.classList.remove("pulse");
+					//e.target.parentElement.classList.remove("pulse");
 					//console.log("fav after=",result);
 					this.toote.body.favourites_count = result.favourites_count;
 					//---change color for favourited state.
@@ -2066,6 +2101,9 @@ Vue.component("dmessage-item", {
 			//console.log("onclick_ttbtn_fav=",e,JSON.original(this.toote),!this.toote.body.favourited);
 			if (MYAPP.session.config.action.confirmBefore) {
 				var msg = _T("msg_confirm_fav_"+MYAPP.session.config.application.showMode);
+				if (this.toote.body.favourited) {
+					msg = _T("msg_confirm_unfav_"+MYAPP.session.config.application.showMode);
+				}
 				appConfirm(msg,mainfunc);
 			}else{
 				mainfunc();

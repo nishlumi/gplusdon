@@ -162,6 +162,8 @@ Vue.component("toot-inputbox", {
 			});   
 		},1000),
 	},
+	beforeMount() {
+	},
 	mounted() {
 		//'dv_inputcontent'
 		var newid = this.movingElementID('newinput_');
@@ -194,15 +196,20 @@ Vue.component("toot-inputbox", {
 	beforeUpdate() {
 		if (this.isfirsttext) {
 			this.status_text = this.firsttext;
-			if (this.ckeditor.editable()) this.ckeditor.editable().setText(this.firsttext);
+			this.$nextTick(()=>{
+				if (this.ckeditor.editable()) {
+					this.ckeditor.editable().setText(this.firsttext);
+				}
+				this.strlength = twttr.txt.getUnicodeTextLength(this.firsttext);
+
+			});
 			
-			this.strlength = twttr.txt.getUnicodeTextLength(this.firsttext);
+			
 			this.isfirsttext = false;
 		}
 	},
 	Updated() {
 		if (this.isfirst) {
-
 
 			var OsmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 			OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -238,9 +245,9 @@ Vue.component("toot-inputbox", {
 		},
 		select_scope: function (item) {
 			for (var i = 0; i < this.sharescopes.length; i++) {
-				this.sharescopes[i].selected["red-text"] = false;
+				this.sharescopes[i].selected["red--text"] = false;
 			}
-			item.selected["red-text"] = true;
+			item.selected["red--text"] = true;
 			this.selsharescope.text = item.text;
 			this.selsharescope.value = item.value;
 			this.selsharescope.avatar = item.avatar;
@@ -392,7 +399,7 @@ Vue.component("toot-inputbox", {
 
 		},
 		onclick_moodbtn : function (e) {
-			this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
+			this.btnflags.mood["red--text"] = !this.btnflags.mood["red--text"];
 			MYAPP.commonvue.emojisheet.is_sheet = !MYAPP.commonvue.emojisheet.is_sheet;
 
 			if (!MYAPP.commonvue.emojisheet.is_sheet) {
@@ -480,16 +487,16 @@ Vue.component("reply-inputbox", {
 
 			//---share scope box and mention box data
             sharescopes : [
-                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
-                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
-                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
-                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
+                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red--text":true}},
+                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red--text":false}},
+                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red--text":false}},
+                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red--text":false}},
             ],
 			selsharescope : {
 				text : _T("sel_tlpublic"),
 				value : "tt_public",
 				avatar : "public",
-				selected:{"red-text":true}
+				selected:{"red--text":true}
 			},
 
 		}
@@ -591,9 +598,9 @@ Vue.component("reply-inputbox", {
 		},
 		select_scope: function (item) {
 			for (var i = 0; i < this.sharescopes.length; i++) {
-				this.sharescopes[i].selected["red-text"] = false;
+				this.sharescopes[i].selected["red--text"] = false;
 			}
-			item.selected["red-text"] = true;
+			item.selected["red--text"] = true;
 			this.selsharescope.text = item.text;
 			this.selsharescope.value = item.value;
 			this.selsharescope.avatar = item.avatar;
@@ -627,7 +634,7 @@ Vue.component("reply-inputbox", {
 					text : _T("sel_tlpublic"),
 					value : "tt_public",
 					avatar : "public",
-					selected:{"red-text":true}
+					selected:{"red--text":true}
 				};
 				this.selmedias.splice(0,this.selmedias.length);
 				this.medias.splice(0,this.medias.length);

@@ -63,13 +63,13 @@ function defineForTootPage(app) {
 				text : _T("sel_tlpublic"),
 				value : "tt_public",
 				avatar : "public",
-				selected:{"red-text":true}
+				selected:{"red--text":true}
 			},
             sharescopes : [
-                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
-                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
-                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
-                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
+                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red--text":true}},
+                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red--text":false}},
+                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red--text":false}},
+                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red--text":false}},
             ],
             isopen_mention : false,
             selmentions : [],
@@ -313,7 +313,7 @@ function defineForTootPage(app) {
                 appAlert(ID("toot_input_help").innerHTML);
             },
             onclick_moodbtn : function (e) {
-                this.btnflags.mood["red-text"] = !this.btnflags.mood["red-text"];
+                this.btnflags.mood["red--text"] = !this.btnflags.mood["red--text"];
                 this.emoji_bottomsheet = !this.emoji_bottomsheet;
             },
             onclick_keymaplistitem : function (index,type) {
@@ -362,9 +362,9 @@ function defineForTootPage(app) {
             //---Some function------------------------------------
             select_scope: function (item) {
                 for (var i = 0; i < this.sharescopes.length; i++) {
-                    this.sharescopes[i].selected["red-text"] = false;
+                    this.sharescopes[i].selected["red--text"] = false;
                 }
-                item.selected["red-text"] = true;
+                item.selected["red--text"] = true;
                 this.selsharescope.text = item.text;
                 this.selsharescope.value = item.value;
                 this.selsharescope.avatar = item.avatar;

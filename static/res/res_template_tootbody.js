@@ -220,7 +220,7 @@ const CONS_TEMPLATE_TOOTBODY = `
     <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
         <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].visibility)" style="float:left;"></span>
-        <v-img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:width="elementStyle.toot_avatar_imgsize" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+        <v-img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar" v-bind:width="elementStyle.toot_avatar_imgsize" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
         <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].translateText.visibility3)" class="waves-effect waves-light" v-on:click="onclick_toot_ancestor"></span> 
         <input v-if="toote.ancestors.length > 0" type="hidden" name="sender_id" alt="parent" v-bind:value="toote.ancestors[toote.ancestors.length-1].account.id">
     </div>
@@ -231,7 +231,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <b v-bind:title="toote.reblogOriginal.account.acct" v-html="toote.reblogOriginal.account.display_name"></b><span>@{{ toote.reblogOriginal.account.acct }}</span>
         </div>-->
         <div class="toot_sender truncate">  
-            <v-img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+            <v-img v-bind:src="toote.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <b v-bind:title="toote.account.acct" v-html="ch2seh(toote.account.display_name)"></b>
             <a target="_blank" :href="toote.account.url" class="toot_sender_id">
                 <span :class="elementStyle.instanceticker_class" class="black--text">@{{ toote.account.username }}<b>@{{ toote.account.instance }}</b></span>
@@ -249,7 +249,7 @@ const CONS_TEMPLATE_TOOTBODY = `
 <!----toot share range-->
         <div class="toot_share_range truncate" v-bind:class="toote.shareColor">
             <i class="material-icons">arrow_drop_down</i>  
-            <v-img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+            <v-img v-if="toote.reblogOriginal" v-bind:src="toote.reblogOriginal.account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
             <span v-html="ch2seh(toote.translateText.visibility)" ></span>
             
             <span v-html="ch2seh(toote.translateText.visibility2)" :title="toote.visibility_helper.tooltip"></span> 
@@ -481,12 +481,12 @@ const CONS_TEMPLATE_TOOTBODY = `
                             <v-tooltip top>
                                 <v-btn
                                     fab dark small slot="activator" v-bind:disabled="isBoostable(toote)"
-                                    color="indigo" :title="translation.lab_exboost_0"
+                                    color="indigo" :title="toote.body.reblogged ? translation.lab_exboost_0un : translation.lab_exboost_0"
                                     v-on:click="onclick_ttbtn_bst"
                                 >
                                     <v-icon>share</v-icon>
                                 </v-btn>
-                                <span>{{translation.lab_exboost_0}}</span>
+                                <span>{{toote.body.reblogged ? translation.lab_exboost_0un : translation.lab_exboost_0}}</span>
                             </v-tooltip>
                             <v-tooltip top>
                                 <v-btn
@@ -526,14 +526,14 @@ const CONS_TEMPLATE_TOOTBODY = `
                     <v-list two-line>
                         <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts" :key="reactindex">
                             <v-list-tile-avatar>
-                                <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
+                                <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar">
                                 <input type="hidden" name="sender_id" alt="reaction" v-bind:value="reactitem.id">
                                 <input type="hidden" name="sender_index" v-bind:value="reactindex">
                             </v-list-tile-avatar>
                             <v-list-tile-content>
                                 <v-list-tile-title v-html="ch2seh(reactitem.display_name)"></v-list-tile-title>
                                 <v-list-tile-sub-title>
-                                    <b>@{{ reactitem.username }}<b class="red-text">@{{ reactitem.instance }}</b></b>
+                                    <b>@{{ reactitem.username }}<b class="red--text">@{{ reactitem.instance }}</b></b>
                                 </v-list-tile-sub-title>
                             </v-list-tile-content>
                         </v-list-tile>
@@ -553,7 +553,7 @@ const CONS_TEMPLATE_TOOTBODY = `
 
             <ul class="collection comment-list" v-bind:class="elementStyle.commentList"> 
                 <li class="collection-item avatar" :class="reply.reactions.mentionsPickup" v-bind:id="replyElementId(reply.body)" :ref="replyElementId(reply.body)" v-bind:key="replyElementId(reply.body)" v-for="(reply,index) in toote.descendants">  
-                    <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
+                    <v-img v-bind:src="reply.account.avatar" class="userrectangle replycircle"  v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>
                     <input type="hidden" name="sender_id" alt="reply" v-bind:title="index" v-bind:value="reply.account.id">
                     <a target="_blank" :href="reply.account.url" class="subtitle reply_usertitle truncate">
                         <span :class="elementStyle.instanceticker_class" class="black--text" v-html='ch2seh(reply_usertitle(reply))'></span>
@@ -724,7 +724,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             
                             <v-flex xs2 offset-xs2>
                                 <!--<a class="btn-flat btn_reply_each waves-effect" v-bind:click.stop="onclick_comment_to_reply(index)"><i class="material-icons">reply</i></a>-->
-                                <v-btn icon :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply">
+                                <v-btn icon :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply(reply)">
                                     <v-icon>{{ favourite_icon }}</v-icon>
                                 </v-btn>
                                 <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply"><i class="material-icons">{{ favourite_icon }}</i></a>-->
@@ -734,7 +734,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                             </v-flex>
                             <v-flex xs2>
                                 <template v-if="boost_actiontype == '0'">
-                                    <v-btn icon :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply">
+                                    <v-btn icon :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply(index)">
                                         <v-icon>share</v-icon>
                                     </v-btn>
                                     <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="isBoostable(reply)"  v-bind:class="reply.reactions.reb" v-bind:data-index="index" v-on:click="onclick_bst_to_reply"><i class="material-icons">share</i></a>-->
@@ -1110,14 +1110,14 @@ const CONS_TEMPLATE_DMSGBODY = `
                     <v-list two-line>
                         <v-list-tile avatar v-for="(reactitem,reactindex) in reaction_accounts" :key="reactindex">
                             <v-list-tile-avatar>
-                                <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar">
+                                <img v-bind:src="reactitem.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar">
                                 <input type="hidden" name="sender_id" alt="reaction" v-bind:value="reactitem.id">
                                 <input type="hidden" name="sender_index" v-bind:value="reactindex">
                             </v-list-tile-avatar>
                             <v-list-tile-content>
                                 <v-list-tile-title v-html="ch2seh(reactitem.display_name)"></v-list-tile-title>
                                 <v-list-tile-sub-title>
-                                    <b>@{{ reactitem.username }}<b class="red-text">@{{ reactitem.instance }}</b></b>
+                                    <b>@{{ reactitem.username }}<b class="red--text">@{{ reactitem.instance }}</b></b>
                                 </v-list-tile-sub-title>
                             </v-list-tile-content>
                         </v-list-tile>

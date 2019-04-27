@@ -1812,11 +1812,11 @@ class Gpsns {
         }
         this.reactions = {
             fav : {
-                "red-text" : (this.body.favourited ? true : false),
+                "red--text" : (this.body.favourited ? true : false),
                 "lighten-3" : (this.body.favourited ? false : true)
             },
             reb : {
-                "red-text" : (this.body.reblogged ? true : false),
+                "red--text" : (this.body.reblogged ? true : false),
                 "lighten-3" : (this.body.reblogged ? false : true)
             },
             mentionsPickup : {

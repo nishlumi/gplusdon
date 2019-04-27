@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 text : _T("sel_direct"),
                 value: "tt_direct",
                 avatar: "email",
-                selected:{"red-text":false}
+                selected:{"red--text":false}
             };
             this.screentype = "direct";
             //this.selmentions = "";

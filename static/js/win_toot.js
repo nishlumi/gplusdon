@@ -42,13 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //console.log(location.search);
         var search = MUtility.generate_searchQuery(location.search);
-        if ("text" in search) {
-            MYAPP.commonvue.inputtoot.dialog_title = _T("msg_share_via");
-            MYAPP.commonvue.inputtoot.tootIB.text = decodeURIComponent(search.text);
-            //MYAPP.commonvue.inputtoot.setText(MYAPP.commonvue.inputtoot.tootIB.text);
-            
-            //location.search = ""; 
-        }
+
         var issave = localStorage.getItem(MYAPP.commonvue.inputtoot.CNS_SAVENAME);
         if (issave) {
             var js = JSON.parse(issave);
@@ -66,6 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 MYAPP.commonvue.inputtoot.$refs.inputbox.seltags = tmptags;
             }
     
+            if ("text" in search) {
+                MYAPP.commonvue.inputtoot.dialog_title = _T("msg_share_via");
+                //MYAPP.commonvue.inputtoot.tootIB.text = decodeURIComponent(search.text);
+                //MYAPP.commonvue.inputtoot.setText(MYAPP.commonvue.inputtoot.tootIB.text);
+                //MYAPP.commonvue.inputtoot.$refs.inputbox.setText(MYAPP.commonvue.inputtoot.tootIB.text);
+                
+                //location.search = ""; 
+            }
             var issave = localStorage.getItem(MYAPP.commonvue.inputtoot.CNS_SAVENAME);
             if (issave) {
                 var js = JSON.parse(issave);
@@ -85,6 +87,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("js=",js);
                 */
             }
+            setTimeout(()=>{
+                //var search = MUtility.generate_searchQuery(location.search);
+                //if ("text" in search) {
+                    //MYAPP.commonvue.inputtoot.tootIB.text = decodeURIComponent(search.text);
+                    //MYAPP.commonvue.inputtoot.setText(MYAPP.commonvue.inputtoot.tootIB.text);
+                    //MYAPP.commonvue.inputtoot.$refs.inputbox.setText(MYAPP.commonvue.inputtoot.tootIB.text);
+                    
+                    //location.search = ""; 
+                //}
+                var parsedUrl = new URL(window.location);
+                if (parsedUrl.searchParams.get("title")) {
+                    var title = parsedUrl.searchParams.get("title") || "";
+                    var text = parsedUrl.searchParams.get("text") || "";
+                    var url = "";
+                    if (parsedUrl.searchParams.get("url")) url = parsedUrl.searchParams.get("url");
+
+                    var html = text;
+                    var body = text;
+                    if (text.indexOf(title) == -1) {
+                        body = title + "\n" + text;
+                        html = title + "<br>" + text;
+                    }
+                    if (text.indexOf(url) == -1) {
+                        body += "\n" + url;
+                        html += "<br>" + url;
+                    }
+                    MYAPP.commonvue.inputtoot.tootIB.text = body;
+                    MYAPP.commonvue.inputtoot.$refs.inputbox.setHTML(html);
+                }
+
+                ID("ov_inputtoot").classList.remove("common_ui_off");
+            },800);
         });
 
         

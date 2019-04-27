@@ -56,6 +56,9 @@ class Gpsession {
                     tags : [],
                     noclear_tag : false,
                     open_url_after_remove_account : true,
+
+                    //---hidden config
+                    usercard_delay : 450,
                 },
                 notification : {
                     enable_browser_notification : true,
@@ -141,7 +144,7 @@ class Gpsession {
                         }
                     }
                 }
-                this.data = tmp;
+                //this.data = tmp;
             }
         }else{
             var textdata = sessionStorage.getItem(`gp_${this._key}_ses`);

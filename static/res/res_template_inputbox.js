@@ -108,7 +108,7 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                     </v-autocomplete>
                                 </v-flex>
                                 <v-flex xs2 sm1 md1 class="contentbottomstyle">
-                                    <!--<v-icon class="red-text">arrow_right</v-icon>-->
+                                    <!--<v-icon class="red--text">arrow_right</v-icon>-->
                                     <v-menu offset-y>
                                         <v-btn flat icon small color="red" dark slot="activator" v-bind:title="selsharescope.text">
                                             <v-icon>{{selsharescope.avatar}}</v-icon>
@@ -210,11 +210,11 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                     </template>-->
                                 
                                     <p id="toot_input_help" class="common_ui_off">
-                                        <span class="body-1 red-text">{{ translation.accounts }}:</span><br>
+                                        <span class="body-1 red--text">{{ translation.accounts }}:</span><br>
                                         {{ translation.mn_accountbox_placeHolder }}<br>
-                                        <span class="body-1 red-text">{{translation.msg_help_statushelp01}}</span><br>
-                                        <b class="red-text">-cw-</b> <span>{{translation.msg_help_status_cw}}</span><br>
-                                        <b class="red-text">-poll-, -mpoll-</b> <span>{{translation.msg_help_status_poll}}</span><br>
+                                        <span class="body-1 red--text">{{translation.msg_help_statushelp01}}</span><br>
+                                        <b class="red--text">-cw-</b> <span>{{translation.msg_help_status_cw}}</span><br>
+                                        <b class="red--text">-poll-, -mpoll-</b> <span>{{translation.msg_help_status_poll}}</span><br>
                                     </p>
                                     <v-card>
                                         <v-card-title primary-title>

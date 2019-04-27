@@ -1395,10 +1395,10 @@ var vue_mixin_for_inputtoot = {
 			btnflags : {
                 loading : false,
                 mood : {
-                    "red-text" : false,
+                    "red--text" : false,
 				},
 				pollbtn : {
-					"red-text" : false,
+					"red--text" : false,
 				},
                 send_disabled : false
 			},
@@ -1418,17 +1418,17 @@ var vue_mixin_for_inputtoot = {
 
 			//---share scope box and mention box data
 			sharescopes : [
-                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red-text":true}},
-                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red-text":false}},
-                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red-text":false}},
-                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red-text":false}},
+                {text : _T("sel_tlpublic"), value: "tt_public", avatar: "public", selected:{"red--text":true}},
+                {text : _T("sel_tlonly"),   value: "tt_tlonly", avatar: "lock_open",selected:{"red--text":false}},
+                {text : _T("sel_private"),  value: "tt_private", avatar: "lock",selected:{"red--text":false}},
+                {text : _T("sel_direct"),  value: "tt_direct", avatar: "email",selected:{"red--text":false}},
             ],
 
 			selsharescope : {
 				text : _T("sel_tlpublic"),
 				value : "tt_public",
 				avatar : "public",
-				selected:{"red-text":true}
+				selected:{"red--text":true}
 			},
 			
 			isopen_mention : false,
@@ -1450,7 +1450,7 @@ var vue_mixin_for_inputtoot = {
                 dragover_indicate : false,
 			},
 			strlength_class : {
-				"red-text" : false,
+				"red--text" : false,
 			},
 			
 			//---tag box data
@@ -1649,9 +1649,9 @@ var vue_mixin_for_inputtoot = {
 			});
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
-				this.strlength_class["red-text"] = true;
+				this.strlength_class["red--text"] = true;
 			}else{
-				this.strlength_class["red-text"] = false;
+				this.strlength_class["red--text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 
@@ -1726,9 +1726,9 @@ var vue_mixin_for_inputtoot = {
 
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
-				this.strlength_class["red-text"] = true;
+				this.strlength_class["red--text"] = true;
 			}else{
-				this.strlength_class["red-text"] = false;
+				this.strlength_class["red--text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 		},
@@ -1748,9 +1748,9 @@ var vue_mixin_for_inputtoot = {
 			});
 			//---warning near limit.
 			if (this.strlength > MYAPP.session.status.toot_warning_number) {
-				this.strlength_class["red-text"] = true;
+				this.strlength_class["red--text"] = true;
 			}else{
-				this.strlength_class["red-text"] = false;
+				this.strlength_class["red--text"] = false;
 			}
 			this.btnflags.send_disabled = (this.strlength > MYAPP.session.status.toot_max_character);
 
