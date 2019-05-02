@@ -137,7 +137,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     vue_user.editor.dialog = true;
                 },
                 onclick_copypath : function (e) {
-                    MUtility.copyClipboard(location.href.replace("/accounts","/users"));
+                    vue_user.annodlg.generate_qr();
+                    vue_user.annodlg.dialog = true;
+                    
+                    //MUtility.copyClipboard(location.href.replace("/accounts","/users"));
                 }
             }
 
@@ -346,6 +349,72 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             methods : {
                 load_favourites : load_favourites,
+            }
+        }),
+        "annodlg" : new Vue({
+            el : "#annoncedlg",
+            mixins: [vue_mixin_base],
+            delimiters : ["{?","?}"],
+            data : {
+                translations : null,
+                dialog : false,
+                isfull : false,
+                isloading : false,
+                user : null,
+                gpuserpath : "",
+                qr : {
+                    gpdon : null,
+                    original : null
+                }
+            },
+            mounted() {
+                
+            },
+            methods  : {
+                load_setting : function (item) {
+                    this.user = JSON.original(item);
+                    this.gpuserpath = this.get_userpath();
+                    
+                },
+                get_userpath : function (e) {
+                    return MYAPP.siteinfo.appurl + location.pathname.replace("/accounts","/users");
+                },
+                generate_qr : function () {
+                    if (this.qr.gpdon) {
+                        
+                    }else{
+                        this.qr.gpdon = new QRCode(ID("gp_qr"), {
+                            text : this.gpuserpath,
+                            width : 128,
+                            height : 128,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.H
+                        });
+                    }
+
+                    if (this.qr.original) {
+
+                    }else{
+                        this.qr.original = new QRCode(ID("mst_qr"), {
+                            text : this.user.rawdata.url,
+                            width : 128,
+                            height : 128,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.H
+                        });
+                    }
+                },
+                onclick_copypath : function (id) {
+                    var url = "";
+                    if (id == 0) {
+                        url = this.gpuserpath;
+                    }else if (id == 1) {
+                        url = user.rawdata.url;
+                    }
+                    MUtility.copyClipboard(url);
+                }
             }
         }),
         "editor" : new Vue({
@@ -871,8 +940,9 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.editor.toggle_field = 0;
         */
 
-       vue_user.basicinfo.load_setting(tmpac);
-       vue_user.editor.load_setting(tmpac);
+        vue_user.basicinfo.load_setting(tmpac);
+        vue_user.editor.load_setting(tmpac);
+        vue_user.annodlg.load_setting(tmpac);
 
         vue_user.basicinfo.translations = Object.assign({},curLocale.messages);
        
@@ -880,6 +950,7 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.tootes.translations = vue_user.basicinfo.translations;
         vue_user.editor.translations = vue_user.basicinfo.translations;
         vue_user.fav.translations = vue_user.basicinfo.translations;
+        vue_user.annodlg.translations = vue_user.basicinfo.translations;
 
         var elem = document.querySelector("#tbl_acc tbody");
         /*for (var i = 0; i < MYAPP.acman.items.length; i++) {

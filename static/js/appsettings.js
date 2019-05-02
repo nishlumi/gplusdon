@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     notpreview_onmedia : false,
                     minimumize_media_onlink : false,
                     show_mention_as_name : false,
+                    show_allmedias_onlyone : false,
                 },
                 temp_tags : "",
                 temp_toot_limit : "",

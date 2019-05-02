@@ -104,33 +104,37 @@ async function loadWebsiteOGP(request, info, url) {
         if (CON_ACCEPT_HOSTS.indexOf(tmpurl.hostname) > -1) {
             //---when in this app site
             var arr = tmpurl.pathname.split("/");
-            var instance = arr[2];
-            var id = arr[3];
+            var instance = "";
+            var id = "";
+            if (arr.length >= 3) {
+                instance = arr[2];
+                id = arr[3];
+            }
             if (arr[1] == "users") {
-                
+
                 var api = cls_mstdn.loadAPImaster();
                 cls_mstdn.getUser(api, instance, id)
-                .then(result => {
-                    //console.log(result);
-                    //---set up og:
-                    var oginfo = { //---default value
-                        title: appEffectiveName,
-                        type: "website",
-                        description: "",
-                        url: "https://gplusdon.net",
-                        image: "https://gplusdon.net/static/images/gp_og_image.png",
-                        site_name: appEffectiveName
-                    };
-                    if ((result) && ("id" in result)) {
-                        var name = (result.display_name.trim() == "" ? result.username : result.display_name);
-                        oginfo.title = ucommon._T(info.realtrans, "lab_profile", [`${name}@${result.instance}`]);
-                        oginfo.description = result.text;
-                        oginfo.type = "profile";
-                        oginfo.url = `https://${request.hostname}/users/${instance}/${id}`;
-                        oginfo.image = result.avatar;
-                        
-                    }
-                    var HTML_FOR_OGP = `
+                    .then(result => {
+                        //console.log(result);
+                        //---set up og:
+                        var oginfo = { //---default value
+                            title: appEffectiveName,
+                            type: "website",
+                            description: "",
+                            url: "https://gplusdon.net",
+                            image: "https://gplusdon.net/static/images/gp_og_image.png",
+                            site_name: appEffectiveName
+                        };
+                        if ((result) && ("id" in result)) {
+                            var name = (result.display_name.trim() == "" ? result.username : result.display_name);
+                            oginfo.title = ucommon._T(info.realtrans, "lab_profile", [`${name}@${result.instance}`]);
+                            oginfo.description = result.text;
+                            oginfo.type = "profile";
+                            oginfo.url = `https://${request.hostname}/users/${instance}/${id}`;
+                            oginfo.image = result.avatar;
+
+                        }
+                        var HTML_FOR_OGP = `
                         <meta property="og:title" content="${oginfo.title}" />
                         <meta property="og:type" content="${oginfo.type}" />
                         <meta property="og:description" content="${oginfo.description}" />
@@ -138,8 +142,30 @@ async function loadWebsiteOGP(request, info, url) {
                         <meta property="og:image" content="${oginfo.image}"/>
                         <meta property="og:site_name" content="${oginfo.site_name}" />
                     `;
-                    resolve(HTML_FOR_OGP);
+                        resolve(HTML_FOR_OGP);
 
+                    });
+            } else {
+                var oginfo = { //---default value
+                    title: appEffectiveName,
+                    type: "website",
+                    description: "",
+                    url: "https://gplusdon.net",
+                    image: "https://gplusdon.net/static/images/gp_og_image.png",
+                    site_name: appEffectiveName
+                };
+                
+                var HTML_FOR_OGP = `
+                        <meta property="og:title" content="${oginfo.title}" />
+                        <meta property="og:type" content="${oginfo.type}" />
+                        <meta property="og:description" content="${oginfo.description}" />
+                        <meta property="og:url" content="${oginfo.url}" />
+                        <meta property="og:image" content="${oginfo.image}"/>
+                        <meta property="og:site_name" content="${oginfo.site_name}" />
+                    `;
+                resolve({
+                    raw : oginfo,
+                    html: HTML_FOR_OGP
                 });
             }
         } else {
@@ -169,7 +195,7 @@ async function loadWebsiteOGP(request, info, url) {
                             var ht = (info.innerHTML);
                             resolve({
                                 raw: body,
-                                html: ht
+                                html: sanhtml(ht)
                             });
 
                         } else {

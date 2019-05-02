@@ -372,6 +372,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (this.tl_tabtype == "list") {
                         this.currentOption.app["listid"] = param.listtype;
                     }
+                    delete this.currentOption.api["since_id"];
+                    delete this.currentOption.api["min_id"];
+                    delete this.currentOption.api["max_id"];
+                    this.currentOption.app["is_nosince"] = false;
+                    this.currentOption.app["is_nomax"] = false;
                     this.loadTimeline(this.tl_tabtype,this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     if (param.func == "clear") {

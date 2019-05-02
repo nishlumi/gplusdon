@@ -323,6 +323,7 @@ const CONS_TEMPLATE_TOOTBODY = `
         <div class="xcarousel xcarousel-slider center"> 
             <tootgallery-carousel ref="gall"
                 v-bind:medias="toote.medias"
+                v-bind:toote="toote"
                 v-bind:sensitive="toote.body.sensitive"
                 v-bind:translation="translation"
                 v-bind:viewmode="gal_viewmode"
@@ -426,6 +427,13 @@ const CONS_TEMPLATE_TOOTBODY = `
             <span>{{ translation.cons_reply}}</span>
         </v-tooltip>
         <span class="reaction-count" v-show="toote.body.replies_count > 0" v-bind:class="{zero:(toote.descendants.length==0)}">{{ toote.body.replies_count }}</span>  
+        <template v-if="checkMediasCount() > 0">
+            <v-tooltip bottom>
+                <v-btn fab small dark color="white" class="black--text" slot="activator" v-on:click="onclick_ttbtn_allgallery"><v-icon>photo_album</v-icon></v-btn>
+                <span>{{ translation.lab_show_allmedias}}</span>
+            </v-tooltip>
+        </template>
+        
         
         <div class="right">
             <v-layout row wrap>
@@ -435,9 +443,9 @@ const CONS_TEMPLATE_TOOTBODY = `
                 </v-flex>
                 <v-flex xs3>
                     <v-tooltip bottom>
-                        <!--<button slot="activator" :disabled="toote.is_archive"  class="ttbtn_fav btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.fav" v-on:click="onclick_ttbtn_fav"><i class="material-icons black-text">{{ favourite_icon }}</i></button>  
+                        <!--<button slot="activator" :disabled="nopermit_action"  class="ttbtn_fav btn-floating btn waves-effect waves-grey1 grey" v-bind:class="toote.reactions.fav" v-on:click="onclick_ttbtn_fav"><i class="material-icons black-text">{{ favourite_icon }}</i></button>  
                             -->
-                        <v-btn fab small dark color="grey" class="black--text" slot="activator" :disabled="toote.is_archive" v-bind:class="toote.reactions.fav"  v-on:click="onclick_ttbtn_fav"><v-icon>{{ favourite_icon }}</v-icon></v-btn>
+                        <v-btn fab small dark color="grey" class="black--text" slot="activator" :disabled="nopermit_action" v-bind:class="toote.reactions.fav"  v-on:click="onclick_ttbtn_fav"><v-icon>{{ favourite_icon }}</v-icon></v-btn>
                         <span>{{ favourite_type }}</span>
                     </v-tooltip>
                     
@@ -572,6 +580,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                     <div class="xcarousel xcarousel-slider center" v-if="reply.medias.length > 0"> 
                         <tootgallery-carousel
                             v-bind:medias="reply.medias"
+                            v-bind:user="reply.account"
                             v-bind:sensitive="reply.body.sensitive"
                             v-bind:translation="translation"
                             v-bind:viewmode="gal_viewmode"
@@ -717,17 +726,17 @@ const CONS_TEMPLATE_TOOTBODY = `
                     <div class="third-content" v-if="is_off_mini()">
                         <v-layout row wrap>
                             <v-flex xs2>
-                                <v-btn icon v-on:click="onclick_comment_to_reply(index)" :disabled="toote.is_archive">
+                                <v-btn icon v-on:click="onclick_comment_to_reply(index)" :disabled="nopermit_action">
                                     <v-icon>reply</v-icon>
                                 </v-btn>
                             </v-flex>
                             
                             <v-flex xs2 offset-xs2>
                                 <!--<a class="btn-flat btn_reply_each waves-effect" v-bind:click.stop="onclick_comment_to_reply(index)"><i class="material-icons">reply</i></a>-->
-                                <v-btn icon :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply(reply)">
+                                <v-btn icon :disabled="nopermit_action" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply(reply)">
                                     <v-icon>{{ favourite_icon }}</v-icon>
                                 </v-btn>
-                                <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="toote.is_archive" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply"><i class="material-icons">{{ favourite_icon }}</i></a>-->
+                                <!--<a class="btn-flat btn_reply_each waves-effect" :disabled="nopermit_action" v-bind:class="reply.reactions.fav" v-bind:data-index="index" v-on:click="onclick_fav_to_reply"><i class="material-icons">{{ favourite_icon }}</i></a>-->
                             </v-flex>
                             <v-flex xs2 class="pt-3">
                                 <a v-on:click="onclick_reaction_fav(reply)"><span class="reaction-count" v-bind:class="{zero:(reply.body.favourites_count==0)}">{{ reply.body.favourites_count }}</span></a>
@@ -748,7 +757,7 @@ const CONS_TEMPLATE_TOOTBODY = `
                                     >
                                         <template slot="activator">
                                             <!--<a class="btn-flat btn_reply_each waves-effect" 
-                                                :disabled="toote.is_archive"  
+                                                :disabled="nopermit_action"  
                                                 v-bind:class="reply.reactions.reb" 
                                                 v-bind:data-index="index" 
                                                 
@@ -807,7 +816,7 @@ const CONS_TEMPLATE_TOOTBODY = `
             <reply-inputbox ref="replyinput"
                 v-bind:popuping="popuping"
                 v-bind:id="toote.id"
-                v-show="!toote.is_archive"
+                v-show="!nopermit_action"
                 v-bind:selaccounts="[]"
                 v-bind:visibility="isshow_replyinput"
                 v-bind:translation="translation"
@@ -836,33 +845,33 @@ const CONS_TEMPLATE_TOOTBODY = `
             </v-list-tile>
                 <v-divider></v-divider>
             <template v-if="toote.relationship.isme">
-                <v-list-tile v-on:click="onclick_toote_pinn(toote)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_toote_pinn(toote)" :disabled="nopermit_action">
                         <v-list-tile-title>{{ toote.body.pinned ? translation.thistoot_unpinned : translation.thistoot_pinned }}</v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
-                <v-list-tile v-on:click="onclick_toote_delete(toote,-1)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_toote_delete(toote,-1)" :disabled="nopermit_action">
                         <v-list-tile-title>{{ translation.thistoot_delete }}</v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
             </template>
-            <v-list-tile v-on:click="onclick_toote_mute(toote,-1)" :disabled="toote.is_archive">
+            <v-list-tile v-on:click="onclick_toote_mute(toote,-1)" :disabled="nopermit_action">
                 <v-list-tile-title>{{ toote.body.muted ? translation.thistoot_unmute : translation.thistoot_mute }}</v-list-tile-title>
             </v-list-tile>
                 <v-divider></v-divider>
             <template v-if="!toote.relationship.isme">
-                <v-list-tile v-on:click="onclick_user_mute(toote.account,-1)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_user_mute(toote.account,-1)" :disabled="nopermit_action">
                     <v-list-tile-title v-html="ch2seh(toote.relationship.muting ? toote.translateText.thisuser_unmute : toote.translateText.thisuser_mute)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
-                <v-list-tile v-on:click="onclick_user_block(toote.account,-1)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_user_block(toote.account,-1)" :disabled="nopermit_action">
                     <v-list-tile-title v-html="ch2seh(toote.relationship.blocking ? toote.translateText.thisuser_unblock : toote.translateText.thisuser_block)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
-                <v-list-tile v-on:click="onclick_user_endorse(toote.account,-1)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_user_endorse(toote.account,-1)" :disabled="nopermit_action">
                     <v-list-tile-title v-html="ch2seh(toote.body.pinned ? toote.translateText.thisuser_unendorse : toote.translateText.thisuser_endorse)"></v-list-tile-title>
                 </v-list-tile>
                     <v-divider></v-divider>
-                <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)" :disabled="toote.is_archive">
+                <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)" :disabled="nopermit_action">
                     <v-list-tile-title v-html="ch2seh(toote.translateText.thisuser_report)"></v-list-tile-title>
                 </v-list-tile>
                 <v-divider></v-divider>
@@ -983,6 +992,7 @@ const CONS_TEMPLATE_DMSGBODY = `
                 <div class="xcarousel xcarousel-slider center"> 
                     <tootgallery-carousel
                         v-bind:medias="toote.medias"
+                        v-bind:user="toote.account"
                         v-bind:sensitive="toote.body.sensitive"
                         v-bind:translation="translation"
                         v-bind:viewmode="gal_viewmode"

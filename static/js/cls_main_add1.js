@@ -498,7 +498,11 @@ function defineForMainPage(app) {
                     return;
                 }
 
-                MYAPP.selectAccount({"idname":idname, "instance":instance});
+                try {
+                    MYAPP.selectAccount({"idname":idname, "instance":instance});
+                }catch(e){
+                    
+                }
                 //MYAPP.forms.modal1.close();
                 this.isdialog_selaccount = false;
 
@@ -1369,8 +1373,13 @@ function defineForMainPage(app) {
         delimiters : ["{?", "?}"],
         data : {
             imgdialog : false,
+            isfull : false,
+            isfitstyle : {
+                width : "auto",
+                height : "auto"
+            },
             item : null,
-            
+            lgobject : null,
         },
         methods : {
             

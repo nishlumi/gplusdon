@@ -27,17 +27,17 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
         <template v-for="(item,index) in medias">
             <slide :key="(index+1)" style="position:relative;">
                 <template v-if="item.type=='video'">
-                    <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                    <a href="#" v-on:click="onclick_openfull(item)" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
                     <video controls v-bind:src="item.url" class="landscape" v-if="item.meta.width >= item.meta.height" v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
                     <video controls v-bind:src="item.url" class="landscape" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
                 </template>
                 <template v-else-if="item.type=='gifv'">
-                    <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                    <a href="#" v-on:click="onclick_openfull(item)" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
                     <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-if="item.meta.width >= item.meta.height"  v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
                     <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
                 </template>
                 <template v-else>
-                    <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
+                    <a href="#" v-on:click="onclick_openfull(item)" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
                     <template v-if="item.meta.small.width >= item.meta.small.height">
                         <v-img 
                             v-bind:src="item.url" 

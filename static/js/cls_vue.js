@@ -207,6 +207,13 @@ Vue.component("timeline-toot", {
 			}else{
 				return "0";
 			}
+		},
+		nopermit_action : function() {
+			if (MYAPP.commonvue.cur_sel_account.applogined) {
+				return this.toote.is_archive;
+			}else{
+				return true;
+			}
 		}
 		
 	},
@@ -486,6 +493,8 @@ Vue.component("timeline-toot", {
 			var boostable = [
 				"private", "direct"
 			];
+			if (!MYAPP.commonvue.cur_sel_account.applogined) return true;
+
 			if (boostable.indexOf(toote.body.visibility) > -1) {
 				return true;
 			}else{
@@ -517,6 +526,15 @@ Vue.component("timeline-toot", {
 		},
 		is_off_mini : function () {
 			return !this.comment_stat.mini && !this.comment_stat.minione;
+		},
+		checkMediasCount : function () {
+			var cnt = 0;
+			cnt = this.toote.medias.length;
+			for (var a = 0; a < this.toote.descendants.length; a++) {
+				var chld = this.toote.descendants[a];
+				cnt += chld.medias.length;
+			}
+			return cnt;
 		},
 		/**
 		 * 
@@ -726,10 +744,23 @@ Vue.component("timeline-toot", {
 			if (MUtility.checkRootpath(location.pathname,MYAPP.session.status.currentLocation) == -1) {
 				MUtility.returnPathToList(MYAPP.session.status.currentLocation);
 			}
+			var ispleroma = false;
+			if (this.toote.body.url.indexOf("/notice") > -1) {
+				//---Pleroma instance
+				ispleroma = true;
+			}
 			var targetpath = "";
-			var changeuri = this.toote.body.uri.replace("https://","");
+			var changeuri = "";
+			if (ispleroma) {
+				//pleroma: "https://pl.smuglo.li/notice/9iOHWzzAYkqnfGeASm"
+				changeuri = this.toote.body.url.replace("https://","");
+			}else{
+				//mastodon: "https://server.net/users/hoge/statuses/102024957804480334",
+				changeuri = this.toote.body.uri.replace("https://","");
+			}
 			changeuri = changeuri.replace("statuses","toots");
 			changeuri = changeuri.replace("users/","");
+			changeuri = changeuri.replace("/notice",`/${this.toote.account.username}/toots`);
 			//---when each screen existable toot
 			if (MYAPP.session.status.currentLocation.indexOf("/tl") > -1) {
 				//targetpath = `/users/${this.toote.account.instance}/${this.toote.account.username}/toots/${this.toote.id}`;
@@ -738,6 +769,9 @@ Vue.component("timeline-toot", {
 				targetpath = `/users/${changeuri}`;
 			}else if (MYAPP.session.status.currentLocation.indexOf("/accounts") > -1) {
 				targetpath = `/accounts/${changeuri}`;
+			}
+			if (ispleroma) {
+				targetpath += "?s=p";
 			}
 			MUtility.enterFullpath(targetpath);
 
@@ -914,6 +948,143 @@ Vue.component("timeline-toot", {
 			
 			
 
+		},
+		onclick_ttbtn_allgallery : function (e) {
+			var dv = GEN("div");
+			var items = [];
+			var lgdyna = ID("lg_dyna");
+			lgdyna.innerHTML = "";
+			var videocnt = 0;
+			
+			for (var i = 0; i < this.toote.medias.length; i++) {
+				var item = this.toote.medias[i];
+				/*var txt = this.toote.body.content.substr(0,50);
+				var html = MUtility.replaceEmoji(txt,this.toote.account.instance,this.toote.body.emojis,16);
+				var pdiv = GEN("div");
+				pdiv.id = `video${videocnt}`;
+				pdiv.style.display = "none";
+				var videodiv = GEN("video");
+				var sourcediv = GEN("source");
+				var itemjson = {
+					subHtml : `<h4>${item.description || html }</h4>
+					<p><img src="${this.toote.account.avatar}" width="24" height="24"><span class="lg-usercaption-avatarname">${this.toote.account.display_name}</span></p>
+					`,
+					html : ""
+				};
+				if (item.type == "video") {
+					//videohtml = `<div id="video${videocnt}" style="display:none;"><video controls src="${item.url}" class="lg-video-object lg-html5" title="${item.description}">Video: ${item.description}</video></div>`;
+					sourcediv.src = item.url;
+					sourcediv.type = "video/mp4";
+					videodiv.className = "lg-video-object lg-html5";
+					videodiv.title = item.description;
+					videodiv.controls = true;
+					videodiv.preload = "none";
+					videodiv.appendChild(sourcediv);
+					pdiv.appendChild(videodiv);
+					
+					itemjson["src"] = item.url;
+					itemjson["thumb"] = item.preview_url;
+					itemjson["poster"] = item.preview_url;
+					itemjson["html"] = `#video${videocnt}`;
+				}else if (item.type == "gifv") {
+					//videohtml = `<div id="video${videocnt}" style="display:none;"><video loop autoplay src="${item.url}" class="lg-video-object lg-html5" title="${item.description}" click="onmouseenter_gifv">Video: ${item.description}</video></div>`;
+					videodiv.src = item.url;
+					videodiv.className = "lg-video-object lg-html5";
+					videodiv.title = item.description;
+					videodiv.loop = true;
+					videodiv.autoplay = true;
+					videodiv.preload = "none";
+					videodiv.appendChild(sourcediv);
+					pdiv.appendChild(videodiv);
+					
+					itemjson["src"] = item.url;
+					itemjson["thumb"] = item.preview_url;
+					itemjson["poster"] = item.preview_url;
+					itemjson["html"] = `#video${videocnt}`;
+				}else{
+					itemjson["src"] = item.url;
+					itemjson["thumb"] = item.preview_url;
+				}
+				lgdyna.appendChild(pdiv);
+				items.push(itemjson);*/
+				items.push(MUtility.generate_lightGalleryItem(this.toote,item,videocnt));
+				videocnt++;
+			}
+			for (var a = 0; a < this.toote.descendants.length; a++) {
+				var chld = this.toote.descendants[a];
+				var hit = true;
+				if (MYAPP.session.config.notification.show_allmedias_onlyone) {
+					if (this.toote.account.acct != chld.account.acct) {
+						hit = false;
+					}
+				}
+				if (hit) {
+					for (var i = 0; i < chld.medias.length; i++) {
+						var item = chld.medias[i];
+						/*var txt = chld.body.content.substr(0,50);
+						var html = MUtility.replaceEmoji(txt,chld.account.instance,chld.body.emojis,16);
+						var pdiv = GEN("div");
+						pdiv.id = `video${videocnt}`;
+						pdiv.style.display = "none";
+						var videodiv = GEN("video");
+						var itemjson = {
+							subHtml : `<h4>${chld.medias[i].description || html }</h4>
+							<p><img src="${chld.account.avatar}" width="24" height="24"><span class="lg-usercaption-avatarname">${chld.account.display_name}</span></p>
+							`,
+							html : `#video${videocnt}`
+						};
+						if (item.type == "video") {
+							//videohtml = `<div id="video${videocnt}" style="display:none;"><video controls src="${item.url}" class="lg-video-object lg-html5" title="${item.description}">Video: ${item.description}</video></div>`;
+							videodiv.src = item.url;
+							videodiv.className = "lg-video-object lg-html5";
+							videodiv.title = item.description;
+							videodiv.controls = true;
+							videodiv.preload = "none";
+							videodiv.appendChild(sourcediv);
+							pdiv.appendChild(videodiv);
+
+							itemjson["src"] = item.url;
+							itemjson["thumb"] = item.preview_url;
+							itemjson["poster"] = item.preview_url;
+							itemjson["html"] = `#video${videocnt}`;
+						}else if (item.type == "gifv") {
+							//videohtml = `<div id="video${videocnt}" style="display:none;"><video loop autoplay src="${item.url}" class="lg-video-object lg-html5" title="${item.description}" click="onmouseenter_gifv">Video: ${item.description}</video></div>`;
+							videodiv.src = item.url;
+							videodiv.className = "lg-video-object lg-html5";
+							videodiv.title = item.description;
+							videodiv.loop = true;
+							videodiv.autoplay = true;
+							videodiv.appendChild(sourcediv);
+							pdiv.appendChild(videodiv);
+
+							itemjson["src"] = item.url;
+							itemjson["thumb"] = item.preview_url;
+							itemjson["poster"] = item.preview_url;
+							itemjson["html"] = `#video${videocnt}`;
+						}else{
+							itemjson["src"] = item.url;
+							itemjson["thumb"] = item.preview_url;
+						}
+						
+						lgdyna.appendChild(pdiv);
+						items.push(itemjson);*/
+						items.push(MUtility.generate_lightGalleryItem(chld,item,videocnt));
+						videocnt++;
+					}
+				}
+			}
+			lightGallery(dv,{
+				dynamic : true,
+				html : true,
+				thumbnail:true,
+				animateThumb: false,
+				showThumbByDefault: false,
+				dynamicEl : items
+			});
+			this.$nextTick(()=>{
+				//MYAPP.commonvue.imagecard.imgdialog = true;
+			});
+			
 		},
 		onclick_ttbtn_fav: function(e) {
 			if (this.toote.is_archive) return;
@@ -1740,7 +1911,8 @@ Vue.component("tootgallery-carousel", {
 		'slide': VueCarousel.Slide
 	},
 	props: {
-        medias : Array,
+		medias : Array,
+		toote : Object,
         sensitive : Boolean,
 		translation : Object,
 		viewmode : {
@@ -1777,6 +1949,8 @@ Vue.component("tootgallery-carousel", {
 			},
 			is_pause : false,
 			is_first : true,
+
+			
         }
 	},
 	beforeMount() {
@@ -1824,8 +1998,40 @@ Vue.component("tootgallery-carousel", {
 			window.open(url,"_blank");
 		},
 		onclick_openfull : function (item) {
-			MYAPP.commonvue.imagecard.item = item;
-			MYAPP.commonvue.imagecard.imgdialog = true;
+			/*if (this.$vuetify.breakpoint.smAndDown) {
+				MYAPP.commonvue.imagecard.isfull = true;
+			}else{
+				MYAPP.commonvue.imagecard.isfull = true;
+			}ID("lg_dyna")
+			MYAPP.commonvue.imagecard.item = item;*/
+			var lgdyna = ID("lg_dyna");
+			lgdyna.innerHTML = "";
+			var a = GEN("div");
+			var items = [];
+			var videocnt = 0;
+			for (var i = 0; i < this.medias.length; i++) {
+				/*items.push({
+					src : this.medias[i].url,
+					href : this.medias[i].url,
+					thumb : this.medias[i].preview_url,
+					poster : this.medias[i].preview_url,
+					subHTML : `<p>${this.medias[i].description}</p>`
+				});*/
+				items.push(MUtility.generate_lightGalleryItem(this.toote,this.medias[i],videocnt));
+				videocnt++;
+			}
+			lightGallery(a,{
+				dynamic : true,
+				html : true,
+				thumbnail:true,
+				animateThumb: false,
+				showThumbByDefault: false,
+				dynamicEl : items
+			});
+			this.$nextTick(()=>{
+				//MYAPP.commonvue.imagecard.imgdialog = true;
+			});
+			
 		},
 		onclick_sensitive_ingrid : function (e) {
 			this.is_sensitive_hidden.common_ui_off = false;

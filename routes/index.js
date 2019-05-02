@@ -163,7 +163,7 @@ router.post('/srv/ogp', function (req, res) {
     var text = ucommon.load_website_ogp(req, info, req.body["url"]);
     text.then(result => {
         //console.log("text=", result);
-        res.send(result);
+        res.send(JSON.stringify(result));
     })
     .catch(error=>{
         res.send(error);

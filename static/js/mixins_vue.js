@@ -744,7 +744,7 @@ var vue_mixin_for_timeline = {
 								var tt = this.getParentToot(result.options.app.parent.ID);
 								//console.log("result,tt=",result,tt);
 
-								if (("url" in data)) {
+								if ((data) && ("url" in data)) {
 									//---if found map, hide link preview
 									if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
 										this.$set(this.statuses[tt.index].mainlink, "exists", false);
@@ -782,17 +782,17 @@ var vue_mixin_for_timeline = {
 										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
 									}
 								}else{
-									return Promise.reject({url:targeturl, tootid:st.id});
+									return Promise.reject({url:targeturl, toot:tt});
 								}
 							})
 							.catch(param=>{
 								//console.log("param=",param);
-								loadOGP(param.url, param.tootid)
+								loadOGP(param.url, param.toot)
 								.then(result => {
 									//---if image is none and url is pixiv, re-get image url
 									var def = new Promise((resolve, reject) => {
 
-										var tt = this.getParentToot(result.index);
+										var tt = result.index; //this.getParentToot(result.index);
 
 										//console.log("catch,param,ogp=",result);
 										//console.log(tt);
@@ -817,41 +817,41 @@ var vue_mixin_for_timeline = {
 								.then((result) => {
 									//console.log("result=", result);
 									var data = result.data;
-									var tt = this.getParentToot(result.index);
+									var tt = result.index; //this.getParentToot(result.index);
 									//console.log("result.getParentToot=", tt);
 									//console.log(this.statuses[tt.index]);
 
-									this.$set(this.statuses[tt.index].mainlink, "exists", true);
+									this.$set(tt.data.mainlink, "exists", true);
 									//---if exists medias, not preview link
 									if (MYAPP.session.config.notification["notpreview_onmedia"] && (MYAPP.session.config.notification["notpreview_onmedia"] === true)) {
-										if (this.statuses[tt.index].medias.length > 0) {
-											this.$set(this.statuses[tt.index].mainlink, "exists", false);
+										if (tt.data.medias.length > 0) {
+											this.$set(tt.data.mainlink, "exists", false);
 										}
 									}
 									//---if found map, hide link preview
 									if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
-										this.$set(this.statuses[tt.index].mainlink, "exists", false);
+										this.$set(tt.data.mainlink, "exists", false);
 									}
-									if (data["og:site_name"]) this.$set(this.statuses[tt.index].mainlink, "site", data["og:site_name"]);
-									if (data["og:url"]) this.$set(this.statuses[tt.index].mainlink, "url", data["og:url"]);
-									if (data["og:title"]) this.$set(this.statuses[tt.index].mainlink, "title", data["og:title"]);
-									if (data["og:description"]) this.$set(this.statuses[tt.index].mainlink, "description", data["og:description"]);
+									if (data["og:site_name"]) this.$set(tt.data.mainlink, "site", data["og:site_name"]);
+									if (data["og:url"]) this.$set(tt.data.mainlink, "url", data["og:url"]);
+									if (data["og:title"]) this.$set(tt.data.mainlink, "title", data["og:title"]);
+									if (data["og:description"]) this.$set(tt.data.mainlink, "description", data["og:description"]);
 									if (("og:image" in data) && (data["og:image"] != "")) {
-										this.$set(this.statuses[tt.index].mainlink, "image", data["og:image"]);
-										this.$set(this.statuses[tt.index].mainlink, "isimage", true);
+										this.$set(tt.data.mainlink, "image", data["og:image"]);
+										this.$set(tt.data.mainlink, "isimage", true);
 
 										//---final card size change
-										if (this.statuses[tt.index].medias.length > 0) {
-											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-start"].replace("span", ""));
+										if (tt.data.medias.length > 0) {
+											var sp = parseInt(tt.data.cardtypeSize["grid-row-start"].replace("span", ""));
 											if (sp < 9) {
 												sp = sp + 10;
 											} else {
 												sp = sp + 6;
 											}
-											this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-start", `span ${sp}`);
+											this.$set(tt.data.cardtypeSize, "grid-row-start", `span ${sp}`);
 										}
 									} else {
-										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
+										this.$set(tt.data.mainlink, "isimage", false);
 									}
 								})
 								/*.catch(error=>{

@@ -64,6 +64,7 @@
             integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
             crossorigin="" aysnc
         />
+        <link rel="stylesheet" href="/static/lib/lg/css/lightgallery.css">
 
         <link href="/static/css/accounts.css" rel="stylesheet" >
         <link href="/static/css/index.css" rel="stylesheet" >
@@ -80,7 +81,7 @@
                     <div class="nav-wrapper">
 
                         <div class="row">
-                            <div id="frm_navleft" class="navcol-left col s2 m3 l2">
+                            <div id="frm_navleft" class="navcol-left col s2 m3 l2" v-cloak>
                                 <a id="sidenav_btn" href="#" class="sidenav-trigger show-on-medium-and-down"><i class="material-icons" v-bind:class="css.bgred">menu</i></a>
                                     
                                 
@@ -91,7 +92,7 @@
                                 <template v-if="!is_tllist">
                                     <v-tooltip right>
                                         <span id="general_title" slot="activator"  class="black-text general-title truncate" v-html="ch2seh(genttl.text)"></span>
-                                        <span>{? genttl.tooltip?}</span>
+                                        <span v-html="ch2seh(genttl.tooltip)"></span>
                                     </v-tooltip>
                                 </template>
                                 <template v-else>
@@ -272,7 +273,7 @@
             <a id="sm_version" href="#" v-on:click="onclick_menulink2" class="collection-item maincol_menu"><i class="material-icons">check</i><span>Information</span></a>
             -->
         </ul>
-        <div id="ov_toote">
+        <div id="ov_toote" v-cloak>
             <v-app>
             <v-dialog v-model="is_overlaying" :hide-overlay="false" class="{{sysinfo.color.bg_first}}" scrollable v-bind:fullscreen="fullscreen" v-bind:width="activewidth">
                 <v-card>
@@ -356,6 +357,7 @@
         {% include  "onedialog2.html"  %}
 
         <div id="temporary_area"></div>
+        <div id="lg_dyna"></div>
 
         <!-- Current language: {{ lang }} -->
     
@@ -398,6 +400,13 @@
             integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
             crossorigin=""
         ></script>
+
+        <script src="/static/lib/lg/js/lightgallery.min.js"></script>
+        <script src="/static/lib/lg/js/lg-fullscreen.min.js"></script>
+        <script src="/static/lib/lg/js/lg-pager.min.js"></script>
+        <script src="/static/lib/lg/js/lg-zoom.min.js"></script>
+        <script src="/static/lib/lg/js/lg-thumbnail.min.js"></script>
+        <script src="/static/lib/lg/js/lg-video.min.js"></script>
 
     <!-- user include -->
     <script src="/static/res/res_template_tootbody.js"></script>

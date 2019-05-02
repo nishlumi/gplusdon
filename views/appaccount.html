@@ -226,6 +226,49 @@
 
         </div>-->
     </div>
+    <div id="annoncedlg" v-cloak>
+        <v-dialog
+            v-model="dialog"
+            max-width="500px" 
+            transition="dialog-transition"
+        >
+            <v-card>
+                <v-card-title primary-title class="headline">
+                    {{trans.to_copy_asuser}}
+                </v-card-title>
+                <v-card-text>
+                    <v-container grid-list-sm fluid>
+                        <v-layout row wrap>
+                            <v-flex xs6>
+                                <div id="gp_qr"></div>
+                                <a :href="gpuserpath">G+Don URL</a>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon dark color="primary" slot="activator" v-on:click="onclick_copypath(0)">
+                                        <v-icon>file_copy</v-icon>
+                                    </v-btn>
+                                    <span>Copy</span>
+                                </v-tooltip>   
+                            </v-flex>
+                            <v-flex xs6>
+                                <div id="mst_qr"></div>
+                                <a :href="user.rawdata.url">Mastodon URL</a>
+                                <v-tooltip bottom>
+                                    <v-btn flat icon dark color="primary" slot="activator" v-on:click="onclick_copypath(1)">
+                                        <v-icon>file_copy</v-icon>
+                                    </v-btn>
+                                    <span>Copy</span>
+                                </v-tooltip>   
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn flat small  v-on:click="dialog=false">{{trans.cons_close}}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </div>
     <div id="editdlg">
         <v-dialog v-model="dialog"
             persistent scrollable :fullscreen="$vuetify.breakpoint.smAndDown"
@@ -319,7 +362,7 @@
                     <v-spacer></v-spacer>
                     <v-progress-circular v-show="isloading" indeterminate color="red"></v-progress-circular>
                     <v-btn flat small color="primary" v-on:click="onclick_close(false)">{{trans.cons_cancel}}</v-btn>
-                    <v-btn flat small color="primary" v-on:click="onclick_apply(true)">{{trans.cons_apply}}</v-btn>    
+                    <v-btn flat small color="primary" v-on:click="onclick_apply(true)">{{trans.cons_apply}}</v-btn> 
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -331,5 +374,6 @@
 
 
 {% block userinclude %}
+<script src="/static/lib/qrcode.min.js"></script>
 <script src="/static/js/appaccount.js"></script>
 {% endblock %}

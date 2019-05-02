@@ -1044,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         //---rapidly open and show user data
+        
         var serverdata = JSON.parse(ID("hid_userdata").value);
         console.log(serverdata);
         if ("acct" in serverdata) {
@@ -1055,6 +1056,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         }
+        
         console.log("vue_user.basicinfo.id=",vue_user.basicinfo.id);
         for (var obj in vue_user) {
             if ("timeline_gridstyle" in vue_user[obj]) {
@@ -1071,6 +1073,11 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.userview.is_serveronly = true;
         vue_user.basicinfo.globalInfo.is_serveronly = true;
         vue_user.tootes.globalInfo.is_serveronly = true;
+        
+        if (ID("hid_onetoote").value != "") {
+            MUtility.openDirectOnetoot(ID("hid_onetoote").value);
+        }
+
         var serverdata = JSON.parse(ID("hid_userdata").value);
         console.log(serverdata);
         if ("acct" in serverdata) {

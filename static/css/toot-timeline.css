@@ -545,7 +545,7 @@ img.portrait, .carousel .carousel-item img.portrait, .modal-content img.portrait
 video.portrait, .carousel .carousel-item video.portrait, .modal-content video.portrait,
 .tootgallery-carousel img.portrait, .tootgallery-carousel video.portrait,
 .v-image.img.portrait {
-    /*width : auto;*/
+    width : auto;
     height : 100%;
     margin : auto;
     z-index : 9;
@@ -555,6 +555,14 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
     position : absolute;
     top : 1rem;
     right : 1rem;
+    color : #BABABA;
+    text-shadow: 2px 2px 2px #696969;
+    z-index : 10;
+}
+.image-popup-btn-lt {
+    position : fixed;
+    top : 1rem;
+    left : 1rem;
     color : #BABABA;
     text-shadow: 2px 2px 2px #696969;
     z-index : 10;
@@ -573,6 +581,10 @@ video.portrait, .carousel .carousel-item video.portrait, .modal-content video.po
 }
 .media_borderset_forgrid {
     border-radius: 1.5rem;
+}
+span.lg-usercaption-avatarname {
+    display : inline-block;
+    vertical-align: top;
 }
 
 /*=== toot action ===*/

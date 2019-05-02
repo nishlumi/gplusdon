@@ -231,6 +231,9 @@
                                                 <v-icon dark>save</v-icon>
                                             </v-btn>
                                         </v-flex>
+                                        <v-flex xs12>
+                                            <v-checkbox v-model="type_action.noclear_tag" label="{{trans.act_lab_noclear_tag}}"></v-checkbox>
+                                        </v-flex>
                                     </v-layout>
                                     
                                 </v-container>
@@ -238,7 +241,6 @@
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox hide-details v-model="type_action.popupNewtoot_always" label="{{trans.act_lab_popupNewtoot_always}}"></v-checkbox>
                                 <v-checkbox hide-details v-model="type_action.close_aftertoot" label="{{trans.act_lab_close_aftertoot}}" v-bind:disabled="!type_action.popupNewtoot_always"></v-checkbox>
-                                <v-checkbox v-model="type_action.noclear_tag" label="{{trans.act_lab_noclear_tag}}"></v-checkbox>
                             </v-flex>
                             <v-flex xs12 sm12 md6>
                                 <v-checkbox v-model="type_action.open_url_after_remove_account" label="{{trans.act_lab_open_url_after_remove_account}}"></v-checkbox>
@@ -299,6 +301,7 @@
                                 <v-checkbox hide-details v-model="type_notification.notpreview_onmedia" label="{{trans.ntf_lab_notpreview_onmedia}}" :disabled="type_notification.minimumize_media_onlink"></v-checkbox>
                                 <v-checkbox class="common_ui_off" hide-details v-model="type_notification.minimumize_media_onlink" label="{{trans.ntf_lab_minimumize_media_onlink}}" :disabled="type_notification.notpreview_onmedia"></v-checkbox>
                                 <v-checkbox class="common_ui_off" hide-details v-model="type_notification.show_mention_as_name" label="{{trans.ntf_lab_show_mention_as_name}}" :disabled="type_notification.minimumize_media_onlink"></v-checkbox>
+                                <v-checkbox hide-details v-model="type_notification.show_allmedias_onlyone" label="{{trans.ntf_lab_show_allmedias_onlyone}}"></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-card-text>

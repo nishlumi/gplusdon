@@ -12,7 +12,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190427-01",
+            revision : "20190502-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -225,15 +225,19 @@ class Gplusdon {
                 }
                 if (Q("#area_user")) {
                     //---rapidly open and show user data
-                    var serverdata = JSON.parse(ID("hid_userdata").value);
-                    //console.log(serverdata);
-                    if ("acct" in serverdata) {
-                        vue_user.userview.loadUserInfoDirect(serverdata);
-                    }else{
-                        vue_user.userview.loadUserInfo(ID("hid_uid").value,ID("hid_instance").value,{
-                            api : {},
-                            app : {}
-                        });
+                    try {
+                        var serverdata = JSON.parse(ID("hid_userdata").value);
+                        //console.log(serverdata);
+                        if ("acct" in serverdata) {
+                            vue_user.userview.loadUserInfoDirect(serverdata);
+                        }else{
+                            vue_user.userview.loadUserInfo(ID("hid_uid").value,ID("hid_instance").value,{
+                                api : {},
+                                app : {}
+                            });
+                        }
+                    }catch(e) {
+                        
                     }
                     
                 }

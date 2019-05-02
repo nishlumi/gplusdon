@@ -71,6 +71,8 @@ router.get('/:instance/:id', function (req, res) {
             var realid = "";
             if ("_gp_logined" in req.cookies) {
                 userdata = {};
+                //realid = result.id;
+                //userdata = result;
             } else {
                 realid = result.id;
                 userdata = result;
@@ -130,12 +132,16 @@ router.get('/:instance/:id/toots/:tootid', function (req, res) {
     targeturl = `https://${req.params.instance}/api/v1/statuses/${req.params.tootid}/context`;
     pro.push(api.originalGet(targeturl, opt));
 
+    pro.push(cls_mstdn.getUser(api, req.params.instance, req.params.id));
+
     Promise.all(pro)
         .then(result => {
             var fnldata = {
                 toot: result[0],
                 context: result[1]
             };
+            userdata = result[2];
+
             res.render('appuser', {
                 sysinfo: info.sysinfo,
                 lang: info.lang,

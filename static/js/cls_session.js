@@ -70,6 +70,7 @@ class Gpsession {
                     notpreview_onmedia : false,
                     minimumize_media_onlink : false,
                     show_mention_as_name : false,
+                    show_allmedias_onlyone : false
                 }
             },
             gadgets : []

@@ -700,7 +700,7 @@ class Gpsns {
                 reject(false);
                 return;
             }
-            options.api["q"] = `${userid}@${instance}`;
+            options.api["q"] = `${userid}`;
             this._accounts.api.get(`accounts/search`,options.api)
             .then((data)=>{
                 //console.log(`accounts/search`,userid,instance,data);
@@ -1245,7 +1245,11 @@ class Gpsns {
                     url : `https://${uri}/api/v1/instance/activity`,
                     type : "GET"
                 }).then(result2=>{
-                    result["activity"] = result2;
+                    if (result2 instanceof Array) {
+                        result["activity"] = result2;
+                    }else{
+                        result["activity"] = [];
+                    }
                     resolve(result);
                 },(xhr,status,err)=>{
                     result["activity"] = [];
@@ -2031,7 +2035,7 @@ class Gpsns {
             }
         }else{
             if (this.urls.length > 0) {
-                num_cardSize += 5;
+                num_cardSize += 3;
             }
         }
         if (this.body.poll) {

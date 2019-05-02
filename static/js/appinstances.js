@@ -188,24 +188,25 @@ function load_instance(type,instance) {
             this.selected_base = basedata;
         }
 
-        var inst = MUtility.getInstanceFromAccount(this.selected.contact_account.url);
-        var tmpname = this.selected.contact_account.display_name == "" ? this.selected.contact_account.username : this.selected.contact_account.display_name;
-        tmpname = MUtility.replaceEmoji(tmpname,inst,this.selected.contact_account.emojis,18);
-        this.selected.contact_account.display_name = tmpname;
-        if (!("header" in this.selected.contact_account)) {
-            this.selected.contact_account["header"] = "";
+        if (data["contact_account"]) {
+            this.exists_contact_account = true;
+            var inst = MUtility.getInstanceFromAccount(this.selected.contact_account.url);
+            var tmpname = this.selected.contact_account.display_name == "" ? this.selected.contact_account.username : this.selected.contact_account.display_name;
+            tmpname = MUtility.replaceEmoji(tmpname,inst,this.selected.contact_account.emojis,18);
+            this.selected.contact_account.display_name = tmpname;
+            if (!("header" in this.selected.contact_account)) {
+                this.selected.contact_account["header"] = "";
+            }
+            this.selected.contact_account["instance"] = inst;
+        }else{
+            this.exists_contact_account = false;
         }
-        this.selected.contact_account["instance"] = inst;
+
         
         if (MUtility.checkRootpath(location.pathname,"server") == -1) {
             MUtility.returnPathToList("server");
         }
         MUtility.enterPathInDetail(location.pathname,instance);
-        if (data["contact_account"]) {
-            this.exists_contact_account = true;
-        }else{
-            this.exists_contact_account = false;
-        }
         this.is_selected = true;
         /*this.translation = {
             stat_statuses : _T("stat_statuses"),

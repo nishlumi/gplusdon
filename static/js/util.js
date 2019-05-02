@@ -558,68 +558,74 @@ function loadOGP(url,index) {
 		body : prm
 	});
 	var def = new Promise((resolve,reject)=>{
-		return fetch(req).then((res)=>{
-			return res.json().then((result)=>{
-				console.log("ogp rawdata=",result);
-				var data = result.html;
-				var ret = {};
-				if (data == "") {
+		return fetch(req)
+		.then((res)=>{
+			console.log(res);
+			var js = res.json();
+			return js;
+		})
+		.then(oriresult => {
+			var result = oriresult;
+			console.log("ogp rawdata=",result);
+			var data = result.html;
+			var ret = {};
+			if (data == "") {
+				var tmpa = GEN("a");
+				tmpa.href = url;
+				ret["og:url"] = url;
+				var a = GEN("a");
+				a.href = url;
+				ret["og:title"] = tmpa.hostname;
+				ret["og:site_name"] = tmpa.hostname;
+				resolve({data:ret, index: index});
+
+			}else{
+				var div = GEN("div");
+				//console.log("ogp get=",url,index,data);
+				div.innerHTML = data;
+				glodiv = div;
+				var a = div.querySelectorAll("meta[property]");
+				//console.log(a);
+				var ogcnt = 0;
+				for (var i = 0; i < a.length; i++) {
+					//console.log("property&content=",a[i].attributes["property"],a[i].attributes["content"]);
+					var pr = a[i].attributes["property"].value;
+					var cn = a[i].attributes["content"].value;
+					
+					if (pr.indexOf("og:") > -1) {
+						//console.log(pr, "=", cn);
+						ret[pr] = cn;
+						ogcnt++;
+					}
+				}
+				a = div.querySelectorAll("meta[name]");
+				for (var i = 0; i < a.length; i++) {
+					//console.log("name&content=",a[i].attributes["name"],a[i].attributes["content"]);
+					var pr = a[i].attributes["name"].value;
+					var cn = a[i].attributes["content"] ? a[i].attributes["content"].value : "";
+					if (pr.indexOf("og:") > -1) {
+						ret[pr] = cn;
+						ogcnt++;
+					}
+				}
+				if (ogcnt == 0) {
 					var tmpa = GEN("a");
 					tmpa.href = url;
 					ret["og:url"] = url;
-					var a = GEN("a");
-					a.href = url;
-					ret["og:title"] = tmpa.hostname;
+					ret["og:image"] = "";
+					//console.log(div,div.querySelector("title"));
+					var qsel_title = div.querySelector("title");
+					if (qsel_title) {
+						ret["og:title"] = qsel_title.textContent;
+					}else{
+						ret["og:title"] = tmpa.hostname;
+					}
 					ret["og:site_name"] = tmpa.hostname;
-					resolve({data:ret, index: index});
-
-				}else{
-					var div = GEN("div");
-					//console.log("ogp get=",url,index,data);
-					div.innerHTML = data;
-					glodiv = div;
-					var a = div.querySelectorAll("meta[property]");
-					//console.log(a);
-					var ogcnt = 0;
-					for (var i = 0; i < a.length; i++) {
-						//console.log("property&content=",a[i].attributes["property"],a[i].attributes["content"]);
-						var pr = a[i].attributes["property"].value;
-						var cn = a[i].attributes["content"].value;
-						
-						if (pr.indexOf("og:") > -1) {
-							//console.log(pr, "=", cn);
-							ret[pr] = cn;
-							ogcnt++;
-						}
-					}
-					a = div.querySelectorAll("meta[name]");
-					for (var i = 0; i < a.length; i++) {
-						//console.log("name&content=",a[i].attributes["name"],a[i].attributes["content"]);
-						var pr = a[i].attributes["name"].value;
-						var cn = a[i].attributes["content"] ? a[i].attributes["content"].value : "";
-						if (pr.indexOf("og:") > -1) {
-							ret[pr] = cn;
-							ogcnt++;
-						}
-					}
-					if (ogcnt == 0) {
-						var tmpa = GEN("a");
-						tmpa.href = url;
-						ret["og:url"] = url;
-						ret["og:image"] = "";
-						//console.log(div,div.querySelector("title"));
-						var qsel_title = div.querySelector("title");
-						if (qsel_title) {
-							ret["og:title"] = qsel_title.textContent;
-						}else{
-							ret["og:title"] = tmpa.hostname;
-						}
-						ret["og:site_name"] = tmpa.hostname;
-					}
-					resolve({data:ret, index: index});
-
 				}
-			});
+				resolve({data:ret, index: index});
+
+			}
+			
 		})
 		.catch(error=>{
 			reject({error:error, index: index});
@@ -716,6 +722,16 @@ function ch2seh(data) {
 	.replace(/_\$\&lt\;/g,"&lt;").replace(/\&gt\;\$_/g,"&gt;")
 	.replace(/_\$</g,"&lt;").replace(/>\$_/g,"&gt;");
 
+}
+function onmouseenter_gifv(e) {
+	var pro = e.target.play();
+	if (pro !== undefined) {
+		pro.then(()=>{
+			console.log("play");
+		}).catch(error=>{
+			console.log(error);
+		});
+	}
 }
 
 Date.prototype.toFullText = function(){
@@ -946,12 +962,24 @@ var MUtility = {
 	 */
 	generate_tootpath : function (status) {
 		var retpath;
+		var ispleroma = false;
+		if (status.body.url.indexOf("/notice") > -1) {
+			//---Pleroma instance
+			ispleroma = true;
+		}
 		var a = GEN("a");
-		a.href = status.body.uri;
+		if (ispleroma) {
+			//pleroma: "https://pl.smuglo.li/notice/9iOHWzzAYkqnfGeASm"
+			a.href = status.body.url;
+		}else{
+			//mastodon: "https://server.net/users/hoge/statuses/102024957804480334",
+			a.href = status.body.uri;
+		}
 		
 		var tmppath = a.pathname;
 		tmppath = tmppath.replace("/users/",`/users/${status.account.instance}/`);
 		tmppath = tmppath.replace("statuses","toots");
+		tmppath = tmppath.replace("/notice",`/users/${status.account.username}/toots`);
 		//retpath = `/users/${status.account.instance}/${status.account.username}/toots/${status.id}`;
 		retpath = tmppath;
 		return retpath;
@@ -971,6 +999,10 @@ var MUtility = {
 	},
 	generate_instanceOriginalURL : function (current_account,toote) {
 		var url = `https://${current_account.instance}/web/statuses/${toote.body.id}`;
+		if (toote.body.url.indexOf("/notice") > -1) {
+			//---Pleroma instance
+			url = toote.body.url;
+		}
 		return url;
 	},
 	generate_searchQuery(path) {
@@ -982,6 +1014,60 @@ var MUtility = {
 			ret[t[0]] = t[1];
 		}
 		return ret;
+	},
+	generate_lightGalleryItem(toote,item,videoIndex) {
+		//var item = this.toote.medias[i];
+		var lgdyna = ID("lg_dyna");
+		var txt = toote.body.content.substr(0,50);
+		var html = MUtility.replaceEmoji(txt,toote.account.instance,toote.body.emojis,16);
+		var pdiv = GEN("div");
+		pdiv.id = `video${videoIndex}`;
+		pdiv.style.display = "none";
+		var videodiv = GEN("video");
+		var sourcediv = GEN("source");
+		var itemjson = {
+			subHtml : `<h4>${item.description || html }</h4>
+			<p><img src="${toote.account.avatar}" width="24" height="24"><span class="lg-usercaption-avatarname">${toote.account.display_name}</span></p>
+			`,
+			html : ""
+		};
+		if (item.type == "video") {
+			//videohtml = `<div id="video${videocnt}" style="display:none;"><video controls src="${item.url}" class="lg-video-object lg-html5" title="${item.description}">Video: ${item.description}</video></div>`;
+			videodiv.src = item.url;
+			videodiv.className = "lg-video-object lg-html5";
+			videodiv.title = item.description;
+			videodiv.controls = true;
+			//videodiv.preload = "none";
+			//videodiv.appendChild(sourcediv);
+			pdiv.appendChild(videodiv);
+			lgdyna.appendChild(pdiv);
+			
+			//itemjson["src"] = item.url;
+			itemjson["thumb"] = item.preview_url;
+			itemjson["poster"] = item.preview_url;
+			itemjson["html"] = `#video${videoIndex}`;
+		}else if (item.type == "gifv") {
+			//videohtml = `<div id="video${videocnt}" style="display:none;"><video loop autoplay src="${item.url}" class="lg-video-object lg-html5" title="${item.description}" click="onmouseenter_gifv">Video: ${item.description}</video></div>`;
+			videodiv.src = item.url;
+			videodiv.className = "lg-video-object lg-html5";
+			videodiv.title = item.description;
+			videodiv.onclick = onmouseenter_gifv;
+			videodiv.loop = true;
+			videodiv.autoplay = true;
+			//videodiv.preload = "none";
+			//videodiv.appendChild(sourcediv);
+			pdiv.appendChild(videodiv);
+			lgdyna.appendChild(pdiv);
+			
+			//itemjson["src"] = item.url;
+			itemjson["thumb"] = item.preview_url;
+			itemjson["poster"] = item.preview_url;
+			itemjson["html"] = `#video${videoIndex}`;
+		}else{
+			itemjson["src"] = item.url;
+			itemjson["thumb"] = item.preview_url;
+		}
+		return itemjson;
 	},
 	getInstanceFromAccount(url) {
 		var a = GEN("a");

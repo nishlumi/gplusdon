@@ -177,54 +177,58 @@
     <v-dialog
         v-model="imgdialog"
         width="fit-content"
+        :fullscreen="isfull"
         transition="dialog-transition"
     >
-        <v-card v-if="item">
-            
-            <v-layout  align-center justify-center>
-                <div style="width:100%;height:100%;">
-                    <template v-if="item.type=='video'">
-                        <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                        <video controls v-bind:src="item.url" class="" v-if="item.meta.width >= item.meta.height" v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
-                        <video controls v-bind:src="item.url" class="" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
-                    </template>
-                    <template v-else-if="item.type=='gifv'">
-                        <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                        <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-if="item.meta.width >= item.meta.height"  v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
-                        <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
-                    </template>
-                    <template v-else>
-                        <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
-                        <template v-if="item.meta.small.width >= item.meta.small.height">
-                            <img 
-                                v-bind:src="item.url" 
-                                
-                                class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
-                            >
+        
+            <v-card v-if="item" style="height:100%;">
+                <a href="#" @click="imgdialog = false" class="image-popup-btn-lt"><v-icon>close</v-icon></a>
+                
+                <v-layout  align-center justify-center fill-height>
+                    <div style="width:100%;"><!--height:100%;-->
+                        <template v-if="item.type=='video'">
+                            <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><v-icon>open_in_new</v-icon></a>
+                            <video controls v-bind:src="item.url" class="" v-if="item.meta.width >= item.meta.height" v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
+                            <video controls v-bind:src="item.url" class="" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
+                        </template>
+                        <template v-else-if="item.type=='gifv'">
+                            <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><v-icon>open_in_new</v-icon></a>
+                            <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-if="item.meta.width >= item.meta.height"  v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
+                            <video loop autoplay v-bind:src="item.url" class="landscape" v-on:click="onmouseenter_gifv" v-else v-bind:title="item.description" v-bind:alt="item.description">Video: {{ item.description }}</video>
+                        </template>
+                        <template v-else>
+                            <a v-bind:href="item.url" target="_blank" rel="noopener" class="waves-effect waves-light image-popup-btn"><v-icon>open_in_new</v-icon></a>
+                            <template v-if="item.meta.small.width <= item.meta.small.height">
+                                <img 
+                                    v-bind:src="item.url" 
+                                    
+                                    class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
+                                >
+                                    <!--<v-layout slot="placeholder" v-bind:lazy-src="item.preview_url" 
+                                        fill-height align-center justify-center ma-0
+                                    >
+                                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                                    </v-layout>-->
+                                </img>
+                            </template>
+                            <template v-else>
+                                <img 
+                                    v-bind:src="item.url" 
+                                    
+                                    class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
+                                >
                                 <!--<v-layout slot="placeholder" v-bind:lazy-src="item.preview_url" 
                                     fill-height align-center justify-center ma-0
                                 >
-                                    <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                                </v-layout>-->
-                            </img>
+                                <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                                    </v-layout>-->
+                                </img>
+                            </template>
                         </template>
-                        <template v-else>
-                            <img 
-                                v-bind:src="item.url" 
-                                
-                                class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
-                            >
-                            <!--<v-layout slot="placeholder" v-bind:lazy-src="item.preview_url" 
-                                fill-height align-center justify-center ma-0
-                            >
-                            <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                                </v-layout>-->
-                            </img>
-                        </template>
-                    </template>
-                </div>
-            </v-layout>
-        </v-card>
+                    </div>
+                </v-layout>
+            </v-card>
+        
     </v-dialog>
 </div>
 <div id="appverdlg">

@@ -148,18 +148,41 @@ var cls_mstdn = {
             console.log("result2=",result2);
             var sta = result2.data[0];
 
-            var realuri = sta.url.replace(`/@${idname}`, "/api/v1/statuses");
-            return api.originalGet(realuri, {
-                api : {},
-                app : {
-                    copy_userid : result2.options.app.copyuser.id,
-                    copy_instance : result2.options.app.copyuser.instance
+            var realuri = "";
+            var stindex = sta.url.indexOf("/objects/");
+            var options = {
+                api: {},
+                app: {
+                    copy_userid: result2.options.app.copyuser.id,
+                    copy_instance: result2.options.app.copyuser.instance
                 }
-            });
+            };
+            if (stindex === -1) {
+                realuri = sta.url.replace(`/@${idname}`, "/api/v1/statuses");
+                options.app["searchapi"] = false;
+            } else {
+                realuri = sta.url.substr(0, stindex) + `/api/v1/accounts/search?q=${idname}`;
+                options.app["searchapi"] = true;
+            }
+            return api.originalGet(realuri, options);
         })
         .then(result3 => {
-            console.log("result3=",result3);
+            console.log("result3=", result3);
+            var tuser = null;
             var tt = JSON.parse(result3.data);
+
+            //---case of Pleroma
+            if (result3.options.app.searchapi) {
+                var userarr = tt;
+                for (var i = 0; i < userarr.length; i++) {
+                    if (userarr[i].username == idname) {
+                        if (userarr[i].url.indexOf(instance) > -1) {
+                            tt["account"] = userarr[i];
+                        }
+                    }
+                }
+            }
+
             tt.account["instance"] = instance;
             tt.account["copy"] = {
                 id : tt.account.id,
