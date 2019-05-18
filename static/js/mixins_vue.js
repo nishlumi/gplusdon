@@ -2339,6 +2339,10 @@ var vue_mixin_for_inputtoot = {
 			});
 		},
 		onclick_send: function (e) {
+			//---re set text content
+			var content = MYAPP.extractTootInfo(this.ckeditor.getData());
+			this.status_text = content.text;
+
 			if (this.toot_valid) {
 				var pros = [];
 				for (var i = 0; i < this.selaccounts.length; i++) {

@@ -238,8 +238,12 @@ function generate_toot_detail(rawdata,options) {
             if (this.checkExistToot(data[i].id)) continue;
 
             var st = new Gpstatus(data[i],18);
+            var mentions = [];
+            st.body.mentions.forEach((menelem)=>{
+                mentions.push(menelem.url);
+            });
             if ((dataacct == options.app.user.url) ||
-                ((dataacct == meacct) && (st.mentions.indexOf("@"+options.app.user.username) > -1))
+                ((dataacct == meacct) && (mentions.indexOf(options.app.user.url) > -1))
             ) {
 
                 var useracct = st.body.account.url;
@@ -587,10 +591,12 @@ document.addEventListener('DOMContentLoaded', function() {
             loadTimeline : loadTimelineCommon,
             exist_contact : function (user) {
                 var ishit = -1;
-                var target_acct = user.url;
+                var target_acct = user;
                 for (var i = 0; i < this.contacts.length; i++) {
-                    var acct = this.contacts[i].user.url;
-                    if (acct == target_acct) {
+                    var acct = this.contacts[i].user;
+                    if ((acct.username == target_acct.username) &&
+                        (acct.instance == target_acct.instance)
+                    ) {
                         ishit = i;
                         break;
                     }

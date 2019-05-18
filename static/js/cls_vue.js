@@ -1079,6 +1079,7 @@ Vue.component("timeline-toot", {
 				thumbnail:true,
 				animateThumb: false,
 				showThumbByDefault: false,
+				hideBarsDelay : 1000,
 				dynamicEl : items
 			});
 			this.$nextTick(()=>{
@@ -2026,6 +2027,7 @@ Vue.component("tootgallery-carousel", {
 				thumbnail:true,
 				animateThumb: false,
 				showThumbByDefault: false,
+				hideBarsDelay : 1000,
 				dynamicEl : items
 			});
 			this.$nextTick(()=>{
