@@ -22,7 +22,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
             </v-menu>
 
         </v-flex>
-        <v-flex xs11 style="position:relative;">
+        <v-flex xs11 class="editor-realparts" style="position:relative;">
             <div 
                 v-bind:id="movingElementID('replyinput_')"
                 name="inputcontent" 

@@ -217,7 +217,7 @@ const CONS_TEMPLATE_TLCONDITION = `
 
 const CONS_TEMPLATE_TOOTBODY = `
 <div v-bind:id="tootElementId" class="card fitcontent status toot_card_base sizing" v-if="toote != null" v-bind:style="toote.cardtypeSize"><!-- v-if="'body' in toote"-->
-    <div class="toot_boost_original share-color-boosted" v-if="toote.ancestors.length>0">
+    <div class="toot_boost_original share-color-replyparent" v-if="toote.ancestors.length>0">
         <i class="material-icons">arrow_drop_down</i>  
         <span v-html="ch2seh(toote.ancestors[toote.ancestors.length-1].visibility)" style="float:left;"></span>
         <v-img v-if="toote.ancestors.length > 0" v-bind:src="toote.ancestors[toote.ancestors.length-1].account.avatar" class="toot_prof userrectangle" v-on:mouseenter="onenter_avatar" v-on:mouseout="onleave_avatar" v-bind:width="elementStyle.toot_avatar_imgsize" v-bind:height="elementStyle.toot_avatar_imgsize"></v-img>

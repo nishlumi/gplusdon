@@ -1,4 +1,4 @@
-
+var tmpobj;
 //===========================================================================
 //
 //  Vue mixin Objects
@@ -177,8 +177,9 @@ var vue_mixin_for_timeline = {
 			var tlid = "";
             var sa = e.target.scrollHeight - e.target.clientHeight;
             //console.log(e.target.scrollHeight+","+e.target.offsetHeight+" - "+e.target.clientHeight+"="+sa + " : " + e.target.scrollTop);
-            var fnlsa = sa - Math.round(e.target.scrollTop);
-            if (fnlsa < 10) {
+			var fnlsa = Math.round(Math.round(e.target.scrollTop) / sa * 100); //sa - Math.round(e.target.scrollTop);
+			var judgesa = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+            if (fnlsa > judgesa) {
                 //---page max scroll down
                 console.log("scroll down max");
                 var pastOptions = {
@@ -980,6 +981,9 @@ var vue_mixin_for_timeline = {
 				//---additional option
 				if (options.app.exclude_reply) {
 					ret = (data.in_reply_to_id == null) ? true : false;
+					if (!ret && (gstatus.reblogOriginal != null)) {
+						ret = true;
+					}
 				}
 				if (options.app.tltype.indexOf("tv_media") > -1) {
 					ret =  gstatus.medias.length > 0 ? true : false;
@@ -1390,8 +1394,13 @@ var vue_mixin_for_inputtoot = {
 	},
 	data() {
 		return {
+			elementID : "",
 			ckeditor : null,
 			ckeditable : null,
+			editor: "ClassicEditor",
+			editorData : "",
+            editorConfig: null,
+
 			btnflags : {
                 loading : false,
                 mood : {
@@ -1771,6 +1780,9 @@ var vue_mixin_for_inputtoot = {
 			});
 		}
 	},
+	created(){
+		this.editorConfig = CK_INPUT_TOOTBOX;
+	},
 	mounted() {
 		//M.FormSelect.init(ID("keymaptitle"), {});
 		//CKEDITOR.disableAutoInline = true;
@@ -1993,10 +2005,16 @@ var vue_mixin_for_inputtoot = {
 				this.onclick_send(e);
 			}
 		},
-		onkeyup_inputcontent : function (e) {
+		onkeyup_inputcontent : _.debounce(function (e,e2) {
+			console.log(e,e2);
+			tmpobj = e2;
+			
 			var content = MYAPP.extractTootInfo(this.ckeditor.getData());
+			//var content = MYAPP.extractTootInfo(Q(`#${this.elementID}`).innerHTML);
 			this.status_text = content.text; //this.ckeditor.editable().getText();
 			//console.log(this.ckeditor.getData(),this.status_text,content);
+
+			
 
 			if (content.urls.length > 0) {
 				if (!this.mainlink.exists) {
@@ -2090,7 +2108,7 @@ var vue_mixin_for_inputtoot = {
 				this.is_available_image = true;
 				this.btnflags.pollbtn["red--text"] = false;
 			}
-		},
+		},300),
 		ondragover_inputcontent : function(e){
 			e.stopPropagation();
 			e.preventDefault();

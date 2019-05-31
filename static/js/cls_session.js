@@ -65,6 +65,7 @@ class Gpsession {
                     include_dmsg_tl : false,
                     tell_newtoot : false,
                     tell_newtoot_scroll : 300,
+                    tell_pasttoot_scroll : 95,
                     toot_limit_instance : [],
                     notpreview_onmap : false,
                     notpreview_onmedia : false,

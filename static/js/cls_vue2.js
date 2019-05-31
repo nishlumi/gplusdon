@@ -172,6 +172,7 @@ Vue.component("toot-inputbox", {
 		this.ckeditor = CKEDITOR.inline( newid, CK_INPUT_TOOTBOX);
 
 		this.ckeditable = this.ckeditor.editable();
+		this.elementID = newid;
 
 		console.log("this.status_text=",this.status_text);
 
@@ -197,7 +198,7 @@ Vue.component("toot-inputbox", {
 		if (this.isfirsttext) {
 			this.status_text = this.firsttext;
 			this.$nextTick(()=>{
-				if (this.ckeditor.editable()) {
+				if (this.ckeditor && this.ckeditor.editable()) {
 					this.ckeditor.editable().setText(this.firsttext);
 				}
 				this.strlength = twttr.txt.getUnicodeTextLength(this.firsttext);

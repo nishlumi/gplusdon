@@ -1191,6 +1191,10 @@ div.instances_body .chip_box {
 div.instances_body .chip {
     cursor : pointer;
 }
+.share-color-replyparent {
+    background-color: #FF8A80;
+    color : #132101;
+}
 .share-color-public {
     background-color: #FFFFFF;
 }
@@ -1400,7 +1404,7 @@ div.instances_body .card .card-content.card-account-content p {
 .onetoot_inputcontent, .dmy_inputtoot:focus .onetoot_inputcontent, .template_reply_box .onetoot_inputcontent:focus {
     border-bottom : 0.1rem solid #FF3434;
 }
-.onetoot_inputcontent p, .dmy_inputtoot .onetoot_inputcontent p, .template_reply_box .onetoot_inputcontent p {
+.onetoot_inputcontent p, .dmy_inputtoot .onetoot_inputcontent p, .template_reply_box .onetoot_inputcontent p, .editor-realparts p {
     margin-bottom : 1px !important;    
 }
 .toottext_length {

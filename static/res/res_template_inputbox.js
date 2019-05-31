@@ -231,6 +231,23 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                                 v-on:drop="ondrop_inputcontent"
         
                                             >{{ status_text  }}</div>
+                                            <!--<v-layout row wrap>
+                                                <v-flex xs12 class="editor-realparts">
+                                                    <ckeditor :id="movingElementID('newinput_')" :editor="editor"  class="onetoot_inputcontent" 
+                                                        v-model="status_text" 
+                                                        tag-name="textarea"
+                                                        :config="editorConfig"
+                                                        :value="editorData"
+                                                        v-bind:class="status_class"
+                                                        v-on:keydown="onkeydown_inputcontent"
+                                                        v-on:input="onkeyup_inputcontent"
+                                                        v-on:dragover="ondragover_inputcontent"
+                                                        v-on:dragleave="ondragleave_inputcontent"
+                                                        v-on:drop="ondrop_inputcontent"
+                                                    ></ckeditor>
+                                                </v-flex>
+                                            </v-layout>-->
+                                            
                                         </v-card-title>
                                         <v-card-actions>
                                             <v-tooltip bottom >

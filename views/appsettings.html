@@ -259,12 +259,21 @@
                                 <v-checkbox hide-details v-model="type_notification.enable_browser_notification" label="{{trans.ntf_lab_enable_browser_notification}}"></v-checkbox>
                                 <v-checkbox class="common_ui_off" hide-details v-model="type_notification.tell_newtoot" label="{{trans.ntf_msg_tell_newtoot}}"></v-checkbox>
                                 <v-layout row wrap style="margin-top:0.5rem;">
-                                    <v-flex xs12>
+                                    <v-flex xs8>
                                         <span class="subheading">{{trans.ntf_msg_tell_newtoot_scroll}}</span>
                                     </v-flex> 
                                     <v-flex xs3 offset-xs1>
                                         <v-text-field class="" 
                                             v-model="type_notification.tell_newtoot_scroll"
+                                            type="number" min="0" max="500" label=""
+                                        ></v-text-field>        
+                                    </v-flex>
+                                    <v-flex xs8>
+                                        <span class="subheading">{{trans.ntf_msg_tell_pasttoot_scroll}}</span>
+                                    </v-flex> 
+                                    <v-flex xs3 offset-xs1>
+                                        <v-text-field class="" 
+                                            v-model="type_notification.tell_pasttoot_scroll"
                                             type="number" min="0" max="500" label=""
                                         ></v-text-field>        
                                     </v-flex>

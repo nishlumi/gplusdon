@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     include_dmsg_tl : false,
                     tell_newtoot : false,
                     tell_newtoot_scroll : 300,
+                    tell_pasttoot_scroll : 95,
                     toot_limit_instance : [],
                     notpreview_onmap : false,
                     notpreview_onmedia : false,
@@ -132,6 +133,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log("type_notification=",newval,oldval);
                     for (var obj in newval) {
                         MYAPP.session.config.notification[obj] = newval[obj];
+                        if (["tell_newtoot_scroll","tell_pasttoot_scroll"].indexOf(obj) > -1) {
+                            MYAPP.session.config.notification[obj] = Number(newval[obj]);
+                        }
                     }
                     MYAPP.session.save(true);
                 },
