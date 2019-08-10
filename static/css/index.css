@@ -233,7 +233,12 @@ label.button_spoiler input:checked ~ p.toote_main {
     top : 0;
     right : 0;
 }
-
+.userdivider_t {
+    border-top:1px solid #ABABAB;
+}
+.userdivider_b {
+    border-bottom:1px solid #ABABAB;
+}
 /*====================================================
   initial UI
 ======================================================*/

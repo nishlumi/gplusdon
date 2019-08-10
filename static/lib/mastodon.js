@@ -97,6 +97,28 @@ var MastodonAPI = function (config) {
                 success: onAjaxSuccess(url, "GET", callback, false),
                 error: onAjaxError(url, "GET", callback_fail)
             });
+            
+            //---fetch API version
+            /*var us = new URLSearchParams();
+            var ucnt = 0;
+            for (var obj in queryData) {
+            	us.append(obj,queryData[obj]);
+            	ucnt++;
+            }
+            var fnlurl = new URL(url);
+            if (ucnt > 0) {
+            	fnlurl.search = us.toString();
+            }
+            var req = new Request(fnlurl.toString(),{
+            	method : "get",
+            	headers : addAuthorizationHeader({}, this.config.api_user_token),
+            	mode : "cors",
+            	cache : "default"
+            });
+            return fetch(req).then(result=>{
+            	console.log(result);
+            	return result.json();
+            });*/
         },
         get2: function (endpoint) {
             // for GET API calls
@@ -144,6 +166,72 @@ var MastodonAPI = function (config) {
                 //headers: addAuthorizationHeader({}, this.config.api_user_token),
                 success: onAjaxSuccess(url, "GET", callback, false),
                 error: onAjaxError(url, "GET", callback_fail)
+            });
+            
+        },
+        get_fetch : function (endpoint,options) {
+        	return this._get_fetch(endpoint,options,{auth:true});
+        },
+        get_noauth_fetch : function (endpoint,options) {
+        	return this._get_fetch(endpoint,options,{auth:false});
+        },
+        _get_fetch : function (endpoint,options,flags) {
+        	
+            // for GET API calls
+            // can be called with two or three parameters
+            // endpoint, callback
+            // or
+            // endpoint, queryData, callback
+            // where queryData is an object { paramname1: "paramvalue1", paramname2: paramvalue2 }
+
+            var args = checkArgs(arguments);
+            var queryData = args.data;
+            var callback = args.callback;
+        	var callback_fail = args.callback_fail || function() {};
+            var url = apiBase + endpoint;
+
+            // ajax function
+            /*return $.ajax({
+                url: url,
+                type: "GET",
+                data: queryData,
+                headers: addAuthorizationHeader({}, this.config.api_user_token),
+                success: onAjaxSuccess(url, "GET", callback, false),
+                error: onAjaxError(url, "GET", callback_fail)
+            });*/
+            
+            //---fetch API version
+            var us = new URLSearchParams();
+            var ucnt = 0;
+            for (var obj in options) {
+            	us.append(obj,queryData[obj]);
+            	ucnt++;
+            }
+            var fnlurl = new URL(url);
+            if (ucnt > 0) {
+            	fnlurl.search = us.toString();
+            }
+            if (flags["auth"] === true) {
+	            var req = new Request(fnlurl.toString(),{
+	            	method : "get",
+	            	headers : addAuthorizationHeader({}, this.config.api_user_token),
+	            	//mode : "cors",
+	            	//cache : "default"
+	            });
+	        }else{
+	        	var req = new Request(fnlurl.toString(),{
+	            	method : "get",
+	            	//mode : "cors",
+	            	//cache : "default"
+	            });
+	        }
+            return fetch(req).then(result=>{
+            	console.log(result);
+            	if (result.ok) {
+            		return result;
+            	}else{
+            		return result.error();
+            	}
             });
         },
         post: function (endpoint) {
@@ -379,9 +467,13 @@ var MastodonAPI = function (config) {
                 + "streaming/?stream=" + streamType);
             var listener = function (event) {
                 console.log("Got Data from Stream " + streamType);
-                event = JSON.parse(event.data);
-                event.payload = JSON.parse(event.payload);
-                onData(event);
+                try {
+	                event = JSON.parse(event.data);
+	                event.payload = JSON.parse(event.payload);
+	                onData(event);
+            	}catch(e){
+            		console.log(e);
+            	}
             };
             es.onmessage = listener;
             es.onclose = function (e) {

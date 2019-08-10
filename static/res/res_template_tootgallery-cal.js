@@ -39,7 +39,7 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                 <template v-else>
                     <a href="#" v-on:click="onclick_openfull(item)" class="waves-effect waves-light image-popup-btn"><i class="material-icons">open_in_new</i></a>
                     <template v-if="item.meta.small.width >= item.meta.small.height">
-                        <v-img 
+                        <!--<v-img 
                             v-bind:src="item.url" 
                             v-bind:lazy-src="item.preview_url" 
                             class="landscape" v-bind:title="item.description" v-bind:alt="item.description"
@@ -54,9 +54,16 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                 <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
                             </v-layout>
                         </v-img>
+                        :srcset="calcsrcset(item)"
+                            :sizes="calcsizes(item)"
+                        -->
+                        <img v-bind:src="item.url" 
+                        
+                            class="landscape" v-bind:title="item.description" v-bind:alt="item.description">
+                        
                     </template>
                     <template v-else>
-                        <v-img 
+                        <!--<v-img 
                             v-bind:src="item.url" 
                             v-bind:lazy-src="item.preview_url" 
                             class="portrait" v-bind:title="item.description"  v-bind:alt="item.description"
@@ -71,6 +78,13 @@ const CONS_TEMPLATE_TOOTGALLERY_CAROUSEL = `
                                 <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
                             </v-layout>
                         </v-img>
+
+                        -->
+                            
+                            <img v-bind:src="item.url" 
+                        
+                            class="landscape" v-bind:title="item.description" v-bind:alt="item.description">
+                        
                     </template>
                 </template>
             </slide>

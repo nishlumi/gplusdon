@@ -268,6 +268,12 @@
     </v-dialog>
 </div>
 <div id="mbl_detailmenu">
+        <v-dialog v-model="is_show"
+        scrollable :fullscreen="fullscreen"
+        :overlay="false"
+        max-width="800px"
+        transition="slide-x-reverse-transition"
+        >
     <!--<v-navigation-drawer v-model="is_show" right absolute temporary >-->
             <!-----reveal menu for the toot-->
         <v-card class="panel-mobile-detailmenu" :class="cssclass.paneling">
@@ -284,48 +290,47 @@
                 </v-card-title>
                 <v-card-text class="mbl_body">
                     <v-list>
-                            <v-divider></v-divider>
-                        <v-list-tile>
+                            
+                        <v-list-tile class="userdivider_t">
                             <v-list-tile-title><a v-bind:href="toote.body.url" target="_blank" rel="noopener" class="collection-item">{{ trans.thistoot_original }}</a></v-list-tile-title>
                         </v-list-tile>
-                            <v-divider></v-divider>
-                        <v-list-tile v-on:click="onclick_copytext(toote)">
+                            
+                        <v-list-tile class="userdivider_t" v-on:click="onclick_copytext(toote)">
                             <v-list-tile-title>{{trans.thistoot_copy}}</v-list-tile-title>
                         </v-list-tile>
-                            <v-divider></v-divider>
+                            
                         <template v-if="toote.relationship.isme">
-                            <v-list-tile v-on:click="onclick_toote_pinn(toote)">
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_toote_pinn(toote)">
                                 <v-list-tile-title>{? toote.body.pinned ? translation.thistoot_unpinned : translation.thistoot_pinned ?}</v-list-tile-title>
                             </v-list-tile>
-                                <v-divider></v-divider>
-                            <v-list-tile v-on:click="onclick_toote_delete(toote,-1)">
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_toote_delete(toote,-1)">
                                     <v-list-tile-title>{{ trans.thistoot_delete }}</v-list-tile-title>
                             </v-list-tile>
-                                <v-divider></v-divider>
+                                
                         </template>
-                        <v-list-tile v-on:click="onclick_toote_mute(toote,-1)">
+                        <v-list-tile class="userdivider_t" v-on:click="onclick_toote_mute(toote,-1)">
                             <v-list-tile-title>{? toote.body.muted ? translation.thistoot_unmute : translation.thistoot_mute ?}</v-list-tile-title>
                         </v-list-tile>
-                            <v-divider></v-divider>
+                            
                         <template v-if="!toote.relationship.isme">
-                            <v-list-tile v-on:click="onclick_user_mute(toote.account,-1)">
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_user_mute(toote.account,-1)">
                                 <v-list-tile-title v-html="ch2seh(toote.relationship.muting ? toote.translateText.thisuser_unmute : toote.translateText.thisuser_mute)"></v-list-tile-title>
                             </v-list-tile>
-                                <v-divider></v-divider>
-                            <v-list-tile v-on:click="onclick_user_block(toote.account,-1)">
+                                
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_user_block(toote.account,-1)">
                                 <v-list-tile-title v-html="ch2seh(toote.relationship.blocking ? toote.translateText.thisuser_unblock : toote.translateText.thisuser_block)"></v-list-tile-title>
                             </v-list-tile>
-                                <v-divider></v-divider>
-                            <v-list-tile v-on:click="onclick_user_endorse(toote.account,-1)">
+                                
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_user_endorse(toote.account,-1)">
                                 <v-list-tile-title v-html="ch2seh(toote.body.pinned ? toote.translateText.thisuser_unendorse : toote.translateText.thisuser_endorse)"></v-list-tile-title>
                             </v-list-tile>
-                                <v-divider></v-divider>
-                            <v-list-tile v-on:click="onclick_user_report(toote.account, toote, -1)">
+                                
+                            <v-list-tile class="userdivider_t" v-on:click="onclick_user_report(toote.account, toote, -1)">
                                 <v-list-tile-title v-html="ch2seh(toote.translateText.thisuser_report)"></v-list-tile-title>
                             </v-list-tile>
-                            <v-divider></v-divider>
+                            
                         </template>
-                        <v-list-tile v-on:click="onclick_any_link(toote)">
+                        <v-list-tile class="userdivider_t" v-on:click="onclick_any_link(toote)">
                             <v-list-tile-title>{{ trans.to_show_their_instance }}</v-list-tile-title>
                         </v-list-tile>
 
@@ -383,4 +388,22 @@
             </div>
         </v-card>
     <!--</v-navigation-drawer>-->
+    </v-dialog>
+</div>
+<div id="photodlg">
+    <!--
+    <v-dialog v-model="is_show" 
+        :fullscreen="isfull"
+        :max-width="maxwidth"
+        transition="dialog-bottom-transition" 
+        :overlay="false"
+        scrollable
+    >
+        <gphoto-dialog 
+            @close="onclose_gphotodialog"
+        ></gphoto-dialog>
+    </v-dialog>
+    -->
+    <gphoto-dialog ref="gdlg" @close="onclose_gphotodialog"></gphoto-dialog>
+    
 </div>

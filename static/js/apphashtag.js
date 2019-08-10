@@ -17,14 +17,16 @@ function barancerTimelineType(type,id) {
     if (type == "taglocal") {
         vue_timeline.forWatch_allcondition(vue_timeline.tlcond.getReturn());
         vue_timeline.currentOption.api["local"] = true;
-        vue_timeline.loadTimeline(`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
+        //vue_timeline.loadTimeline(`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
+        vue_timeline.prepare_backgroundtimeline("init",`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
 
         notifAccount.account.streams.taglocal.setQuery("tag="+vue_timeline.tagname);
         notifAccount.account.streams.taglocal.start();
 
     }else if (type == "tag") {
         vue_timeline.forWatch_allcondition(vue_timeline.tlcond.getReturn());
-        vue_timeline.loadTimeline(`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
+        //vue_timeline.loadTimeline(`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
+        vue_timeline.prepare_backgroundtimeline("init",`tag/${vue_timeline.tagname}`,vue_timeline.currentOption);
 
         notifAccount.account.streams.tag.setQuery("tag="+vue_timeline.tagname);
         notifAccount.account.streams.tag.start();
@@ -39,25 +41,24 @@ function loadTimelineCommon(type,options){
     MUtility.loadingON();
     this.is_asyncing = true;
     var fnltype = type;
-    MYAPP.sns.getTimeline(fnltype,options)
+    return MYAPP.sns.getTimeline(fnltype,options)
     .then((result)=>{
         console.log("getTimeline",result);
-        if (result.data.length == 0) {
+        /*if (result.data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         this.generate_toot_detail(result,options);
-        
+        MUtility.loadingOFF();
+        this.is_asyncing = false;
+        return data;
     })
     .catch(error=>{
         MUtility.loadingOFF();
         this.is_asyncing = false;
         alertify.error("読み込みに失敗しました。");
         console.log("loadTimelineCommonにて不明なエラーです。",error);
-    })
-    .finally(()=>{
-        MUtility.loadingOFF();
-        this.is_asyncing = false;
+        return error;
     });
 }
 
@@ -194,7 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (val == "tag") {
                     this.forWatch_allcondition(this.tlcond.getReturn());
-                    this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    //this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    this.prepare_backgroundtimeline("init",`tag/${this.tagname}`,this.currentOption);
 
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     notifAccount.account.streams.tag.setQuery("tag="+this.tagname);
@@ -203,7 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }else if (val == "taglocal") {
                     this.forWatch_allcondition(this.tlcond.getReturn());
                     this.currentOption.api["local"] = true;
-                    this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    //this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    this.prepare_backgroundtimeline("init",`tag/${this.tagname}`,this.currentOption);
 
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     notifAccount.account.streams.taglocal.setQuery("tag="+this.tagname);
@@ -249,7 +252,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (this.tl_tabtype == "list") {
                         this.currentOption.app["listid"] = param.listtype;
                     }
-                    this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    //this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    this.prepare_backgroundtimeline("init",`tag/${this.tagname}`,this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     if (param.func == "clear") {
                         notifAccount.account.streams[this.tl_tabtype].start();
@@ -261,7 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.status) {
                     this.forWatch_allcondition(param);
                     //opt.app["listid"] = param.listtype;
-                    this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    //this.loadTimeline(`tag/${this.tagname}`,this.currentOption);
+                    this.prepare_backgroundtimeline("init",`tag/${this.tagname}`,this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     if (param.func == "exec") {
                         notifAccount.account.streams[this.tl_tabtype].stop();

@@ -5,11 +5,14 @@ var thisform = {
     select : ""
 };
 
+
+
 function barancerTimelineType(type,id) {
     vue_tltab.tl_tabtype = type;
     vue_timeline.changeTabType(type);
     vue_timeline.clearPending();
-    vue_timeline.statuses.splice(0,vue_timeline.statuses.length);
+    //vue_timeline.statuses.splice(0,vue_timeline.statuses.length);
+    vue_timeline.clearTimeline();
 
     vue_tltab.turnButtonStatus(type);
     
@@ -21,7 +24,12 @@ function barancerTimelineType(type,id) {
         MYAPP.commonvue.navigation.switchListSelect(true);
     }else{
         MYAPP.commonvue.navigation.switchListSelect(false);
+        /* ===alternative remove
         vue_timeline.loadTimeline(type,{
+            api : {},
+            app : vue_timeline.currentOption.app
+        });*/
+        vue_timeline.prepare_backgroundtimeline("init",type,{
             api : {},
             app : vue_timeline.currentOption.app
         });
@@ -73,7 +81,7 @@ function barancerTimelineType(type,id) {
 
 function loadTimelineCommon(type,options){
     console.log("loadTimelineCommon",type,options);
-    if (this.is_asyncing) return false;
+    if (this.is_asyncing) return Promise.reject(false);
 
     MUtility.loadingON();
     this.is_asyncing = true;
@@ -81,26 +89,28 @@ function loadTimelineCommon(type,options){
     if (type == "list") {
         fnltype = `list/${options.app.listid}`;
     }
-    MYAPP.sns.getTimeline(fnltype,options)
+    return MYAPP.sns.getTimeline(fnltype,options)
     .then((data)=>{
         console.log("getMyToots",data);
-        if (data.length == 0) {
+        /*if (data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         this.generate_toot_detail(data,options);
-        
+        MUtility.loadingOFF();
+        this.is_asyncing = false;
+        return data;
     })
     .catch(error=>{
         MUtility.loadingOFF();
         this.is_asyncing = false;
         alertify.error("読み込みに失敗しました。");
         console.log("loadTimelineCommonにて不明なエラーです。",error);
-    })
-    .finally(()=>{
-        MUtility.loadingOFF();
-        this.is_asyncing = false;
+        return error;
     });
+    
+
+
 }
 
 
@@ -261,7 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (val == "home") {
                     this.forWatch_allcondition(this.tlcond.getReturn());
-                    this.loadTimeline("home",this.currentOption);
+                    //this.loadTimeline("home",this.currentOption);
+                    this.prepare_backgroundtimeline("init","home",this.currentOption);
                     notifAccount.account.streams.list.stop();
                     notifAccount.account.streams.local.stop();
                     notifAccount.account.streams.public.stop();
@@ -270,7 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (MYAPP.commonvue.navigation.sel_listitem != "0") {
                         this.forWatch_allcondition(this.tlcond.getReturn());
                         this.currentOption.app["listid"] = optionID;
-                        this.loadTimeline("list",this.currentOption);
+                        //this.loadTimeline("list",this.currentOption);
+                        this.prepare_backgroundtimeline("init","list",this.currentOption);
                         notifAccount.account.streams.list.setQuery("list="+this.currentOption.app.listid);
                         notifAccount.account.streams.list.setTargetTimeline(vue_timeline);
                         notifAccount.account.streams.list.start();
@@ -280,7 +292,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }else if (val == "local") {
                     this.forWatch_allcondition(this.tlcond.getReturn());
                     this.currentOption.api["local"] = true;
-                    this.loadTimeline("local",this.currentOption);
+                    //this.loadTimeline("local",this.currentOption);
+                    this.prepare_backgroundtimeline("init","local",this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     notifAccount.account.streams.list.stop();
                     notifAccount.account.streams.local.setTargetTimeline(vue_timeline);
@@ -289,7 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }else if (val == "public") {
                     this.forWatch_allcondition(this.tlcond.getReturn());
                     this.currentOption.api["local"] = false;
-                    this.loadTimeline("public",this.currentOption);
+                    //this.loadTimeline("public",this.currentOption);
+                    this.prepare_backgroundtimeline("init","public",this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     notifAccount.account.streams.list.stop();
                     notifAccount.account.streams.local.stop();
@@ -377,10 +391,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     delete this.currentOption.api["max_id"];
                     this.currentOption.app["is_nosince"] = false;
                     this.currentOption.app["is_nomax"] = false;
-                    this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    //this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    this.clearTimeline();
+                    this.prepare_backgroundtimeline("init",this.tl_tabtype,this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     if (param.func == "clear") {
-                        notifAccount.account.streams[this.tl_tabtype].start();
+                        if (this.tl_tabtype == "home") {
+                            notifAccount.account.stream.start();
+                        }else{
+                            notifAccount.account.streams[this.tl_tabtype].start();
+                        }
                     }
                 }
             },
@@ -389,12 +409,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.status) {
                     this.forWatch_allcondition(param);
                     //opt.app["listid"] = param.listtype;
-                    this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    //this.loadTimeline(this.tl_tabtype,this.currentOption);
+                    this.clearTimeline();
+                    this.prepare_backgroundtimeline("init",this.tl_tabtype,this.currentOption);
                     var notifAccount = MYAPP.commonvue.nav_notification.currentAccount;
                     if (param.func == "exec") {
-                        notifAccount.account.streams[this.tl_tabtype].stop();
+                        if (this.tl_tabtype == "home") {
+                            notifAccount.account.stream.stop();
+                        }else{
+                            notifAccount.account.streams[this.tl_tabtype].stop();
+                        }
                     }else{
-                        notifAccount.account.streams[this.tl_tabtype].start();
+                        if (this.tl_tabtype == "home") {
+                            notifAccount.account.stream.start();
+                        }else{
+                            notifAccount.account.streams[this.tl_tabtype].start();
+                        }
                     }
                 }
             }
@@ -453,8 +483,19 @@ document.addEventListener('DOMContentLoaded', function() {
         ///vue_timeline.list.translations = Object.assign({},curLocale.messages);
         ///vue_timeline.local.translations = Object.assign({},curLocale.messages);
         ///vue_timeline.public.translations = Object.assign({},curLocale.messages);
-        vue_timeline.translations = Object.assign({},curLocale.messages);
-        vue_tltab.translations = Object.assign({},curLocale.messages);
+        //vue_timeline.translations = Object.assign({},curLocale.messages);
+        //vue_tltab.translations = Object.assign({},curLocale.messages);
+        for (var obj in curLocale.messages) {
+            Object.defineProperty(vue_timeline.translations,obj,{
+                configurable : false,
+                value : curLocale.messages[obj]
+            });
+            Object.defineProperty(vue_tltab.translations,obj,{
+                configurable : false,
+                value : curLocale.messages
+            });
+        }
+
 
 
         ///for (var obj in vue_timeline) {

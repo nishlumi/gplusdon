@@ -10,6 +10,9 @@ var SCOPES = [
     'https://www.googleapis.com/auth/drive',
     "https://www.googleapis.com/auth/drive.appfolder", 
     "https://www.googleapis.com/auth/drive.appdata",
+    'https://www.googleapis.com/auth/photoslibrary',
+    'profile',
+  
 ];
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -28,10 +31,12 @@ var gpGLD = {
     k : {
         ap : "",
         pic_ap : "",
+        pht_ap : "",
         cl : "",
     },
     is_authorize : false,
     is_pickerAuth : false,
+    is_photoAuth : false,
     createFolder : function (name) {
         var fdata = AppStorage.get(MYAPP.acman.setting.NAME, null);
 
@@ -305,6 +310,7 @@ var gpGLD = {
         gpGLD.k.ap = hidinfo[4];
         gpGLD.k.cl = hidinfo[5];
         gpGLD.k.pic_ap = hidinfo[8];
+        gpGLD.k.pht_ap = hidinfo[9];
         gapi.load('client:auth2', this.initClient);
         gapi.load('picker', this.initPicker);
         
@@ -413,6 +419,64 @@ var gpGLD = {
         var message = 'You picked: ' + url;
         console.log(message,data);
 
+    },
+    initPhotos : function () {
+        gpGLD.is_photoAuth = true;
+    },
+    createPhotoStream : function (endpoint,options,authres,usercallback) {
+        var def = new Promise(resolve=>{
+            if (gpGLD.is_pickerAuth && gpGLD.is_authorize) {
+                options["key"] = MYAPP.siteinfo.ggl.pht_ak;
+                
+                
+                var request = gapi.client.request({
+                    'path': 'https://photoslibrary.googleapis.com/v1/' + endpoint,
+                    'method': 'GET',
+                    'params': options,
+                    'headers': {
+                        //'Content-Type': "application/json",
+                        "Authorization": `${authres.token_type} ${authres.access_token}`
+                    },
+                    
+                });
+                request.execute((data)=>{
+                    //console.log(data);
+                    resolve(data);
+                });
+            }
+        });
+        return def;
+    },
+    createPhotoStreamPost : function (endpoint,options,authres,usercallback) {
+        var def = new Promise(resolve=>{
+            if (gpGLD.is_pickerAuth && gpGLD.is_authorize) {
+                var option = {};
+                option["key"] = MYAPP.siteinfo.ggl.pht_ak;
+                
+                var fdata = new FormData();
+                
+                for (var obj in options.body) {
+                    fdata.append(obj,options.body[obj]);
+                }
+                
+                var request = gapi.client.request({
+                    'path': 'https://photoslibrary.googleapis.com/v1/' + endpoint,
+                    'method': 'POST',
+                    'params': option,
+                    'body' : options.body,
+                    'headers': {
+                        //'Content-Type': "application/json",
+                        "Authorization": `${authres.token_type} ${authres.access_token}`
+                    },
+                    
+                });
+                request.execute((data)=>{
+                    //console.log(data);
+                    resolve(data);
+                });
+            }
+        });
+        return def;
     },
     updateSigninStatus : function (isSignedIn) {
         if (isSignedIn) {

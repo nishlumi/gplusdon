@@ -44,6 +44,8 @@ function defineForMainPage(app) {
                 color : ""
             },
             notif_badge_count : 0,
+
+            is_returnmosttop : false,
         },
         watch: {
             sel_listitem : function (val) {
@@ -1408,14 +1410,56 @@ function defineForMainPage(app) {
                 staticpath : app.appinfo.staticPath
             },
         },
+        created() {
+            if (this.$vuetify.breakpoint.smAndDown) {
+                this.fullscreen = true;
+            }
+        },
         methods : {
             show : function (flag) {
                 this.is_show = flag;
-                this.cssclass.paneling["panel-mobile-moved"] = flag;
+                //this.cssclass.paneling["panel-mobile-moved"] = flag;
             },
             isShow : function () {
                 return this.is_show;
             },
+        }
+    });
+    app.commonvue["photodlg"] = new Vue({
+        el : "#photodlg",
+        mixins: [vue_mixin_base],
+        delimiters : ["{?", "?}"],
+        data : {
+            is_show : false,
+            isfull : false,
+            maxwidth : "800px",
+            isfitstyle : {
+                width : "auto",
+                height : "auto"
+            },
+            callparent : null
+        },
+        mounted() {
+            this.isfull = this.$vuetify.breakpoint.smAndDown;
+        },
+        methods : {
+            onclose_gphotodialog : function (e) {
+                console.log(e);
+                var pros = [];
+                for (var i = 0; i < e.items.length; i++) {
+                    pros.push(loadOuterImage(e.items[i]));
+                    
+                }
+                Promise.all(pros)
+                .then(result=>{
+                    var datas = [];
+                    for (var i = 0; i < result.length; i++) {
+                        datas.push(result[i].data);
+                        
+                    }
+                    this.callparent.loadMediafiles("blob",datas);
+                });
+            }
         }
     });
 
@@ -1522,6 +1566,7 @@ function defineForMainPage(app) {
                     
                 }
                 if (elemName != "") {
+                    MYAPP.commonvue.navigation.is_returnmosttop = true;
                     Q(elemName).scroll({top:0,behavior: "smooth"});
                 }
                 e.stopPropagation();

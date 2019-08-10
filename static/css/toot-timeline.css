@@ -50,10 +50,13 @@
     width : 100%;
 
 }
+.vvscroller {
+    height : 100%;
+}
 
 
 /*=== grid panel === */
-div.toot_timeline_grid {
+div.toot_timeline_gridx {
     display : grid;
     row-gap:  2vmin;
     column-gap : 2rem;
@@ -81,6 +84,7 @@ div.toot_timeline_grid.width_3 {
     padding-left : 3%;
 }
 
+
 /*=== Sizing define of each screen ===*/
 @media only screen and (min-width: 601px) {
     div.toot_timeline_grid {
@@ -98,17 +102,43 @@ div.toot_timeline_grid.width_3 {
     div.toot_timeline_grid.width_count {
         grid-template-columns: 48% 48%;
         padding-left : 1%;
-        }
-
+    }
+    div.toot_timeline_grid.width_1 {
+        grid-template-columns: 100%;
+        max-width : 65%;
+    }
     div.toot_timeline_grid.width_2 {
         grid-template-columns: 48% 48%;
         padding-left : 1%;
-        }
+    }
     div.toot_timeline_grid.width_3 {
         grid-template-columns: 48% 48%;
         padding-left : 1%;
-        }
+    }
     
+    /*div.toot_timeline_grid {
+        width : 100%;
+        height : -moz-fit-content;
+        height : fit-content;
+    }
+    div.toot_timeline_grid article {
+        width : 48%;
+    }
+    div.toot_timeline_grid article:nth-child(even) {
+        float: right;
+        margin-top: 2em;
+    }
+    div.toot_timeline_grid article:nth-child(odd) {
+        float : left;
+    }
+    div.toot_timeline_grid article:nth-child(odd):before {
+        
+        right: -1em;
+        left: auto;
+    }
+    div.toot_timeline_grid article:nth-of-type(2n+1) {
+        clear: both;
+    }*/
 }
 @media only screen and (min-width: 993px) {
     div.toot_timeline_grid {
@@ -127,6 +157,10 @@ div.toot_timeline_grid.width_3 {
         grid-template-columns: 47% 47%;
         padding-left : 3%;
     }
+    div.toot_timeline_grid.width_1 {
+        grid-template-columns: 100%;
+        max-width : 60%;
+    }
     div.toot_timeline_grid.width_2 {
         grid-template-columns: 47% 47%;
         padding-left : 3%;
@@ -136,6 +170,7 @@ div.toot_timeline_grid.width_3 {
         padding-left : 3%;
     }
 
+    
 }
 @media only screen and (min-width: 1500px) {
     div.toot_timeline_grid {
@@ -154,6 +189,10 @@ div.toot_timeline_grid.width_3 {
         grid-template-columns: 31% 31% 31%;
         padding-left : 3%;
     }
+    div.toot_timeline_grid.width_1 {
+        grid-template-columns: 100%;
+        max-width : 50%;
+    }
     div.toot_timeline_grid.width_2 {
         grid-template-columns: 47% 47%;
         padding-left : 3%;
@@ -163,6 +202,7 @@ div.toot_timeline_grid.width_3 {
         padding-left : 3%;
     }
 
+    
 }
 
 
@@ -634,6 +674,10 @@ span.lg-usercaption-avatarname {
 .reaction-count.zero {
     font-weight: normal;
 }
+.reaction-dialog-content {
+    border-top : 1px solid #ABABAB;
+    border-bottom : 1px solid #ABABAB;
+}
 
 /*=== toot reply and comment ===*/
 .toot_card_base .toot_comment {
@@ -773,12 +817,12 @@ div.reply_mediamenu_card {
     cursor : pointer;
 }
 .panel-mobile-detailmenu {
-    z-index : 1005;
+    /*z-index : 1005;
     width : 100%;
     height : 100%;
     position: fixed;
     top : 0;
-    transform: translateX(100%);
+    transform: translateX(100%);*/
 }
 .panel-mobile-detailmenu > div {
     height : 100%;

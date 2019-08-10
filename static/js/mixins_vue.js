@@ -114,16 +114,27 @@ class TLpending {
 		
 	}
 }
+class TLbackstatus {
+	constructor(index,pagenumber,pageheight,status) {
+		this.index = index || 0;
+		this.page = pagenumber || 0;;
+		this.pageHeight = pageheight || 0;
+		this.domOutputed = false;
+		this.status = status || null;
+	}
+}
 var vue_mixin_for_timeline = {
 	data(){
 		return {
 			is_asyncing : false,
 			is_scrolltop : true,
+			is_nowscrollloading : false,
 			is_opencomment : false,
 			is_archivemode : false,
 			selshare_current : "tt_all",
 			seltype_current : "tt_all",
 			tl_tabtype : "home",
+			tl_realid : "home",
 
 			currentOption : {},
 			id : "",
@@ -140,6 +151,23 @@ var vue_mixin_for_timeline = {
 				is_serveronly : false,
 			},
 			statuses : [],
+			/**
+			 * The timeline manage object for background/virtual scroll
+			 */
+			bgtimeline : {
+				statuses : [],
+				manage : {
+					domOutputed : [],
+					page : {
+						current : 0,
+						top : -1,
+						bottom : 1
+					}
+				},
+				cons : {
+					beforeTootCnt : 2
+				}
+			},
 			timeline_gridstyle : {
 				width_count : true,
 				width_1 : false,
@@ -174,12 +202,14 @@ var vue_mixin_for_timeline = {
 	methods: {
 		//---event handler----------------------------------------------
 		onscroll_timeline : function(e){
+			if (this.is_nowscrollloading) return true;
 			var tlid = "";
-            var sa = e.target.scrollHeight - e.target.clientHeight;
-            //console.log(e.target.scrollHeight+","+e.target.offsetHeight+" - "+e.target.clientHeight+"="+sa + " : " + e.target.scrollTop);
-			var fnlsa = Math.round(Math.round(e.target.scrollTop) / sa * 100); //sa - Math.round(e.target.scrollTop);
-			var judgesa = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
-            if (fnlsa > judgesa) {
+			let sa = e.target.scrollHeight - e.target.clientHeight;
+			
+			let calcsa = this.calculateScrollEnd(e.target);
+			//let fnlsa = Math.round(Math.round(e.target.scrollTop) / sa * 100); //sa - Math.round(e.target.scrollTop);
+			//let judgesa = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+            if (calcsa.final > calcsa.judge) {
                 //---page max scroll down
                 console.log("scroll down max");
                 var pastOptions = {
@@ -198,8 +228,11 @@ var vue_mixin_for_timeline = {
 				if ("filter" in this.currentOption.app) {
 					pastOptions.app["filter"] = this.currentOption.app.filter;
 				}
-				for (var obj in this.currentOption.api) {
-					pastOptions.api[obj] = this.currentOption.api[obj];
+				let curoptapi = this.currentOption.api;
+				for (var obj in pastOptions.api) {
+					if (curoptapi[obj]) {
+						pastOptions.api[obj] = curoptapi[obj];
+					}
 				}
 				delete pastOptions.api["since_id"];
 				delete pastOptions.api["min_id"];
@@ -234,16 +267,27 @@ var vue_mixin_for_timeline = {
 					this.apply_filter(this.currentFilter);
 					return;
 				}
+				/* ===alternative remove===
 				this.loadTimeline(tlid,{
+					api : pastOptions.api,
+					app : pastOptions.app
+				});
+				*/
+				//pastOptions.app["element"] = e.target;
+				this.is_nowscrollloading = true;
+				this.prepare_backgroundtimeline("bottom",tlid,{
 					api : pastOptions.api,
 					app : pastOptions.app
 				});
 
             }
             if (e.target.scrollTop == 0) {
-				if (this.pending.above.waiting) {
+				/*if (this.pending.above.waiting) {
+					//this.currentOption.app["element"] = e.target;
 					this.onclick_show_pending();
-				}else{
+					MYAPP.commonvue.navigation.is_returnmosttop = false;
+				}else*/
+				{
 					var futureOptions = {
 						api : {
 							exclude_replies : true,
@@ -301,14 +345,27 @@ var vue_mixin_for_timeline = {
 					if (this.is_archivemode) {
 
 					}else{
+						/* ===alternative remove===
 						this.loadTimeline(tlid,{
 							api : futureOptions.api,
 							app : futureOptions.app
 						});
+						*/
+						//futureOptions.app["element"] = e.target;
+						var direction = "top";
+						if (MYAPP.commonvue.navigation.is_returnmosttop) {
+							direction = "mosttop";
+						}
+						this.prepare_backgroundtimeline(direction,tlid,{
+							api : futureOptions.api,
+							app : futureOptions.app
+						});
 					}
+					MYAPP.commonvue.navigation.is_returnmosttop = false;
+					this.is_nowscrollloading = true;
 					this.is_scrolltop = true;
-					this.pending.above.waiting = false;
-					this.pending.above.is = false;
+					//this.pending.above.waiting = false;
+					//this.pending.above.is = false;
 				}
 
             }else{
@@ -320,7 +377,7 @@ var vue_mixin_for_timeline = {
 						
 					//}
 				}
-				MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
+				MYAPP.commonvue.bottomnav.checkScroll(calcsa.final);
 				
 			}
 
@@ -436,44 +493,94 @@ var vue_mixin_for_timeline = {
 		},
 		onclick_show_pending : function (e) {
 			if (this.pending.above.statuses.length > 0) {
-				var b = [];
-				b = b.concat(this.pending.above.statuses);
-				
-				if (this.pending.above.waiting) {
-					for (var s = 0; s < this.statuses.length; s++) {
-						this.$set(this.statuses[s].cardtypeSize,"border-top","");
-					}
-					this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
-				}
-
 				this.currentOption.app.is_nomax = true;
 				this.currentOption.app.is_nosince = false;
-
-				this.generate_toot_detail({
-					data: b,
-					paging : {
-						prev : this.pending.above.statuses[0].id
-					}
-				},{
+				this.prepare_backgroundtimeline("pendingtop",this.tl_realid,{
 					api : {
 						exclude_replies : true,
 						min_id : "",
 					},
 					app : this.currentOption.app
+				})
+				.then(result=>{
+
+				})
+				.finally(()=>{
+					//---post scripts
+					//TODO: during modification!!!
+					this.clearPending();
+	
+					Q(".tab-content").scroll({top:0,behavior: "instant"});
+					this.is_nowscrollloading = false;
 				});
-				//---finish get update from stream, remove old loaded tootes
-				if (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-					while (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
-						this.statuses.pop();
-					}
-				}
 			}
+			return;
 
-			//---post scripts
-			//TODO: during modification!!!
-			this.clearPending();
+			this.prepare_backgroundtimeline("mosttop",this.tl_realid,{
+				api : {
+					exclude_replies : true,
+					min_id : "",
+				},
+				app : this.currentOption.app
+			})
+			.then(result=>{
+				if (this.pending.above.statuses.length > 0) {
+					var b = [];
+					b = b.concat(this.pending.above.statuses);
+					
+					if (this.pending.above.waiting) {
+						for (var s = 0; s < this.statuses.length; s++) {
+							this.$set(this.statuses[s].cardtypeSize,"border-top","");
+						}
+						this.$set(this.statuses[0].cardtypeSize,"border-top","1px solid red");
+					}
 
-			Q(".tab-content").scroll({top:0,behavior: "instant"});
+					this.currentOption.app.is_nomax = true;
+					this.currentOption.app.is_nosince = false;
+
+					this.generate_toot_detail({
+						data: b,
+						paging : {
+							prev : this.pending.above.statuses[0].id
+						}
+					},{
+						api : {
+							exclude_replies : true,
+							min_id : "",
+						},
+						app : this.currentOption.app
+					});
+					//---finish get update from stream, remove old loaded tootes
+					/*if (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+						while (this.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
+							this.statuses.pop();
+						}
+					}*/
+					let direction = "top";
+					var firsttoot = this.statuses[0];
+					var tootdom = ID(`toot_${firsttoot.id}`);
+					
+					var arr = this.check_backgroundtimeline(direction);
+					if (arr.length == 0) tootdom = null;
+					this.postfunc_backgroundtimeline(direction,arr,true);
+					this.$nextTick(()=>{
+						if (tootdom) {
+							tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+							ID("toppanel").scrollIntoView();
+						}
+						this.is_nowscrollloading = false;
+					});	
+				}
+			})
+			.finally(()=>{
+				//---post scripts
+				//TODO: during modification!!!
+				this.clearPending();
+
+				Q(".tab-content").scroll({top:0,behavior: "instant"});
+				this.is_nowscrollloading = false;
+			});
+
 		},
 		onclick_load_below : function (e) {
 			var tlid = "";
@@ -530,7 +637,11 @@ var vue_mixin_for_timeline = {
 			if (this.is_archivemode) {
 
 			}else{
-				this.loadTimeline(tlid,{
+				/*this.loadTimeline(tlid,{
+					api : pastOptions.api,
+					app : pastOptions.app
+				});*/
+				this.prepare_backgroundtimeline("bottom",tlid,{
 					api : pastOptions.api,
 					app : pastOptions.app
 				});
@@ -544,9 +655,17 @@ var vue_mixin_for_timeline = {
 			this.pending.above.statuses.splice(0,this.pending.above.statuses.length);
 			this.pending.above.waiting = false;
 			this.pending.above.is = false;
+			this.is_nowscrollloading = false;
 		},
 		clearTimeline : function () {
+			this.is_nowscrollloading = false;
+			this.bgtimeline.manage.domOutputed.splice(0,this.bgtimeline.manage.domOutputed.length);
+			this.bgtimeline.manage.page.current = 0;
+			this.bgtimeline.manage.page.top = -1;
+			this.bgtimeline.manage.page.bottom = 1;
+
 			this.statuses.splice(0,this.statuses.length);
+			this.bgtimeline.statuses.splice(0,this.bgtimeline.statuses.length);
 		},
 		checkExistToot : function (id) {
 			var hit = false;
@@ -558,6 +677,446 @@ var vue_mixin_for_timeline = {
 			}
 			return hit;
 		},
+		calculateScrollEnd : function (target) {
+			let sa = target.scrollHeight - target.clientHeight;
+			let fnlsa = Math.round(Math.round(target.scrollTop) / sa * 100); //sa - Math.round(e.target.scrollTop);
+			let judgesa = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+			return {
+				final : fnlsa,
+				judge : judgesa
+			};
+		},
+		findIndex_backgroundtimeline : function (direction, index) {
+			var ret = -1;
+			for (var i = 0; i < this.bgtimeline.statuses.length; i++) {
+				if (index == this.bgtimeline.statuses[i].index) {
+					ret = i;
+					break;
+				}
+			}
+			return ret;
+		},
+		/**
+		 * 
+		 * @param {String} direction direction for timeline
+		 * @param {Gpstatus} status toot status object
+		 * @param {JSON} options any options
+		 * @return {Number} index of element in array
+		 */
+		store_backgroundtimeline : function (direction,status,options) {
+			if (direction == "top") {
+				var pagecnt = this.bgtimeline.manage.page.top+1;
+				var st = new TLbackstatus(status.id,pagecnt,0,status);
+				this.bgtimeline.statuses.unshift(st);
+				return 0;
+			}else if (direction == "bottom") {
+				var pagecnt = this.bgtimeline.manage.page.bottom-1;
+				var st = new TLbackstatus(status.id,pagecnt,0,status);
+				this.bgtimeline.statuses.push(st);
+				return this.bgtimeline.statuses.length - 1;
+			}
+		},
+		check_backgroundtimeline : function (direction) {
+			let starr = this.bgtimeline.statuses;
+			let manage = this.bgtimeline.manage;
+			let domOutputedCount = manage.domOutputed.length;
+			let oldpagecurrent = manage.page.current;
+			var res = [];
+			var isstartsearch = false;
+			var loadcount = 0;
+			if (direction == "top") {
+				manage.page.current++;
+				//manage.domOutputed.splice(this.bgtimeline.cons.beforeTootCnt,manage.domOutputed.length);
+				
+				for (var i = starr.length-1; i >= 0; i--) {
+					let e = starr[i];
+
+					if (isstartsearch) {
+						if (manage.domOutputed.indexOf(e.index) == -1) {
+							e.domOutputed = true;
+							res.unshift(e);
+							manage.domOutputed.unshift(e.status.id);
+							loadcount++;
+							if (loadcount > MYAPP.session.config.application.timeline_viewcount) {
+								break;
+							}
+						}
+					}else{
+						if (e.index == manage.domOutputed[0]) {
+							isstartsearch = true;
+						}
+					}
+
+					/*
+					if(e.page == manage.page.current) {
+						e.domOutputed = true;
+						res.unshift(e);
+						manage.domOutputed.unshift(e.status.id);
+					}else if (e.page == oldpagecurrent) {
+						e.domOutputed = false;
+					}
+					*/
+				}
+			}else if (direction == "mosttop") {
+				manage.page.current++;
+				//manage.domOutputed.splice(this.bgtimeline.cons.beforeTootCnt,manage.domOutputed.length);
+				manage.domOutputed.splice(0,manage.domOutputed.length);
+				for (var i = 0; i < starr.length; i++) {
+					let e = starr[i];
+
+					e.domOutputed = true;
+					res.push(e);
+					manage.domOutputed.push(e.status.id);
+					loadcount++;
+					if (loadcount > MYAPP.session.config.application.timeline_viewcount) {
+						break;
+					}
+					
+				}
+			}else if (direction == "bottom") {
+				manage.page.current--;
+				//manage.domOutputed.splice(0,manage.domOutputed.length - this.bgtimeline.cons.beforeTootCnt);
+				for (var i = 0; i < starr.length; i++) {
+					let e = starr[i];
+					if (isstartsearch) {
+						if (manage.domOutputed.indexOf(e.index) == -1) {
+							e.domOutputed = true;
+							res.push(e);
+							manage.domOutputed.push(e.status.id);
+							loadcount++;
+							if (loadcount > MYAPP.session.config.application.timeline_viewcount) {
+								break;
+							}
+						}
+					}else{
+						if (e.index == manage.domOutputed[domOutputedCount-1]) {
+							isstartsearch = true;
+						}
+					}
+					/*if(e.page == manage.page.current) {
+						e.domOutputed = true;
+						res.push(e);
+						manage.domOutputed.push(e.status.id);
+					}else if (e.page == oldpagecurrent) {
+						e.domOutputed = false;
+					}*/
+					
+				}
+			}else if (direction == "init") {
+				manage.page.current = 0;
+				//manage.domOutputed.splice(0,manage.domOutputed.length - this.bgtimeline.cons.beforeTootCnt);
+				for (var i = 0; i < starr.length; i++) {
+					let e = starr[i];
+					
+					e.domOutputed = true;
+					res.push(e);
+					manage.domOutputed.push(e.status.id);
+					
+				}
+			}
+			
+			return res;
+		},
+		autoremove_bgtimeline : function (direction) {
+			let perm_count = (MYAPP.session.config.application.timeline_viewcount*2);
+			if (this.statuses.length > perm_count) {
+				while (this.statuses.length > perm_count) {
+					var tt;
+					if (direction == "top") {
+						tt = this.statuses.shift();
+					}else if (direction == "bottom") {
+						tt = this.statuses.pop();
+					}
+					
+					for (var i = 0; i < this.bgtimeline.statuses.length; i++) {
+						let bgst =  this.bgtimeline.statuses[i];
+
+						if (tt.id == bgst.index) {
+							//---to prpare for remove(invisible) 
+							bgst.domOutputed = false;
+							let mantest = this.bgtimeline.manage.domOutputed.indexOf(tt.id);
+							if (mantest > -1) {
+								this.bgtimeline.manage.domOutputed.splice(mantest,1);
+							}
+							break;
+						}
+					}
+				}
+			}
+		},
+		load_backgroundtimeline : function (type,options) {
+			return this.loadTimeline(type,options);
+
+			/*
+
+			//---worker version
+			var def = new Promise((resolve,reject)=>{
+				var wkr = new Worker("/static/js/wkr_timeline.js");
+				wkr.onmessage = (evt)=>{
+					console.log("getTimeline",evt);
+					
+					if (evt.data.data.length == 0) {
+						MUtility.loadingOFF();
+						return resolve([]);
+					}
+					this.generate_toot_detail(evt.data.data,options);
+					resolve(evt.data.data);
+				
+					
+					
+					
+				};
+				wkr.onerror = (evt)=>{
+					MUtility.loadingOFF();
+					this.is_asyncing = false;
+					alertify.error("読み込みに失敗しました。");
+					console.log("loadTimelineCommonにて不明なエラーです。",evt);
+					reject(false);
+				};
+				wkr.postMessage({
+					account : {
+						url : MYAPP.sns._accounts.getBaseURL(),
+						token : MYAPP.sns._accounts.token.access_token
+					},
+					endpoint : type,
+					options : options
+				});
+	
+			});
+			
+			return def;
+			*/
+			
+		},
+		load_pending_backgroundtimeline : function (type,options) {
+			var def = new Promise((resolve,reject)=>{
+				var ret = {
+					data : []
+				};
+				ret.data = ret.data.concat(this.pending.above.statuses);
+
+				this.generate_toot_detail({
+					data: ret.data,
+					paging : {
+						prev : this.pending.above.statuses[0].id
+					}
+				},{
+					api : {
+						exclude_replies : true,
+						min_id : "",
+					},
+					app : this.currentOption.app
+				});
+
+				resolve(ret);
+			});
+			return def;
+		},
+		/**
+		 * To prepare load from local or get from server the timeline.
+		 * @param {String} direction direction for timeline
+		 * @param {String} type type of timeline
+		 * @param {JSON} options timeline API/APP options
+		 */
+		prepare_backgroundtimeline : function (direction, type, options) {
+			var arr = [];
+			var direction4remove = "";
+			this.tl_realid = type;
+			var def = new Promise((resolve,reject) =>{
+				if ((direction == "top") || (direction == "mosttop")) {
+
+					direction4remove = "bottom";
+					var index = this.findIndex_backgroundtimeline(direction,this.bgtimeline.manage.domOutputed[0]);
+					if ((index-1) > 0) {
+						//---load already tl
+						var firsttoot = this.statuses[0];
+						var tootdom = ID(`toot_${firsttoot.id}`);
+						arr = this.check_backgroundtimeline(direction);
+						if (arr.length == 0) tootdom = null;
+						this.postfunc_backgroundtimeline(direction,arr,true);
+						this.$nextTick(()=>{
+							
+							//var scrpercent = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+							//scrpercent = scrpercent - 2;
+							//var sa = options.app.element.scrollHeight * (scrpercent / 100);
+							//options.app.element.scrollTop = sa * 0.5;
+							if (tootdom) {
+								if (direction == "top") tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+								//console.log("tootdom=",tootdom.getBoundingClientRect());
+								ID("toppanel").scrollIntoView();
+							}
+							this.is_nowscrollloading = false;
+							resolve(true);
+						});
+					}else{
+						//---get mastodon server
+						this.load_backgroundtimeline(type, options)
+						.then((result)=>{
+							if (result.data.length > 0) {
+								this.bgtimeline.manage.page.top++;
+								var firsttoot = this.statuses[0];
+								var tootdom = ID(`toot_${firsttoot.id}`);
+								arr = this.check_backgroundtimeline(direction);
+								if (arr.length == 0) tootdom = null;
+								this.postfunc_backgroundtimeline(direction,arr,true);
+								this.$nextTick(()=>{
+									//var scrpercent = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+									//scrpercent = scrpercent - 2;
+									//var sa = options.app.element.scrollHeight * (scrpercent / 100);
+									//options.app.element.scrollTop = sa * 0.5;
+									if (tootdom) {
+										tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+										//console.log("tootdom=",tootdom.getBoundingClientRect());
+										ID("toppanel").scrollIntoView();
+									}
+									this.is_nowscrollloading = false;
+									resolve(true);
+								});
+							}
+						});
+					}
+					
+				}else if (direction == "pendingtop") {
+					this.load_pending_backgroundtimeline(type,options)
+					.then((result3) => {
+						if (result3.data.length > 0) {
+							this.bgtimeline.manage.page.top++;
+							var firsttoot = this.statuses[0];
+							var tootdom = ID(`toot_${firsttoot.id}`);
+							arr = this.check_backgroundtimeline(direction);
+							if (arr.length == 0) tootdom = null;
+							this.postfunc_backgroundtimeline(direction,arr,true);
+							this.$nextTick(()=>{
+								//var scrpercent = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+								//scrpercent = scrpercent - 2;
+								//var sa = options.app.element.scrollHeight * (scrpercent / 100);
+								//options.app.element.scrollTop = sa * 0.5;
+								if (tootdom) {
+									tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+									//console.log("tootdom=",tootdom.getBoundingClientRect());
+									ID("toppanel").scrollIntoView();
+								}
+								this.is_nowscrollloading = false;
+								resolve(true);
+							});
+						}
+					});
+				}else if (direction == "bottom") {
+					direction4remove = "top";
+					var index = this.findIndex_backgroundtimeline(direction,this.bgtimeline.manage.domOutputed[this.bgtimeline.manage.domOutputed.length-1]);
+					if ((index+1) < this.bgtimeline.statuses.length) {
+						//---load already tl
+						var lasttoot = this.statuses[this.statuses.length-1];
+						var tootdom = ID(`toot_${lasttoot.id}`);
+						arr = this.check_backgroundtimeline(direction);
+						this.postfunc_backgroundtimeline(direction,arr,true);
+						this.$nextTick(()=>{
+							//var scrpercent = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+							//scrpercent = scrpercent - 2;
+							//var sa = options.app.element.scrollHeight * (scrpercent / 100);
+							//options.app.element.scrollTop = sa * 0.5;
+							if (tootdom) {
+								tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+								//console.log("tootdom=",tootdom.getBoundingClientRect());
+								ID("toppanel").scrollIntoView();
+							}
+							this.is_nowscrollloading = false;
+							resolve(true);
+						});
+					}else{
+						//---get mastodon server
+						this.load_backgroundtimeline(type, options)
+						.then((result)=>{
+							if (result.data.length > 0) {
+								this.bgtimeline.manage.page.bottom--;
+								var lasttoot = this.statuses[this.statuses.length-1];
+								var tootdom = ID(`toot_${lasttoot.id}`);
+								arr = this.check_backgroundtimeline(direction);
+								this.postfunc_backgroundtimeline(direction,arr,true);
+								this.$nextTick(()=>{
+									//var scrpercent = MYAPP.session.config.notification.tell_pasttoot_scroll || 95;
+									//scrpercent = scrpercent - 2;
+									//var sa = options.app.element.scrollHeight * (scrpercent / 100);
+									//options.app.element.scrollTop = sa * 0.5;
+									if (tootdom) {
+										tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+										//console.log("tootdom=",tootdom.getBoundingClientRect());
+										ID("toppanel").scrollIntoView();
+									}
+									this.is_nowscrollloading = false;
+									resolve(true);
+								});
+							}
+						});
+					}
+					
+				}else if (direction == "init") {
+					direction4remove = "top";
+					
+					//---get mastodon server
+					this.load_backgroundtimeline(type, options)
+					.then((result)=>{
+						this.bgtimeline.manage.page.bottom = 0;
+						this.bgtimeline.manage.page.top  = 0;
+						/*arr = this.check_backgroundtimeline(direction);
+						this.postfunc_backgroundtimeline(direction4remove,arr,true);
+						this.is_nowscrollloading = false;
+						resolve(true);*/
+
+						if (result.data.length > 0) {
+							
+							var firsttoot = result.data[0];
+							var tootdom = ID(`toot_${firsttoot.id}`);
+							arr = this.check_backgroundtimeline(direction);
+							if (arr.length == 0) tootdom = null;
+							this.postfunc_backgroundtimeline(direction4remove,arr,true);
+							this.$nextTick(()=>{
+								
+								if (tootdom) {
+									//tootdom.scrollIntoView({block: "center", inline: "nearest"} );
+									
+								}
+								ID("toppanel").scrollIntoView();
+								this.is_nowscrollloading = false;
+								resolve(true);
+							});
+						}
+					});
+					
+						
+					
+				}
+			});
+			return def;
+			
+		},
+		postfunc_backgroundtimeline : function (direction,data,isremove) {
+			var direction4remove = "";
+			var testhitarray = [];
+			for (var s = 0; s < this.statuses.length; s++) {
+				testhitarray.push(this.statuses[s].id);
+			}
+			if (direction == "top") {
+				//---To output toot data to real DOM
+				for (var i = data.length-1; i >= 0; i--) {
+					if (testhitarray.indexOf(data[i].status.id) == -1) this.statuses.unshift(data[i].status);
+				}
+				direction4remove = "bottom";
+			}else if (direction == "mosttop") {
+					//---To output toot data to real DOM
+					for (var i = data.length-1; i >= 0; i--) {
+						if (testhitarray.indexOf(data[i].status.id) == -1) this.statuses.unshift(data[i].status);
+					}
+					direction4remove = "bottom";
+			}else if (direction == "bottom") {
+				//---To output toot data to real DOM
+				for (var i = 0; i < data.length; i++) {
+					if (testhitarray.indexOf(data[i].status.id) == -1) this.statuses.push(data[i].status);
+				}
+				direction4remove = "top";
+			}
+			if (isremove) this.autoremove_bgtimeline(direction4remove);
+		},
 		/**
 		 * To generate Gpstatus from Raw status json of Mastodon
 		 * @param {JSON} rawdata Status array from Mastodon
@@ -566,6 +1125,7 @@ var vue_mixin_for_timeline = {
 		generate_toot_detail: function (rawdata, options) {
 			var data = rawdata.data;
 			var paging = rawdata.paging;
+			var retdata = [];
 
 			if (!options.app.is_nomax) {
 				if (paging.next != "") {
@@ -577,7 +1137,7 @@ var vue_mixin_for_timeline = {
 				if (paging.prev != "") {
 					//this.info.sinceid = paging.prev; //data[0].id;
 					if (paging["raw_prev"]) {
-						this.currentOption.api[paging["raw_prev"]] = paging.prev;	
+						this.currentOption.api[paging["raw_prev"]] = paging.prev;
 					}else{
 						this.currentOption.api.since_id = paging.prev;
 						this.currentOption.api.min_id = paging.prev;
@@ -606,13 +1166,17 @@ var vue_mixin_for_timeline = {
 					 */
 					//console.log("st=", st);
 					var baseIndex = 0;
-					if (direct == "since") {
-						this.statuses.unshift(st);
-					} else if (direct == "max") {
-						this.statuses.push(st);
-						baseIndex = this.statuses.length-1;
-					}
 					var tmpid = this.statuses.length - 1;
+					if (direct == "since") {
+						//alternative remove this.statuses.unshift(st);
+						tmpid = this.store_backgroundtimeline("top",st,options);
+						retdata.unshift(st);
+					} else if (direct == "max") {
+						//alternative remove this.statuses.push(st);
+						baseIndex = this.statuses.length-1;
+						tmpid = this.store_backgroundtimeline("bottom",st,options);
+						retdata.push(st);
+					}
 					//---get /statuses/:id/context
 					var conversationData = data;
 					var ascendantData = data;
@@ -892,12 +1456,12 @@ var vue_mixin_for_timeline = {
 				}
 			}
 
-			if (!options.app.is_nomax) {
+			if (!options.app.is_nomax) {		//---direction : push (past toot)
 				for (var i = 0; i < data.length; i++) {
 					if (this.checkExistToot(data[i].id)) continue;
 					generate_body(data[i],options,"max");
 				}
-			}else if (!options.app.is_nosince) {
+			}else if (!options.app.is_nosince) {	//---direction : unshift (future toot)
 				for (var i = data.length-1; i >= 0; i--) {
 					if (this.checkExistToot(data[i].id)) continue;
 					generate_body(data[i],options,"since");
@@ -906,45 +1470,14 @@ var vue_mixin_for_timeline = {
 			}
 			console.log("vm.statuses=" + this.statuses.length);
 			this.is_asyncing = false;
-			this.$nextTick(() =>{
+			/*this.$nextTick(() =>{
 				for (var s = 0; s < this.statuses.length; s++) {
 					var onest = this.statuses[s];
-					/*
-					if (onest.geo.enabled) {
-						var OsmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-							OsmAttr = 'map data &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-							Osm = L.tileLayer(OsmUrl, {maxZoom: 18, attribution: OsmAttr}),
-							latlng = L.latLng(onest.geo.location[0].lat, onest.geo.location[0].lng);
-	
-						//---$children is Vue.component
-						//   But, $children[0] is parent of the array timeline-toot
-						//   So, [1] is real start.
-						var oneelem = this.$children[s+1];
-						var geomap = L.map(
-							oneelem.$el.querySelector('.here_map'), {
-								center: latlng, 
-								dragging : true, 
-								zoom: onest.geo.location[0].zoom,
-								layers: [Osm]
-							}
-						);
-
-	
-						for (var i = 0; i < onest.geo.location.length; i++) {
-							var ll = onest.geo.location[i];
-							var marker = L.marker({lat:ll.lat,lng:ll.lng}).addTo(geomap);
-							marker.on("click",(ev)=>{
-								//ev.sourceTarget.remove();
-								//this.geotext = `geo:${ev.latlng.lat},${ev.latlng.lng}?z=${this.geo.zoom}&n=${}`;
-							});
-							marker.bindPopup(ll.name);
-						}
-					}
-					*/
+					
 				}
 
-			});
-			return Promise.resolve(this.statuses);
+			});*/
+			return Promise.resolve(retdata);
 		},
 
 		/**
@@ -1085,6 +1618,7 @@ var vue_mixin_for_timeline = {
 					this.currentOption.app["is_nomax"] = false;
 				}
 			}
+			this.currentOption.api["limit"] = MYAPP.session.config.application.timeline_viewcount;
 			//---these options are optional.
 			if ("tlshare" in cond) this.currentOption.app["tlshare"] = cond.tlshare;
 			if ("tltype" in cond) {
@@ -1499,6 +2033,7 @@ var vue_mixin_for_inputtoot = {
 			 */
             medias : [],
 			switch_NSFW : false,
+			temp_gphoto_items : [],
 			
 			//---link
 			mainlink : {
@@ -1778,6 +2313,11 @@ var vue_mixin_for_inputtoot = {
 			this.calc_fulltext(this.status_text,{
 				counting_firstmention : this.is_set_mention_checkbox
 			});
+		},
+		temp_gphoto_items : function (val) {
+			if (val.length > 0) {
+
+			}
 		}
 	},
 	created(){
@@ -2259,6 +2799,10 @@ var vue_mixin_for_inputtoot = {
 			});
 			
 		},
+		onclick_imagefromgphoto : function (e) {
+			MYAPP.commonvue.photodlg.callparent = this;
+			MYAPP.commonvue.photodlg.$refs.gdlg.show();
+		},
 		onclick_addgeo : function (e) {
 			if (this.is_geo) {
 				this.is_geo = false;
@@ -2569,7 +3113,7 @@ var vue_mixin_for_inputtoot = {
 							type : filetype,
 							comment : "",
 							data : {
-								name : new Date().valueOf()
+								name : `${new Date().valueOf()}${i}`
 							}
 						};
 						this.selmedias.push(dat);
@@ -2652,7 +3196,8 @@ var vue_mixin_for_inputtoot = {
 						this.medias.push(ret);
 						for (var s = 0; s < this.selmedias.length; s++) {
 							if (loopfilename == this.selmedias[s].data.name) {
-								this.selmedias[s]["preview_url"] = ret[loopaccoutname].preview_url;
+								this.$set(this.selmedias[s],"preview_url",ret[loopaccoutname].preview_url);
+								//this.selmedias[s]["preview_url"] = ret[loopaccoutname].preview_url;
 							}
 						}
 						ret = {};
@@ -2666,7 +3211,8 @@ var vue_mixin_for_inputtoot = {
 				this.medias.push(ret);
 				for (var s = 0; s < this.selmedias.length; s++) {
 					if (loopfilename == this.selmedias[s].data.name) {
-						this.selmedias[s]["preview_url"] = ret[loopaccoutname].preview_url;
+						this.$set(this.selmedias[s],"preview_url",ret[loopaccoutname].preview_url);
+						//this.selmedias[s]["preview_url"] = ret[loopaccoutname].preview_url;
 					}
 				}
 

@@ -11,7 +11,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190531-01",
+            revision : "20190810-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -20,26 +20,34 @@ class Gplusdon {
         };
         this.appinfo = cstappinfo;
 
-        this.siteinfo = {
-            cke : "_gp_logined",
-            lancke : "_gp_lang",
-            srv_inst : "mastodon.cloud",
-            key: "",
-            secret: "",
-            token: "",
-            appurl : "https://gplusdon.net",
-            //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
-            redirect_uri : "/redirect",
-            scopes: ["read", "write", "follow","push"],
-            ggl : {
-                ak : hidinfo[4],
-                ci : hidinfo[5],
-                pic_ak : hidinfo[8],
-                act : {},
-            },
-            yh : hidinfo[6],
-            mab : hidinfo[7]
-        };
+        this.siteinfo = this.loadSessionStorage();
+        if (this.siteinfo) {
+            if (!("pht_ak" in this.siteinfo.ggl)) {
+                this.siteinfo.ggl["pht_ak"] = hidinfo[9];
+            }
+        }else{
+            this.siteinfo = {
+                cke : "_gp_logined",
+                lancke : "_gp_lang",
+                srv_inst : "mastodon.cloud",
+                key: "",
+                secret: "",
+                token: "",
+                appurl : "https://gplusdon.net",
+                //redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
+                redirect_uri : "/redirect",
+                scopes: ["read", "write", "follow","push"],
+                ggl : {
+                    ak : hidinfo[4],
+                    ci : hidinfo[5],
+                    pic_ak : hidinfo[8] || "",
+                    pht_ak : hidinfo[9] || "",
+                    act : {},
+                },
+                yh : hidinfo[6],
+                mab : hidinfo[7]
+            };
+        }
         this.saveSessionStorage();
         
         this.acman = new AccountManager();
@@ -94,8 +102,11 @@ class Gplusdon {
     get sns(){
         return this._sns;
     }
+    loadSessionStorage() {
+        return JSON.parse(localStorage.getItem("siteinfo"));
+    }
     saveSessionStorage() {
-        sessionStorage.setItem("siteinfo",JSON.stringify(this.siteinfo));
+        localStorage.setItem("siteinfo",JSON.stringify(this.siteinfo));
     }
     checkSession() {
         console.log(this.session.status);

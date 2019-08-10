@@ -356,7 +356,8 @@ document.addEventListener('DOMContentLoaded', function() {
             MYAPP.acman.loadEmoji();
             //var elem = ID("tbl_acc").tBodies[0];
             //var frag = document.createDocumentFragment();
-            vue_accounts.translations = curLocale.messages;
+            //vue_accounts.translations = curLocale.messages;
+            optimizeLocale(vue_accounts.translations);
 
             for (var i = 0; i < MYAPP.acman.items.length; i++) {
                 var tmpac = Object.assign({},MYAPP.acman.items[i]);

@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     gglid : "",
                     ggldata : null,
                 },
+                g_is_show : false,
                 globalInfo : {}
             //}
         },
@@ -254,6 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 });
+                localStorage.removeItem("siteinfo");
+                sessionStorage.removeItem("siteinfo");
             },
             onclick_authorize_drive_btn : function (e) {
                 MUtility.loadingON();
@@ -325,6 +328,72 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
     
                 }
+            },
+            onclose_gphotodialog : function (e) {
+                console.log(e);
+            },
+            onclick_gphoto_test_btn : function (e) {
+                //MYAPP.commonvue.photodlg.is_show = true;
+                this.$refs.gdlg.show();
+                return;
+
+
+                var gdrive_body =  () => {
+                    let options = {
+                        //key : gpGLD.k.pht_ap
+                    };
+                    gpGLD.createPhotoStream("mediaItems",options,MYAPP.siteinfo.ggl.act)
+                    .then((data)=>{
+                        //---get file(s) from Google Picker
+                        console.log(data);
+                        MYAPP.commonvue.photodlg.items = data.mediaItems;
+                        MYAPP.commonvue.photodlg.nextPageToken = data.nextPageToken;
+                        MYAPP.commonvue.photodlg.is_show = true;
+                        /*
+                        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                            var pros = [];
+                            var docs = data[google.picker.Response.DOCUMENTS];
+                            for (var d = 0; d < docs.length; d++) {
+                                var doc = docs[d];
+                                pros.push(gpGLD.loadFullFile(doc));
+    
+                            }
+                            Promise.all(pros)
+                            .then(res=>{
+                                console.log(res);
+                                //resolve(res);
+                                var files = [];
+                                for (var r = 0; r < res.length; r++) {
+                                    //var blob = new Blob([res[r].data.body], {type: res[r].data.headers["Content-Type"]});
+                                    //var url = window.URL.createObjectURL(blob);
+                                    files.push({
+                                        name : res[r].file.name,
+                                        body : res[r].data.body,
+                                        mimetype : res[r].data.headers["Content-Type"]
+                                    });
+                                }
+                                this.loadMediafiles("binary",files);
+                            });
+                        }*/
+                        
+                    });
+                }
+    
+                //---to attach a media file from Google Drive(Photos)
+                if ("access_token" in MYAPP.siteinfo.ggl.act) {
+                    if (!gpGLD.isExpired()) {
+                        gdrive_body();
+                        return;
+                    }
+                }
+                gpGLD.handleAuth()
+                .then(result=>{
+                    var authres = result.getAuthResponse();
+                    MYAPP.siteinfo.ggl.act = authres;
+                    MYAPP.saveSessionStorage();
+                    
+                    gdrive_body();			
+                });
             },
             onclick_organization_account_btn : function (e) {
                 MUtility.loadingON();

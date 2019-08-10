@@ -701,3 +701,253 @@ Vue.component("reply-inputbox", {
 
 	}
 });
+
+
+//===----------------------------------------------------------------------===
+//  Component: gphoto-dialog
+//===----------------------------------------------------------------------===
+Vue.component("gphoto-dialog", {
+	template: CONS_TEMPLATE_GPHOTO_DIALOG,
+	mixins: [vue_mixin_base],
+	props: {
+		translation: Object,
+		globalinfo: Object,
+		
+	},
+	data() {
+		return {
+			is_show : false,
+            isfull : false,
+            maxwidth : "800px",
+			isfitstyle : {
+				width : "auto",
+				height : "auto"
+			},
+			findtext : "",
+			curfilters : {},
+			items : [],
+			selectitems : [],
+			nextPageToken : "",
+		};
+	},
+	mounted() {
+		this.isfull = this.$vuetify.breakpoint.smAndDown;
+	},
+	methods : {
+		show : function () {
+			this.is_show = true;
+		},
+		onclick_cancel : function (e) {
+			this.is_show = false;
+
+			this.$emit("close",{items:[]});
+		},
+		onclick_ok : function (e) {
+			this.is_show = false;
+			this.$emit("close",{items:this.selectitems});
+		},
+		onselect_css : function (ishit) {
+			if (ishit) {
+				return {primary : true};
+			}else{
+				return {primary : false};
+			}
+		},
+		onclick_clearstream : function (e) {
+			var gdrive_body =  () => {
+				let options = {
+					//key : gpGLD.k.pht_ap
+				};
+				gpGLD.createPhotoStream("mediaItems",options,MYAPP.siteinfo.ggl.act)
+				.then((data)=>{
+					//---get file(s) from Google Picker
+					console.log(data);
+					this.items = data.mediaItems;
+					this.nextPageToken = data.nextPageToken;
+					
+				});
+			}
+
+			//---to attach a media file from Google Drive(Photos)
+			if ("access_token" in MYAPP.siteinfo.ggl.act) {
+				if (!gpGLD.isExpired()) {
+					gdrive_body();
+					return;
+				}
+			}
+			gpGLD.handleAuth()
+			.then(result=>{
+				var authres = result.getAuthResponse();
+				MYAPP.siteinfo.ggl.act = authres;
+				MYAPP.saveSessionStorage();
+				
+				gdrive_body();
+			});
+		},
+		onenter_searchfield : function (e) {
+			var gdrive_body =  (filters) => {
+				let options = {
+					//key : gpGLD.k.pht_ap,
+					body : {
+						filters : filters
+					}
+				};
+				gpGLD.createPhotoStreamPost("mediaItems:search",options,MYAPP.siteinfo.ggl.act)
+				.then((data)=>{
+					//---get file(s) from Google Picker
+					console.log(data);
+					this.items = data.mediaItems;
+					this.nextPageToken = data.nextPageToken;
+					
+				});
+			}
+			//---filtering search string condition 
+			/*
+				default : lastest 3 days all medias.
+				type:photo/video
+				before:2019-01-01
+				after:2019-01-01
+			*/
+			var farr = this.findtext.split(/\s/);
+			let curdate = new Date();
+			var apifilters = {
+				dateFilter : {
+					ranges : [
+						{
+							startDate : {
+								year : curdate.getFullYear(),
+								month : curdate.getMonth()+1,
+								day : curdate.getDate()-3
+							},
+							endDate : {
+								year : curdate.getFullYear(),
+								month : curdate.getMonth()+1,
+								day : curdate.getDate()
+							}
+						}
+					]
+				}
+			}
+			var isbefore = false;
+			var isafter = false;
+			for (var i = 0; i < farr.length; i++) {
+				var fstr = farr[i];
+				var fdate;
+				try {
+					if (fstr.toLowerCase().startsWith("before:")) {
+						fstr = fstr.toLowerCase().replace("before:","");
+						fdate = new Date(fstr);
+						apifilters.dateFilter.ranges[0].endDate.year = fdate.getFullYear();
+						apifilters.dateFilter.ranges[0].endDate.month = fdate.getMonth()+1;
+						apifilters.dateFilter.ranges[0].endDate.day = fdate.getDate();
+						isbefore = true;
+					}else if (fstr.toLowerCase().startsWith("after:")) {
+						fstr = fstr.toLowerCase().replace("after:","");
+						fdate = new Date(fstr);
+						apifilters.dateFilter.ranges[0].startDate.year = fdate.getFullYear();
+						apifilters.dateFilter.ranges[0].startDate.month = fdate.getMonth()+1;
+						apifilters.dateFilter.ranges[0].startDate.day = fdate.getDate();
+						isafter = true;
+					}else if (fstr.toLowerCase().startWith("type:")) {
+						fstr = fstr.toLowerCase().replace("type:","");
+						apifilters["mediaTypeFilter"] = {
+							mediaTypes : [
+								fstr.toUpperCase()
+							]
+						};
+					}else{
+						fdate = new Date(fstr);
+					}
+				}catch(e){
+
+				}finally{
+
+				}
+				
+			}
+			if (isbefore && !isafter) {
+				apifilters.dateFilter.ranges[0].startDate.year = apifilters.dateFilter.ranges[0].endDate.year;
+				apifilters.dateFilter.ranges[0].startDate.month = apifilters.dateFilter.ranges[0].endDate.month;
+				apifilters.dateFilter.ranges[0].startDate.day = apifilters.dateFilter.ranges[0].endDate.day - 7;
+			}
+			if (!isbefore && isafter) {
+				apifilters.dateFilter.ranges[0].endDate.year = apifilters.dateFilter.ranges[0].startDate.year;
+				apifilters.dateFilter.ranges[0].endDate.month = apifilters.dateFilter.ranges[0].startDate.month;
+				apifilters.dateFilter.ranges[0].endDate.day = apifilters.dateFilter.ranges[0].startDate.day + 7;
+			}
+
+			this.curfilters = apifilters;
+			//---to attach a media file from Google Drive(Photos)
+			if ("access_token" in MYAPP.siteinfo.ggl.act) {
+				if (!gpGLD.isExpired()) {
+					gdrive_body(apifilters);
+					return;
+				}
+			}
+			gpGLD.handleAuth()
+			.then(result=>{
+				var authres = result.getAuthResponse();
+				MYAPP.siteinfo.ggl.act = authres;
+				MYAPP.saveSessionStorage();
+				
+				gdrive_body(apifilters);			
+			});
+		},
+		onclick_more : function (e) {
+			var gdrive_body;
+			if (this.findtext != "") {
+				gdrive_body =  () => {
+					//---search mode
+					let options = {
+						//key : gpGLD.k.pht_ap,
+						body : {
+							filters : this.curfilters,
+							pageToken : this.nextPageToken
+						}
+					};
+					gpGLD.createPhotoStreamPost("mediaItems:search",options,MYAPP.siteinfo.ggl.act)
+					.then((data)=>{
+						//---get file(s) from Google Picker
+						console.log(data);
+						this.items = this.items.concat(data.mediaItems);
+						this.nextPageToken = data.nextPageToken;
+						
+					});
+				}
+			}else{
+				//---normal scroll mode
+				gdrive_body =  () => {
+					let options = {
+						//key : gpGLD.k.pht_ap
+						pageToken : this.nextPageToken
+					};
+					gpGLD.createPhotoStream("mediaItems",options,MYAPP.siteinfo.ggl.act)
+					.then((data)=>{
+						//---get file(s) from Google Picker
+						console.log(data);
+						this.items = this.items.concat(data.mediaItems);
+						this.nextPageToken = data.nextPageToken;
+						
+					});
+				}
+	
+				
+			}
+			//---to attach a media file from Google Drive(Photos)
+			if ("access_token" in MYAPP.siteinfo.ggl.act) {
+				if (!gpGLD.isExpired()) {
+					gdrive_body();
+					return;
+				}
+			}
+			gpGLD.handleAuth()
+			.then(result=>{
+				var authres = result.getAuthResponse();
+				MYAPP.siteinfo.ggl.act = authres;
+				MYAPP.saveSessionStorage();
+				
+				gdrive_body();
+			});
+		}
+	}
+});

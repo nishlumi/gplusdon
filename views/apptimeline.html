@@ -40,17 +40,48 @@
                     v-on:datesaveclose="ondatesaveclose"
                 ></timeline-condition>
             </div>
-
-            <timeline-toot 
-                v-bind:translation="translations"
-                v-bind:toote="status"
-                v-bind:key="status.id"
-                v-bind:globalinfo="globalInfo"
+            <!--<dynamic-scroller
+                class="vvscroller"
+                :items="statuses"
+                :min-item-size="32"
+            >
+            
+                <template v-slot="{ item,index,active }">
+                    <dynamic-scroller-item
+                        :item="item"
+                        :active="active"
+                        :size-dependencies="[ item.messages, ]"
+                        :data-index="index"
+                    >
+                        <timeline-toot 
+                            v-bind:translation="translations"
+                            v-bind:toote="item"
+                            v-bind:globalinfo="globalInfo"
+                            v-bind:gallery_options="gallery_options"
+                            v-on:replied_post="onreplied_children(item,index)"
+                            v-on:delete_toot="ondelete_toot_children"
+                        ></timeline-toot>
+                    </dynamic-scroller-item>
+                </template>
+            </dynamic-scroller>
+            -->
+            
+                    
+            <template
+                
                 v-for="(status,index) in statuses"
-                v-bind:gallery_options="gallery_options"
-                v-on:replied_post="onreplied_children(status,index)"
-                v-on:delete_toot="ondelete_toot_children"
-            ></timeline-toot>
+            >
+                <timeline-toot 
+                    v-bind:key="status.id"
+                    v-bind:translation="translations"
+                    v-bind:toote="status"
+                    v-bind:globalinfo="globalInfo"
+                    v-bind:gallery_options="gallery_options"
+                    v-on:replied_post="onreplied_children(status,index)"
+                    v-on:delete_toot="ondelete_toot_children"
+                ></timeline-toot>
+            </template>
+                    
         </div>
         <div class="pending_below_area" v-if="statuses.length < 10">
             <v-layout row wrap >
@@ -63,7 +94,10 @@
         </div>
     </div>
         
-    
+    <!--
+                
+
+    -->
 </div>
 <input type="hidden" id="hid_timelinetype" value="{{timelinetype}}" />
 <input type="hidden" id="hid_timelinetypeid" value="{{timelinetypeid}}" />

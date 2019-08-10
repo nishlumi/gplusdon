@@ -77,6 +77,8 @@ function loadUserInfo(idname, instance, options) {
     })
     .catch((xhr,status)=>{
         console.log(xhr,status);
+        MUtility.loadingOFF();
+        this.is_asyncing = false;
     })
     .finally(()=>{
         MUtility.loadingOFF();
@@ -87,27 +89,30 @@ function loadUserInfo(idname, instance, options) {
 
 function loadTimelineCommon(userid,options){
     console.log("loadTimelineCommon");
-    if (this.is_asyncing) return false;
+    if (this.is_asyncing) return Promise.reject(false);
 
-    if (!options.app.is_nomax && options.api.max_id == "") return;
-    if (!options.app.is_nosince && options.api.since_id == "") return;
+    if (!options.app.is_nomax && options.api.max_id == "") return Promise.reject(false);
+    if (!options.app.is_nosince && options.api.since_id == "") return Promise.reject(false);
     MUtility.loadingON();
     this.is_asyncing = true;
 
-    MYAPP.sns.getToots(userid,options)
+    return MYAPP.sns.getToots(userid,options)
     .then((data)=>{
         console.log("getMyToots",data);
-        if (data.length == 0) {
+        /*if (data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         
         this.generate_toot_detail(data,options);
         
         MUtility.loadingOFF();
         this.is_asyncing = false;
-    },(xhr,status)=>{
+        return data;
+    })
+    .catch((error)=>{
         MUtility.loadingOFF();
+        alertify.error("読み込みに失敗しました。",error);
     });
 
 }
@@ -121,19 +126,21 @@ function loadPinnedToot(userid, options) {
     this.is_asyncing = true;
     options.api["pinned"] = true;
     options.app["tltype"] = "tt_all";
-    MYAPP.sns.getToots(userid,options)
+    return MYAPP.sns.getToots(userid,options)
     .then((data)=>{
         console.log("getMyToots",data);
-        if (data.length == 0) {
+        /*if (data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         this.generate_toot_detail(data,options);
         
         MUtility.loadingOFF();
         this.is_asyncing = false;
 
-    },(xhr,status)=>{
+        return data;
+    })
+    .catch((error)=>{
         MUtility.loadingOFF();
     });
 }
@@ -144,7 +151,7 @@ function load_following(userid, options) {
     MUtility.loadingON();
     this.is_asyncing = true;
 
-    MYAPP.sns.getFollowing(userid,options)
+    return MYAPP.sns.getFollowing(userid,options)
     .then((result)=>{
         console.log("getFollowing",result,result.data.length);
         if (!("max_id" in options.api) && (result.data.length == 0)) {
@@ -152,7 +159,7 @@ function load_following(userid, options) {
                 vue_user.following.is_vanished = true;
             }
             MUtility.loadingOFF();
-            return;
+            return Promise.reject(result);
         }
         //vue_user.tabbar.following_count = result.data.length;
         
@@ -177,12 +184,12 @@ function load_following(userid, options) {
             if (this.info.sinceid != result2.paging.prev) {
                 this.generate_account_detail(result2,options);
             }
+            MUtility.loadingOFF();
+            this.is_asyncing = false;
         });
     })
     .catch((xhr,status)=>{
         console.log(xhr,status);
-    })
-    .finally(()=>{
         MUtility.loadingOFF();
         this.is_asyncing = false;
     });
@@ -195,7 +202,7 @@ function load_follower(userid, options){
     MUtility.loadingON();
     this.is_asyncing = true;
 
-    MYAPP.sns.getFollower(userid,options)
+    return MYAPP.sns.getFollower(userid,options)
     .then((result)=>{
         console.log("getFollower",result);
         if (!("max_id" in options.api) && (result.data.length == 0)) {
@@ -228,12 +235,12 @@ function load_follower(userid, options){
             if (this.info.sinceid != result2.paging.prev) {
                 this.generate_account_detail(result2,options);
             }
+            MUtility.loadingOFF();
+            this.is_asyncing = false;
         });
     })
     .catch((xhr,status)=>{
         console.log(xhr,status);
-    })
-    .finally(()=>{
         MUtility.loadingOFF();
         this.is_asyncing = false;
     });
@@ -815,7 +822,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (vue_user.userview.is_serveronly) {
                         opt.app["noauth"] = true;
                     }
-                    vue_user.tootes.loadTimeline(vue_user.tootes.id,opt);
+                    //vue_user.tootes.loadTimeline(vue_user.tootes.id,opt);
+                    vue_user.tootes.prepare_backgroundtimeline("init",vue_user.tootes.id,opt);
                 }
             }else if (e.id == "tt_follow") {
                 var et = ID("tt_follow");
@@ -911,7 +919,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 //pastOptions.api.max_id = vue_user.tootes.info.maxid;
                 //pastOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //pastOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline(vue_user.tootes.id,{
+                /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
+                    api : pastOptions.api,
+                    app : pastOptions.app
+                });*/
+                pastOptions.app["element"] = e.target;
+                vue_user.tootes.prepare_backgroundtimeline("bottom",vue_user.tootes.id,{
                     api : pastOptions.api,
                     app : pastOptions.app
                 });
@@ -994,7 +1007,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 //futureOptions.api.since_id = vue_user.tootes.info.sinceid;
                 //futureOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //futureOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline(vue_user.tootes.id,{
+                /*vue_user.tootes.loadTimeline(vue_user.tootes.id,{
+                    api : futureOptions.api,
+                    app : futureOptions.app
+                });*/
+                futureOptions.app["element"] = e.target;
+                vue_user.tootes.prepare_backgroundtimeline("top",vue_user.tootes.id,{
                     api : futureOptions.api,
                     app : futureOptions.app
                 });
@@ -1015,8 +1033,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     MYAPP.session.status.currentLocation = `/users/${ID("hid_instance").value}/${ID("hid_uid").value}`; //location.pathname;
 
-    vue_user.tootes.translations = curLocale.messages;
-    vue_user.userview.translations = curLocale.messages;
+    //vue_user.tootes.translations = curLocale.messages;
+    //vue_user.userview.translations = curLocale.messages;
+    
+    for (var obj in curLocale.messages) {
+        Object.defineProperty(vue_user.tootes.translations,obj,{
+            configurable : false,
+            value : curLocale.messages[obj]
+        });
+        Object.defineProperty(vue_user.userview.translations,obj,{
+            configurable : false,
+            value : curLocale.messages
+        });
+    }
 
     //---if no account register, redirect /start
     MYAPP.acman.load().then(function (data) {

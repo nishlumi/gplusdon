@@ -266,6 +266,20 @@ function setupLocale(params){
 
 
 }
+function optimizeLocale(target) {
+	for (var obj in curLocale.messages) {
+		Object.defineProperty(target,obj,{
+			configurable : false,
+			value : curLocale.messages[obj]
+		});
+	}
+}
+function optiset(target,targetprop,value) {
+	Object.defineProperty(target,targetprop,{
+		configurable : false,
+		value : value
+	});
+}
 function checkBrowser(){
 	var ret = {
 		"platform" : "",
@@ -705,7 +719,26 @@ function loadGeoLoco(geo,option) {
 	});
 	return def;
 }
-
+function loadOuterImage(url) {
+	var prm = new URLSearchParams();
+	var srvurl = ID("hid_staticpath").value.replace("/static","");
+	prm.append("photo",JSON.stringify(url));
+	prm.append("_csrf",ID("_csrf").value);
+	var req = new Request(srvurl+"srv/outerimage",{
+		method : "POST",
+		body : prm
+	});
+	var def = new Promise((resolve,reject)=>{
+		return fetch(req).then((res)=>{
+			return res.json().then((data)=>{
+				
+				resolve(data);
+			});
+		});
+	
+	});
+	return def;
+}
 function ch2seh(data) {
 	////return data.replace(/&lt;/g,"").replace(/&gt;/g,"")
 	////	.replace(/innerHTML|document|querySelector|getElement/g,"");

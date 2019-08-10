@@ -22,6 +22,7 @@ var sysconst = {
             "api_key": 'AIzaSyD_aIoxUlbrEKnuA_PFMLXEKZpIIZBxU-E',
             "picker_api_key": "AIzaSyAIupeXvWgv7R8I8HxlhOVg6Liq1eyeK2o",
             "place_api_key": "AIzaSyBHu1tNzOJp1R5qaP8SNiItQig5iIq5gC4",
+            "photo_api_key" : "AIzaSyD_L7NRTDfgRtyAQthyfhhAuBvHzpwx3dg",
             "client_id": "381240031419-oi971gq2cq6jd4o446o6lvothhesdp84.apps.googleusercontent.com",
             "project_id": "gplus-mastodon-webclient",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",

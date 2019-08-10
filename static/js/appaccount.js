@@ -16,20 +16,21 @@ function loadTimelineCommon(type,options){
 
     MUtility.loadingON();
     this.is_asyncing = true;
-    MYAPP.sns.getToots("me",options)
+    return MYAPP.sns.getToots("me",options)
     .then((data)=>{
         console.log("getMyToots",data);
-        if (data.length == 0) {
+        /*if (data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         this.generate_toot_detail(data,options);
         
         MUtility.loadingOFF();
         this.is_asyncing = false;
+        return data;
     },(xhr,status)=>{
         MUtility.loadingOFF();
-        alertify.error("読み込みに失敗しました。");
+        alertify.error("読み込みに失敗しました。",error);
     });
 
 }
@@ -42,19 +43,20 @@ function loadPinnedToot(options) {
     this.is_asyncing = true;
     options.api["pinned"] = true;
     options.app["tltype"] = "tt_all";
-    MYAPP.sns.getToots("me",options)
+    return MYAPP.sns.getToots("me",options)
     .then((data)=>{
         console.log("getMyToots",data);
-        if (data.length == 0) {
+        /*if (data.length == 0) {
             MUtility.loadingOFF();
             return;
-        }
+        }*/
         this.generate_toot_detail(data,options);
         
         MUtility.loadingOFF();
         this.is_asyncing = false;
-
-    },(xhr,status)=>{
+        return data;
+    })
+    .catch((error)=>{
         MUtility.loadingOFF();
         alertify.error("読み込みに失敗しました。");
     });
@@ -78,8 +80,9 @@ function load_favourites(options) {
         
         MUtility.loadingOFF();
         this.is_asyncing = false;
-
-    },(xhr,status)=>{
+        return data;
+    })
+    .catch((error)=>{
         MUtility.loadingOFF();
         alertify.error("読み込みに失敗しました。");
     });
@@ -766,7 +769,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });*/
                     var opt = vue_user.tootes.forWatch_allcondition(vue_user.tootes.tlcond.getReturn());
-                    vue_user.tootes.loadTimeline("me",opt);
+                    //vue_user.tootes.loadTimeline("me",opt);
+                    vue_user.tootes.prepare_backgroundtimeline("init","me",opt);
 
                 //}
             }else if (e.id == "tt_fav") {
@@ -848,7 +852,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 //pastOptions.api.max_id = vue_user.tootes.info.maxid;
                 //pastOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //pastOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline("me",{
+                /*vue_user.tootes.loadTimeline("me",{
+                    api : pastOptions.api,
+                    app : pastOptions.app
+                });*/
+                pastOptions.app["element"] = e.target;
+                vue_user.tootes.prepare_backgroundtimeline("bottom","me",{
                     api : pastOptions.api,
                     app : pastOptions.app
                 });
@@ -900,11 +909,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 //futureOptions.api.since_id = vue_user.tootes.info.sinceid;
                 //futureOptions.app.tlshare = vue_user.tootes.selshare_current;
                 //futureOptions.app.tltype = vue_user.tootes.seltype_current;
-                vue_user.tootes.loadTimeline("me",{
+                /*vue_user.tootes.loadTimeline("me",{
+                    api : futureOptions.api,
+                    app : futureOptions.app
+                });*/
+                futureOptions.app["element"] = e.target;
+                vue_user.tootes.prepare_backgroundtimeline("top","me",{
                     api : futureOptions.api,
                     app : futureOptions.app
                 });
-
             }
         }
         MYAPP.commonvue.bottomnav.checkScroll(fnlsa);
@@ -951,6 +964,28 @@ document.addEventListener('DOMContentLoaded', function() {
         vue_user.editor.translations = vue_user.basicinfo.translations;
         vue_user.fav.translations = vue_user.basicinfo.translations;
         vue_user.annodlg.translations = vue_user.basicinfo.translations;
+        /*for (var obj in curLocale.messages) {
+            Object.defineProperty(vue_user.tabbar.translations,obj,{
+                configurable : false,
+                value : curLocale.messages[obj]
+            });
+            Object.defineProperty(vue_user.tootes.translations,obj,{
+                configurable : false,
+                value : curLocale.messages
+            });
+            Object.defineProperty(vue_user.editor.translations,obj,{
+                configurable : false,
+                value : curLocale.messages
+            });
+            Object.defineProperty(vue_user.fav.translations,obj,{
+                configurable : false,
+                value : curLocale.messages
+            });
+            Object.defineProperty(vue_user.annodlg.translations,obj,{
+                configurable : false,
+                value : curLocale.messages
+            });
+        }*/
 
         var elem = document.querySelector("#tbl_acc tbody");
         /*for (var i = 0; i < MYAPP.acman.items.length; i++) {

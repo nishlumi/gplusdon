@@ -95,6 +95,10 @@
                                 <v-btn small color="primary" v-if="is_gdrive_authorize" v-on:click="onclick_googlesave_btn">{{trans.cons_save}}</v-btn>
                                 <br>
                                 <v-checkbox v-model="type_app.cloud_manualy_save" label="{{trans.app_item_sync_gdrive_hand}}"></v-checkbox>
+                                <!--<v-btn small color="primary" v-on:click="onclick_gphoto_test_btn">test</v-btn>
+
+                                <gphoto-dialog ref="gdlg" @close="onclose_gphotodialog"></gphoto-dialog>
+                                -->
                             </v-flex>
                         </v-layout>
                     </v-card-text>

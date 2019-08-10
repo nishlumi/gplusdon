@@ -251,24 +251,28 @@ class Gpstream {
                         }
                         */
                         this._targetObject.generate_toot_detail({
-                                data:[data],
-                                paging : {
-                                    prev : data.id
-                                }
-                            },{
-                                api : {
-                                    exclude_replies : true,
-                                    since_id : "",
-                                },
-                                app : this._targetObject.currentOption.app
-                            });
+                            data:[data],
+                            paging : {
+                                prev : data.id
+                            }
+                        },{
+                            api : {
+                                exclude_replies : true,
+                                since_id : "",
+                            },
+                            app : this._targetObject.currentOption.app
+                        });
+                        var arr = this._targetObject.check_backgroundtimeline("top");
+                        this._targetObject.postfunc_backgroundtimeline("top",arr,false);
                         //---finish get update from stream, remove old loaded tootes
                         if (this._targetObject.is_scrolltop) {
+                            /* ===alternative remove===
                             if (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
                                 while (this._targetObject.statuses.length > MYAPP.session.config.application.timeline_viewcount) {
                                     this._targetObject.statuses.pop();
                                 }
-                            }
+                            }*/
+                            this._targetObject.autoremove_bgtimeline("bottom");
                         }
         
                     } 

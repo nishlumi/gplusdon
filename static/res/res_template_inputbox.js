@@ -256,8 +256,12 @@ const CONS_TEMPLATE_INPUT_BOX = `
                                                 <span>{{translation.toolbtn_addimage}}</span>  
                                             </v-tooltip>
                                             <v-tooltip bottom>
-                                                <v-btn id="btn_imagefromdrive" slot="activator" icon v-if="toolbtn.addimage" :disabled="!is_available_image"  v-on:click="onclick_imagefromdrive"><v-icon>cloud_upload</v-icon></v-btn>
+                                                <v-btn id="btn_imagefromdrive" slot="activator" icon v-if="toolbtn.addimage" :disabled="!is_available_image"  v-on:click="onclick_imagefromdrive"><v-icon>mdi-google-drive</v-icon></v-btn>
                                                 <span>{{translation.toolbtn_imagefromdrive}}</span>  
+                                            </v-tooltip>
+                                            <v-tooltip bottom>
+                                                <v-btn id="btn_imagefromgphoto" slot="activator" icon v-if="toolbtn.addimage" :disabled="!is_available_image"  v-on:click="onclick_imagefromgphoto"><v-icon>mdi-google-photos</v-icon></v-btn>
+                                                <span>{{translation.toolbtn_imagefromgphoto}}</span>  
                                             </v-tooltip>
                                             <v-tooltip bottom>
                                                 <v-btn id="btn_addgeo" slot="activator" icon v-if="toolbtn.addgeo" v-on:click="onclick_addgeo"><v-icon>gps_fixed</v-icon></v-btn>
@@ -433,6 +437,102 @@ const CONS_TEMPLATE_INPUT_BOX = `
         </v-window-item>
     </v-window>
     
+    
+</div>
+`;
+
+const CONS_TEMPLATE_GPHOTO_DIALOG = `
+<div >
+    
+    <v-dialog v-model="is_show" 
+        :fullscreen="isfull"
+        :max-width="maxwidth"
+        transition="dialog-bottom-transition" 
+        :overlay="false"
+        scrollable
+    >
+        
+        <v-card>
+            <v-toolbar >
+                <v-text-field
+                    label="Search photos..."
+                    v-model="findtext"
+                    @keydown.enter="onenter_searchfield"
+                ></v-text-field>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                    <v-btn flat icon color="primary" @click="onclick_clearstream"><v-icon>autorenew</v-icon></v-btn>
+                </v-toolbar-items>
+            </v-toolbar>
+            <v-card-text>
+                <v-container grid-list-xs fluid >
+                    
+                    <v-item-group multiple v-model="selectitems">
+                        <v-layout row wrap>
+                            <template v-for="(item,index) in items" >
+                                
+                                
+                                <v-item :key="index" :value="item">
+                                    <v-flex xs6 sm4 md3 slot-scope="{ active, toggle }" :class="onselect_css(active)">
+                                        <v-card flat tile 
+                                            
+                                            
+                                            class="d-flex mb-1"
+                                            
+                                            height="200"
+                                            @click="toggle"
+                                        >
+                                            <v-layout row wrap>
+                                                <v-flex xs12>
+                                                    <v-img
+                                                        :src="item.baseUrl"
+                                                        
+                                                        aspect-ratio="1"
+                                                        class="grey lighten-2"
+                                                    >
+                                                        <template v-slot:placeholder>
+                                                            <v-layout
+                                                                fill-height
+                                                                align-center
+                                                                justify-center
+                                                                ma-0
+                                                            >
+                                                                <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                                                            </v-layout>
+                                                        </template>
+                                                    </v-img>
+                                                </v-flex>
+                                                <v-flex xs12>
+                                                    <span v-text="item.filename"></span>
+                                                </v-flex>
+                                            </v-layout>
+                                            
+                                            
+                                                
+                                            
+                                        </v-card>
+                                    </v-flex>
+                                </v-item>
+                                
+                                
+                            </template>
+                        </v-layout>
+                    </v-item-group>
+                    <v-layout row wrap v-if="(nextPageToken)">
+                        <v-flex xs12>
+                            <v-btn text style="width:100%;" @click="onclick_more">more...</v-btn>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-layout row justify-end>
+                    <v-btn @click="onclick_cancel">キャンセル</v-btn>
+                    <v-btn color="primary" @click="onclick_ok">OK</v-btn>
+                </v-layout>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
     
 </div>
 `;

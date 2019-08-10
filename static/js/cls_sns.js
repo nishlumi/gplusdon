@@ -9,6 +9,14 @@ class Gpsns {
     setInstanceToken(tok) {
         this._instanceToken = tok;
     }
+    convertFetchHeaders(headers) {
+        var ret = [];
+        for (var pair of headers.entries()) {
+            //console.log(pair[0],pair[1]);
+            ret[pair[0]] = pair[1];
+        }
+        return ret;
+    }
     extractHeaderLink(link) {
         var ret = {next : "", prev : ""};
         if (!link) return ret;
@@ -19,8 +27,9 @@ class Gpsns {
             ln[0] = ln[0].replace("<","").replace(">","");
             ln[1] = ln[1].trim().replace("rel=","").replace(/"/g,"");
             //---?max_id=92929 -> 
-            var a = GEN("a");
-            a.href = ln[0];
+            //var a = GEN("a");
+            //a.href = ln[0];
+            var a = new URL(ln[0]);
             var ser = a.search.replace("?","").split("&");
             var consIDprop = ["since_id","min_id","max_id"];
             for (var s = 0; s < ser.length; s++) {
@@ -124,6 +133,7 @@ class Gpsns {
             var retdef;
             var endpoint = "";
             var isauth = true;
+            var fmode = false;
             if (type == "local") {
                 endpoint = `timelines/public`;
                 isauth = false;
@@ -133,8 +143,15 @@ class Gpsns {
             }else{
                 endpoint = `timelines/${type}`;
             }
+            if ("fetch" in options.app) {
+                fmode = true;
+            }
             if ("noauth" in options.app) {
-                retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
+                if (fmode) {
+                    retdef = MYAPP.server_account.api.get_noauth_fetch(endpoint,options.api);
+                }else{
+                    retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
+                }
             }else{
                 if (this._accounts == null) {
                     reject(false);
@@ -144,20 +161,38 @@ class Gpsns {
 
                 //console.log(endpoint);
                 if (isauth) {
-                    retdef = this._accounts.api.get(endpoint,options.api);
+                    if (fmode) {
+                        retdef = this._accounts.api.get_fetch(endpoint,options.api);
+                    }else{
+                        retdef = this._accounts.api.get(endpoint,options.api);
+                    }
                 }else{
-                    retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                    if (fmode) {
+                        retdef = this._accounts.api.get_noauth_fetch(endpoint,options.api);
+                    }else{
+                        retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                    }
                 }
             }
             retdef.then((data,status,xhr)=>{
-                console.log(endpoint,data,xhr.getAllResponseHeaders());
+                //console.log(endpoint,data,xhr.getAllResponseHeaders());
+                //let headers = this.convertFetchHeaders(data.headers);
+                
+                //console.log(endpoint,headers);
                 var hlink = this.extractHeaderLink(xhr.getResponseHeader("Link"));
-                for (var i = 0; i < data.length; i++) {
-                    var tmp = GEN("a");
-                    tmp.href = data[i].account.url;
-                    data[i].account["instance"] = tmp.hostname;
-                }
-                resolve({data: data, paging: hlink});
+                //var hlink = this.extractHeaderLink(headers["link"]);
+                
+                //data.json().then(js=>{
+                    
+                    for (var i = 0; i < data.length; i++) {
+                        //var tmp = GEN("a");
+                        //tmp.href = js[i].account.url;
+                        var tmp = new URL(data[i].account.url);
+                        data[i].account["instance"] = tmp.hostname;
+                    }
+                    resolve({data: data, paging: hlink});
+                //});
+                
             },(xhr,status,err)=>{
                 console.log(xhr,status,err);
                 reject({xhr:xhr,status:status});

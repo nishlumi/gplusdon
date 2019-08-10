@@ -185,6 +185,17 @@ router.get('/srv/geolocation', function (req, res) {
         res.send(result);
     });
 });
+router.post('/srv/outerimage', function (req, res) {
+    var info = ucommon.analyze_locale(req);
+    var text = ucommon.get_outerimage(req, req.body);
+    text.then(result => {
+        //console.log("text=", result);
+        res.send(result);
+    })
+    .catch(error => {
+        res.send(error);
+    });
+});
 router.get('/srv/accounts/:instance/:id', function (req, res) {
     var api = cls_mstdn.loadAPImaster();
     cls_mstdn.getUser(api, req.params.instance, req.params.id)

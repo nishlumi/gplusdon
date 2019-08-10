@@ -161,13 +161,13 @@ Vue.component("timeline-toot", {
 		};
     },
     watch:  {
-        status_text : function(val) {
+        /*status_text : function(val) {
             var mentions = this.calc_mentionLength(this.selmentions).join(" ");
             var tags = this.seltags.join(" ");
             this.strlength = twttr.txt.getUnicodeTextLength(val)
                 + mentions.length + tags.length;
             
-        },
+        },*/
 		toote : function (val) {
 			if (val.body.poll) {
 				var tmppoll = this.initialize_poll(val.body.poll);
@@ -815,14 +815,14 @@ Vue.component("timeline-toot", {
 								this.toote.relationship[obj] = data.data[i][obj];
 							}
 						}
-						if (this.$vuetify.breakpoint.smAndDown) {
+						//if (this.$vuetify.breakpoint.smAndDown) {
 							MYAPP.commonvue.mobilemenu.toote = this.toote;
 							MYAPP.commonvue.mobilemenu.show(!MYAPP.commonvue.mobilemenu.isShow());
 							return;
-						}else{
-							target.classList.add("is-veal");
-							target.classList.remove("un-veal");
-						}
+						//}else{
+						//	target.classList.add("is-veal");
+						//	target.classList.remove("un-veal");
+						//}
 					});
 				}
 			}
@@ -1976,7 +1976,15 @@ Vue.component("tootgallery-carousel", {
 	beforeUpdate() {
 
 	},
+	computed : {
+	},
     methods : {
+		calcsrcset : function (item) {
+			return `${item.preview_url} ${item.meta.small.width}w, ${item.url} ${item.meta.original.width}w`;
+		},
+		calcsizes : function (item) {
+			return `(max-width:959px) ${item.meta.small.width}px, ${item.meta.original.width}px`;
+		},
         onmouseenter_gifv : function (e) {
 			if (this.is_pause) {
 				var pro = e.target.play();

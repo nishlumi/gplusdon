@@ -52,11 +52,13 @@
         <link rel="stylesheet" media="all" href="https://wee.jp/css/0.css">
         <link rel="stylesheet" href="/static/lib/materialize/css/materialize-user2.css" async>
         <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+        <link href="https://cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css" rel="stylesheet">
         <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet" async>
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" async>
         <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
 
-        <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/vuetify@1.5.16/dist/vuetify.min.css" rel="stylesheet">
+        <link href="/static/lib/vvscroller/vue-virtual-scroller.css" rel="stylesheet">
 
         <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" >
         <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" >
@@ -70,6 +72,8 @@
         <link href="/static/css/index.css" rel="stylesheet" >
         <link href="/static/css/toot-timeline.css" rel="stylesheet" >
 
+        {% include "jslib_vue.html" %}
+        <script src="/static/lib/vue-carousel.min.js"></script>
     </HEAD>
     <body>
         {% if sysinfo.hostname  == 'gplusdon.net' %}
@@ -364,7 +368,7 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
         <input type="hidden" id="_csrf" value="{{csrfToken}}">
-        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id, sysinfo.gdaky_pic ] %}
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id, sysinfo.gdaky_pic, sysinfo.gdaky_pht ] %}
         <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
         <form id="hid_send" class="common_ui_off" name="hid_send" method="post" action="" target="nodisp">
             <input id="hid_send_mode" name="mode" value="">
@@ -380,8 +384,7 @@
         <script src="/static/lib/jquery.min.js"></script>
         <script src="/static/lib/lodash.min.js"></script>
 
-        {% include "jslib_vue.html" %}
-        <script src="/static/lib/vue-carousel.min.js"></script>
+        
         
         <script src="/static/lib/materialize/js/materialize.min.js"></script>
         <script src="/static/lib/alertify/alertify.min.js"></script>

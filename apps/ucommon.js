@@ -317,6 +317,41 @@ async function getDirectoryMastodon(request, param) {
     });
     return def;
 }
+async function getOuterImageData(request, param) {
+    const btoa = str => {
+        let buffer;
+        if (Buffer.isBuffer(str)) {
+            buffer = str;
+        } else {
+            buffer = new Buffer(str.toString(), 'base64');
+        }
+
+        return buffer.toString('base64');
+    };
+    var def = new Promise((resolve, reject) => {
+        var ishit = false;
+        for (var i = 0; i < CON_ACCEPT_HOSTS.length; i++) {
+            if (request.headers.referer.indexOf(CON_ACCEPT_HOSTS[i]) > -1) {
+                ishit = true;
+                break;
+            }
+        }
+        //console.log("ishit=",ishit);
+        if (!ishit) reject("");
+        let photo = JSON.parse(param.photo);
+
+        web(`${photo.baseUrl}=w${photo.mediaMetadata.width}-h${photo.mediaMetadata.height}-no`, {encoding :null},(error, response, body) => {
+            const base64 = btoa(body);
+
+            resolve({
+                data : `data:image/png;base64,${base64}`
+            });
+            //resolve(body);
+        });
+
+    });
+    return def;
+}
 
 var ucommon = {
     swjs : "pwabuilder-sw.js",
@@ -341,6 +376,7 @@ var ucommon = {
         gdaky: sysconst.gdrive.web.api_key,
         gdid: sysconst.gdrive.web.client_id,
         gdaky_pic: sysconst.gdrive.web.picker_api_key,
+        gdaky_pht: sysconst.gdrive.web.photo_api_key,
         color: {
             bg_first: "white",
             bg_second: "grey lighten-3",
@@ -413,7 +449,8 @@ var ucommon = {
         return ret;
     },
     load_website_ogp: loadWebsiteOGP,
-    get_geolocation : getGeolocation
+    get_geolocation: getGeolocation,
+    get_outerimage: getOuterImageData
 };
 
 module.exports = ucommon;

@@ -47,7 +47,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet" async>
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" async>
 
-    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@1.5.16/dist/vuetify.min.css" rel="stylesheet">
 
     <link href="/static/lib/alertify/css/themes/bootstrap.css" rel="stylesheet" />
     <link href="/static/lib/alertify/css/alertify.css" rel="stylesheet" />
@@ -181,8 +181,8 @@
                                 <b>{{trans.msg_ini_isuser_note0}}</b>
                             </v-flex>
                             <v-flex xs12>
-                                <v-btn v-on:click="onclick_authorize_drive_btn">{{trans.msg_ini_from_gdrive}}</v-btn>
-                                <v-btn v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
+                                <v-btn text v-on:click="onclick_authorize_drive_btn">{{trans.msg_ini_from_gdrive}}</v-btn>
+                                <v-btn text v-on:click="onclick_clearcache_btn">{{trans.lab_clearcache_btn}}</v-btn>
                             </v-flex>
                             <v-flex xs12>
                                 <a href="https://docs.google.com/document/d/1mJbQYGxaCfe4Ly86_Su1vseZ9yfoT3rm8n4R8mR3oxA/edit?usp=sharing" target="_blank" style="font-size:2.1rem;">
@@ -470,7 +470,7 @@
     <input type="hidden" id="hid_staticpath" value="/static/">
     <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
     <input type="hidden" id="_csrf" value="{{csrfToken}}">
-    {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid ] %}
+    {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id, sysinfo.gdaky_pic, sysinfo.gdaky_pht ] %}
     <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
     <input type="hidden" id="hid_avalangs" value="{{avalangs}}">
 
@@ -494,6 +494,7 @@
     <script src="/static/js/cls_sns.js"></script>
     <script src="/static/js/cls_session.js"></script>
     <script src="/static/js/clientclass.js"></script>
+    <script src="/static/js/cls_stream.js"></script>
     <script src="/static/js/initial.js"></script>
     <script src="/static/js/cls_main_add1.js"></script>
     <script src="/static/js/cls_main_add2.js"></script>

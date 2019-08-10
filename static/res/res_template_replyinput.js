@@ -57,8 +57,13 @@ const CONS_TEMPLATE_REPLYINPUT = `
                                                 <v-icon>add_photo_alternate</v-icon>
                                             </v-btn>
                                             <v-btn flat icon small color="black" dark v-on:click="onclick_imagefromdrive" v-bind:title="translation.toolbtn_imagefromdrive">
-                                                <v-icon>cloud_upload</v-icon>
+                                                <v-icon>mdi-google-drive</v-icon>
                                             </v-btn>
+                                            
+                                            <v-btn flat icon small color="black" dark  v-on:click="onclick_imagefromgphoto" v-bind:title="translation.toolbtn_imagefromgphoto">
+                                                <v-icon>mdi-google-photos</v-icon>
+                                            </v-btn>
+                                            
                                         </v-flex>
                                         <v-flex xs9>
                                             <v-switch
@@ -134,7 +139,7 @@ const CONS_TEMPLATE_REPLYINPUT = `
             </div>
         </v-flex>
         
-    </v-layout>    
+    </v-layout>
     
 </div>
 `;
