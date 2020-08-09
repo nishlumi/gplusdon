@@ -368,7 +368,7 @@
         <input type="hidden" id="hid_staticpath" value="/static/">
         <input type="hidden" id="hid_currentlocale" value="{{transjs}}">
         <input type="hidden" id="_csrf" value="{{csrfToken}}">
-        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version, sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id, sysinfo.gdaky_pic, sysinfo.gdaky_pht ] %}
+        {% set items = [sysinfo.name, sysinfo.fullname, sysinfo.author, sysinfo.version ] %}
         <input type="hidden" id="hid_appinfo" value="{{items | join(',') }}">
         <form id="hid_send" class="common_ui_off" name="hid_send" method="post" action="" target="nodisp">
             <input id="hid_send_mode" name="mode" value="">

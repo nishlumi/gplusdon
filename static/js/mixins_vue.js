@@ -7,12 +7,14 @@ var tmpobj;
 var vue_mixin_base = {
 	methods : {
 		ch2seh : function(data) {
+			
 			////return data.replace(/&lt;/g,"").replace(/&gt;/g,"").replace(/innerHTML|document|querySelector|getElement/g,"");
 			//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;")
 			//---This is scary to re-write gt and lt tag.(Because, DOMpurify do not work.)
 			if (!data) return "";
 			var tmp = data.replace(/&lt;/g,"_$<").replace(/&gt;/g,">$_");
-			return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']})
+			var dp = DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']});
+			return dp.toString()
 			.replace(/_\$&lt;/g,"&lt;").replace(/&gt;\$_/g,"&gt;")
 			.replace(/_\$</g,"&lt;").replace(/>\$_/g,"&gt;");
 		}
@@ -1303,7 +1305,7 @@ var vue_mixin_for_timeline = {
 								card_opt.app["public"] = true;
 							}		
 							//MYAPP.sns.getTootCard(st.body.id, st.id, i)
-							MYAPP.sns.getTootCard(st.body.id, card_opt)
+							MYAPP.sns.getTootCard(st, card_opt)
 							.then(result=>{
 								var data = result.data;
 								var tt = this.getParentToot(result.options.app.parent.ID);
@@ -1311,31 +1313,32 @@ var vue_mixin_for_timeline = {
 
 								if ((data) && ("url" in data)) {
 									//---if found map, hide link preview
-									if (this.statuses[tt.index].geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
-										this.$set(this.statuses[tt.index].mainlink, "exists", false);
+									//this.statuses[tt.index]
+									if (result.toot.geo.enabled && MYAPP.session.config.notification["notpreview_onmap"] && (MYAPP.session.config.notification["notpreview_onmap"] === true)) {
+										this.$set(result.toot.mainlink, "exists", false);
 									}else{
-										this.$set(this.statuses[tt.index].mainlink, "exists", true);
+										this.$set(result.toot.mainlink, "exists", true);
 									}
 									if ("provider_name" in data) {
 										if (data.provider_name != "") {
-											this.$set(this.statuses[tt.index].mainlink, "site", data["provider_name"]);
+											this.$set(result.toot.mainlink, "site", data["provider_name"]);
 										}else{
 											var a = GEN("a");
 											a.href = data.url;
 											//console.log("data.url=",a.hostname);
-											this.$set(this.statuses[tt.index].mainlink, "site", a.hostname);
+											this.$set(result.toot.mainlink, "site", a.hostname);
 										}
 									}
-									if ("url" in data) this.$set(this.statuses[tt.index].mainlink, "url", data["url"]);
-									if ("title" in data) this.$set(this.statuses[tt.index].mainlink, "title", data["title"]);
-									if ("description" in data) this.$set(this.statuses[tt.index].mainlink, "description", data["description"]);
+									if ("url" in data) this.$set(result.toot.mainlink, "url", data["url"]);
+									if ("title" in data) this.$set(result.toot.mainlink, "title", data["title"]);
+									if ("description" in data) this.$set(result.toot.mainlink, "description", data["description"]);
 									if (("image" in data) && (data["image"] != null)) {
-										this.$set(this.statuses[tt.index].mainlink, "image", data["image"]);
-										this.$set(this.statuses[tt.index].mainlink, "isimage", true);
+										this.$set(result.toot.mainlink, "image", data["image"]);
+										this.$set(result.toot.mainlink, "isimage", true);
 		
 										//---final card size change
-										if (this.statuses[tt.index].medias.length > 0) {
-											var sp = parseInt(this.statuses[tt.index].cardtypeSize["grid-row-start"].replace("span", ""));
+										if (result.toot.medias.length > 0) {
+											var sp = parseInt(result.toot.cardtypeSize["grid-row-start"].replace("span", ""));
 											/*if (sp < 9) {
 												sp = sp + 6;
 											} else {
@@ -1344,7 +1347,7 @@ var vue_mixin_for_timeline = {
 											//this.$set(this.statuses[tt.index].cardtypeSize, "grid-row-end", `span ${sp}`);
 										}
 									} else {
-										this.$set(this.statuses[tt.index].mainlink, "isimage", false);
+										this.$set(result.toot.mainlink, "isimage", false);
 									}
 								}else{
 									return Promise.reject({url:targeturl, toot:tt});
@@ -3632,7 +3635,7 @@ var vue_mixin_for_notification = {
 								}
 							};
 							//MYAPP.sns.getTootCard(d.body.id, d.id, 0)
-							MYAPP.sns.getTootCard(d.body.id, card_opt)
+							MYAPP.sns.getTootCard(d, card_opt)
 							.then(result=>{
 								var data = result.data;
 								//var tt = this.getParentToot(result.parentID);

@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = "G+Don-1105-20190810-02";
+var CACHE = "G+Don-1109-20200809-01";
 var precacheFiles = [
     /* Add an array of files to precache for your app */
     "/",

@@ -48,9 +48,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    secret: new Date().valueOf(),
+    secret: String(new Date().valueOf()),
     resave: false,
-    saveUninitialized : false
+    saveUninitialized : true
 }));
 app.use(csurf({
     cookie: true

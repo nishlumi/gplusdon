@@ -740,6 +740,7 @@ function loadOuterImage(url) {
 	return def;
 }
 function ch2seh(data) {
+	
 	////return data.replace(/&lt;/g,"").replace(/&gt;/g,"")
 	////	.replace(/innerHTML|document|querySelector|getElement/g,"");
 	//return data.replace(/&lt;/g,"& lt;").replace(/&gt;/g,"& gt;");
@@ -751,7 +752,7 @@ function ch2seh(data) {
 	return res2;
 */
 	var tmp = data.replace(/&lt;/g,"_$<").replace(/&gt;/g,">$_");
-	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']})
+	return DOMPurify.sanitize(tmp,{ADD_ATTR: ['target','rel']}).toString()
 	.replace(/_\$\&lt\;/g,"&lt;").replace(/\&gt\;\$_/g,"&gt;")
 	.replace(/_\$</g,"&lt;").replace(/>\$_/g,"&gt;");
 

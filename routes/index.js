@@ -215,6 +215,11 @@ router.get('/.well-known/assetlinks.json', function (req, res) {
     }
 
 });
+router.get('/srv/ini0ag', function (req, res) {
+    var rtn = ucommon.load_gapiInfo(req);
+    res.send(rtn);
+
+});
 
 router.get("/srv/test1", function (req, res) {
     var url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=35.6694071,139.88545969999998&radius=1000&&key=AIzaSyBHu1tNzOJp1R5qaP8SNiItQig5iIq5gC4";

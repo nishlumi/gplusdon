@@ -267,42 +267,49 @@ class Gpsns {
         });
         return def;
     }
-    getTootCard(id,options) {
+    getTootCard(status,options) {
         var def = new Promise((resolve,reject)=>{
+            var svver = parseInt(MYAPP.acman.instances[MYAPP.sns._accounts.instance].info.version.replace(/\./g,""));
             if (this._accounts == null) {
                 reject(false);
                 return;
             }
-            var retdef;
-            var isauth = true;
-            var endpoint = `statuses/${id}/card`;
-            if ("noauth" in options.app) {
-                retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
-            }else{
-                if (this._accounts == null) {
-                    reject(false);
-                    return;
-                }
-                //var targetid = userid == "me" ? this._accounts.id : userid;
-                if ("public" in options.app) {
-                    isauth = false;
-                }
+            if (svver >= 300) {
+                resolve({data: status.body.card, id: status.body.id, toot: status, options: options});
 
-                //console.log(endpoint);
-                if (isauth) {
-                    retdef = this._accounts.api.get(endpoint,options.api);
+            }else{
+                var retdef;
+                var isauth = true;
+                var endpoint = `statuses/${status.body.id}/card`;
+                if ("noauth" in options.app) {
+                    retdef = MYAPP.server_account.api.get_noauth(endpoint,options.api);
                 }else{
-                    retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                    if (this._accounts == null) {
+                        reject(false);
+                        return;
+                    }
+                    //var targetid = userid == "me" ? this._accounts.id : userid;
+                    if ("public" in options.app) {
+                        isauth = false;
+                    }
+
+                    //console.log(endpoint);
+                    if (isauth) {
+                        retdef = this._accounts.api.get(endpoint,options.api);
+                    }else{
+                        retdef = this._accounts.api.get_noauth(endpoint,options.api);
+                    }
                 }
+                //this._accounts.api.get(`statuses/${id}/card`)
+                retdef.then((data)=>{
+                    //console.log(`statuses/${id}/card`,
+                    //    id,parentTootID, parentIndex,data);
+                    resolve({data: data, id: status.body.id, toot: status, options: options});
+                },(xhr,errstatus,err)=>{
+                    reject({xhr:xhr,status:errstatus, toot: status});
+                });
             }
-            //this._accounts.api.get(`statuses/${id}/card`)
-            retdef.then((data)=>{
-                //console.log(`statuses/${id}/card`,
-                //    id,parentTootID, parentIndex,data);
-                resolve({data: data, id: id, options: options});
-            },(xhr,status,err)=>{
-                reject({xhr:xhr,status:status});
-            });
+            
         });
         return def;
     }
@@ -1664,6 +1671,42 @@ class Gpsns {
         });
         return def;
     }
+    /**=================================================================
+     *   Featured tag API
+     * =================================================================
+     */
+    getFeaturedTags(options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            this._accounts.api.get(`featured_tags`)
+            .then((data,status,xhr)=>{
+                console.log(`featured_tags`,data);
+                resolve({data: data, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
+    getFeaturedTagsSuggestions(options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            this._accounts.api.get(`featured_tags/suggestions`)
+            .then((data,status,xhr)=>{
+                console.log(`featured_tags/suggestions`,data);
+                resolve({data: data, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
+            });
+        });
+        return def;
+    }
 }
 
 
@@ -1784,11 +1827,20 @@ class Gpsns {
                         }
                     };
                 }else{
-                    if (imghas.aspect > this.medias[i].meta.small.aspect) {
-                        imghas.aspect = this.medias[i].meta.small.aspect;
+                    if (this.medias[i].meta.small) {
+                        if (imghas.aspect > this.medias[i].meta.small.aspect) {
+                            imghas.aspect = this.medias[i].meta.small.aspect;
+                        }
+                        if (this.medias[i].meta.small.height >= this.medias[i].meta.small.width) {
+                            imghas.portrait = true;
+                        }
+
                     }
-                    if (this.medias[i].meta.small.height >= this.medias[i].meta.small.width) {
-                        imghas.portrait = true;
+                    if (this.medias[i].meta.aspect) imghas.aspect = this.medias[i].meta.aspect;
+                    if (this.medias[i].meta.height && this.medias[i].meta.width) {
+                        if (this.medias[i].meta.height >= this.medias[i].meta.width) {
+                            imghas.portrait = true;
+                        }
                     }
                 }
             }

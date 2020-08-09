@@ -46,7 +46,40 @@ const avalable_languages = [
     }
 ];
 
+function load_gapiInfo(request) {
+    var ishit = false;
+    var ret = {
+        cd: "0",
+        msg: ""
+    };
+    console.log(JSON.stringify(request.headers));
+    for (var i = 0; i < CON_ACCEPT_HOSTS.length; i++) {
+        if (request.headers.referer.indexOf(CON_ACCEPT_HOSTS[i]) > -1) {
+            ishit = true;
+            break;
+        }
+    }
+    /*
+      , sysinfo.gdaky, sysinfo.gdid, sysinfo.yh_id, sysinfo.mab_id, sysinfo.gdaky_pic, sysinfo.gdaky_pht
+     */
+    if (ishit) {
+        ret["akey"] = sysconst.gdrive.web.api_key;
+        ret["clid"] = sysconst.gdrive.web.client_id;
+        ret["paky"] = sysconst.gdrive.web.picker_api_key;
 
+        ret["yh_id"] = sysconst.yh_id;
+        ret["mab_id"] = sysconst.mab_id;
+        ret["VAPID"] = sysconst.vap_id();
+        ret["gdaky_pht"] = sysconst.gdrive.web.photo_api_key;
+
+
+        return ret;
+    } else {
+        ret["cd"] = "1";
+        ret["msg"] = "No permit referer";
+        return ret;
+    }
+}
 function judgeLanguage(request) {
     var lan = request.acceptsLanguages();
     if (request.query) {
@@ -384,6 +417,7 @@ var ucommon = {
         }
     },
     load_translation: load_translation,
+    load_gapiInfo: load_gapiInfo,
     /**
      * 
      * @param {Request} request request object

@@ -203,7 +203,9 @@ function defineForMainPage(app) {
                 //---/tl
                 if (Q(".timeline_body")) {
                     if (Q(".timelinebody")) {
-                        Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        //Q(".tab-content.active").scroll({top:0, behavior:"smooth"});
+                        MYAPP.commonvue.navigation.is_returnmosttop = true;
+                        Q(".tab-content").scroll({top:0,behavior: "smooth"});
                     }
                 }
                 //---/hashtag
@@ -1572,6 +1574,7 @@ function defineForMainPage(app) {
                 e.stopPropagation();
             },false);
         }
+        /*
         ID("navbtn_refresh").addEventListener("click",function(e){
             //---/tl
             if (Q(".timelinebody")) {
@@ -1583,6 +1586,7 @@ function defineForMainPage(app) {
             }
             e.stopPropagation();
         },false);
+        */
     
     
         //------------------------------------------------

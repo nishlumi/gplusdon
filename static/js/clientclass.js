@@ -11,7 +11,7 @@ class Gplusdon {
             staticPath : ID("hid_staticpath").value,
             author: hidinfo[2],
             version: hidinfo[3],
-            revision : "20190810-01",
+            revision : "20200809-01",
             config : {
                 limit_search_instance : 50,
                 toot_max_character : 500,
@@ -23,7 +23,7 @@ class Gplusdon {
         this.siteinfo = this.loadSessionStorage();
         if (this.siteinfo) {
             if (!("pht_ak" in this.siteinfo.ggl)) {
-                this.siteinfo.ggl["pht_ak"] = hidinfo[9];
+                this.siteinfo.ggl["pht_ak"] = gpGLD.k.pht_ap; //hidinfo[9];
             }
         }else{
             this.siteinfo = {
@@ -38,14 +38,14 @@ class Gplusdon {
                 redirect_uri : "/redirect",
                 scopes: ["read", "write", "follow","push"],
                 ggl : {
-                    ak : hidinfo[4],
-                    ci : hidinfo[5],
-                    pic_ak : hidinfo[8] || "",
-                    pht_ak : hidinfo[9] || "",
+                    ak : "", //hidinfo[4],
+                    ci : "", //hidinfo[5],
+                    pic_ak : "", //hidinfo[8] || "",
+                    pht_ak : "", //hidinfo[9] || "",
                     act : {},
                 },
-                yh : hidinfo[6],
-                mab : hidinfo[7]
+                yh : "", //hidinfo[6],
+                mab : "", //hidinfo[7]
             };
         }
         this.saveSessionStorage();

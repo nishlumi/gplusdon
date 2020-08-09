@@ -37,6 +37,8 @@ var gpGLD = {
     is_authorize : false,
     is_pickerAuth : false,
     is_photoAuth : false,
+    initloadcnt : 0,
+
     createFolder : function (name) {
         var fdata = AppStorage.get(MYAPP.acman.setting.NAME, null);
 
@@ -305,6 +307,34 @@ var gpGLD = {
     },
 
     handleClientLoad : function () {
+        if (!localStorage.getItem("siteinfo")) return;
+        if (gpGLD.initloadcnt > 0) return;
+        let req = new Request("/srv/ini0ag");
+        fetch(req)
+        .then(res=>{
+            return res.json();
+        })
+        .then(jsresult=>{
+            console.log("jsresult=",jsresult);
+            gpGLD.k.ap = jsresult.akey;
+            gpGLD.k.cl = jsresult.clid;
+            gpGLD.k.pic_ap = jsresult.paky;
+            gpGLD.k.pht_ap = jsresult.gdaky_pht;
+
+            gapi.load('client:auth2', this.initClient);
+            gapi.load('picker', this.initPicker);
+
+            MYAPP.siteinfo.ggl.ak = jsresult.akey;
+            MYAPP.siteinfo.ggl.ci = jsresult.clid;
+            MYAPP.siteinfo.ggl.pic_ak = jsresult.paky;
+            MYAPP.siteinfo.ggl.pht_ak = jsresult.gdaky_pht;
+            MYAPP.siteinfo.yh = jsresult.yh_id;
+            MYAPP.siteinfo.mab = jsresult.mab_id;
+
+
+            MYAPP.saveSessionStorage();
+        });
+        /*
         var hidinfo = ID("hid_appinfo").value.split(",");
         //console.log(hidinfo);
         gpGLD.k.ap = hidinfo[4];
@@ -313,6 +343,7 @@ var gpGLD = {
         gpGLD.k.pht_ap = hidinfo[9];
         gapi.load('client:auth2', this.initClient);
         gapi.load('picker', this.initPicker);
+        */
         
     },
     initClient : function () {

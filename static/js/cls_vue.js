@@ -789,14 +789,14 @@ Vue.component("timeline-toot", {
 			var userid = parent.querySelector("input[name='userid']");
 			//console.log(target, userid);
 			if (this.toote.relationship.isme) {
-				if (this.$vuetify.breakpoint.smAndDown) {
+				//if (this.$vuetify.breakpoint.smAndDown) {
 					MYAPP.commonvue.mobilemenu.toote = this.toote;
 					MYAPP.commonvue.mobilemenu.show(!MYAPP.commonvue.mobilemenu.isShow());
 					return;
-				}else{
-					target.classList.add("is-veal");
-					target.classList.remove("un-veal");
-				}
+				//}else{
+				//	target.classList.add("is-veal");
+				//	target.classList.remove("un-veal");
+				//}
 			}else{
 				if (this.toote.is_archive) {
 					if (this.$vuetify.breakpoint.smAndDown) {
