@@ -628,9 +628,9 @@ function defineForTootPage(app) {
 		for (var i = rec.start; i < rec.end; i = i + 0x1) {
 			var btn = document.createElement("button");
 			if (MYAPP.commonvue.inputtoot.$vuetify.breakpoint.smAndDown) {
-                btn.className = 'charbutton-small';
+                btn.className = 'charbutton-small emoji';
             }else{
-                btn.className = 'charbutton-normal';
+                btn.className = 'charbutton-normal emoji';
             }
 			if ((i >= 0x1DC0) && (i <= 0x1DFF)) {
 				btn.innerHTML = "a&#" + i + ";";

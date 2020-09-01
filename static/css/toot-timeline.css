@@ -428,14 +428,14 @@ div.toot_card_base.g30 {
 .toot_card_base  .toote_spoiler_or_main, .dmsg_body .toote_spoiler_or_main {
     font-size : 14px;
     white-space: pre-wrap;
-    font-family: monospace, serif;
+    font-family: monospace, GpcssEmoji, serif;
     line-height: 125%;
     margin-top : 3px;
 }
 .toot_card_base  .toote_main, .dmsg_body .toote_main {
     font-size : 14px;
     white-space: pre-wrap;
-    font-family: monospace, serif;
+    font-family: monospace, GpcssEmoji, serif;
     line-height: 125%;
     margin-top : 3px;
 }

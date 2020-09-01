@@ -221,13 +221,15 @@ router.get('/srv/ini0ag', function (req, res) {
 
 });
 
+/*
 router.get("/srv/test1", function (req, res) {
-    var url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=35.6694071,139.88545969999998&radius=1000&&key=AIzaSyBHu1tNzOJp1R5qaP8SNiItQig5iIq5gC4";
+    var url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=35.6694071,139.88545969999998&radius=1000&";
     cls_mstdn.originalGet(url, { api: {}, app: {}})
     .then(result => {
         res.send(result);
     });
 });
+*/
 router.get('/srv/pleroma/:instance/:version/:endpoint', function (req, res) {
     var v = req.params.version.replace("_","/");
     cls_mstdn.originalGet(`https://${req.params.instance}/${v}/${req.params.endpoint}`, {})

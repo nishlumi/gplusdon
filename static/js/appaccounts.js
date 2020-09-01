@@ -197,6 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
             fullname : function (ac) {
                 return `<span style="display:inline-block">${MUtility.replaceEmoji(ac.display_name,ac.instance,[],"14")}@${ac.instance}</span>`;
             },
+            getInstanceLink : function (instance) {
+                return `/server/${instance}`;
+            },
             getInstanceTitle : function (instance) {
                 var inst = MYAPP.acman.instances[instance];
                 if (inst) {

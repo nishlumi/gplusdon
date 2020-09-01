@@ -315,7 +315,7 @@ var gpGLD = {
             return res.json();
         })
         .then(jsresult=>{
-            console.log("jsresult=",jsresult);
+            
             gpGLD.k.ap = jsresult.akey;
             gpGLD.k.cl = jsresult.clid;
             gpGLD.k.pic_ap = jsresult.paky;

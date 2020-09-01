@@ -134,12 +134,21 @@ class Gpsns {
             var endpoint = "";
             var isauth = true;
             var fmode = false;
+            var theinst = MYAPP.acman.instances[this._accounts.instance];
             if (type == "local") {
                 endpoint = `timelines/public`;
-                isauth = false;
+                if (theinst.info["registrations"] && (theinst.info["registrations"] === true)) {
+                    isauth = true;
+                }else{
+                    isauth = false;
+                }
             }else if (type == "public") {
                 endpoint = `timelines/public`;
-                isauth = false;
+                if (theinst.info["registrations"] && (theinst.info["registrations"] === true)) {
+                    isauth = true;
+                }else{
+                    isauth = false;
+                }
             }else{
                 endpoint = `timelines/${type}`;
             }
@@ -1324,6 +1333,22 @@ class Gpsns {
                 resolve({ data : fnl, instance: uri});
             },(xhr,status,err)=>{
                 reject(xhr);
+            });
+        });
+        return def;
+    }
+    getTrends(options) {
+        var def = new Promise((resolve,reject)=>{
+            if (this._accounts == null) {
+                reject(false);
+                return;
+            }
+            this._accounts.api.get(`trends`)
+            .then((data,status,xhr)=>{
+                console.log(`trends`,data);
+                resolve({data: data, options: options});
+            },(xhr,status,err)=>{
+                reject({xhr:xhr,status:status});
             });
         });
         return def;
