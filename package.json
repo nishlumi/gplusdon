@@ -33,7 +33,7 @@
     "nunjucks": "^3.2.3",
     "puppeteer": "^1.20.0",
     "request-promise": "^4.2.6",
-    "sanitize-html": "^1.27.5",
+    "sanitize-html": "^2.3.2",
     "serve-favicon": "^2.3.0",
     "vue": "^2.6.11",
     "vuetify": "^1.5.24"
