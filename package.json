@@ -26,7 +26,7 @@
     "geolib": "^2.0.24",
     "i18n-express": "^1.1.3",
     "jschardet": "^2.3.0",
-    "jsdom": "^13.2.0",
+    "jsdom": "^16.5.0",
     "mastodon-api": "^1.3.0",
     "mimelib-noiconv": "^0.1.9",
     "morgan": "^1.10.0",
